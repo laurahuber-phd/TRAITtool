@@ -1,9 +1,13 @@
+source('module-plotting-pretty.R',local=TRUE)
+source('module-plotting-size.R',local=TRUE)
+source('module-plotting-general.R',local=TRUE)
+
 
 Basics_NumCard <- navset_card_tab(
-  sidebar=sidebar(title="Original dataset",
+  sidebar=sidebar(title="Original dataset overview",
                   position="right",
                   open="closed", 
-                  bg="#a8c3bc",
+                  #bg="#a8c3bc",
                   accordion(title="Summary",
                             withSpinner(tableOutput("summ_seqs")) #max/min no of sequences in a sample, mean and median 
                   ),
@@ -46,25 +50,25 @@ Basics_NumCard <- navset_card_tab(
 )
 Basics_TaxCard <- card(
   #full_screen=TRUE,
-  card_header("List members of a taxonomic group present in the dataset"),
-  layout_sidebar(
-    sidebar=sidebar(title="Percent assigned",
-                    position="right",
-                    open="closed",
-                    bg="#a8c3bc",
-                    width=('45%'),
-                    withSpinner(plotOutput("N_otu_byrank_plot",click="notu_click")),
-                    layout_column_wrap(width=1/2,
-                                       sliderInput("rankper_height",label="Height of plot",min=1,max=10,value=5,step=1),
-                                       sliderInput("rankper_width",label="Width of plot",min=1,max=10,value=5,step=1)),
-                    layout_columns(col_widths=c(8,4),
-                                   sliderInput("rankper_text",label="Text size",min=1,max=10,value=5,step=1),
-                                   numericInput("rankper_legend",label="Number of legend columns",value=5)),
-                    downloadButton('download_rankperc_Plot', 'Download')
-                    #withSpinner(dataTableOutput("N_otu_byrank"))
-    ),
-    pickerInput("ranks","Taxonomic Ranks",character()),
-    dataTableOutput("listtaxa")#,
+  card_header("Taxonomy summary"),
+  pickerInput("ranks","Taxonomic Ranks",character()),
+  navset_card_tab(
+    nav_panel(title="List members of a taxonomic group present in the dataset",
+              dataTableOutput("listtaxa")),
+    nav_panel(title="View percent assigned",
+              #position="right",
+              open="closed",
+              #bg="#a8c3bc",
+              #width=('45%'),
+              layout_columns(
+                plotPrettyUI("basics_pretty"),
+                plotSizeUI('basics_size')
+              ),
+              actionButton("plot_rankperc","Plot"),
+              withSpinner(plotOutput("N_otu_byrank_plot",click="notu_click")),
+              downloadButton('download_rankperc_Plot', 'Download')
+              #withSpinner(dataTableOutput("N_otu_byrank"))
+    )
   )
 )
 #############################################################################################################

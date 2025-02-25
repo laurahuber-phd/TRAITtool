@@ -1,3 +1,8 @@
+source('module-plotting-pretty.R',local=TRUE)
+source('module-plotting-size.R',local=TRUE)
+source('module-plotting-general.R',local=TRUE)
+
+source('server-aes-vis.R',local=TRUE) #base theme for ggplot2
 # --- # Analysis Page variables # --------  
 
 # reactives based on ps.sub()  
@@ -141,10 +146,10 @@ N_otu_blanks_num <- reactive({
     ntaxa(subset_blanks_rem(ps,input$cols,input$blank_samples))
 }) %>% bindEvent(input$cols,input$blank_samples)
 
-N_rankperc_plot <- reactive({
-  req(ps.all.melt())
-  ps <- ps.all.melt()
-  textsize <- (input$rankper_text * 2.5)
+N_rankperc_df <- reactive({
+  req(ps.sub.melt())
+  ps <- ps.sub.melt()
+  #textsize <- (input$rankper_text * 2.5)
   psplot.df <- ps %>% group_by(.data[[input$ranks]]) %>%
     reframe(Abund=sum(Abundance),
             Total=sum(ps$Abundance),
@@ -153,31 +158,34 @@ N_rankperc_plot <- reactive({
     arrange(.,desc(Perc),.by_group = TRUE)
   psplot.df[[input$ranks]] <- factor( psplot.df[[input$ranks]], 
                                       levels= psplot.df[[input$ranks]])
+  psplot.df
   #  ggplot(.,aes(y=.data[[input$cols]],x=Perc,fill=.data[[input$ranks]])) + geom_col()
-  ggplot(psplot.df,
+})
+
+rankpercplot_pretty  <- plotPrettyServer(id="basics_pretty")
+rankpercplot_size <- plotSizeServer(id="basics_size") 
+
+  N_rankperc_base <- reactive({
+    req(N_rankperc_df())
+  ggplot(N_rankperc_df(),
          aes(y=.data[[input$ranks]],
              x=Perc,
              fill=.data[[input$ranks]]
-         )) + geom_col() + 
-    theme(legend.position = "bottom",
-          legend.box.margin = margin(5,5,5,5),
-          legend.spacing = unit(0,"pt"),
-          aspect.ratio=(input$rankper_height/input$rankper_width),
-          #plot.margin = unit(c(input$rankper_width,input$rankper_height,input$rankper_width,input$rankper_height),"cm"),
-          text = element_text(size=(textsize+5)),
-          #legend.key.size = unit(textsize,"pt"),
-          legend.key.height = unit(textsize,"pt"),
-          legend.key.width = unit(textsize,"pt")) + 
-    guides(fill=guide_legend(ncol=input$rankper_legend)) +
+         )) + geom_col() + base_theme + 
     labs(title="Distribution of taxonomic assignments",
          subtitle="(across the entire dataset)",
          x="Percent",
          caption="Unassigned sequences were included in percentage calculation but not plotted")
-}) %>% bindEvent(ps.all.melt(),input$rankper_legend,input$rankper_height,input$rankper_width,input$rankper_text,input$ranks)
+}) %>% bindEvent(ps.sub.melt(),
+                 input$ranks)
 
-output$N_otu_byrank_plot <- renderPlot({
-  N_rankperc_plot()
-})
+  N_rankperc_plot <- eventReactive(input$plot_rankperc, {
+    N_rankperc_base()+ rankpercplot_pretty() + rankpercplot_size() 
+  }) 
+  
+  output$N_otu_byrank_plot <- renderPlot({N_rankperc_plot()})
+  
+
 observe({
   showModal(modalDialog(
     renderPlot(N_rankperc_plot()),

@@ -23,6 +23,9 @@ source("function-upload.R")
 
 source("module-readtable.R")
 source('module-plotting.R')
+source('module-plotting-pretty.R',local=TRUE)
+source('module-plotting-size.R',local=TRUE)
+source('module-plotting-general.R',local=TRUE)
 
 source('ui-aes-sidebar.R',local=TRUE)
 
@@ -73,6 +76,7 @@ server <- function(input,output,session) {
 observe(session$setCurrentTheme(
   if(isTRUE(input$dark_mode)) dark else light
 ))
+source('server-aes-vis.R',local=TRUE) #base theme for ggplot2
 # --- # Page Navigation # --------
 source('server-aes-navigation.R',local=TRUE)
 # --- # Load Data # --------

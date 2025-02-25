@@ -121,10 +121,6 @@ ps.all <- reactive({
   )
 }) %>% bindEvent(OTUTable$x,TaxTable$x,MetadataTable$x,
                  input$load_ex)
-ps.all.melt <- reactive({
-  req(ps.all())
-  psmelt(ps.all())
-})
 ps.sub <- reactive({
   req(ps.all())
   ps <- ps.all()
@@ -167,4 +163,9 @@ ps.norm <- reactive({
   if(input$normoptions != "none") {TRANSFORM(ps,input$normoptions)}
 }) %>% bindEvent(input$normoptions,
                  ps.sub()
-)
+                 )
+
+ps.sub.melt <- reactive({
+  req(ps.sub())
+  psmelt(ps.sub())
+})
