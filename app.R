@@ -16,10 +16,14 @@ library(shinyFeedback)
 library(shinyBS)
 library(shinyjqui)
 library(colourpicker)
+library(knitr)
+library(markdown)
+library(rmarkdown)
 #
 # source scripts --------
 source("function-buildps.R")
 source("function-upload.R")
+source('ps_div.R')
 
 source("module-readtable.R")
 source('module-plotting.R')
@@ -34,6 +38,7 @@ source('ui-navpanel-upload.R')
 source('ui-navpanel-review.R')
 source('ui-navpanel-descriptivestats.R')
 source('ui-navpanel-analysis.R')
+source('ui-navpanel-report.R')
 source('ui-navpanel-help.R')
 
 # define UI --------  
@@ -55,8 +60,7 @@ ui <- page_navbar(id="pages",
             uploadpage),
 ## Panel 2 # Review files  --------  
   nav_panel("Review",
-            reviewpage
-            ),
+            reviewpage),
 ## Hidden panels # analysis from raw --------  
 nav_panel_hidden("Demultiplex and Quality Control",qcpanel),
 nav_panel_hidden("Assign OTU",assignasvpanel),
@@ -66,7 +70,10 @@ nav_panel_hidden("Assign Taxonomy",assigntaxapanel),
             descriptivepage),
 ## Panel # Analysis  --------  
   nav_panel("Analysis", 
-            analysispage ),
+            analysispage),
+## Panel # Report -------- 
+nav_panel("Report",
+          reportpage),
 nav_panel("Help",
           helppage)
 )
@@ -129,6 +136,9 @@ source('server-navpanel-review.R',local=TRUE)
 source('server-navpanel-analysis-alpha.R',local=TRUE)
 ## --- # Distance Matrices Tab # --------  
 source('server-navpanel-analysis-ord.R',local=TRUE)
+## --- # Report Tab # --------  
+source('server-navpanel-report.R',local=TRUE)
+  
   #
   #
 }
