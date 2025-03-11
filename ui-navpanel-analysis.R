@@ -1,4 +1,7 @@
 #source('mod-plot2.R')
+source('module-plotting-general.R',local=TRUE)
+source('module-plotting-pretty.R',local=TRUE)
+source('module-plotting-size.R',local=TRUE)
 
 ############################################# Alpha diversity #############################################
 Anlys_AlphaCard <- layout_sidebar(
@@ -140,15 +143,34 @@ Anlys_TrophCard <- layout_sidebar(
 #############################################################################################################
 analysispage <- nav_panel(
   "Analysis",
-  navset_card_tab(id="anlys", #name of the tabset card
+  navset_card_tab(id="anlys", 
                 nav_panel(id='alpha',
                           title="Alpha Diversity",
                           Anlys_AlphaCard
                 ),
                 nav_panel(id="taxcomp",
                           title="Taxonomic composition",full_screen=TRUE,
-                          plotUI("histo")
-                          #Anlys_HistoCard
+                          #layout_sidebar(
+                            #sidebar=sidebar(
+                            #  "Select the explanatory variable", #title of sidebar (maintained across all tabs in the panel)
+                            #  uiOutput("alphametrics_var2")  #reactive output variable (used to select variables from the metadata for the x axis)
+                            #),
+                            #selectInput("taxa",
+                            #            label="Choose a taxonomic rank to visualize:",
+                            #            choices=c("Kingdom","Phylum","Class","Order","Family","Genus",'Species'),
+                            #            multiple=FALSE
+                            #),
+                            layout_columns(
+                              plotPrettyUI("histo_pretty"),
+                              plotSizeUI('histo_size'),
+                              plotControlsUI('histo_gen'#,color=TRUE,x=TRUE,y=FALSE,facet=TRUE
+                              )
+                            ),
+                            actionButton("plot_histo","Plot"),
+                            withSpinner(plotOutput("histo",click="histo_click")),
+                            downloadButton('download_histo_Plot', 'Download')
+                            #)
+                , 
                 ),
                 nav_panel(id="beta",
                           title="Beta Diversity",
