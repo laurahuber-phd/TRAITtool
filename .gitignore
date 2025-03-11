@@ -1,7 +1,19 @@
-.Rproj.user
+
+# History files 
 .Rhistory
+
+# Data files 
 .RData
 .Ruserdata
-.html
-.md
+
+#output files 
+/*.html
+/*.md
+
+#caches
+*_cache/
+/cache/
+
+#R environment files
+.Renviron
 .DS_Store
