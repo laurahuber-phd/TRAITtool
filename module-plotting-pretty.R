@@ -30,7 +30,7 @@ plotPrettyUI <- function(id) {
                                  numericInput(NS(id,"textsize"),
                                               label="Text size",
                                               value=8),
-                                 
+
                                  numericInput(NS(id,"textdir"),
                                               label="Axis text rotation",
                                               value=90)#,
@@ -48,32 +48,32 @@ plotPrettyUI <- function(id) {
 
 plotPrettyServer <- function(id) {
   moduleServer(id, function(input,output,session) {
-    ns <- session$ns
-    #common theme
-    newtheme <- reactive({switch(input$choose_theme,
-                                 "1"=theme_gray(),
-                                 "2"=theme_bw(),
-                                 "3"=theme_minimal(),
-                                 "4"=theme_classic())
-    }) %>% bindEvent(input$choose_theme)
-    
-    #add updates
-    chart_theme <- reactive({
-      newtheme() +
-        theme(
-          legend.position = input$pos_legend,
-          text = element_text(size=(input$textsize+5)),
-          legend.key.height = unit(input$textsize,"pt"),
-          legend.key.width = unit(input$textsize,"pt"),
-          axis.text.x = element_text(angle=input$textdir)
-        ) 
-    }) %>% bindEvent(input$pos_legend,
-                     input$textsize,
-                     input$textdir,
-                     newtheme()
-    )
-    
-    return(reactive({chart_theme()}))
-  }
+      ns <- session$ns
+#common theme
+      newtheme <- reactive({switch(input$choose_theme,
+                         "1"=theme_gray(),
+                         "2"=theme_bw(),
+                         "3"=theme_minimal(),
+                         "4"=theme_classic())
+        }) %>% bindEvent(input$choose_theme)
+      
+#add updates
+      chart_theme <- reactive({
+        newtheme() +
+          theme(
+            legend.position = input$pos_legend,
+            text = element_text(size=(input$textsize+5)),
+            legend.key.height = unit(input$textsize,"pt"),
+            legend.key.width = unit(input$textsize,"pt"),
+            axis.text.x = element_text(angle=input$textdir)
+          ) 
+        }) %>% bindEvent(input$pos_legend,
+                         input$textsize,
+                         input$textdir,
+                         newtheme()
+                         )
+
+      return(reactive({chart_theme()}))
+    }
   )
 }

@@ -32,14 +32,14 @@ N_taxa_tab <- reactive({
 }) %>% bindEvent(ps.sub())
 
 Summ_seqs_sel <- reactive({
-  #req(ps.sub())
+  req(ps.sub())
   ps <- ps.sub()
   df <- data.frame(MinNoReads=min(sample_sums(ps)) %>% round(digits=0),
                    MaxNoReads=max(sample_sums(ps)) %>% round(digits=0),
                    AvgNoReads=mean(sample_sums(ps)) %>% round(digits=0),
                    MedNoReads=median(sample_sums(ps)) %>% round(digits=0)
   )
-  df_pretty <- df %>% rename(  
+  df_pretty <- rename(df,  
     "Minimum number of reads"=MinNoReads,
     "Maximum number of reads"=MaxNoReads,
     "Average number of reads"=AvgNoReads,
