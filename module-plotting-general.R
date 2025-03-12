@@ -5,7 +5,9 @@ library(RColorBrewer)
 library(phyloseq)
 
 plotControlsUI <- function(id,color=TRUE,x=TRUE,y=FALSE,facet=TRUE) {
-  #what will be in the dropdown menu
+
+#what will be in the dropdown menu
+
   if (color==TRUE & x==TRUE & y==FALSE & facet==TRUE) {
     tagList(
       shinyWidgets::dropdownButton(
@@ -145,12 +147,13 @@ plotControlsServer <- function(id,df,ranks,samplevars) {
     #  rv$y = input$choose_y
     #  rv$facet = faceting()
     #})
-    
+
     return(list(
       color = reactive(input$choose_color),
       x = reactive(input$choose_x),
       y = reactive(input$choose_y),
       facet = reactive(faceting())
+
     ))
     
   }
