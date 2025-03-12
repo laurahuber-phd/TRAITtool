@@ -29,7 +29,11 @@ plotPrettyUI <- function(id) {
                                  
                                  numericInput(NS(id,"textsize"),
                                              label="Text size",
-                                             value=8)#,
+                                             value=8),
+                                 
+                                 numericInput(NS(id,"textdir"),
+                                              label="Axis text rotation",
+                                              value=90)#,
                                  
                                  #numericInput(NS(id,"pointsize"),
                                 #             label="Point size",
@@ -60,10 +64,12 @@ plotPrettyServer <- function(id) {
             legend.position = input$pos_legend,
             text = element_text(size=(input$textsize+5)),
             legend.key.height = unit(input$textsize,"pt"),
-            legend.key.width = unit(input$textsize,"pt")
+            legend.key.width = unit(input$textsize,"pt"),
+            axis.text.x = element_text(angle=input$textdir)
           ) 
         }) %>% bindEvent(input$pos_legend,
                          input$textsize,
+                         input$textdir,
                          newtheme()
                          )
 

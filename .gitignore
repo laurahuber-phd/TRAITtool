@@ -17,3 +17,4 @@
 #R environment files
 .Renviron
 .DS_Store
+.Rproj.user
