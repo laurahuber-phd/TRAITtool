@@ -34,7 +34,7 @@ observeEvent(input$gen_report, {
   #tryCatch will check to see if the 'function' exists, and if it does not, returns NA as an error
   params[["ps"]] <- tryCatch(ps.sub(),error=function(e){return(as.numeric(NA))}) 
   params[["richplot"]] <- tryCatch(richplot(),error=function(e){return(as.numeric(NA))})
-  params[["percplot"]] <- tryCatch(histo_plot(),error=function(e){return(as.numeric(NA))})
+  params[["percplot"]] <- tryCatch(histoplot(),error=function(e){return(as.numeric(NA))})
   params[["ordplot"]] <- tryCatch(ordplot(),error=function(e){return(as.numeric(NA))})
   
   params[params=="NULL"] <- NA #any NULL values (because input$x does not exist) are replaced with NA because markdown does not like NULL in the YAML header

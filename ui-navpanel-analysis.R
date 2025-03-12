@@ -1,42 +1,36 @@
 #source('mod-plot2.R')
+source('module-plotting-general.R',local=TRUE)
+source('module-plotting-pretty.R',local=TRUE)
+source('module-plotting-size.R',local=TRUE)
 
 ############################################# Alpha diversity #############################################
-Anlys_AlphaCard <- layout_sidebar(
-  sidebar=sidebar(
-    "Select the explanatory variable", #title of sidebar (maintained across all tabs in the panel)
-    uiOutput("alphametrics_var1")  #reactive output variable (used to select variables from the metadata for the x axis)
-  ),
-  selectInput("alphametrics",
-              "Which alpha diversity measures?",
-              c(
-                "Observed Richness"="Observed",
-                "Shannon"="Shannon",
-                "Chao" = "Chao1",
-                "ACE"="ACE", 
-                "Simpson Index" = "Simpson", 
-                "Inverse Simpson" = "InvSimpson", 
-                "Fisher"="Fisher"
-              ),
-              selected="Shannon"
-  ),
-  actionButton("DrawAlphaPlot","Plot"),
+Anlys_AlphaCard <- tagList(#layout_sidebar(
+  #sidebar=sidebar(
+  #  "Select the explanatory variable", #title of sidebar (maintained across all tabs in the panel)
+  #  uiOutput("alphametrics_var1")  #reactive output variable (used to select variables from the metadata for the x axis)
+  #),
+  layout_columns(#"Select the explanatory variable", #title of sidebar (maintained across all tabs in the panel)
+                 uiOutput("alphametrics_var1"),  #reactive output variable (used to select variables from the metadata for the x axis)
+                 selectInput("alphametrics",
+                             "Which alpha diversity measures?",
+                             c(
+                               "Observed Richness"="Observed",
+                               "Shannon"="Shannon",
+                               "Chao" = "Chao1",
+                               "ACE"="ACE", 
+                               "Simpson Index" = "Simpson", 
+                               "Inverse Simpson" = "InvSimpson", 
+                               "Fisher"="Fisher"
+                             ),
+                             selected="Shannon"
+                 )
+                 ),
+  layout_columns(
+    col_widths=c(10,-1,1),
+    actionButton("DrawAlphaPlot","Plot"),
+            downloadButton('download_richplot', label=NULL)),
   plotOutput("richness",click="rich_click") #add a reaction when the plot is clicked
   
-)
-Anlys_HistoCard <- layout_sidebar(
-  sidebar=sidebar(
-    "Select the explanatory variable", #title of sidebar (maintained across all tabs in the panel)
-    uiOutput("alphametrics_var2")  #reactive output variable (used to select variables from the metadata for the x axis)
-  ),
-  selectInput("taxa",
-              label="Choose a taxonomic rank to visualize:",
-              choices=c("Kingdom","Phylum","Class","Order","Family","Genus",'Species'),
-              multiple=FALSE
-  ),
-  actionButton("DrawTaxPlot","Plot"),
-  withSpinner(plotOutput("histo", click="histo_click" #,hover = "histohover" #goal is to have the taxa name show up when the mouse is hovered over
-  )), #includes loading animation while plotting
-  #verbatimTextOutput("histoinfo")
 )
 
 ############################################# Ordination ##############################################
@@ -147,8 +141,17 @@ analysispage <- nav_panel(
                 ),
                 nav_panel(id="taxcomp",
                           title="Taxonomic composition",full_screen=TRUE,
-                          plotUI("histo")
-                          #Anlys_HistoCard
+                          layout_columns(
+                            plotControlsUI('histo_gen'#,color=TRUE,x=TRUE,y=FALSE,facet=TRUE
+                            ),
+                              plotPrettyUI("histo_pretty"),
+                              plotSizeUI('histo_size')
+                            ),
+                            layout_columns(
+                              col_widths=c(10,-1,1),
+                              actionButton("plot_histo","Plot"),
+                              downloadButton('download_histoplot', label=NULL)),
+                            withSpinner(plotOutput("histo",click="histo_click"))
                 ),
                 nav_panel(id="beta",
                           title="Beta Diversity",
