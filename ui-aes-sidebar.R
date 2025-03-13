@@ -64,3 +64,16 @@ SelectSamplesCard <- card(
     )
   )
 )
+
+coldf <- RColorBrewer::brewer.pal.info[RColorBrewer::brewer.pal.info$colorblind==TRUE,]
+colnames <- rownames(coldf)
+
+SelectColorsCard <- tagList(
+  shinyWidgets::radioGroupButtons("gblcol",
+                                  label="Plotting color schemes",
+                                  c("default",colnames),
+                                  selected="default",
+                                  direction="vertical",
+                                  justified = TRUE,
+  )
+)

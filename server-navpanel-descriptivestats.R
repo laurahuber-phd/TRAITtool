@@ -171,7 +171,7 @@ rankpercplot_size <- plotSizeServer(id="basics_size")
          aes(y=.data[[input$ranks]],
              x=Perc,
              fill=.data[[input$ranks]]
-         )) + geom_col() + base_theme + 
+         )) + geom_col() + #base_theme + 
     labs(title="Distribution of taxonomic assignments",
          subtitle="(across the entire dataset)",
          x="Percent",
