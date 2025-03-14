@@ -40,49 +40,117 @@ source('ui-navpanel-descriptivestats.R')
 source('ui-navpanel-analysis.R')
 source('ui-navpanel-report.R')
 source('ui-navpanel-help.R')
+source('ui-navpanel-settings.R')
 
 # define UI --------  
 ui <- page_navbar(id="pages",
-                  title="Title",
-                  theme=light,
+                  title="",
+                  theme=bs_theme(bootswatch='lux'),
+                  tags$head(
+                    tags$style(HTML("
+                      [data-bs-theme=light] .btn {
+                      background-color:rgba(var(--bs-body-color-rgb), 0.1);
+                      color: #0c3e53;
+                      border-width: 3px;
+                      border-radius: 5rem;
+                      border-color: rgba(var(--bs-body-color-rgb), 0.2);
+                      font-weight: 1200;
+                      }
+                      [data-bs-theme=light] .btn:hover {
+                      color: #0c3e53;
+                      background-color: #ced4da;
+                      border-color: #0c3e53;
+                      }
+                      [data-bs-theme=dark] .btn {
+                      background-color: #919aa1;
+                      color: #0c3e53;
+                      border-color: transparent;
+                      }
+                      [data-bs-theme=dark] .btn:hover {
+                      color: #0c3e53;
+                      background-color: #adb5bd;
+                      }
+                      [data-bs-theme=dark] .card {
+                      background-color: rgba(72,77,83);
+                      }
+                      .card-header {
+                      background-color:rgba(var(--bs-body-color-rgb), 0.06);
+                      }
+                      [data-bs-theme=dark] .nav-tabs .nav-link {
+                      color: var(--bs-secondary-text-emphasis);
+                      border-width: 1;
+                      border-color:var(--bs-secondary-bg);
+                      background-color:#828a90;
+                      }
+                      [data-bs-theme=dark] .nav-tabs .nav-link:hover {
+                      background-color: #656b70;
+                      }
+                      [data-bs-theme=dark] .nav-tabs .nav-link.active,
+                      .nav-tabs .nav-item.show .nav-link {
+                      color: var(--bs-nav-tabs-link-active-color);
+                      background-color: var(--bs-nav-tabs-link-active-bg);
+                      border-color: var(--bs-nav-tabs-link-active-border-color);
+                      }
+                    "))
+                  ),
                   fillable=FALSE,
   sidebar=sidebar(id="sidebar_main",
                   title="Sidebar",
+                  input_dark_mode(id='dark_mode',mode='light'),
                   open=FALSE,
-    materialSwitch('dark_mode',"Dark mode",
-                   right=TRUE),
     SelectFiltersCard,
     SelectNormCard,
     SelectSamplesCard
   ),
-## Panel 1 # File upload  --------  
-  nav_panel("Files",
-            uploadpage),
-## Panel 2 # Review files  --------  
-  nav_panel("Review",
-            reviewpage),
-## Hidden panels # analysis from raw --------  
-nav_panel_hidden("Demultiplex and Quality Control",qcpanel),
-nav_panel_hidden("Assign OTU",assignasvpanel),
-nav_panel_hidden("Assign Taxonomy",assigntaxapanel),
-## Panel # Basic Stats  --------  
-  nav_panel("Basic Stats",
-            descriptivepage),
-## Panel # Analysis  --------  
-  nav_panel("Analysis", 
-            analysispage),
-## Panel # Report -------- 
-nav_panel("Report",
-          reportpage),
-nav_panel("Help",
-          helppage)
+## Group 1 # Starting information  --------  
+  nav_menu(title=div(class="title",
+                     img(src="MCL_SERC.png", 
+                         height=40, width=40, 
+                         align = "left",
+                         style="margin-bottom:5px; margin-left:1px;margin-top:1px;margin-right:1px;"
+                         )),
+           ),
+## Group 2 # Upload and review files  --------  
+nav_menu("Files", 
+         nav_panel("Upload",value="uploadtab",
+                   uploadpage),
+         nav_panel("Review",value="reviewtab",
+                   reviewpage)
+         ),
+## Group 3 # Process from raw  --------  
+nav_menu("From Scratch",
+         nav_panel("Demultiplex and Quality Control"#,qcpanel
+         ),
+         nav_panel("Assign OTU"#,assignasvpanel
+         ),
+         nav_panel("Assign Taxonomy"#,assigntaxapanel
+         )
+),
+## Group 4 # Analysis --------  
+nav_menu(title="Analysis",
+         nav_panel("The Basics",value="basicstab",
+                   descriptivepage),
+         nav_panel("The Stats", value='statstab',
+                   analysispage)
+         ),
+nav_spacer(),
+## Group 5 # Report and help -------- 
+nav_menu("Info",
+         icon=bs_icon("info-square",size="1.2em"),
+         nav_panel("Help",value='helptab',
+                   helppage),
+         nav_panel("Settings",value='settingstab',
+                   settingspage)
+         ),
+nav_panel(title=bs_icon("printer-fill",size="2em"), value='reporttab',
+          reportpage)
 )
 # define server logic -----
 server <- function(input,output,session) {
 # --- # Overall themes # --------
-observe(session$setCurrentTheme(
-  if(isTRUE(input$dark_mode)) dark else light
-))
+#observe(session$setCurrentTheme(
+#  if(isTRUE(input$dark_mode)) dark else light
+#))
 source('server-aes-vis.R',local=TRUE) #base theme for ggplot2
 # --- # Page Navigation # --------
 source('server-aes-navigation.R',local=TRUE)
