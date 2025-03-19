@@ -8,7 +8,7 @@ reportpage <- nav_panel(
                      col_widths=c(6,6),
                      card("View the report in-app before downloading:",
                           actionButton(inputId = 'view_report',label="View report")),
-                     card(radioButtons('format', 'Document format', c('PDF', 'HTML', 'Word'),
+                     card(radioButtons('format', 'Document format', c('PDF', 'HTML'),#, 'Word'),
                                        inline = TRUE,width='100%'),
                    downloadButton("download_report", "Download report", 
                                   style = "color: #fff; background-color: #337ab7; border-color: #2e6da4"))

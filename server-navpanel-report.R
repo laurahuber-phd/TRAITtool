@@ -6,8 +6,9 @@
 #}) 
 
 report <- reactiveValues(pdffilepath=NULL,
-                         htmlfilepath=NULL,
-                         docxfilepath=NULL) #This creates a short-term storage location for a filepath
+                         htmlfilepath=NULL#,
+                         #docxfilepath=NULL
+                         ) #This creates a short-term storage location for a filepath
 params <- reactiveValues(blanks=NA, #create list of parameters to read into rmarkdown
                          unass=NA,
                          rembl=NA,
@@ -63,7 +64,7 @@ observeEvent(input$gen_report, {
     detail = "This may take a while. This window will disappear when the report is ready.",
     value=0, {
       render('ProjectReport.Rmd',
-             output_format = c('pdf_document','html_document','word_document'), 
+             output_format = c('pdf_document','html_document'),#,'word_document'), 
              params= paramvals, 
          #switch(input$format,
         #        PDF = pdf_document(),
@@ -85,14 +86,14 @@ observeEvent(input$gen_report, {
   
   report$pdffilepath <- list.files(tempdir(), pattern="tmp_file.pdf", full.names = TRUE)
   report$htmlfilepath <- list.files(tempdir(), pattern="tmp_file.html", full.names = TRUE)
-  report$docxfilepath <- list.files(tempdir(), pattern="tmp_file.docx", full.names = TRUE) #Assigning in the temp file where the .pdf is located to the reactive file created above
+  #report$docxfilepath <- list.files(tempdir(), pattern="tmp_file.docx", full.names = TRUE) #Assigning in the temp file where the .pdf is located to the reactive file created above
   
 })
 
 
 # Hide download button until report is generated
 output$reportbuilt <- reactive({
-  return(!is.null(report$filepath))
+  return(!is.null(report$htmlfilepath))
 })
 outputOptions(output, 'reportbuilt', suspendWhenHidden= FALSE)
 
@@ -102,15 +103,16 @@ output$download_report <- downloadHandler(
   # This function returns a string which tells the client browser what name to use when saving the file.
   filename=function() {
     paste('ShinyReport', Sys.Date(), sep=".", switch(
-      input$format, PDF = 'pdf', HTML = 'html', Word = 'docx'
+      input$format, PDF = 'pdf', HTML = 'html'#, Word = 'docx'
     ))
   },
   # This function should write data to a file given to it by the argument 'file'.
   content = function(file) {
     file.copy(switch(input$format,
                      PDF = report$pdffilepath,
-                     HTML = report$htmlfilepath,
-                     Word = report$docxfilepath), file)
+                     HTML = report$htmlfilepath#,
+                     #Word = report$docxfilepath
+                     ), file)
   }
 )
 
