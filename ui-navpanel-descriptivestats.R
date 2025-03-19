@@ -51,7 +51,7 @@ Basics_NumCard <- navset_card_tab(
 Basics_TaxCard <- card(
   #full_screen=TRUE,
   card_header("Taxonomy summary"),
-  pickerInput("ranks","Taxonomic Ranks",character()),
+  pickerInput("ranks","Taxonomic Ranks",character(),width='fit',inline=TRUE),
   navset_card_tab(
     nav_panel(title="List members of a taxonomic group present in the dataset",
               dataTableOutput("listtaxa")),
@@ -64,9 +64,10 @@ Basics_TaxCard <- card(
                 plotPrettyUI("basics_pretty"),
                 plotSizeUI('basics_size')
               ),
-              actionButton("plot_rankperc","Plot"),
-              withSpinner(plotOutput("N_otu_byrank_plot",click="notu_click")),
-              downloadButton('download_rankperc_Plot', 'Download')
+              layout_columns(col_widths=c(10,-1,1),
+                             actionButton("plot_rankperc","Plot"),
+                             downloadButton('download_rankperc_Plot', label=NULL)),
+              withSpinner(plotOutput("N_otu_byrank_plot",click="notu_click"))
               #withSpinner(dataTableOutput("N_otu_byrank"))
     )
   )

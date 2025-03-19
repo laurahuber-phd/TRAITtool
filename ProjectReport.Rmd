@@ -1,0 +1,68 @@
+---
+title: "Dynamic Report"
+output: html_document
+params: 
+  blanks: NA
+  unass: NA
+  rembl: NA
+  norm: NA
+  ps: NA
+  richplot: NA
+  percplot: NA
+  ordmeth: NA
+  ordtype: NA
+  ordplot: NA
+---
+```{r}
+library(ggplot2)
+library(phyloseq)
+library(shiny)
+#library(knitr)
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, error=TRUE)
+```
+
+Dataset overview
+These samples were selected as your blanks:
+```{r}
+params$blanks
+```
+
+You selected these filtering and normalization methods:   
+Unassigned sequences removed: `r params$unass`  
+Blanks removed: `r params$rembl`  
+Normalization: `r params$norm`  
+ 
+Sequence distribution:  
+```{r} 
+plot_bar(params$ps)
+```
+
+Unique taxa:   
+```{r}
+
+```
+
+Percent composition - how much of the total did each taxa represent?  
+```{r}
+params$percplot
+```
+
+alpha diversity plot  
+```{r}
+params$richplot
+```
+
+ordination plot  
+Ordination method: `r params$ordmeth`  
+Type: `r params$ordtype`  
+```{r}
+params$ordplot
+```
+
+```{r}
+sessionInfo()
+```
+
