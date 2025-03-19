@@ -9,7 +9,11 @@ Ex_Card <- card(id="ex_data",
 Files_MetadataCard <- card(
   card_header("Add your metadata file here",
               tooltip(bs_icon("info-circle"),
-                      HTML("<h5> What is a metadata file? </h5><br> <p>The first column of the file should be sequencing sample IDs, with at least one other column. <br><strong> See 'Help' tab for an example.</strong> <br> The metadata file is what will bring biological relevance to the sequencing results, and at minimum is used to connect the sequencing sample to field sample.</p>")
+                      tagList(h5("What is a metadata file?"),
+                              #tags$style(HTML("text-align: left"),
+                               p(style='text-align: left', "The first column of the file should be sequencing sample IDs, with at least one other column.The metadata file is what will bring biological relevance to the sequencing results, and at minimum is used to connect the sequencing sample to field sample."),
+                               p(style='font-weight:bold',"See 'Help' tab for an example.")
+                              )
                       )
               ),
   layout_columns(
@@ -32,8 +36,7 @@ Files_MetadataCard <- card(
 ############################################# ASV and tax assignment needed #############################################
 Files_RawCard <- card(
   card_header(
-    "Upload files here if you are starting from scratch"
-  ),
+    "Upload files here if you are starting from scratch"),
   fileInput("FASTQfile",
             label="Upload sequence data",
             accept=c(".fastq",".fqz")),
@@ -60,6 +63,7 @@ QFilterCard <- card(
 )
 Files_ScratchCard <- card(
   card_header("if you are starting from scratch, upload these files then proceed to the next tab:"),
+  "Start here if you have raw sequencing data. You will need the files from the sequencing facility, usually in FASTQ or .fqz format, a tabular file that contains the indexing barcode sequences attached to each sample, and a metadata file (which you should have uploaded above).",
   layout_column_wrap(
     width=1/2,
     fill=FALSE,
@@ -69,6 +73,36 @@ Files_ScratchCard <- card(
 )
 
 ############################################# Analysis-only #############################################
+Card_OTU <- tagList(layout_columns(colwidths=c(8,4),
+                                   fileInput("otutab",
+                                             label="Upload OTU table",
+                                             accept=c(".csv",".tsv")),
+                                   layout_columns(
+                                     radioButtons("otu_sep","File separator", #select separator in the file
+                                                  choices=c("Comma"=",","Semicolon"=";","Tab"="/t"),
+                                                  selected=","),
+                                     checkboxInput("otu_header","Header",TRUE) #does the file have a header
+                                     )))
+Card_OTU_alt <- tagList(fileInput("otutab",
+                                             label="Upload OTU table",
+                                             accept=c(".csv",".tsv")),
+                                   layout_columns(
+                                     radioButtons("otu_sep","File separator", #select separator in the file
+                                                  choices=c("Comma"=",","Semicolon"=";","Tab"="/t"),
+                                                  selected=","),
+                                     checkboxInput("otu_header","Header",TRUE) #does the file have a header
+                                   ))
+Card_TAX <- tagList(layout_columns(colwidths=c(8,4),
+                                   fileInput("taxtab",
+                                             label="Upload taxonomy table",
+                                             accept=c(".csv",".tsv")),
+                                   layout_columns(
+                                     radioButtons("tax_sep","File separator", #select separator in the file
+                                                  choices=c("Comma"=",","Semicolon"=";","Tab"="/t"),
+                                                  selected=","),
+                                     checkboxInput("tax_header","Header",TRUE) #does the file have a header
+                                   )))
+
 Files_CompletedProcessingCard <- card(
   card_header(
     "If you've already got a table and taxonomic assignments, upload those files here:"
@@ -76,31 +110,9 @@ Files_CompletedProcessingCard <- card(
   card_body(
     "if you've already gone through these steps and just want to analyze the results, upload these files and proceed to the Analysis tab"
   ),
-  layout_columns(
-    colwidths=c(8,4),
-    fileInput("otutab",
-              label="Upload OTU table",
-              accept=c(".csv",".tsv")),
-    layout_columns(
-      radioButtons("otu_sep","File separator", #select separator in the file
-                   choices=c("Comma"=",","Semicolon"=";","Tab"="/t"),
-                   selected=","),
-      checkboxInput("otu_header","Header",TRUE), #does the file have a header
-    )
-  ),
+  Card_OTU,
   textOutput("otucomplete"),
-  layout_columns(
-    colwidths=c(8,4),
-    fileInput("taxtab",
-              label="Upload taxonomy table",
-              accept=c(".csv",".tsv")),
-    layout_columns(
-      radioButtons("tax_sep","File separator", #select separator in the file
-                   choices=c("Comma"=",","Semicolon"=";","Tab"="/t"),
-                   selected=","),
-      checkboxInput("tax_header","Header",TRUE) #does the file have a header
-    )
-  ),
+  Card_TAX,
   textOutput("taxcomplete")
 )
 
@@ -108,10 +120,33 @@ Files_CompletedProcessingCard <- card(
 uploadpage <- nav_panel("Files",
           shinyFeedback::useShinyFeedback(),
           open=TRUE,
+          radioGroupButtons(inputId = "selectupload", label="Select the option that fits your data best: ",
+                            width='100%',
+            choiceNames = c(HTML("<p><i>My data has been completely processed:</i></p> <p>I only need analyses.</p>"),
+                            HTML("<p><i>My data has been partially processed:</i></p> <p>I have an OTU table and I need to identify the species and analyze.</p>"), 
+                                 HTML("<p><i>I have raw sequencing data:</i></p> <p>my files are coming directly from the sequencing facility</p>")
+                            ),
+            choiceValues = c("choose_analysis","choose_partial","choose_raw"),
+            direction = 'vertical',
+            selected=NULL
+          ),
+          br(),
+          "Or, alternatively, use our example dataset: ",
           Ex_Card,
-          accordion(Files_MetadataCard, #card directing to metadata csv file
-                    Files_CompletedProcessingCard, #card directing to otu and tax files
-                    Files_ScratchCard), #card directing to raw fastq files
+          br(),
+          br(),
+          br(),
+          Files_MetadataCard, #card directing to metadata csv file,
+          br(),
+          conditionalPanel(condition="input.selectupload == 'choose_raw'",
+                           Files_ScratchCard #card directing to raw fastq files
+                           ),
+          conditionalPanel(condition="input.selectupload == 'choose_partial'",
+                           card(layout_columns(Card_OTU_alt,QFilterCard)) #placeholder
+                           ),
+          conditionalPanel(condition="input.selectupload == 'choose_analysis'",
+                           Files_CompletedProcessingCard #card directing to otu and tax files
+                           ),
           actionButton("fileupload_nextpage_v2","Next step",width='100%')
 )
 ##########################################################################################

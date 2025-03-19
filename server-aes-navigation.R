@@ -37,28 +37,30 @@ observeEvent(input$load_ex, {
 switch_page <- function(i) {
   nav_select(id='pages',selected=i)
 }
-observeEvent(input$fileupload_nextpage, switch_page("Review")) #modal dialog box from file upload page takes you to review page
-observeEvent(input$fileupload_nextpage_v2, switch_page("Review")) #next button from file upload page takes you to review page
-observeEvent(input$fileupload_nextpage_v3, switch_page("Basic Stats")) #modal dialog box from file upload page takes you to stats page
-observeEvent(input$fileupload_nextpage_v4, switch_page("Review")) 
+observeEvent(input$fileupload_nextpage, switch_page("reviewtab")) #modal dialog box from file upload page takes you to review page
+observeEvent(input$fileupload_nextpage_v2, switch_page("reviewtab")) #next button from file upload page takes you to review page
+observeEvent(input$fileupload_nextpage_v3, switch_page("basicstab")) #modal dialog box from file upload page takes you to stats page
+observeEvent(input$fileupload_nextpage_v4, switch_page("reviewtab")) 
 
-observeEvent(input$reviewfiles_nextpage, switch_page("Basic Stats")) #next button from review page takes you to basic stats page
-observeEvent(input$reviewfiles_prevpage, switch_page("Files")) #previous button from review page takes you back to file upload page
+observeEvent(input$reviewfiles_nextpage, switch_page("basicstab")) #next button from review page takes you to basic stats page
+observeEvent(input$reviewfiles_prevpage, switch_page("uploadtab")) #previous button from review page takes you back to file upload page
 
 observeEvent(input$demux_nextpage, switch_page("Assign OTU"))
-observeEvent(input$demux_prevpage, switch_page("Files")) 
+observeEvent(input$demux_prevpage, switch_page("uploadtab")) 
 
 observeEvent(input$asv_nextpage, switch_page("Assign Taxonomy")) 
 observeEvent(input$asv_prevpage, switch_page("Demultiplex and Quality Control")) 
 
-observeEvent(input$tax_nextpage, switch_page("Review")) 
+observeEvent(input$tax_nextpage, switch_page("reviewtab")) 
 observeEvent(input$tax_prevpage, switch_page("Assign OTU")) 
 
-observeEvent(input$basics_nextpage, switch_page("Analysis"))
-observeEvent(input$basics_prevpage, switch_page("Review")) 
+observeEvent(input$basics_nextpage, switch_page("statstab"))
+observeEvent(input$basics_prevpage, switch_page("reviewtab")) 
 
-observeEvent(input$analysis_prevpage, switch_page("Basic Stats")) 
-observeEvent(input$psfail_goback,switch_page("Files"))
+observeEvent(input$analysis_prevpage, switch_page("basicstab")) 
+observeEvent(input$psfail_goback,switch_page("uploadtab"))
+
+observeEvent(input$filespage,switch_page('test'))
 
 # remove modal dialog boxes
 observe({
