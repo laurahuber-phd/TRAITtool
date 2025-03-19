@@ -28,24 +28,24 @@ plotPrettyUI <- function(id) {
                                              ), selected="right"),
                                  
                                  numericInput(NS(id,"textsize"),
-                                             label="Text size",
-                                             value=8),
-                                 
+                                              label="Text size",
+                                              value=8),
+
                                  numericInput(NS(id,"textdir"),
                                               label="Axis text rotation",
                                               value=90)#,
                                  
                                  #numericInput(NS(id,"pointsize"),
-                                #             label="Point size",
-                                #             value=5),
+                                 #             label="Point size",
+                                 #             value=5),
                                  
                                  #numericInput(NS(id,"rankper_legend"),
                                  #            label="Number of legend columns",
                                  #             value=4)
-                                )
+    )
   )
 }
-  
+
 plotPrettyServer <- function(id) {
   moduleServer(id, function(input,output,session) {
       ns <- session$ns

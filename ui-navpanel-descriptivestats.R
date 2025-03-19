@@ -51,7 +51,7 @@ Basics_NumCard <- navset_card_tab(
 Basics_TaxCard <- card(
   #full_screen=TRUE,
   card_header("Taxonomy summary"),
-  pickerInput("ranks","Taxonomic Ranks",character()),
+  pickerInput("ranks","Taxonomic Ranks",character(),width='fit',inline=TRUE),
   navset_card_tab(
     nav_panel(title="List members of a taxonomic group present in the dataset",
               dataTableOutput("listtaxa")),

@@ -54,11 +54,10 @@ output$download_richplot <- output$download_richplot_popup <-  downloadHandler(
 histoplot_pretty  <- plotPrettyServer(id="histo_pretty")
 histoplot_size <- plotSizeServer(id="histo_size") 
 histoplot_general <- plotControlsServer(id="histo_gen",
-                                        df=(if (input$normoptions != "none") {ps.norm()} else {ps.sub()}),
-                                        ranks=rnames(),
-                                        samplevars=Meta_vars()#,
-                                        # rv=histoplot_general
-)
+                   df=(if (input$normoptions != "none") {ps.norm()} else {ps.sub()}),
+                   ranks=rnames(),
+                   samplevars=Meta_vars()
+                   )
 
 histo_base <- reactive({
   req(ps.sub())
@@ -74,6 +73,7 @@ histo_base <- reactive({
   #     subtitle="(across the entire dataset)",
   #     x="Percent",
   #     caption="Unassigned sequences were included in percentage calculation but not plotted")
+
 }) %>% bindEvent(ps.norm(),
                  ps.sub(),
                  histoplot_general$color(),
@@ -86,7 +86,6 @@ histoplot <- eventReactive(input$plot_histo, {
 
 output$histo <- renderPlot({histoplot()})
 
-
 observe({
   showModal(modalDialog(
     renderPlot(histoplot()),
@@ -96,10 +95,12 @@ observe({
   ))
 }) %>% bindEvent(input$histo_click)
 
+
 output$download_histoplot <- output$download_histoplot_popup <-  downloadHandler(
   filename = "histoplot.png",
   contentType = 'image/png',
   content = function(file) {
     ggsave(file,plot=histoplot()
     )
+
   }) 

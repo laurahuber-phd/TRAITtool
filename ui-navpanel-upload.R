@@ -2,12 +2,16 @@
 ############################################# Example dataset #############################################
 Ex_Card <- card(id="ex_data",
                 card_header("Use example data"),
-                "Load the example dataset to go through this app and explore what you can get out of it",
+                "Load the example dataset. You can use this dataset to explore the feautures of the app prior to using it on your own data.",
                 actionButton("load_ex",
                              "Load"))
 ############################################# Metadata #############################################
 Files_MetadataCard <- card(
-  card_header("Add your metadata file here"),
+  card_header("Add your metadata file here",
+              tooltip(bs_icon("info-circle"),
+                      HTML("<h5> What is a metadata file? </h5><br> <p>The first column of the file should be sequencing sample IDs, with at least one other column. <br><strong> See 'Help' tab for an example.</strong> <br> The metadata file is what will bring biological relevance to the sequencing results, and at minimum is used to connect the sequencing sample to field sample.</p>")
+                      )
+              ),
   layout_columns(
     colwidths=c(4,8),
     fileInput("Metadata",

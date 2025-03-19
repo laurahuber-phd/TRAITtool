@@ -1,9 +1,9 @@
 
 #knit rmd file in app
-output$markdown <- renderUI({
-  HTML(markdown::mark_html(knitr::knit("ProjectReport.Rmd",
-                                       quiet=TRUE)))
-}) 
+#output$markdown <- renderUI({
+#  HTML(markdown::mark_html(knitr::knit("ProjectReport.Rmd",
+#                                       quiet=TRUE)))
+#}) 
 
 report <- reactiveValues(filepath=NULL) #This creates a short-term storage location for a filepath
 
@@ -18,18 +18,19 @@ observeEvent(input$gen_report, {
   
   #create list of parameters to read into rmarkdown
   #any reactive that is read in will throw a warning that stops creation of the list, so we need to add them separately
-  params <- list(
-    blanks=input$blank_samples,
-    unass=input$adjust,
-    rembl=input$rem_blanks,
-    norm=input$normoptions,
-    ps=NA, #ps=ps.sub(),
-    richplot=NA, #richplot=richplot(),
-    percplot=NA,  #percplot=histo_plot(),
-    ordmeth=input$ordmeth,
-    ordtype=input$ordvis,
-    ordplot=NA #ordplot=ordplot()
-  )
+  params <- reactive({
+    list(
+      blanks=input$blank_samples,
+      unass=input$adjust,
+      rembl=input$rem_blanks,
+      norm=input$normoptions,
+      ps=NA, #ps=ps.sub(),
+      richplot=NA, #richplot=richplot(),
+      percplot=NA,  #percplot=histo_plot(),
+      ordmeth=input$ordmeth,
+      ordtype=input$ordvis,
+      ordplot=NA #ordplot=ordplot()
+  )})
   
   #tryCatch will check to see if the 'function' exists, and if it does not, returns NA as an error
   params[["ps"]] <- tryCatch(ps.sub(),error=function(e){return(as.numeric(NA))}) 

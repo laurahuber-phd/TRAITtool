@@ -134,7 +134,7 @@ Anlys_TrophCard <- layout_sidebar(
 #############################################################################################################
 analysispage <- nav_panel(
   "Analysis",
-  navset_card_tab(id="anlys", #name of the tabset card
+  navset_card_tab(id="anlys", 
                 nav_panel(id='alpha',
                           title="Alpha Diversity",
                           Anlys_AlphaCard
