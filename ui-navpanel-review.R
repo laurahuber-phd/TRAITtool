@@ -43,7 +43,7 @@ Select_BlanksCard <- card(
 #############################################################################################################
 reviewpage <- nav_panel("Review",
                         shinyFeedback::useShinyFeedback(),
-                        card("We are going to look at a small sample of the files you uploaded: Does this look like your data?"), 
+                        HTML("<h4 style='text-align:center;'>We are going to look at a small sample of the files you uploaded: Does this look like your data? </h4>"), 
                         jqui_resizable(Review_MetadataCard), #This card is an overview of the metadata
                         jqui_resizable(Select_BlanksCard), #This card allows you to select the sequencing blanks
                         layout_column_wrap( #This card is 50/50 overview of otu/tax tables

@@ -16,14 +16,19 @@ library(shinyjqui)
 
 tableUI <- function(id,editable=FALSE) {
   if(editable==TRUE) {
-    card(
-      full_screen = TRUE,
-      card_body(fill=FALSE,
+    tagList(
+      #full_screen = TRUE,
+      #card_body(fill=FALSE,
                 layout_columns(col_widths=c(11,1),
       #card_header(layout_columns(col_widths=c(11,1),
                                  " ",
                                  #"To edit individual cells, double click on the table. Save edits with Control + Enter",
                                  layout_columns(
+                                   popover(bsicons::bs_icon("arrows-angle-expand", class = "ms-auto"),
+                                           id=NS(id,'expndbutton'),
+                                           placement="right",
+                                           actionButton(NS(id,'show'),'Show larger')
+                                   ),
                                    popover(bsicons::bs_icon("ban", class = "ms-auto"),
                                            id=NS(id,'resetbutton'),
                                            placement="right",
@@ -33,23 +38,31 @@ tableUI <- function(id,editable=FALSE) {
                                            id=NS(id,'dwnldbutton'),
                                            placement="right",
                                            downloadButton(NS(id,'download'),'Download Modifications'))
-                                 )
+                                # )
       )),
-         card(DTOutput(NS(id,"table")))
+         DTOutput(NS(id,"table"))
          )} else if(editable==FALSE) {
-           card(
-             full_screen = TRUE,
-             card_body(fill=FALSE,
+           tagList(
+             #full_screen = TRUE,
+             #card_body(fill=FALSE,
                        layout_columns(col_widths=c(11,1),
              #card_header(layout_columns(col_widths=c(11,1),
                                         " ",
                                         #Expand or save table",
-                                        popover(bsicons::bs_icon("download", class = "ms-auto"),
-                                                id=NS(id,'dwnldbutton'),
-                                                placement="right",
-                                                downloadButton(NS(id,'download'),'Download'))
-             )),
-             card(DTOutput(NS(id,"table_noedit")))
+                                        layout_columns(
+                                          popover(bsicons::bs_icon("arrows-angle-expand", class = "ms-auto"),
+                                                  id=NS(id,'expndbutton'),
+                                                  placement="right",
+                                                  actionButton(NS(id,'show'),'Show larger')
+                                          ),
+                                          popover(bsicons::bs_icon("download", class = "ms-auto"),
+                                                  id=NS(id,'dwnldbutton'),
+                                                  placement="right",
+                                                  downloadButton(NS(id,'download'),'Download'))
+                                        )
+             #)
+             ),
+             DTOutput(NS(id,"table_noedit"))
            )}
 }
 
@@ -65,10 +78,10 @@ tableServer <- function(id,data,editable=FALSE) {
                                'Edit your table by double clicking inside a cell, save edits with Control + Enter'))
     })
     observe({
-      output$table_noedit <- renderDT(data$x,
-                                      caption = htmltools::tags$caption(
-                                        style = 'caption-side: top; text-align: center; color:black; font-size:120%; font-weight:bold;',
-                                        'Save or expand your table')
+      output$table_noedit <- renderDT(data$x#,
+                                      #caption = htmltools::tags$caption(
+                                      #  style = 'caption-side: top; text-align: center; color:black; font-size:120%; font-weight:bold;',
+                                      #  'Save or expand your table')
                                       )
     })
 
