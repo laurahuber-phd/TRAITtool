@@ -9,7 +9,7 @@ Ex_Card <- card(id="ex_data",
 Files_MetadataCard <- card(
   card_header("Add your metadata file here",
               tooltip(bs_icon("info-circle"),
-                      tagList(h5("What is a metadata file?"),
+                      tagList(p(style='text-decoration-line:underline; font-weight:bold; text-transform: uppercase;',"What is a metadata file?"),
                               #tags$style(HTML("text-align: left"),
                                p(style='text-align: left', "The first column of the file should be sequencing sample IDs, with at least one other column.The metadata file is what will bring biological relevance to the sequencing results, and at minimum is used to connect the sequencing sample to field sample."),
                                p(style='font-weight:bold',"See 'Help' tab for an example.")
@@ -120,18 +120,18 @@ Files_CompletedProcessingCard <- card(
 uploadpage <- nav_panel("Files",
           shinyFeedback::useShinyFeedback(),
           open=TRUE,
-          radioGroupButtons(inputId = "selectupload", label="Select the option that fits your data best: ",
+          radioGroupButtons(inputId = "selectupload", label=HTML("<h4 style='text-align:center;'>Select the option that fits your data best: </h4>"),
                             width='100%',
-            choiceNames = c(HTML("<p><i>My data has been completely processed:</i></p> <p>I only need analyses.</p>"),
-                            HTML("<p><i>My data has been partially processed:</i></p> <p>I have an OTU table and I need to identify the species and analyze.</p>"), 
-                                 HTML("<p><i>I have raw sequencing data:</i></p> <p>my files are coming directly from the sequencing facility</p>")
+            choiceNames = c(HTML("<p style='margin-bottom:0;'><i>My data has been completely processed:</i></p> <p style='padding-top:0; margin-bottom: 0;'>I only need analyses.</p>"),
+                            HTML("<p style='margin-bottom:0;'><i>My data has been partially processed:</i></p> <p style='padding-top:0; margin-bottom: 0;'>I have an OTU table and I need to identify the species and analyze.</p>"), 
+                                 HTML("<p style='margin-bottom:0;'><i>I have raw sequencing data:</i></p> <p style='padding-top:0; margin-bottom: 0;'>My files are coming directly from the sequencing facility.</p>")
                             ),
             choiceValues = c("choose_analysis","choose_partial","choose_raw"),
             direction = 'vertical',
             selected=NULL
           ),
           br(),
-          "Or, alternatively, use our example dataset: ",
+         HTML("<h4 style='text-align:center;'>Or, alternatively, use our example dataset: </h4>"),
           Ex_Card,
           br(),
           br(),

@@ -65,7 +65,7 @@ plotPrettyServer <- function(id) {
             text = element_text(size=(input$textsize+5)),
             legend.key.height = unit(input$textsize,"pt"),
             legend.key.width = unit(input$textsize,"pt"),
-            axis.text.x = element_text(angle=input$textdir)
+            axis.text.x = element_text(angle=input$textdir,hjust=0)
           ) 
         }) %>% bindEvent(input$pos_legend,
                          input$textsize,

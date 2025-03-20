@@ -1,8 +1,15 @@
 helppage <- nav_panel(
-  "There are some requirements that your files must meet to be analyzed properly. Examine the example dataset below, which shows the results of an experiment that examines how the use of different primers and dilution impacts what species are identified in a mock community.",
-  card(height=600,
+  HTML("<h3>There are some requirements that your files must meet to be analyzed properly. Examine the example dataset below, which shows the results of an experiment that examines how the use of different primers and dilution impacts what species are identified in a mock community.</h3>"),
+  br(),
+  "About the original dataset: ",
        verbatimTextOutput('psog'),
-       verbatimTextOutput("pstext")),
+  HTML("<p><i>This is the description of what is analyzed. Your OTU table connects the number of samples in the sequencing dataset with the number of sequences (referred to as taxa). Your sample data refers to the metadata file that was uploaded. It tells you how many samples there are and how many additional columns/variables were in the file. Finally, the tax table refers to how many unique sequences are in the dataset, and how many taxonomic ranks they are divided into. </i></p>"),
+  br(),
+  "About the subset dataset analyzed: ",
+  HTML("<p><i> (This may be the same as the original dataset if you did not choose to remove blanks or unassigned sequences.) </i></p>"),
+  verbatimTextOutput("pstext"),
+  br(),
+  br(),
   card(
     card_header("Example metadata file"),
     "The metadata file should include any relevant information connecting the sequencing samples to the samples you collected. Examples include where they were collected and date of collection.",
