@@ -7,18 +7,21 @@ Basics_NumCard <- navset_card_tab(
   sidebar=sidebar(title="Original dataset overview",
                   position="right",
                   open="closed", 
-                  #bg="#a8c3bc",
-                  accordion(title="Summary",
+                  accordion(
+                    accordion_panel(title="Summary",
                             withSpinner(tableOutput("summ_seqs")) #max/min no of sequences in a sample, mean and median 
                   ),
                   accordion_panel(title="Sequence breakdown",
                                   textOutput("N_seq_total"),
                                   textOutput("N_seq_assigned"),
-                                  textOutput("N_seq_blanks")),
+                                  textOutput("N_seq_blanks")
+                                  ),
                   accordion_panel(title="OTU breakdown",
                                   textOutput("N_otu_total"),
                                   textOutput("N_otu_assigned"),
-                                  textOutput("N_otu_blanks"))
+                                  textOutput("N_otu_blanks")
+                                  )
+                  )
   ),
   nav_panel(id="SamSumNavTab",
             title="Sample Summary Table",
@@ -73,7 +76,7 @@ Basics_TaxCard <- card(
   )
 )
 #############################################################################################################
-descriptivepage = nav_panel("Basic Stats",
+descriptivepage = tagList("Basic Stats",
           Basics_NumCard,
           Basics_TaxCard,
           layout_column_wrap(
