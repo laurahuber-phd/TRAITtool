@@ -22,7 +22,8 @@ Anlys_AlphaCard <- tagList(#layout_sidebar(
                                "Inverse Simpson" = "InvSimpson", 
                                "Fisher"="Fisher"
                              ),
-                             selected="Shannon"
+                             selected="Shannon",
+                             multiple=TRUE
                  )
                  ),
   layout_columns(
