@@ -2,19 +2,19 @@ observe({
   req(ps.sub())
   updateSelectInput(session,
                     "choose_ord_color", 
-                    choices=Meta_vars()
+                    choices=c(NA,Meta_vars())
                     )
   updateSelectInput(session,
                     "choose_ord_shape",
-                    choices=Meta_vars()
+                    choices=c(NA,Meta_vars())
                     )
-  updateSelectInput(session,
-                    "choose_ord_fill", 
-                    choices=Meta_vars()
-                    )
+  #updateSelectInput(session,
+  #                  "choose_ord_fill", 
+  #                  choices=c(NA,Meta_vars())
+  #                  )
   updateSelectInput(session,
                     "choose_ord_ellipse",
-                    choices=Meta_vars()
+                    choices=c(NA,Meta_vars())
                     )
 }) 
 
@@ -80,20 +80,32 @@ output$ordscree <- renderPlot({ #plot scree plot
 ordplot <- eventReactive(input$DrawPlot, { #assign a variable that runs when plot button is pushed
   req(distreact())
   runif(input$DrawPlot)
+  
   # ells <- input$choose_metavars4
-  plot_ordination(physeq=ps.sub(),
+  
+  baseplot <- plot_ordination(physeq=ps.sub(),
                   ordination=distreact(),
                   type=input$ordvis,
                   color=input$choose_ord_color,
-                  shape=input$choose_ord_shape
-  ) + 
-    geom_point(size=input$disp_point) + 
+                  shape=input$choose_ord_shape ) + 
+    geom_point(size=input$disp_point) 
+  
+  if(is.na(input$choose_ord_ellipse)) {
+    finalplot <- baseplot
+  } else {
+    finalplot <- baseplot + stat_ellipse(aes(group=input$choose_ord_ellipse,fill=input$choose_ord_ellipse), 
+                                         geom='polygon',
+                                         type='norm',
+                                         alpha=0)
+  }
+  
     #stat_ellipse(aes(group=ells(),
     #    fill=ells()
     #    ),
     #geom="polygon",type="norm",
-    #alpha=input$disp_transp) +
-    theme(text = element_text(size=input$disp_text),aspect.ratio=(input$ordplot_height/input$ordplot_width)) + 
+    #alpha=input$disp_transp)
+  
+  finalplot + theme(text = element_text(size=input$disp_text),aspect.ratio=(input$ordplot_height/input$ordplot_width)) + 
     labs(subtitle=paste0("Using ",input$orddist," distance matrix"),
          title=paste0(input$ordmeth," Ordination Plot")
     )

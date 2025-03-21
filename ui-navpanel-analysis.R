@@ -96,7 +96,7 @@ Anlys_BetaCard <- accordion(
                                                      icon=icon("gear"),
                       selectInput("choose_ord_color",label="Color",choices=list()),
                       selectInput("choose_ord_shape",label="Shape",choices=list()),
-                      selectInput("choose_ord_fill",label="Fill",choices=list()),
+                      #selectInput("choose_ord_fill",label="Fill",choices=list()),
                       selectInput("choose_ord_ellipse",label="Ellipse grouping",choices=list())
                       ),
                     shinyWidgets::dropdownButton(inputId="ordgen_controls",
