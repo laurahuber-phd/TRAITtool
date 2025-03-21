@@ -48,6 +48,18 @@ ui <- page_navbar(id="pages",
                   theme=bs_theme(bootswatch='lux'),
                   tags$head(
                     tags$style(HTML("
+                      [data-bs-theme=light] .accordion {
+                      --bs-accordion-btn-color: #0c3e53;
+                      --bs-accordion-border-width: 1.5px;
+                      --bs-accordion-border-radius: 1rem;
+                      --bs-accordion-border-color: rgba(var(--bs-body-color-rgb), 0.5)
+                      }
+                      [data-bs-theme=dark] .accordion {
+                      color: #0c3e53;
+                      border-width: 3px;
+                      border-radius: 5rem;
+                      border-color: rgba(var(--bs-body-color-rgb), 0.2);
+                      }
                       [data-bs-theme=light] .btn {
                       background-color:rgba(var(--bs-body-color-rgb), 0.1);
                       color: #0c3e53;

@@ -1,67 +1,193 @@
 ---
 title: "Dynamic Report"
-output: html_document
+output: 
+  pdf_document: default  
+  html_document: default   
+  word_document: default  
+  always_allow_html: true
 params: 
   blanks: NA
   unass: NA
   rembl: NA
   norm: NA
+  ntaxa: NA  
+  numsam: NA
+  numog: NA  
   ps: NA
   richplot: NA
   percplot: NA
   ordmeth: NA
   ordtype: NA
   ordplot: NA
+  N_seq_total_num_sel: NA
+  N_seq_assigned_num_sel: NA
+  N_otu_total_num_sel: NA
+  N_otu_assigned_num_sel: NA
+  N_seq_blanks_num_sel: NA
+  N_otu_blanks_num_sel: NA
+  richmet: NA
 ---
-```{r}
-library(ggplot2)
-library(phyloseq)
-library(shiny)
-#library(knitr)
-```
-
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, error=TRUE)
+library(ggplot2)
+#library(phyloseq)
+library(shiny)
+library(knitr)
+library(kableExtra)
+
+knitr::knit_hooks$set(inline = function(x) {   
+  if(!is.numeric(x)){ x } else{   
+  format(x,digits=3, big.mark=",")  
+    } })
+knitr::opts_chunk$set(tidy.opts=list(width.cutofF =60),tidy=TRUE)
+knitr::opts_chunk$set(digits=3,scipen=10,error=TRUE)
+knitr::opts_chunk$set(message = FALSE,warning = FALSE,echo = FALSE, error=TRUE,
+                      fig.asp = 0.6,out.width="75%",
+                      dev = "png", dpi = 300,fig_caption=TRUE)
 ```
 
-Dataset overview
+# About this app  
+This app was developed to be a user-oriented, open-source environmental DNA analysis tool. It is meant to distill information into helpful graphics and analyses that can be used for management reports. This report is a distillation of the analyses ran within the app. If anything is missing, feel free to go back into the app to perform those analyses and then rerun this report.  
+
+
+
+
+This was developed with support from the Marine Conservation Lab at the Smithsonian Environmental Research Center.  
+
+
+```{r, out.width='25%',fig.align='right', fig.pos='b'}
+knitr::include_graphics("www/MCL_SERC.png")
+```
+\newpage
+
+# Dataset overview
+This section will go over the characteristics of the dataset that you analyzed. *This is general information that will speak to the quality of the data and how to interpret the results.*     
+
+This section will review the blanks you included, if any, including how many sequences each blank had and if any of them were taxonomically assigned. It will also report whether you included any unassigned sequences in the subsequent analysis, and what normalization method you used, if any.   
+
+In addition, this will summarize some basic features of the data, including the distribution of sequences per sample in the total dataset and the one you ultimately analyzed.  
+
+## About the data manipulation choices:   
 These samples were selected as your blanks:
 ```{r}
 params$blanks
 ```
 
-You selected these filtering and normalization methods:   
-Unassigned sequences removed: `r params$unass`  
-Blanks removed: `r params$rembl`  
-Normalization: `r params$norm`  
- 
-Sequence distribution:  
-```{r} 
-plot_bar(params$ps)
-```
+*You selected these filtering and normalization methods: *  
+Were unassigned sequences removed? `r params$unass`  
+Were blanks removed? `r params$rembl`  
+Normalization method: `r params$norm`  
 
-Unique taxa:   
 ```{r}
-
+incProgress(1/5)
+Sys.sleep(2)
 ```
 
-Percent composition - how much of the total did each taxa represent?  
+## About your data:  
+
+Distribution of original data:    
+```{r}
+if (any(is.na(params$numog)==FALSE))  (
+  knitr::kable(params$numog,
+               digits=2,
+               caption="Description of sequencing reads") %>%
+    kableExtra::kable_styling(.,
+                              bootstrap_options = "bordered",
+                              full_width=FALSE,
+                              position = "left")
+  ) else "Characteristics of your sequencing run were not calculated" 
+```
+
+Number of sequences analyzed:  
+```{r}
+if (any(is.na(params$numsam)==FALSE)) (
+  knitr::kable(params$numsam,
+               digits=2,
+               caption="Description of the subset you analyzed") %>% 
+    kableExtra::kable_styling(params$numsam,
+                              bootstrap_options = "bordered",
+                              full_width=FALSE,
+                              position = "left")
+  ) else "Characteristics of the analyzed dataset were not calculated"
+```
+
+_Total number of sequences_: `r params$N_seq_total_num_sel`  
+_Number of assigned sequences_: `r params$N_seq_assigned_num_sel`  
+
+_Total number of OTUs_: `r params$N_otu_total_num_sel`  
+_Number of assigned OTUs_: `r params$N_otu_assigned_num_sel`  
+
+## Blanks  
+_Number of sequences in blanks_: `r params$N_seq_blanks_num_sel`  
+_Number of OTUs in blanks_: `r params$N_otu_blanks_num_sel`  
+
+```{r}
+incProgress(1/5)
+Sys.sleep(2)
+```
+
+# Descriptive statistics  
+
+#### Sequence distribution:  
+In this plot, we are looking at the number of sequences in each sample. The horizontal line shown is a general marker to show the target minimum number of sequences per sample.  
+
+This tool is a useful gut check to get a high-level overview of the entire dataset. Do any samples have significantly more or less sequences than another? That is normally a signal that some kind of normalization will be needed prior to performing any analyses.  
+```{r} 
+p_bar <- plot_bar(params$ps,
+                   title="Number of sequences per sample as compared to the goal sequencing depth for adequate metabarcoding analysis") 
+
+ #+ geom_line(aes(y=100000,color="green")) #add horizontal line at 100,000 to show goal minimum sequencing depth 
+
+p_bar
+```
+
+#### Number of unique taxa:  
+```{r}
+if (any(is.na(params$ntaxa)==FALSE)) (
+  knitr::kable(params$ntaxa,
+               caption="Overview of the diversity of taxa found in your dataset") %>% 
+    kableExtra::kable_styling(params$ntaxa,
+                              bootstrap_options = "bordered",
+                              full_width=FALSE,
+                              position = "left")
+) else "Taxonomic diversity was not summarized"
+```
+
+#### Percent composition - how much of the total did each taxa represent?  
 ```{r}
 params$percplot
 ```
 
-alpha diversity plot  
+```{r}
+incProgress(1/5)
+Sys.sleep(2)
+```
+
+# Alpha diversity plot  
+Diversity metric used: `r params$richmet`  
 ```{r}
 params$richplot
 ```
 
-ordination plot  
+```{r}
+incProgress(1/5)
+Sys.sleep(2)
+```
+
+# Ordination plot  
 Ordination method: `r params$ordmeth`  
 Type: `r params$ordtype`  
 ```{r}
 params$ordplot
 ```
 
+```{r}
+incProgress(1/5)
+Sys.sleep(2)
+```
+\newpage  
+
+# R Session information  
+R packages used to generate the information in this report  
 ```{r}
 sessionInfo()
 ```

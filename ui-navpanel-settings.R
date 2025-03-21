@@ -1,6 +1,5 @@
 
-settingspage <- tagList("General settings",
-                        shinyWidgets::radioGroupButtons("gblcol",
+settingspage <- tagList(shinyWidgets::radioGroupButtons("gblcol",
                                     label="Plotting color schemes",
                                     c("viridis" = 'D',
                                       "magma" = 'A',
