@@ -57,48 +57,102 @@ Ordinate_Card <- layout_column_wrap(
   card(
     full_screen=TRUE,
     #card_header("Ordination"),
-    selectInput("ordmeth",
-                label="Select ordination method",
-                choices=c("NMDS","PCoA","CCA", "RDA", "CAP", "DCA", "DPCoA","MDS"),
-                selected = "NMDS" #default selection is NMDS
-    ),
-    radioButtons("orddist",
-                 label="Select distance matrix",
-                 choices=c("jaccard","bray"),
-                 selected = "bray", #default selection is bray
-                 inline=TRUE #choices are laid out horizontally
-    ),
-    radioButtons("ordvis",
-                 label="Ordination of samples or taxa?",
-                 choices=c("samples","taxa"),
-                 selected="samples",
-                 inline=TRUE
-    )
+    layout_columns(col_widths=c(4,4,4),
+                   selectInput("ordmeth",
+                               label="Select ordination method",
+                               choices=c("NMDS","PCoA","CCA", "RDA", "CAP", "DCA", "DPCoA","MDS"),
+                               selected = "NMDS" #default selection is NMDS
+                               ),
+                   radioButtons("orddist",
+                                label="Select distance matrix",
+                                choices=c("jaccard","bray"),
+                                selected = "bray", #default selection is bray
+                                inline=TRUE #choices are laid out horizontally
+                                ),
+                   radioButtons("ordvis",
+                                label="Ordination of samples or taxa?",
+                                choices=c("samples","taxa"),
+                                selected="samples",
+                                inline=TRUE
+                                )
+                   ),
+    actionButton("calc_ord","Calculate"),
+    conditionalPanel(condition='output.ord_complete',
+                     textOutput("report_ord")
+                     )
   )
 )
 ##########################################################################
-Anlys_BetaCard <- layout_sidebar(
-  sidebar=accordion(accordion_panel("Ordination",Ordinate_Card),
-                    accordion_panel("Plotting aesthetics",PlottingChoices_Card)
-  ),
-  accordion(
+Anlys_BetaCard <- accordion(
     open=c("Ordination Plot","Ordination Visualization Options"),
     accordion_panel("Ordination Plot",
-                    card(
-                      full_screen=TRUE,
-                      card_header(
-                        tooltip(bsicons::bs_icon("question-circle"),
-                                "Ordination is a way to look at patterns in your samples",
-                                placement="left"),
-                        "Visualize how your sequences group together",
-                        popover(bsicons::bs_icon("gear", class = "ms-auto"),
-                                placement="right",
-                                selectInput("choose_color",label="Color",choices=list()),
-                                selectInput("choose_shape",label="Shape",choices=list()),
-                                selectInput("choose_fill",label="Fill",choices=list()),
-                                selectInput("choose_ellipse",label="Ellipse grouping",choices=list()),
-                                title="Change grouping color of:")
+                    Ordinate_Card,
+                    br(),
+                    card( full_screen=TRUE,
+                          tags$head(tags$style(HTML("
+                                                    .bs-select-all {
+                                                    display: none;
+                                                    }
+                                                    .bs-deselect-all {
+                                                    width: 100%;
+                                                    }
+                                                    "))),
+                          card_header( layout_columns(col_widths=c(6,6),
+                        shinyWidgets::dropdownButton(inputId="ordgen_controls",
+                                                     label="Grouping choices",
+                                                     circle=FALSE,
+                                                     icon=icon("gear"),
+                      pickerInput("choose_ord_color",label="Color",
+                                  choices=list(),
+                                  multiple = TRUE,
+                                  options = pickerOptions(maxOptions = 1,
+                                                          container = "body", 
+                                                          actionsBox = TRUE,
+                                                          deselectAllText = "Clear selection")),
+                      pickerInput("choose_ord_shape",label="Shape",
+                                  choices=list(),
+                                  multiple = TRUE,
+                                  options = pickerOptions(maxOptions = 1,
+                                                          container = "body", 
+                                                          actionsBox = TRUE,
+                                                          deselectAllText = "Clear selection")),
+                      radioGroupButtons(inputId = "choose_ord_ellipse", 
+                                           label = "Draw ellipse around which variable:",
+                                           choices = c("None","Color","Shape"),
+                                        checkIcon = list(
+                                          yes = tags$i(class = "fa fa-check-square", 
+                                                       style = "color: steelblue"),
+                                          no = tags$i(class = "fa fa-square-o", 
+                                                      style = "color: steelblue")),
+                                           selected = "None",
+                                        justified=TRUE,
+                                           disabled=TRUE)
+                      #pickerInput("choose_ord_ellipse",label="Ellipse grouping",
+                      #            choices=list(),
+                      #            multiple = TRUE,
+                      #            options = pickerOptions(maxOptions = 1,
+                      #                                    container = "body", 
+                      #                                    actionsBox = TRUE,
+                      #                                    deselectAllText = "Clear selection"))
                       ),
+                    shinyWidgets::dropdownButton(inputId="ordgen_controls",
+                                                 label="Size choices",
+                                                 circle=FALSE,
+                                                 icon=icon("expand"),
+                                                 numericInput("disp_text", "Plot text size",
+                                                              value=16 #starting value 
+                                                 ),
+                                                 numericInput("disp_point", "Plot point size",
+                                                              value=5 
+                                                 ),
+                                                 numericInput("ordplot_height",label="Height of plot",
+                                                              value=5
+                                                 ),
+                                                 numericInput("ordplot_width", label="Width of plot",
+                                                              value=10
+                                                 )
+                    ))
+                    ),
                       withSpinner(plotOutput("ord",click="ord_click")),
                       actionButton("DrawPlot","Plot")
                     )
@@ -116,7 +170,6 @@ Anlys_BetaCard <- layout_sidebar(
                     withSpinner(plotOutput("ordscree"))
     )
   )
-)
 
 ############################################# Trophic diversity #############################################
 Anlys_TrophCard <- layout_sidebar(

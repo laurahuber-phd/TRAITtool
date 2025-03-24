@@ -44,9 +44,7 @@ Select_BlanksCard <- card(
 reviewpage <- nav_panel("Review",
                         shinyFeedback::useShinyFeedback(),
                         card( HTML("<h4 style='text-align:center;'>We are going to look at a small sample of the files you uploaded: Does this look like your data? </h4>"), 
-                             br(),
-                             br(),
-                             HTML("<small>As a reminder, the first column of the metadata file should be a set of unique identifiers. These identifiers will be the column names in the sequence table. </small>")
+                              HTML("<small style='text-align:center;'>As a reminder, the first column of the metadata file should be a set of unique identifiers. These identifiers will be the column names in the sequence table. </small>")
                             ), 
                         jqui_resizable(Review_MetadataCard), #This card is an overview of the metadata
                         jqui_resizable(Select_BlanksCard), #This card allows you to select the sequencing blanks

@@ -48,6 +48,18 @@ plotControlsUI <- function(id,color=TRUE,x=TRUE,y=FALSE,facet=TRUE) {
         selectInput(inputId = NS(id,"choose_y"),label="y-axis variable",choices=list())
       )
     )
+  } else if (color==TRUE & x==TRUE & y==FALSE & facet==FALSE) {
+    tagList(
+      shinyWidgets::dropdownButton(
+        #tags$h3("List of Inputs"),
+        inputId=NS(id,"mydropdown"),
+        label="controls",
+        circle=FALSE,
+        icon = icon("gear"), 
+        selectInput(inputId = NS(id,"choose_color"),label="Color",choices=list()),
+        selectInput(inputId = NS(id,"choose_x"),label="X-axis variable",choices=list())
+      )
+    )
   } else if (color==TRUE & x==FALSE & y==FALSE & facet==FALSE) {
     tagList(
       shinyWidgets::dropdownButton(
@@ -70,7 +82,7 @@ plotControlsUI <- function(id,color=TRUE,x=TRUE,y=FALSE,facet=TRUE) {
         selectizeInput(inputId = NS(id,"facet"),label="Faceting variable",choices=list(),multiple=TRUE,options = list(maxItems = 2))
       )
     )
-  } else {
+  } else { #color==FALSE & x==TRUE & y==FALSE & facet==FALSE
     tagList(
       shinyWidgets::dropdownButton(
         #tags$h3("List of Inputs"),
@@ -78,9 +90,7 @@ plotControlsUI <- function(id,color=TRUE,x=TRUE,y=FALSE,facet=TRUE) {
         label="controls",
         circle=FALSE,
         icon = icon("gear"), 
-        selectInput(inputId = NS(id,"choose_color"),label="Color",choices=list()),
-        selectInput(inputId = NS(id,"choose_x"),label="X-axis variable",choices=list()),
-        selectizeInput(inputId = NS(id,"facet"),label="Faceting variable",choices=list(),multiple=TRUE,options = list(maxItems = 2))
+        selectInput(inputId = NS(id,"choose_x"),label="X-axis variable",choices=list())
       )
     )
   }

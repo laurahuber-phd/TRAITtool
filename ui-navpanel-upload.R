@@ -131,7 +131,7 @@ uploadpage <- nav_panel("Files",
             selected=NULL
           ),
           br(),
-         HTML("<h4 style='text-align:center;'>Or, alternatively, use our example dataset: </h4>"),
+         HTML("<h4>Or, alternatively, use our example dataset: </h4>"),
           Ex_Card,
           br(),
           br(),

@@ -1,20 +1,16 @@
-
-# History files 
+# History files
 .Rhistory
-
-# Data files 
+# Data files
 .RData
 .Ruserdata
-
-#output files 
+#output files
 /*.html
 /*.md
-
 #caches
 *_cache/
 /cache/
-
 #R environment files
 .Renviron
 .DS_Store
 .Rproj.user
+ProjectReport.pdf
