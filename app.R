@@ -19,6 +19,7 @@ library(colourpicker)
 library(knitr)
 library(markdown)
 library(rmarkdown)
+library(shinyjs)
 #
 # source scripts --------
 source("function-buildps.R")

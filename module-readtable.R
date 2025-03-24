@@ -35,7 +35,13 @@ tableUI <- function(id,editable=FALSE) {
                                            downloadButton(NS(id,'download'),'Download Modifications'))
                                  )
       )),
-         card(DTOutput(NS(id,"table")))
+      card(conditionalPanel(condition='MetadataTable$x==NULL', #condition='output.badtable'
+                            DTOutput(NS(id,"failtable"))
+                            ),
+           conditionalPanel(condition='ouput.goodtable',
+                            DTOutput(NS(id,"table"))
+                            )
+      )
          )} else if(editable==FALSE) {
            card(
              full_screen = TRUE,
@@ -56,6 +62,20 @@ tableUI <- function(id,editable=FALSE) {
 tableServer <- function(id,data,editable=FALSE) {
   moduleServer(id, function(input,output,session) {
     ns <- session$ns
+    
+    #output$badtable <- reactive(data$x, {
+    #  return(is.null(data$x))
+    #})
+    output$failtable <- renderDT({
+      data.frame(ID=c("Sample1","Sample2","Sample3"),Var1=c("","",""),Var2=c("","",""),Var3=c("","",""))
+    })
+    #outputOptions(output, "badtable", suspendWhenHidden = FALSE) 
+    outputOptions(output, "failtable", suspendWhenHidden = FALSE) 
+    
+    output$goodtable <- reactive({
+      return(!is.null(data$x))
+    })
+    outputOptions(output, "goodtable", suspendWhenHidden = FALSE) 
     
     observe({
     output$table <- renderDT(data$x,
