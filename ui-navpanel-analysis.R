@@ -98,9 +98,8 @@ Anlys_BetaCard <- accordion(
                                                     }
                                                     "))),
                           card_header( layout_columns(col_widths=c(6,6),
-                        shinyWidgets::dropdownButton(inputId="ordgen_controls",
+                        shinyWidgets::dropdown(inputId="ordgen_controls",
                                                      label="Grouping choices",
-                                                     circle=FALSE,
                                                      icon=icon("gear"),
                       pickerInput("choose_ord_color",label="Color",
                                   choices=list(),
@@ -153,8 +152,8 @@ Anlys_BetaCard <- accordion(
                                                  )
                     ))
                     ),
-                      withSpinner(plotOutput("ord",click="ord_click")),
-                      actionButton("DrawPlot","Plot")
+                    actionButton("DrawPlot","Plot"),
+                      withSpinner(plotOutput("ord",click="ord_click"))
                     )
     ),
     accordion_panel("Stress Plots",
