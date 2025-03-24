@@ -89,15 +89,51 @@ Anlys_BetaCard <- accordion(
                     Ordinate_Card,
                     br(),
                     card( full_screen=TRUE,
+                          tags$head(tags$style(HTML("
+                                                    .bs-select-all {
+                                                    display: none;
+                                                    }
+                                                    .bs-deselect-all {
+                                                    width: 100%;
+                                                    }
+                                                    "))),
                           card_header( layout_columns(col_widths=c(6,6),
                         shinyWidgets::dropdownButton(inputId="ordgen_controls",
                                                      label="Grouping choices",
                                                      circle=FALSE,
                                                      icon=icon("gear"),
-                      selectInput("choose_ord_color",label="Color",choices=list()),
-                      selectInput("choose_ord_shape",label="Shape",choices=list()),
-                      #selectInput("choose_ord_fill",label="Fill",choices=list()),
-                      selectInput("choose_ord_ellipse",label="Ellipse grouping",choices=list())
+                      pickerInput("choose_ord_color",label="Color",
+                                  choices=list(),
+                                  multiple = TRUE,
+                                  options = pickerOptions(maxOptions = 1,
+                                                          container = "body", 
+                                                          actionsBox = TRUE,
+                                                          deselectAllText = "Clear selection")),
+                      pickerInput("choose_ord_shape",label="Shape",
+                                  choices=list(),
+                                  multiple = TRUE,
+                                  options = pickerOptions(maxOptions = 1,
+                                                          container = "body", 
+                                                          actionsBox = TRUE,
+                                                          deselectAllText = "Clear selection")),
+                      radioGroupButtons(inputId = "choose_ord_ellipse", 
+                                           label = "Draw ellipse around which variable:",
+                                           choices = c("None","Color","Shape"),
+                                        checkIcon = list(
+                                          yes = tags$i(class = "fa fa-check-square", 
+                                                       style = "color: steelblue"),
+                                          no = tags$i(class = "fa fa-square-o", 
+                                                      style = "color: steelblue")),
+                                           selected = "None",
+                                        justified=TRUE,
+                                           disabled=TRUE)
+                      #pickerInput("choose_ord_ellipse",label="Ellipse grouping",
+                      #            choices=list(),
+                      #            multiple = TRUE,
+                      #            options = pickerOptions(maxOptions = 1,
+                      #                                    container = "body", 
+                      #                                    actionsBox = TRUE,
+                      #                                    deselectAllText = "Clear selection"))
                       ),
                     shinyWidgets::dropdownButton(inputId="ordgen_controls",
                                                  label="Size choices",

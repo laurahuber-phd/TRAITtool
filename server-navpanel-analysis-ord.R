@@ -1,20 +1,14 @@
 observe({ 
   req(ps.sub())
-  updateSelectInput(session,
+  updatePickerInput(session,
                     "choose_ord_color", 
-                    choices=c(NA,Meta_vars())
+                    choices=c(Meta_vars()),
+                    selected=""
                     )
-  updateSelectInput(session,
+  updatePickerInput(session,
                     "choose_ord_shape",
-                    choices=c(NA,Meta_vars())
-                    )
-  #updateSelectInput(session,
-  #                  "choose_ord_fill", 
-  #                  choices=c(NA,Meta_vars())
-  #                  )
-  updateSelectInput(session,
-                    "choose_ord_ellipse",
-                    choices=c(NA,Meta_vars())
+                    choices=c(Meta_vars()),
+                    selected=""
                     )
 }) 
 
@@ -77,6 +71,20 @@ output$ordscree <- renderPlot({ #plot scree plot
   plotscree()
 })
 
+observe({
+  req(distreact())
+  if (!is.null(input$choose_ord_color)) {
+    updateRadioGroupButtons(session,
+                            "choose_ord_ellipse",
+                            disabled=FALSE)
+  }
+  if (!is.null(input$choose_ord_shape)) {
+    updateRadioGroupButtons(session,
+                            "choose_ord_ellipse",
+                            disabled=FALSE)
+  }
+})
+
 ordplot <- eventReactive(input$DrawPlot, { #assign a variable that runs when plot button is pushed
   req(distreact())
   runif(input$DrawPlot)
@@ -90,20 +98,26 @@ ordplot <- eventReactive(input$DrawPlot, { #assign a variable that runs when plo
                   shape=input$choose_ord_shape ) + 
     geom_point(size=input$disp_point) 
   
-  if(is.na(input$choose_ord_ellipse)) {
-    finalplot <- baseplot
+  if(input$choose_ord_ellipse=="Color") {
+      finalplot <- baseplot +  stat_ellipse(aes(group=.data[[input$choose_ord_color]],
+                                                #color=.data[[input$choose_ord_ellipse]],
+                                                #fill=.data[[input$choose_ord_ellipse]],
+                                                #linetype=.data[[input$choose_ord_ellipse]]
+                                                ), 
+                                            show.legend=FALSE, #since the ellipse grouping is the same as color, we don't need a legend
+                                            #geom='polygon', #requires a fill and alpha aes
+                                            type='norm', #assumes a multi-variate normal distribution
+                                            level=0.95, #confidence level
+                                            ) + labs(caption="Ellipses drawn with a normal distribution at 95% confidence interval")
+  } else if (input$choose_ord_ellipse=="Shape") {
+    finalplot <- baseplot +  stat_ellipse(aes(group=.data[[input$choose_ord_shape]]), 
+                                          show.legend=FALSE, #since the ellipse grouping is the same as color, we don't need a legend
+                                          level=0.95, #confidence level
+    ) + labs(caption="Ellipses drawn with a normal distribution at 95% confidence interval")
   } else {
-    finalplot <- baseplot + stat_ellipse(aes(group=input$choose_ord_ellipse,fill=input$choose_ord_ellipse), 
-                                         geom='polygon',
-                                         type='norm',
-                                         alpha=0)
+    finalplot <- baseplot 
   }
-  
-    #stat_ellipse(aes(group=ells(),
-    #    fill=ells()
-    #    ),
-    #geom="polygon",type="norm",
-    #alpha=input$disp_transp)
+
   
   finalplot + theme(text = element_text(size=input$disp_text),aspect.ratio=(input$ordplot_height/input$ordplot_width)) + 
     labs(subtitle=paste0("Using ",input$orddist," distance matrix"),
