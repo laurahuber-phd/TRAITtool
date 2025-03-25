@@ -205,12 +205,19 @@ output$N_taxa_placeholder <- renderDT({
   data.frame(Rank=c("Kingdom","Phylum","Class","Order","Family","Genus","Species"),
              Unique=c("","","","Placeholder","","",""))
 })
+output$listtaxa_placeholder <- renderDT({
+  data.frame(Kingdom=c("","Placeholder",""),Phylum=c("","Placeholder",""),
+             Class=c("","Placeholder",""),Order=c("","...",""),
+             Family=c("","...",""),Genus=c("","...",""),Species=c("","...",""))
+})
 
 observeEvent(checking$table, {
   if(checking$table==TRUE)
   {hide('N_sample_placeholder')
-    hide('N_taxa_placeholder')} else {show('N_sample_placeholder')
-      show('N_taxa_placeholder')}
+    hide('N_taxa_placeholder')
+    hide('listtaxa_placeholder')} else {show('N_sample_placeholder')
+      show('N_taxa_placeholder')
+      show('listtaxa_placeholder')}
 })
 
 

@@ -60,6 +60,7 @@ Basics_TaxCard <- card(
   pickerInput("ranks","Taxonomic Ranks",character(),width='fit',inline=TRUE),
   navset_card_tab(
     nav_panel(title="List members of a taxonomic group present in the dataset",
+              DTOutput('listtaxa_placeholder'),
               dataTableOutput("listtaxa")),
     nav_panel(title="View percent assigned",
               #position="right",
