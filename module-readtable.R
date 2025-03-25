@@ -17,6 +17,7 @@ library(shinyjqui)
 tableUI <- function(id,editable=FALSE) {
   if(editable==TRUE) {
     card(
+      useShinyjs(),#set up shinyjs
       full_screen = TRUE,
       card_body(fill=FALSE,
                 layout_columns(col_widths=c(11,1),
@@ -35,10 +36,10 @@ tableUI <- function(id,editable=FALSE) {
                                            downloadButton(NS(id,'download'),'Download Modifications'))
                                  )
       )),
-      card(conditionalPanel(condition='MetadataTable$x==NULL', #condition='output.badtable'
+      card(conditionalPanel(condition='output.badtable==TRUE',#'output.goodtable==FALSE',#'output.checktable',# #condition='MetadataTable==NULL'
                             DTOutput(NS(id,"failtable"))
                             ),
-           conditionalPanel(condition='ouput.goodtable',
+           conditionalPanel(condition='ouput.goodtable==TRUE',#'!output.checktable',#
                             DTOutput(NS(id,"table"))
                             )
       )
@@ -63,19 +64,63 @@ tableServer <- function(id,data,editable=FALSE) {
   moduleServer(id, function(input,output,session) {
     ns <- session$ns
     
+#output$checktable <- reactive({
+#  return(is.null(data$x))
+#  }) %>% bindEvent(data$x,ignoreNULL=FALSE)
+
+#observeEvent(data$x, {
+#  output$checktable <- return(is.null(data$x))
+#})
+#outputOptions(output,'checktable',suspendWhenHidden=FALSE)
+    
+    values <- reactiveValues()
+    values$table <- values$empty <- NULL
+    
+    observeEvent(data$x, {
+      values$table <- values$empty <- NULL #resets values
+      if(is.null(data$x)) { #if there is no input data to make a table out of
+    #    output$goodtable <- FALSE
+        values$empty <- TRUE 
+        values$table <- FALSE
+      } else if (!is.null(data$x)) {
+    #    output$goodtable <- TRUE
+        values$empty <- FALSE
+        values$table <- TRUE
+      }
+    }, ignoreNULL = FALSE)
+    #outputOptions(output, "goodtable",suspendWhenHidden = FALSE)
+    
+ output$badtable <- reactive({
+          return(values$empty)
+        }) %>% bindEvent(data$x)
+ 
+ output$goodtable <- reactive({
+          return(values$table)
+        }) %>% bindEvent(data$x)
+  
+    #output$hidepanel <- eventReactive(data$x, values$empty, ignoreInit = TRUE)
+    #outputOptions(output, "hidepanel",suspendWhenHidden = FALSE)
+    
     #output$badtable <- reactive(data$x, {
     #  return(is.null(data$x))
     #})
-    output$failtable <- renderDT({
-      data.frame(ID=c("Sample1","Sample2","Sample3"),Var1=c("","",""),Var2=c("","",""),Var3=c("","",""))
-    })
+  
     #outputOptions(output, "badtable", suspendWhenHidden = FALSE) 
+    ##########
+    output$failtable <- renderDT({
+      data.frame(ID=c("Sample1","Sample2","Sample3"),Var1=c("","Placeholder",""),Var2=c("","",""),Var3=c("","",""))
+    })
     outputOptions(output, "failtable", suspendWhenHidden = FALSE) 
     
-    output$goodtable <- reactive({
-      return(!is.null(data$x))
+    #output$goodtable <- reactive({
+    #  return(!is.null(data$x))
+    #})
+    #outputOptions(output, "goodtable", suspendWhenHidden = FALSE) 
+    
+    observeEvent(values$table, {
+      if(values$table==TRUE)
+      {hide('failtable')} else show('failtable')
     })
-    outputOptions(output, "goodtable", suspendWhenHidden = FALSE) 
     
     observe({
     output$table <- renderDT(data$x,
