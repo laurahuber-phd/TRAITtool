@@ -196,6 +196,23 @@ observe({
 }) %>% bindEvent(input$notu_click)
 
 ## --- # Summary # --------  
+output$N_sample_placeholder <- renderDT({
+  data.frame(Sample=c("Sample1",
+                  "Sample2",
+                  "Sample3"),Sequences=c("","Placeholder",""))
+})
+output$N_taxa_placeholder <- renderDT({
+  data.frame(Rank=c("Kingdom","Phylum","Class","Order","Family","Genus","Species"),
+             Unique=c("","","","Placeholder","","",""))
+})
+
+observeEvent(checking$table, {
+  if(checking$table==TRUE)
+  {hide('N_sample_placeholder')
+    hide('N_taxa_placeholder')} else {show('N_sample_placeholder')
+      show('N_taxa_placeholder')}
+})
+
 
 ### For main tab (selected data)
 output$N_sel_seq_total <- renderText({

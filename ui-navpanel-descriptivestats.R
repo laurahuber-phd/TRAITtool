@@ -9,8 +9,8 @@ Basics_NumCard <- navset_card_tab(
                   open="closed", 
                   accordion(
                     accordion_panel(title="Summary",
-                            withSpinner(tableOutput("summ_seqs")) #max/min no of sequences in a sample, mean and median 
-                  ),
+                                    withSpinner(tableOutput("summ_seqs")) #max/min no of sequences in a sample, mean and median 
+                                    ),
                   accordion_panel(title="Sequence breakdown",
                                   textOutput("N_seq_total"),
                                   textOutput("N_seq_assigned"),
@@ -25,12 +25,15 @@ Basics_NumCard <- navset_card_tab(
   ),
   nav_panel(id="SamSumNavTab",
             title="Sample Summary Table",
-            dataTableOutput("N_sample")), #table of no. seqs in each sample
+                             DTOutput('N_sample_placeholder'), #show placeholder when no data is loaded
+                             withSpinner(dataTableOutput("N_sample")) #number of sequences per sample
+            ), #table of no. seqs in each sample
   nav_panel(id="UniqGrpNavTab",
             title="Unique Groups",
             card(
               full_screen=TRUE,
               card_header("Number of unique groups at each taxonomic rank"),
+              DTOutput('N_taxa_placeholder'), #show placeholder when no data is loaded
               dataTableOutput("N_taxa") #column 2 is a card that shows the number of unique taxa at each level
             )
             ), #Number of members in each taxonomic rank
