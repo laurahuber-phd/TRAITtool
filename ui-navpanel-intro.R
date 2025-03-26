@@ -7,7 +7,7 @@ titlepage <- tagList(
       #align = "center",
       #style='flex-grow:1; margin-left: 20px;resize:both;overflow:none;'
       ),
-      tags$figcaption(HTML("<i>Image of mangrove caye by Dr. Hannah Morrissette, 2024. Logo by ____ </i>"))),
+      tags$figcaption(HTML("<p style='text-align:right'><small><i>Image of mangrove caye by Dr. Hannah Morrissette, 2024. Logo by ____ </i></small></p>"))),
   layout_columns(col_widths=c(4,8),
                  card(HTML("<h3>Welcome!</h3>"),
                       HTML("<h5>What does this app do?</h5>"),
@@ -24,6 +24,8 @@ titlepage <- tagList(
                       )
                  ),
   HTML("<p style='text-align:center;margin-bottom:1px'><i>Marine Conservation Lab: Smithsonian Environmental Research Center</i></p>"),
-  HTML("<p style='text-align:right;margin-top:1px'><small><i>Developed with the generous support of the William H. Donner Foundation</i></small></p>")
-
+tags$footer(style="display: flex;justify-content: space-between;",
+            tags$img(src='smiths_logo.png',height='25px',
+                          alt="Smithsonian sun logo"),
+            HTML("<small><i>Developed with the generous support of the William H. Donner Foundation</i></small>"))
 )
