@@ -33,6 +33,7 @@ source('module-plotting-general.R',local=TRUE)
 
 source('ui-aes-sidebar.R',local=TRUE)
 
+source('ui-navpanel-intro.R')
 source('ui-navpanel-assign.R')
 source('ui-navpanel-upload.R')
 source('ui-navpanel-review.R')
@@ -121,6 +122,8 @@ ui <- page_navbar(id="pages",
                          align = "left",
                          style="margin-bottom:5px; margin-left:1px;margin-top:1px;margin-right:1px;"
                          )),
+           nav_panel("Introduction",value='introtab',
+                     titlepage)
            ),
 ## Group 2 # Upload and review files  --------  
 nav_menu("Files", 
