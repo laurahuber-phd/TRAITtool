@@ -170,6 +170,20 @@ Anlys_BetaCard <- accordion(
     )
   )
 
+############################################# Heat Map #############################################
+Anlys_hmCard <- tagList(
+  layout_columns(
+    plotControlsUI('hm_gen',color=TRUE,x=TRUE,y=FALSE,facet=TRUE
+    ),
+    plotPrettyUI("hm_pretty"),
+    plotSizeUI('hm_size')
+  ),
+    actionButton("plot_hm","Plot"),
+    downloadButton('download_hm', label=NULL),
+    withSpinner(plotOutput("hm",click="hm_click")) #add a reaction when the plot is clicked
+  
+)
+  
 ############################################# Trophic diversity #############################################
 Anlys_TrophCard <- layout_sidebar(
   sidebar=sidebar(
@@ -209,6 +223,10 @@ analysispage <- nav_panel(
                 nav_panel(id="beta",
                           title="Beta Diversity",
                           Anlys_BetaCard
+                ),
+                nav_panel(id="hm",
+                          title="Heat Map",
+                          Anlys_hmCard
                 ),
                 nav_panel(id="trophic",
                           title="Trophic composition",

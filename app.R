@@ -121,6 +121,7 @@ ui <- page_navbar(id="pages",
                   input_dark_mode(id='dark_mode',mode='light'),
                   open=FALSE,
     SelectFiltersCard,
+    SelectPruneCard,
     SelectNormCard,
     SelectSamplesCard
   ),
@@ -224,10 +225,10 @@ source('server-navpanel-review.R',local=TRUE)
   }) 
 # --- # Descriptive Stats Page  # --------  
  source("server-navpanel-descriptivestats.R",local=TRUE)
-## --- # Richness Tab # --------  
+## --- # Analysis Page # --------  
 source('server-navpanel-analysis-alpha.R',local=TRUE)
-## --- # Distance Matrices Tab # --------  
 source('server-navpanel-analysis-ord.R',local=TRUE)
+source('server-navpanel-analysis-hm.R',local=TRUE)
 ## --- # Report Tab # --------  
 source('server-navpanel-report.R',local=TRUE)
   
