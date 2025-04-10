@@ -11,7 +11,22 @@ dark <- bs_theme(bootswatch="solar",
                  base_font = font_collection(font_google("Inter"),"Montserrat"),
                  #bg="#CDDEF5"
 )
-
+SelectPruneCard <- card(
+  full_screen = TRUE,
+  card_header("Select pruning methods: ",
+              tooltip(bs_icon("info-circle"),
+                      "Use this section to choose a minimum number of times a taxa occurs and/or how small of a sample to include. "
+                      ),
+              ),
+  numericInput(
+    "prune_samples",
+    "Remove samples below:",
+    value = 10),
+  numericInput(
+    "prune_tax",
+    "Remove taxa below:",
+    value = 10)
+)
 SelectFiltersCard <- card( 
   full_screen=TRUE,
   card_header("Select filtering methods: ",
@@ -24,7 +39,7 @@ SelectFiltersCard <- card(
   checkboxInput(
     "rem_blanks",
     "Remove sample blanks?",
-    value = FALSE)
+    value = FALSE),
 )
 SelectNormCard <- card(
   full_screen=TRUE,

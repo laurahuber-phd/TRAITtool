@@ -123,7 +123,8 @@ ps.all <- reactive({
                  input$load_ex)
 ps.sub <- reactive({
   req(ps.all())
-  ps <- ps.all()
+  ps <- ps.all() %>% prune_taxa(taxa_sums(.)>=input$prune_tax,.) %>% prune_samples(sample_sums(.)>=input$prune_samples,.)
+  
   if(input$select_switch==TRUE && input$go) { 
     req(input$select_samples)
     new.ps <- subset_keep(ps,input$cols2,input$select_samples)
@@ -132,6 +133,7 @@ ps.sub <- reactive({
     } else { #otherwise just return new.ps
       new.ps
     }
+    
   } else if(input$adjust && input$rem_blanks) { #if 'remove unassigned' and 'remove blanks' are both checked
     if(is.null(input$blank_samples)) { #but no blank samples are identified
       subset_taxa(ps,Kingdom!="Unassigned") %>% #only remove unassigned sequences
@@ -150,7 +152,8 @@ ps.sub <- reactive({
           prune_samples(sample_sums(.)>=1,.)
       } else
         ps %>% prune_samples(sample_sums(.)>=1,.) #if neither is checked, just prune samples
-}) %>% bindEvent(input$adjust,
+}) %>% bindEvent(input$prune_tax,input$prune_samples,
+                 input$adjust,
                  input$rem_blanks,input$blank_samples,
                  input$Metadata,input$taxtab,input$otutab,
                  input$select_switch,input$go,
