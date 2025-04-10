@@ -35,7 +35,7 @@ tableUI <- function(id,editable=FALSE) {
                                            downloadButton(NS(id,'download'),'Download Modifications'))
                                  )
       )),
-         card(DTOutput(NS(id,"table")))
+         DTOutput(NS(id,"table"))
          )} else if(editable==FALSE) {
            card(
              full_screen = TRUE,
@@ -49,25 +49,24 @@ tableUI <- function(id,editable=FALSE) {
                                                 placement="right",
                                                 downloadButton(NS(id,'download'),'Download'))
              )),
-             card(DTOutput(NS(id,"table_noedit")))
+             DTOutput(NS(id,"table_noedit"))
            )}
 }
 
 tableServer <- function(id,data,editable=FALSE) {
   moduleServer(id, function(input,output,session) {
     ns <- session$ns
-    
     observe({
     output$table <- renderDT(data$x,
                               editable='all',
                              caption = htmltools::tags$caption(
-                               style = 'caption-side: top; text-align: center; color:black; font-size:120%; font-weight:bold;',
+                               style = 'caption-side: top; text-align: center; color:black; font-size:1.5vw; font-weight:bold;',
                                'Edit your table by double clicking inside a cell, save edits with Control + Enter'))
     })
     observe({
       output$table_noedit <- renderDT(data$x,
                                       caption = htmltools::tags$caption(
-                                        style = 'caption-side: top; text-align: center; color:black; font-size:120%; font-weight:bold;',
+                                        style = 'caption-side: top; text-align: center; color:black; font-size:1.5vw; font-weight:bold;',
                                         'Save or expand your table')
                                       )
     })
@@ -98,7 +97,7 @@ tableServer <- function(id,data,editable=FALSE) {
       if(editable==TRUE) {
         output$bigTable <- renderDT(data$x,
                                     caption = htmltools::tags$caption(
-                                      style = 'caption-side: top; text-align: center; color:black; font-size:120%; font-weight:bold;',
+                                      style = 'caption-side: top; text-align: center; color:black; font-size:1.5vw; font-weight:bold;',
                                       'Edit your table by double clicking inside a cell, save edits with Control + Enter'),
                                     editable='all',
                                     #filter='top',
@@ -145,93 +144,3 @@ observeEvent(input$download, {toggle_popover('dwnldbutton')}) #close the downloa
 observeEvent(input$reset, {toggle_popover('resetbutton')}) #close the reset popup when clicked
   })
 }
-
-
-#basing script off of
-#ui = fluidPage(
-#  fluidRow(
-#    column(width = 6,
-#           DT::dataTableOutput("tblData"), 
-#           options = list(list(width="50px", targets="_all")),
-#    ),
-#    column(width=6,
-#           actionButton("show", "Show", icon('chart-line'))
-#    )
-#  )
-#)
-#
-# server
-#server = function(input, output, session) {
-#  ns <- session$ns
-#  # create dataframe
-#  myData <- data.frame(x,y)
-#  # make dataframe reactive
-#  df <- reactiveValues(myData=myData)
-  #df$myData <- myData
-  #
-  # the table on the main screen
-#  output$tblData <- DT::renderDataTable(df$myData,
-#                                        editable = TRUE,
-#                                        rownames = FALSE,
-#                                        options = list(
-#                                          autoWidth = TRUE,
-#                                          columnDefs = list(list(width = '100px', targets = "_all"))))
-#  output$outTable <- DT::renderDataTable(df$myData,
-#                                         rownames = FALSE,
-#                                         editable = TRUE,
-#                                         options = list(
-#                                           autoWidth = FALSE,
-#                                           columnDefs = list(list(width = '100px', targets = "_all"))))
-  # The function to show the popup screen.
-#  dataModal <- function(ns) {
-#    modalDialog(
-#      withTags({
-#        fluidRow(
-          #         first column contains table  
-#          column(width=6, DT::dataTableOutput("outTable") ))
-#      )
-#      }),
-    #     button at the bottom
-#    footer = tagList(
-#      actionButton("ok", "OK")
-#    ),
-#    title = "Graphical presentation",
-#    easyClose = TRUE
-#    ) # of modelDialog
-
-#  } # of function
-  #    
-  # Show modal when button is clicked.
-#  observeEvent(input$show, {showModal(dataModal(session$ns))
-#  })
-  #
-  # Get changed data from input table and store in dataframe
-#  observeEvent(input$tblData_cell_edit, {
-#    info = input$tblData_cell_edit
-#    i = info$row
-#    j = info$col
-#    k = info$value
-#    isolate(
-#      df$myData[i, j+1] <<- DT::coerceValue(k, df$myData[i, j])
-#    )
-#  })
-#  #
-#  # Get changed data from table on popup and store in dataframe
-#  observeEvent(input$outTable_cell_edit, {
-#    info = input$outTable_cell_edit
-#    #    browser()
-#    i = info$row
-#    j = info$col
-#    k = info$value
-#    str(info)
-#    df$myData[i, j+1] <<- DT::coerceValue(k, df$myData[i, j])
-#    print(df$myData)
-#  })
-  #
-#  # When OK button is pressed, close modal window
-#  observeEvent(input$ok, {
-#    removeModal()
-#  })
-  #    
-#} # end of server section
-#
