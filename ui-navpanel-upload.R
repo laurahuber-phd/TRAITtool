@@ -128,30 +128,40 @@ uploadpage <- nav_panel("Files",
                                            width='100%', individual=TRUE,
                                            choiceNames = c(HTML("<p style='margin-bottom:0;font-size:1.5vw;'><i>My data has been completely processed:</i></p> <p style='padding-top:0; margin-bottom: 0;font-size:1.5vw;'>I only need analyses.</p>"),
                                                            HTML("<p style='margin-bottom:0;font-size:1.5vw;'><i>My data has been partially processed:</i></p> <p style='padding-top:0; margin-bottom: 0;font-size:1.5vw;'>I have an OTU table and I need to identify the species and analyze.</p>"), 
-                                                           HTML("<p style='margin-bottom:0;font-size:1.5vw;'><i>I have raw sequencing data:</i></p> <p style='padding-top:0; margin-bottom: 0;font-size:1.5vw;'>My files are coming directly from the sequencing facility.</p>")
-                                           ),
-                                           choiceValues = c("choose_analysis","choose_partial","choose_raw"),
+                                                           HTML("<p style='margin-bottom:0;font-size:1.5vw;'><i>I have raw sequencing data:</i></p> <p style='padding-top:0; margin-bottom: 0;font-size:1.5vw;'>My files are coming directly from the sequencing facility.</p>"), 
+                                                           HTML("<p style='margin-bottom:0;font-size:1.5vw;'><i>Use example data:</i></p> <p style='padding-top:0; margin-bottom: 0;font-size:1.5vw;'>You can use this dataset to explore the feautures of the app prior to using it on your own data.</p>")
+                                                           ),
+                                           choiceValues = c("choose_analysis","choose_partial","choose_raw","choose_ex"),
                                            direction = 'vertical',
                                            selected=NULL
                          ),
-                         card(conditionalPanel(condition="input.selectupload == 'choose_raw'",
+                         card(
+                           conditionalPanel(condition="input.selectupload == 'choose_raw'",
                                             Files_ScratchCard #card directing to raw fastq files
-                           ),
+                                            ),
                            conditionalPanel(condition="input.selectupload == 'choose_partial'",
                                             Files_PartialCard #placeholder
-                           ),
+                                            ),
                            conditionalPanel(condition="input.selectupload == 'choose_analysis'",
                                             Files_CompletedProcessingCard #card directing to otu and tax files
-                           ))
+                                            ),
+                         conditionalPanel(condition="input.selectupload == 'choose_ex'",
+                                          Ex_Card
+                                          )
+                         )
                          ),
           h5("Make sure to upload a metadata file before proceeding. At minimum, this should include some way to connect sample names in the sequencing data."),
           Files_MetadataCard, #card directing to metadata csv file,
+          actionBttn("assemble_ps",
+                     label="Build dataset",
+                     style="unite",
+                     color="success",
+                     block=TRUE),
           br(),
           br(),
-          br(),
-         HTML("<h4>Or, alternatively, use our example dataset: </h4>"),
-          Ex_Card,
-          br(),
+         #HTML("<h4>Or, alternatively, use our example dataset: </h4>"),
+        #  Ex_Card,
+         # br(),
           actionButton("fileupload_nextpage_v2","Next step",width='100%')
 )
 ##########################################################################################
