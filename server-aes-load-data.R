@@ -73,13 +73,25 @@ observeEvent(input$load_ex, {
   TaxTable$x <- NULL
   TaxTable$og <- NULL
   
-  metfile <- vroom::vroom('data/Mock_metadata.csv',delim=',',show_col_types = FALSE)
+  metfile <- vroom::vroom('data/Mock_metadata.csv',delim=',',
+                          show_col_types = FALSE,
+                          trim_ws=TRUE,
+                          na = c("", "NA","NULL","Unassigned","unassigned")
+  )
   MetadataTable$og <- MetadataTable$x <- metfile
   
-  otufile <- vroom::vroom('data/otu_table.csv',delim=',',show_col_types = FALSE)
+  otufile <- vroom::vroom('data/otu_table.csv',delim=',',
+                          show_col_types = FALSE,
+                          trim_ws=TRUE,
+                          na = c("", "NA","NULL","Unassigned","unassigned")
+  )
   OTUTable$og <- OTUTable$x <- otufile
   
-  taxfile <- vroom::vroom('data/tax_table.csv',delim=',',show_col_types = FALSE)
+  taxfile <- vroom::vroom('data/tax_table.csv',delim=',',
+                          show_col_types = FALSE,
+                          trim_ws=TRUE,
+                          na = c("", "NA","NULL","Unassigned","unassigned")
+  )
   TaxTable$og <- TaxTable$x <- taxfile
 })
 
@@ -108,10 +120,9 @@ isgood <- reactive({
   } else {"Everything is great"}
 }) %>% bindEvent(input$Metadata,input$taxtab,input$otutab,ignoreNULL=FALSE)  
 
-ps.all <- reactive({
-  #req(input$Metadata)
-  #req(input$otutab)
-  #req(input$taxtab)
+ps.all <- eventReactive(c(input$assemble_ps,input$load_ex), {
+  runif(input$assemble_ps)
+  runif(input$load_ex)
   req(MetadataTable$x)
   req(OTUTable$x)
   req(TaxTable$x)
@@ -119,8 +130,8 @@ ps.all <- reactive({
               tax=TaxTable$x,
               meta=MetadataTable$x
   )
-}) %>% bindEvent(OTUTable$x,TaxTable$x,MetadataTable$x,
-                 input$load_ex)
+})
+
 ps.sub <- reactive({
   req(ps.all())
   ps <- ps.all() %>% prune_taxa(taxa_sums(.)>=input$prune_tax,.) %>% prune_samples(sample_sums(.)>=input$prune_samples,.)
@@ -155,7 +166,7 @@ ps.sub <- reactive({
 }) %>% bindEvent(input$prune_tax,input$prune_samples,
                  input$adjust,
                  input$rem_blanks,input$blank_samples,
-                 input$Metadata,input$taxtab,input$otutab,
+                 input$assemble_ps,
                  input$select_switch,input$go,
                  input$load_ex)
 

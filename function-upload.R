@@ -35,11 +35,17 @@ uploadFunction <- function(file,id,sep=',',header=TRUE,type) {
   if(header==TRUE) {
     x <- vroom::vroom(file$datapath,
                       delim=sep,
-                      show_col_types = FALSE)
+                      show_col_types = FALSE,
+                      trim_ws=TRUE,
+                      na = c("", "NA","NULL","Unassigned","unassigned")
+                      )
     } else
     {x <- vroom::vroom(file$datapath,
                      delim=sep,
                      col_names = FALSE,
-                     show_col_types = FALSE)}
+                     show_col_types = FALSE,
+                     trim_ws=TRUE,
+                     na = c("", "NA","NULL","Unassigned","unassigned")
+                     )}
   return(x)
 }

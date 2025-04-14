@@ -15,7 +15,7 @@ observe({
   req(MetadataTable$x) #if the otu table and taxonomy table are both uploaded, take the user to the review page
   req(OTUTable$x)
   req(TaxTable$x)
-  showModal(modalDialog(title="Did you upload your metadata file? Move on to review your files",
+  showModal(modalDialog(title="Data uploaded. Move on to review your files",
                         size='l',
                         actionButton("fileupload_nextpage","Go to review your files",width='100%'),
                         actionButton("fileupload_nextpage_v3","Go directly to stats",width='100%'),
@@ -23,7 +23,7 @@ observe({
                         footer=NULL
   )
   )
-}) %>% bindEvent(input$otutab,input$taxtab,input$Metadata)
+}) %>% bindEvent(input$assemble_ps)
 observeEvent(input$load_ex, {
   showModal(modalDialog(title="Go to review files",
                         HTML("Great!<br><br>The first step after uploading files is checking to make sure that we uploaded the correct files, that they are in the right place, and that names are matching across files.<br><br>" 
@@ -31,7 +31,8 @@ observeEvent(input$load_ex, {
                         size='m',
                         actionButton('fileupload_nextpage_v4',"Go",width='50%'),
                         easyClose = FALSE,
-                        footer=NULL))
+                        footer=NULL
+                        ))
 }) 
 # page switch actions
 switch_page <- function(i) {
@@ -61,7 +62,6 @@ observeEvent(input$analysis_prevpage, switch_page("basicstab"))
 observeEvent(input$psfail_goback,switch_page("uploadtab"))
 
 observeEvent(input$filespage,switch_page('test'))
-
 # remove modal dialog boxes
 observe({
   removeModal() #remove the modal dialog when the user selects something in one of the dialog boxes
@@ -71,3 +71,15 @@ observe({
                  input$psfail_goback,
                  input$fileupload_nextpage_v4
 )
+
+observe({
+  if (!isTruthy(MetadataTable$x) || !isTruthy(OTUTable$x) || !isTruthy(TaxTable$x)) {
+    showModal(
+      modalDialog(title="You do not have all the appropriate files to continue.",
+                  paste("The issue is: ", isgood()),
+                  size='l',
+                  easyClose = FALSE
+      )
+    ) 
+  }
+}) %>% bindEvent(input$assemble_ps)
