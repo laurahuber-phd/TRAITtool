@@ -8,6 +8,14 @@ titlepage <- tagList(
       #style='flex-grow:1; margin-left: 20px;resize:both;overflow:none;'
       ),
       tags$figcaption(HTML("<p style='text-align:right'><small><i>Image of mangrove caye by Dr. Hannah Morrissette, 2024. Logo by ____ </i></small></p>"))),
+  actionBttn(
+    inputId = "titlepg_start",
+    label = "Get started!", 
+    style = "gradient",block=TRUE,
+    icon=bs_icon("balloon-fill"),
+    color = "success"
+  ),
+  br(),
   layout_columns(col_widths=c(4,8),
                  card(HTML("<h3>Welcome!</h3>"),
                       HTML("<h5>What does this app do?</h5>"),
