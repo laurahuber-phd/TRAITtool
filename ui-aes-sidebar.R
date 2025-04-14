@@ -67,6 +67,7 @@ SelectSamplesCard <- card(
     accordion_panel(
       id='select_panel',
       title="Filters",
+      actionButton('go',"Go: Use selected samples"),
       selectInput('cols2',
                   "Select filtering group",
                   character()
@@ -74,8 +75,7 @@ SelectSamplesCard <- card(
       checkboxGroupInput('select_samples',
                          label="Select samples",
                          list()
-      ),
-      actionButton('go',"Go")
+      )
     )
   )
 )
