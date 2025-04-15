@@ -156,34 +156,59 @@ ps.sub <- reactive({
   }
   
   req(ps)
-  
-  if(input$select_switch==TRUE && input$go) { 
-    req(input$select_samples)
-    new.ps <- subset_keep(ps,input$cols2,input$select_samples)
-    if(input$adjust) { #if adjust is selected, remove unassigned sequences
-      subset_taxa(new.ps,Kingdom!="Unassigned") %>% prune_samples(sample_sums(.)>1,.)
-    } else { #otherwise just return new.ps
-      new.ps
-    }
+  tnames <- rank_names(ps)
+
+#####################################################################################
+  if(isTruthy(input$rem_blanks)) { #if remove blanks is selected
+    blakeep = NULL #make empty list of samples
     
-  } else if(input$adjust && input$rem_blanks) { #if 'remove unassigned' and 'remove blanks' are both checked
-    if(is.null(input$blank_samples)) { #but no blank samples are identified
-      subset_taxa(ps,Kingdom!="Unassigned") %>% #only remove unassigned sequences
-        prune_samples(sample_sums(.)>=1,.)
-    } else
-      subset_blanks_rem(ps,input$cols,input$blank_samples) %>% 
-      subset_taxa(.,Kingdom!="Unassigned") %>% 
-      prune_samples(sample_sums(.)>=1,.)
-  } else
-    if(input$adjust) { #if 'remove unassigned' is the only one checked
-      subset_taxa(ps,Kingdom!="Unassigned") %>% 
-        prune_samples(sample_sums(.)>=1,.)
-    } else
-      if(input$rem_blanks) { #if 'remove blanks' is the only one checked
-        subset_blanks_rem(ps,input$cols,input$blank_samples) %>% 
-          prune_samples(sample_sums(.)>=1,.)
-      } else
-        ps %>% prune_samples(sample_sums(.)>=1,.) #if neither is checked, just prune samples
+    if(!is.null(input$blank_samples)) { #if there are blanks selected
+      if(input$cols == "Sample") { #if the filtering parameter is sample id
+        blasam = sample_names(ps)
+        blarem = input$blank_samples #list of blank samples 
+        blakeep = blasam[!blasam %in% blarem] #remove blanks from sample list 
+      } else { #with any other filtering parameter
+        blacolvals = as.data.frame(as.matrix(sample_data(ps))) %>% select(input$cols) #get sample_data of selected variable 
+        blakeep = row.names(blacolvals %>% filter(!blacolvals[[1]] %in% input$blank_samples)) #list of sample names EXCEPT for those selected
+      }
+      ps <- prune_samples(blakeep,ps)
+    }
+    else {
+      ps <- ps
+    }
+  }
+####################################################################################   
+  if(isTruthy(input$select_switch) && input$go) { #if user selects specific samples to vis
+    runif(input$go)
+    if(!is.null(input$select_samples)) {
+      selkeep = NULL #make empty list of samples 
+      
+      if(input$cols2 == "Sample") { #if the filtering parameter is sample id
+        selkeep = input$select_samples #list of selected samples 
+      } else {
+        selcolvals = as.data.frame(as.matrix(sample_data(ps))) %>% select(input$cols2) #get sample_data of selected variable 
+        selkeep = row.names(selcolvals %>% filter(selcolvals[[1]] %in% input$select_samples)) #list of sample names selected
+      }
+      ps <- prune_samples(selkeep,ps)
+    } else {
+      ps <- ps
+    }
+  }
+###################################################################################
+  if(isTruthy(input$sub_taxa)) { #if user selects specific taxa to vis 
+    taxkeep = NULL #make blank list
+    taxsam = as.data.frame(as.matrix(tax_table(ps)))
+    
+    if(isTruthy(input$adjust)) { #if keep selected taxa is selected
+      taxsamsel = select(tax.sam,input$ranks2)
+      taxkeep = rownames(filter(taxsamsel, taxsamsel[[1]] %in% input$select_taxa))
+    } else { #if remove selected taxa is selected
+      taxsamsel = select(tax.sam,input$ranks2)
+      taxkeep = rownames(filter(taxsamsel, !taxsamsel[[1]] %in% input$select_taxa))
+    }
+    ps <- prune_taxa(taxkeep,ps)
+  }
+  return(ps)
 }) %>% bindEvent(input$prune_tax,input$prune_samples,
                  input$adjust,
                  input$rem_blanks,input$blank_samples,

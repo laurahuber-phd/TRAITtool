@@ -60,8 +60,8 @@ observe({
   #Num_seq_subset$N_singleton = length(taxa_names(prune_taxa(taxa_sums(ps)==1,ps)
   #                                               )) %>% round(digits=0)
   
-  Num_seq_subset$N_seq_blanks = if(is.null(input$blank_samples)) {return(0)} else 
-    sum(taxa_sums(subset_blanks_rem(ps,input$cols,input$blank_samples)))
+ # Num_seq_subset$N_seq_blanks = if(is.null(input$blank_samples)) {return(0)} else 
+ #   sum(taxa_sums(subset_blanks_rem(ps,input$cols,input$blank_samples)))
 }) %>% 
   bindEvent(input$cols,
             input$blank_samples,
@@ -86,8 +86,8 @@ observe({
                                               )),
                                            error=function(e){return(0)})
   
-  Num_otu_subset$N_otu_blanks = if(is.null(input$blank_samples)) {return(0)} else 
-    ntaxa(subset_blanks_rem(ps,input$cols,input$blank_samples))
+  #Num_otu_subset$N_otu_blanks = if(is.null(input$blank_samples)) {return(0)} else 
+    #ntaxa(subset_blanks_rem(ps,input$cols,input$blank_samples))
 }) %>% 
   bindEvent(input$cols,
             input$blank_samples,
@@ -134,8 +134,8 @@ observe({
   #                                           ps
   #                                           ))) %>% round(digits=0)
   
-  Num_seq_all$N_seq_blanks = if(is.null(input$blank_samples)) {return(0)} else 
-    sum(taxa_sums(subset_blanks_rem(ps,input$cols,input$blank_samples)))
+  #Num_seq_all$N_seq_blanks = if(is.null(input$blank_samples)) {return(0)} else 
+  #  sum(taxa_sums(subset_blanks_rem(ps,input$cols,input$blank_samples)))
 }) %>% 
   bindEvent(input$cols,
             input$blank_samples,
@@ -159,8 +159,8 @@ observe({
                                               is.na(rank_names(ps)[1]))),
                                         error=function(e){return(0)}) 
   
-  Num_otu_all$N_otu_blanks = if(is.null(input$blank_samples)) {return(0)} else 
-    ntaxa(subset_blanks_rem(ps,input$cols,input$blank_samples))
+  #Num_otu_all$N_otu_blanks = if(is.null(input$blank_samples)) {return(0)} else 
+  #  ntaxa(subset_blanks_rem(ps,input$cols,input$blank_samples))
 }) %>% 
   bindEvent(input$cols,
             input$blank_samples,
