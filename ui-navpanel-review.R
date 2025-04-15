@@ -22,26 +22,7 @@ Review_TaxCard <- card(
   div(id="tax_table",
       tableUI('tax_table'))
 )
-Select_BlanksCard <- card( 
-  full_screen=TRUE,
-  card_header("Select which (if any) of your samples are blanks (sequencing, PCR, or experimental)"),
-  height=400,
-  layout_columns(
-    col_widths=c(4,8), #max value of 12, so the ID card takes up 1/3 of the window space
-    card(
-      card_header("ID samples"),
-      selectInput('cols', 'Which column is your sample names?',character())
-      #uiOutput('meta_colnames') #reactive output variable (used to ID column names for metadata file and make a dropdown list)
-    ), 
-    card(
-      card_header("Select Sample Blanks"),
-      checkboxGroupInput("blank_samples",
-                         label="Check boxes of each blank",
-                         list())
-      #uiOutput('blank_samples_check') #reactive output variable (used to select sample names from a list)
-    )
-  )
-)
+
 
 #############################################################################################################
 reviewpage <- nav_panel("Review",
@@ -64,9 +45,6 @@ reviewpage <- nav_panel("Review",
                               HTML("<h4 style='text-align:center;'>We are going to look at a small sample of the files you uploaded: Does this look like your data? </h4>")
                             ), 
                         jqui_resizable(Review_MetadataCard), #This card is an overview of the metadata
-                        br(),
-                        HTML("<p>During the process of collecting samples, filtering water, or performing PCR, you likely had 'blanks' for quality control and to track any sources of contamination. Here, you can identify which samples are blanks, so we can remove them from the analysis later on. </p>"),
-                        jqui_resizable(Select_BlanksCard), #This card allows you to select the sequencing blanks
                         br(),
                         HTML("<p>This next part is a sanity check - do the number of sequences make sense? Did every sample show up? If not, now is a good time to go back and figure out why. </p>"),
                         layout_columns( #This card is 50/50 overview of otu/tax tables

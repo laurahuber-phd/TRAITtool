@@ -38,6 +38,7 @@ source('ui-navpanel-intro.R')
 source('ui-navpanel-assign.R')
 source('ui-navpanel-upload.R')
 source('ui-navpanel-review.R')
+source('ui-navpanel-filter.R')
 source('ui-navpanel-descriptivestats.R')
 source('ui-navpanel-analysis.R')
 source('ui-navpanel-report.R')
@@ -124,7 +125,8 @@ ui <- page_navbar(id="pages",
     SelectFiltersCard,
     SelectPruneCard,
     SelectNormCard,
-    SelectSamplesCard
+    SelectSamplesCard,
+    SelectTaxaCard
   ),
 ## Group 1 # Starting information  --------  
   nav_menu(title=div(class="title",
@@ -142,6 +144,10 @@ nav_menu("Files",
                    uploadpage),
          nav_panel("Review",value="reviewtab",
                    reviewpage)
+         ),
+nav_menu("Filter", #filtering options 
+         nav_panel("Filter",value='filtertab',
+                   filterpage)
          ),
 ## Group 3 # Process from raw  --------  
 nav_menu("From Scratch",
@@ -214,6 +220,8 @@ source('server-aes-load-data.R',local=TRUE) #loads the functionality to read in 
 source('server-navpanel-upload.R',local=TRUE)
 # --- # Review Page # --------
 source('server-navpanel-review.R',local=TRUE)
+# --- # Filter Page # --------
+source('server-navpanel-filter.R',local=TRUE)  
   # --- # Page 2 # --------
   output$selected_Quality <- renderText({ 
     paste('Selected stringency: ',input$Quality)  # return the values selected from the checkboxes
