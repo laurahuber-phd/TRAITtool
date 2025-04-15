@@ -6,7 +6,7 @@ Select_BlanksCard <- card(
   full_screen=TRUE,
   card_header("Select which (if any) of your samples are blanks (sequencing, PCR, or experimental)"),
   HTML("<p>During the process of collecting samples, filtering water, or performing PCR, you likely had 'blanks' for quality control and to track any sources of contamination. Here, you can identify which samples are blanks, so we can remove them from the analysis later on. </p>"),
-  height=400,
+  height=800,
   layout_columns(
     col_widths=c(4,8), #max value of 12, so the ID card takes up 1/3 of the window space
     card(
@@ -26,24 +26,8 @@ Select_BlanksCard <- card(
       #uiOutput('blank_samples_check') #reactive output variable (used to select sample names from a list)
     )
   ),
-  card(conditionalPanel(condition="input.rem_blanks==TRUE"),
-       textOutput('remblank_bef'),textOutput('remblank_aft'))
-)
-## ---- remove blanks ## ---- 
-SelectFiltersCard <- card( 
-  full_screen=TRUE,
-  card_header("Select filtering methods: ", tooltip(bs_icon("info-circle"),
-                                                    "Removing unassigned sequences will make your dataset smaller and analyses run faster, but you will not get a complete picture of the diversity captured by your data. Removing the sample blanks will remove all OTUs found in any of your sample blanks. Generally, we don't recommend doing this, but removing them makes plotting more visually meaningful."
-  )
-  ),
-  #checkboxInput(
-  #  "adjust",
-  #  "Remove unassigned sequences?",
-  #  value = FALSE),
-  br(),
-  br(),
-  checkboxInput(
-    "rem_blanks", "Remove sample blanks?", value = FALSE)
+  conditionalPanel(condition="input.rem_blanks==true",
+                        textOutput('remblank_bef'),textOutput('remblank_aft'))
 )
 
 # ---- # Samples # ---- 
@@ -75,7 +59,9 @@ SelectSamplesCard <- card(
                          list()
                          )
     )
-  )
+  ),
+  conditionalPanel(condition="input.go_samples.onclick & input.sample_switch==true",
+                   textOutput("selsamp_bef"),textOutput("selsamp_aft"))
 )
 # ---- # Taxa # ---- 
 SelectTaxaCard <- card(

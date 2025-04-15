@@ -2,25 +2,32 @@ output$psog_filter <- renderPrint({ps.all()})
 output$pstext_filter <- renderPrint({ps.sub()})
 
 trackNums <- reactiveValues(remblank_bef=NULL,
-                            remblank_after=NULL,
-                            prune_before=NULL,
-                            prune_after=NULL,
+                            remblank_aft=NULL,
+                            prune_bef=NULL,
+                            prune_aft=NULL,
                             selsamp_bef=NULL,
-                            selsam_aft=NULL)
+                            selsamp_aft=NULL,
+                            seltax_bef=NULL,
+                            seltax_aft=NULL)
 observeEvent(ps.all(),{
   trackNums$remblank_bef=NULL
-  trackNums$remblank_after=NULL
-  trackNums$prune_before=NULL
-  trackNums$prune_after=NULL
+  trackNums$remblank_aft=NULL
+  trackNums$prune_bef=NULL
+  trackNums$prune_aft=NULL
   trackNums$selsamp_bef=NULL
-  trackNums$selsam_aft=NULL
+  trackNums$selsamp_aft=NULL
+  trackNums$seltax_bef=NULL
+  trackNums$seltax_aft=NULL
 })
 
-output$prune_bef <- renderText({paste("Number of samples before pruning: ",trackNums$prune_bef)}) #samples before blank removal
-output$prune_aft <- renderText({paste("Number of samples after pruning: ",trackNums$prune_aft)}) #samples after blank removal
+output$prune_bef <- renderText({paste("Number of samples before pruning: ",trackNums$prune_bef)}) #samples before pruning
+output$prune_aft <- renderText({paste("Number of samples after pruning: ",trackNums$prune_aft)}) #samples after pruning
 
 output$remblank_bef <- renderText({paste("Number of samples before: ",trackNums$remblank_bef)}) #samples before blank removal
 output$remblank_aft <- renderText({paste("Number of samples after: ",trackNums$remblank_aft)}) #samples after blank removal
+
+output$selsamp_bef <- renderText({paste("Number of samples before: ",trackNums$remblank_bef)}) #samples before selection
+output$selsamp_aft <- renderText({paste("Number of samples after: ",trackNums$remblank_aft)}) #samples after selection
 
 # ---- # Update picker variables # ---- 
 observe({ 
@@ -153,8 +160,9 @@ ps.sub <- reactive({
   tnames <- rank_names(ps)
   trackNums$prune_aft <- as.character(nsamples(ps))
   
-  #####################################################################################
+  ############################### BLANKS ############################################
   if(isTruthy(input$rem_blanks)) { #if remove blanks is selected
+    trackNums$remblank_bef <- as.character(nsamples(ps))
     blakeep = NULL #make empty list of samples
     
     if(!is.null(input$blank_samples)) { #if there are blanks selected
@@ -167,14 +175,16 @@ ps.sub <- reactive({
         blakeep = row.names(blacolvals %>% filter(!blacolvals[[1]] %in% input$blank_samples)) #list of sample names EXCEPT for those selected
       }
       ps <- prune_samples(blakeep,ps)
+      trackNums$remblank_aft <- as.character(nsamples(ps))
     }
     else {
       ps <- ps
     }
   }
-  ####################################################################################   
+  ############################### SAMPLES ###########################################   
   if(isTruthy(input$sample_switch) && input$go_samples) { #if user selects specific samples to vis
     runif(input$go_samples)
+    trackNums$selsamp_bef <- as.character(nsamples(ps))
     if(!is.null(input$select_samples)) {
       selkeep = NULL #make empty list of samples 
       
@@ -188,6 +198,7 @@ ps.sub <- reactive({
     } else {
       ps <- ps
     }
+    trackNums$selsamp_aft <- as.character(nsamples(ps))
   }
   ###################################################################################
   if(isTruthy(input$taxa_switch) && input$go_taxa) { #if user selects specific taxa to vis 
