@@ -132,9 +132,30 @@ ps.all <- eventReactive(c(input$assemble_ps,input$load_ex), {
   )
 })
 
+subfunc <- function(ps,x) {
+  tryCatch(x,error=function(e){return(FALSE)})
+}
+
 ps.sub <- reactive({
   req(ps.all())
-  ps <- ps.all() %>% prune_taxa(taxa_sums(.)>=input$prune_tax,.) %>% prune_samples(sample_sums(.)>=input$prune_samples,.)
+  
+  ps <- subfunc(ps.all(),
+                ps.all() %>% 
+                  prune_taxa(taxa_sums(.)>=input$prune_tax,.) %>% 
+                  prune_samples(sample_sums(.)>=input$prune_samples,.)
+  )
+  
+  if (!isTruthy(ps)) {
+    showModal(
+      modalDialog(title="ERROR",
+                  "One or more of your subsetting criteria is too strict",
+                  size='l',
+                  easyClose = FALSE
+      )
+    ) 
+  }
+  
+  req(ps)
   
   if(input$select_switch==TRUE && input$go) { 
     req(input$select_samples)
