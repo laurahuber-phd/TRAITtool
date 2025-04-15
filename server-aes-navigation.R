@@ -62,6 +62,9 @@ observeEvent(input$analysis_prevpage, switch_page("basicstab"))
 observeEvent(input$psfail_goback,switch_page("uploadtab"))
 
 observeEvent(input$filespage,switch_page('test'))
+
+observeEvent(input$titlepg_start, switch_page("uploadtab"))
+
 # remove modal dialog boxes
 observe({
   removeModal() #remove the modal dialog when the user selects something in one of the dialog boxes
