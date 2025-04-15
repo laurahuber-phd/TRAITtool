@@ -1,3 +1,5 @@
+#psog and pstext can be found on server-navpanel-analysis-ord.R
+
 helppage <- nav_panel(
   HTML("<h3>There are some requirements that your files must meet to be analyzed properly. Examine the example dataset below, which shows the results of an experiment that examines how the use of different primers and dilution impacts what species are identified in a mock community.</h3>"),
   br(),

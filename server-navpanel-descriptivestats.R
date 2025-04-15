@@ -3,6 +3,15 @@ source('module-plotting-size.R',local=TRUE)
 source('module-plotting-general.R',local=TRUE)
 
 source('server-aes-vis.R',local=TRUE) #base theme for ggplot2
+
+
+observe({ #whenever ps.sub() changes 
+  updatePickerInput(inputId = 'ranks', 
+                    label = 'Taxonomic Rank', 
+                    choices = c(rnames())
+  ) #update picker selection using the rank names of the ps object
+}) %>% bindEvent(ps.sub())   
+
 # ---- # Tab 1 (Sequences per sample) # ----- 
 N_sample_df <- reactive({
   req(ps.sub())
