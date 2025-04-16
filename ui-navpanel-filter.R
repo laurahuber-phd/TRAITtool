@@ -1,4 +1,4 @@
-
+library(shinyjs)
 # ---- # Blanks # ----
 
 ## ---- select blanks ## ---- 
@@ -6,7 +6,7 @@ Select_BlanksCard <- card(
   full_screen=TRUE,
   card_header("Select which (if any) of your samples are blanks (sequencing, PCR, or experimental)"),
   HTML("<p>During the process of collecting samples, filtering water, or performing PCR, you likely had 'blanks' for quality control and to track any sources of contamination. Here, you can identify which samples are blanks, so we can remove them from the analysis later on. </p>"),
-  height=800,
+  height=600,
   layout_columns(
     col_widths=c(4,8), #max value of 12, so the ID card takes up 1/3 of the window space
     card(
@@ -27,7 +27,7 @@ Select_BlanksCard <- card(
     )
   ),
   conditionalPanel(condition="input.rem_blanks==true",
-                        textOutput('remblank_bef'),textOutput('remblank_aft'))
+                        wellPanel(textOutput('remblank_bef'),textOutput('remblank_aft')))
 )
 
 # ---- # Samples # ---- 
@@ -47,7 +47,7 @@ SelectPruneCard <- card(
 SelectSamplesCard <- card(
   full_screen=TRUE,
   "Toggle the switch to select only a few samples to look at",
-  
+  useShinyjs(),
   materialSwitch(inputId='sample_switch', value=FALSE, label="Choose"), #toggle to open accordion 
   accordion( id='sample_accord', open=FALSE,
     accordion_panel( id='select_panel',title="Pick samples",
@@ -60,8 +60,9 @@ SelectSamplesCard <- card(
                          )
     )
   ),
-  conditionalPanel(condition="input.go_samples.onclick & input.sample_switch==true",
-                   textOutput("selsamp_bef"),textOutput("selsamp_aft"))
+  shinyjs::hidden(
+         wellPanel(id="befaft_sample",textOutput("selsamp_bef"),textOutput("selsamp_aft"))
+         )
 )
 # ---- # Taxa # ---- 
 SelectTaxaCard <- card(
@@ -82,6 +83,9 @@ SelectTaxaCard <- card(
                          list()
                          )
       )
+  ),
+  shinyjs::hidden(
+    wellPanel(id="befaft_tax",textOutput("seltax_bef"),textOutput("seltax_aft"))
   )
 )
 
@@ -100,19 +104,14 @@ SelectNormCard <- card(
 
 #############################################################################################################
 filterpage <- nav_panel(
-  card(card_header("Comparison"),
-       layout_columns(col_widths = c(6,6),
-                      textOutput("psog_filter"),
-                      textOutput("pstext_filter")
-                      )
-       ),
+  useShinyjs(),
   card(
   layout_columns(col_widths=c(6,6),
                  SelectPruneCard,
                  SelectNormCard
+                 ),
+  wellPanel(textOutput("prune_bef"),textOutput("prune_aft"))
   ),
-  textOutput("prune_bef"),
-  textOutput("prune_aft")),
   jqui_resizable(Select_BlanksCard), #This card allows you to select the sequencing blanks,
   SelectSamplesCard,
   SelectTaxaCard
