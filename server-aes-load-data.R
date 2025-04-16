@@ -80,6 +80,7 @@ observeEvent(input$load_ex, {
                           trim_ws=TRUE,
                           na = c("", "NA","NULL","Unassigned","unassigned")
   )
+  metfile <- metfile  %>% replace(is.na(.),"Not assigned")
   MetadataTable$og <- MetadataTable$x <- metfile
   
   otufile <- vroom::vroom('data/otu_table.csv',delim=',',
@@ -87,6 +88,7 @@ observeEvent(input$load_ex, {
                           trim_ws=TRUE,
                           na = c("", "NA","NULL","Unassigned","unassigned")
   )
+  otufile <- otufile  %>% replace(is.na(.),"Not assigned")
   OTUTable$og <- OTUTable$x <- otufile
   
   taxfile <- vroom::vroom('data/tax_table.csv',delim=',',
@@ -94,6 +96,7 @@ observeEvent(input$load_ex, {
                           trim_ws=TRUE,
                           na = c("", "NA","NULL","Unassigned","unassigned")
   )
+  taxfile <- taxfile  %>% replace(is.na(.),"Not assigned")
   TaxTable$og <- TaxTable$x <- taxfile
 })
 

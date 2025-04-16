@@ -121,12 +121,7 @@ ui <- page_navbar(id="pages",
   sidebar=sidebar(id="sidebar_main",
                   title="Sidebar",
                   input_dark_mode(id='dark_mode',mode='light'),
-                  open=FALSE,
-    SelectFiltersCard,
-    SelectPruneCard,
-    SelectNormCard,
-    SelectSamplesCard,
-    SelectTaxaCard
+                  open=FALSE
   ),
 ## Group 1 # Starting information  --------  
   nav_menu(title=div(class="title",

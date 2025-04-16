@@ -62,7 +62,7 @@ observe({
   Num_seq_subset$N_seq_num = sum(taxa_sums(ps)) 
   
   Num_seq_subset$N_seq_assigned = tryCatch(sum(taxa_sums(subset_taxa(ps, 
-                                                      !is.na(rank_names(ps)[1])
+                                                      rank_names(ps)[1]!="Not assigned"
                                                       ))),
                                            error=function(e){return(0)})
   
@@ -91,7 +91,7 @@ observe({
   Num_otu_subset$N_otu_num = ntaxa(ps)
   
   Num_otu_subset$N_otu_assigned = tryCatch(ntaxa(subset_taxa(ps, 
-                                              is.na(rank_names(ps)[1])
+                                              rank_names(ps)[1]!="Not assigned"
                                               )),
                                            error=function(e){return(0)})
   
@@ -135,7 +135,7 @@ observe({
   Num_seq_all$N_seq_num = sum(taxa_sums(ps)) 
   
   Num_seq_all$N_seq_assigned = tryCatch(sum(taxa_sums(subset_taxa(ps, 
-                                                      !is.na(rank_names(ps)[1])
+                                                      rank_names(ps)[1]!="Not assigned"
                                                       ))), 
                                         error=function(e){return(0)}) 
   
@@ -165,7 +165,7 @@ observe({
   Num_otu_all$N_otu_num = ntaxa(ps) 
   
   Num_otu_all$N_otu_assigned = tryCatch(ntaxa(subset_taxa(ps, 
-                                              is.na(rank_names(ps)[1]))),
+                                              rank_names(ps)[1]!="Not assigned")),
                                         error=function(e){return(0)}) 
   
   #Num_otu_all$N_otu_blanks = if(is.null(input$blank_samples)) {return(0)} else 

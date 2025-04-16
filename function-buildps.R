@@ -6,12 +6,12 @@ assemble_ps <- function(otu,tax,meta) {
   #row.names(temp.otu) <- temp.otu$X
   #temp.otu$X <- NULL
   
-  navals <- c("Unassigned","unassigned",NULL,"Not assigned")
+  #navals <- c("Unassigned","unassigned",NULL,"Not assigned","")
   temp.tax <- as.data.frame(tax)
-  temp.tax <- data.frame(lapply(temp.tax,function(x) {#replace all unassigned with NA
+  #temp.tax <- data.frame(lapply(temp.tax,function(x) {#replace all unassigned with NA
    # stringr::str_replace_all(x,paste(navals,collapse = "|"),as.character(NA))
-    gsub(paste(navals,collapse = "|"),NA,x)
-  }))
+   # gsub(paste(navals,collapse = "|"),NA,x)
+  #}))
   row.names(temp.tax) <- temp.tax[[1]]
   temp.tax[[1]] <- NULL
   #row.names(temp.tax) <- temp.tax$X
