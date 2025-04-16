@@ -120,7 +120,11 @@ ui <- page_navbar(id="pages",
                   fillable=FALSE,
   sidebar=sidebar(id="sidebar_main",
                   title="Sidebar",
-                  input_dark_mode(id='dark_mode',mode='light'),
+                 layout_columns(col_widths = c(8,4),
+                                "Light/Dark mode:",
+                                input_dark_mode(id='dark_mode',mode='light')),
+                  br(),
+                  navigation,
                   open=FALSE
   ),
 ## Group 1 # Starting information  --------  

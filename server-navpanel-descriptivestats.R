@@ -61,9 +61,8 @@ observe({
   
   Num_seq_subset$N_seq_num = sum(taxa_sums(ps)) 
   
-  Num_seq_subset$N_seq_assigned = tryCatch(sum(taxa_sums(subset_taxa(ps, 
-                                                      rank_names(ps)[1]!="Not assigned"
-                                                      ))),
+  Num_seq_subset$N_seq_assigned = tryCatch(sum(taxa_sums(subset_taxa(ps, rank_names(ps)[1]!="Not assigned" )
+                                                         )),
                                            error=function(e){return(0)})
   
   #Num_seq_subset$N_singleton = length(taxa_names(prune_taxa(taxa_sums(ps)==1,ps)

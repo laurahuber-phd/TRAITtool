@@ -24,3 +24,16 @@ SelectColorsCard <- tagList(
                                   justified = TRUE,
   )
 )
+
+navigation <- tagList(
+  HTML("<h5>Navigate to page</h5>"),
+  actionButton("go_home", "Home"),
+  actionButton("go_upload", "Upload"),
+  actionButton("go_review", "Review"),
+  actionButton("go_filter", "Filter"),
+  actionButton("go_desc", "Analysis Basics"),
+  actionButton("go_stat", "Analysis Figures"),
+  actionButton("go_help", "Help Page"),
+  actionButton("go_settings", "Settings"),
+  actionButton("go_report", "Report Page")
+)

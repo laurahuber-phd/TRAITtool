@@ -19,33 +19,63 @@ observe({
                         size='l',
                         actionButton("fileupload_nextpage","Go to review your files",width='100%'),
                         actionButton("fileupload_nextpage_v3","Go directly to stats",width='100%'),
+                        actionButton('fileupload_nextpage_v4',"Go to filter page",width='50%'),
                         easyClose = TRUE,
                         footer=NULL
   )
   )
 }) %>% bindEvent(input$assemble_ps)
-observeEvent(input$load_ex, {
-  showModal(modalDialog(title="Go to review files",
-                        HTML("Great!<br><br>The first step after uploading files is checking to make sure that we uploaded the correct files, that they are in the right place, and that names are matching across files.<br><br>" 
-                        ),
-                        size='m',
-                        actionButton('fileupload_nextpage_v4',"Go",width='50%'),
-                        easyClose = FALSE,
-                        footer=NULL
-                        ))
-}) 
+
 # page switch actions
 switch_page <- function(i) {
   nav_select(id='pages',selected=i)
 }
+
+# navigation from home
+observeEvent(input$titlepg_start, switch_page("uploadtab"))
+
+# navigation from upload page
 observeEvent(input$fileupload_nextpage, switch_page("reviewtab")) #modal dialog box from file upload page takes you to review page
 observeEvent(input$fileupload_nextpage_v2, switch_page("reviewtab")) #next button from file upload page takes you to review page
 observeEvent(input$fileupload_nextpage_v3, switch_page("basicstab")) #modal dialog box from file upload page takes you to stats page
-observeEvent(input$fileupload_nextpage_v4, switch_page("reviewtab")) 
+observeEvent(input$fileupload_nextpage_v4, switch_page("filtertab")) 
+observeEvent(input$fileupload_prevpage,switch_page("introtab"))
 
-observeEvent(input$reviewfiles_nextpage, switch_page("basicstab")) #next button from review page takes you to basic stats page
+# navigation from review page
+observeEvent(input$reviewfiles_nextpage, switch_page("filtertab")) #next button from review page takes you to basic stats page
 observeEvent(input$reviewfiles_prevpage, switch_page("uploadtab")) #previous button from review page takes you back to file upload page
 
+# navigation from filtering page
+observeEvent(input$filter_nextpage, switch_page("basicstab"))
+observeEvent(input$filter_prevpage, switch_page("reviewtab"))
+
+# navigation from basics page
+observeEvent(input$basics_nextpage, switch_page("statstab"))
+observeEvent(input$basics_prevpage, switch_page("filtertab")) 
+
+# navigation from stats page
+observeEvent(input$analysis_nextpage, switch_page("reporttab"))
+observeEvent(input$analysis_prevpage, switch_page("basicstab")) 
+
+# navigation from report page
+observeEvent(input$report_prevpage,switch_page("statstab"))
+
+# other navigation
+observeEvent(input$psfail_goback,switch_page("uploadtab"))
+observeEvent(input$filespage,switch_page('test'))
+
+# navigation sidebar
+observeEvent(input$go_home, switch_page("introtab"))
+observeEvent(input$go_upload, switch_page("uploadtab"))
+observeEvent(input$go_review, switch_page("reviewtab"))
+observeEvent(input$go_filter, switch_page("filtertab"))
+observeEvent(input$go_desc, switch_page("basicstab"))
+observeEvent(input$go_stat, switch_page("statstab"))
+observeEvent(input$go_help, switch_page("helptab"))
+observeEvent(input$go_settings, switch_page("settingstab"))
+observeEvent(input$go_report, switch_page("reporttab"))
+
+# not using yet
 observeEvent(input$demux_nextpage, switch_page("Assign OTU"))
 observeEvent(input$demux_prevpage, switch_page("uploadtab")) 
 
@@ -54,16 +84,6 @@ observeEvent(input$asv_prevpage, switch_page("Demultiplex and Quality Control"))
 
 observeEvent(input$tax_nextpage, switch_page("reviewtab")) 
 observeEvent(input$tax_prevpage, switch_page("Assign OTU")) 
-
-observeEvent(input$basics_nextpage, switch_page("statstab"))
-observeEvent(input$basics_prevpage, switch_page("reviewtab")) 
-
-observeEvent(input$analysis_prevpage, switch_page("basicstab")) 
-observeEvent(input$psfail_goback,switch_page("uploadtab"))
-
-observeEvent(input$filespage,switch_page('test'))
-
-observeEvent(input$titlepg_start, switch_page("uploadtab"))
 
 # remove modal dialog boxes
 observe({

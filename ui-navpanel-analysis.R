@@ -201,6 +201,13 @@ Anlys_TrophCard <- layout_sidebar(
 #############################################################################################################
 analysispage <- nav_panel(
   "Analysis",
+  layout_column_wrap(
+    width=1/2,fill=TRUE,
+    actionButton("analysis_prevpage","Previous step"),
+    actionButton("analysis_nextpage","Next step")
+  ),
+  br(),
+  HTML("<h4>Generate figures </h4>"),
   navset_card_tab(id="anlys", 
                 nav_panel(id='alpha',
                           title="Alpha Diversity",
@@ -232,6 +239,6 @@ analysispage <- nav_panel(
                           title="Trophic composition",
                           Anlys_TrophCard
                 )
-                ), actionButton("analysis_prevpage","Previous step",width='100%')
+                )
 )
 #############################################################################################################
