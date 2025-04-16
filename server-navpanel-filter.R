@@ -147,7 +147,8 @@ observe({
   }
 }) %>% bindEvent(input$taxa_switch,
                  input$select_rank,
-                 input$adjust,
+                 ps.sub(),
+                 #input$adjust,
                  MetadataTable$x
                  ) 
 
@@ -233,7 +234,7 @@ ps.sub <- reactive({
     trackNums$selsamp_aft <- as.character(nsamples(ps))
   }
   ############################### TAXA ############################################
-  if(isTruthy(input$adjust) && input$go_taxa) { #if remove selected taxa is selected
+  if(input$go_taxa) { #if remove selected taxa is selected
     runif(input$go_taxa)
   
     trackNums$seltax_aft <- trackNums$seltax_bef <- NULL #reset counts
@@ -241,29 +242,31 @@ ps.sub <- reactive({
     
     taxkeep = NULL #make blank list
     taxsam = as.data.frame(as.matrix(tax_table(ps)))
-    
     taxsamsel = select(taxsam,input$select_rank)
-    taxkeep = rownames(filter(taxsamsel, taxsamsel[[1]] %in% input$select_taxa))
-
-    ps <- prune_taxa(taxkeep,ps)
+    
+    if(isTruthy(input$adjust)) {
+      taxkeep = tryCatch(rownames(filter(taxsamsel, taxsamsel[[1]] %in% input$select_taxa)),
+                         error=function(e){return(FALSE)})
+        
+    }
+    if(!isTruthy(input$adjust)) {
+      taxkeep =  tryCatch(rownames(filter(taxsamsel, !taxsamsel[[1]] %in% input$select_taxa)),
+                          error=function(e){return(FALSE)})
+    }
+    if (isTruthy(taxkeep)) {
+      ps <- prune_taxa(taxkeep,ps)
+    } else { 
+      ps <- ps 
+      showModal(
+        modalDialog(title="ERROR",
+                    "Selected taxa cannot be removed. Reset and try again.",
+                    size='l',
+                    easyClose = FALSE )
+        ) 
+      }
+    
     trackNums$seltax_aft <- as.character(ntaxa(ps))
   } 
-  
-  if(!isTruthy(input$adjust) && input$go_taxa) { #if keep selected taxa is selected
-    runif(input$go_taxa)
-    
-    trackNums$seltax_aft <- trackNums$seltax_bef <- NULL #reset counts
-    trackNums$seltax_bef <- as.character(ntaxa(ps))
-    
-    taxkeep = NULL #make blank list
-    taxsam = as.data.frame(as.matrix(tax_table(ps)))
-    
-    taxsamsel = select(taxsam,input$select_rank)
-    taxkeep = rownames(filter(taxsamsel, !taxsamsel[[1]] %in% input$select_taxa))
-    
-    ps <- prune_taxa(taxkeep,ps)
-    trackNums$seltax_aft <- as.character(ntaxa(ps))
-  }
  
   return(ps)
 }) %>% bindEvent(input$prune_tax,input$prune_samples, #update ps when pruning numbers change
