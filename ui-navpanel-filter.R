@@ -39,16 +39,20 @@ SelectPruneCard <- card(
                       "Use this section to choose a minimum number of times a taxa occurs and/or how small of a sample to include. "
                       ),
               ),
-  numericInput("prune_samples", "Remove samples below:", value = 10),
-  numericInput("prune_tax","Remove taxa below:",value = 10)
+  "Removing ASVs with only one occurrence can reduce the likelihood of overestimating diversity. Samples with dramatically fewer sequences can also bias analyses.",
+  numericInput("prune_samples", "Remove samples with less than this many sequences:", value = 100),
+  numericInput("prune_tax","Remove ASVs with less than this many occurrences:",value = 1)
 )
 
 ## ---- select samples ## ---- 
 SelectSamplesCard <- card(
   full_screen=TRUE,
-  "Toggle the switch to select only a few samples to look at",
+  card_header("Select which samples to analyze"),
+  "Choose this if you only want to look at a couple specific samples. You don't need to do anything here if you are interested in viewing the entire dataset.",
+  br(),
+  h5("Click on the toggle to select samples. Clicking it again will reset all selections. "),
   useShinyjs(),
-  materialSwitch(inputId='sample_switch', value=FALSE, label="Choose"), #toggle to open accordion 
+  materialSwitch(inputId='sample_switch', value=FALSE, label="Go to subset samples"), #toggle to open accordion 
   accordion( id='sample_accord', open=FALSE,
     accordion_panel( id='select_panel',title="Pick samples",
       actionButton('go_samples',"Go: Use selected samples"),
@@ -67,8 +71,11 @@ SelectSamplesCard <- card(
 # ---- # Taxa # ---- 
 SelectTaxaCard <- card(
   full_screen=TRUE,
-  "Toggle the switch to select only a few taxa to look at",
-  materialSwitch(inputId='taxa_switch', value=FALSE, label="Choose"), #toggle to open accordion 
+  card_header("Select which taxa to analyze"),
+  "Choose this if you want to specify which taxa to include/exclude. You don't need to do anything here if you are interested in viewing the entire dataset.",
+  br(),
+  h5("Click on the toggle to select samples. Clicking it again will reset all selections."),
+  materialSwitch(inputId='taxa_switch', value=FALSE, label="Go to subset taxa"), #toggle to open accordion 
   accordion( id='select_taxaccord', open=FALSE,
     accordion_panel( id='select_taxpanel',title="Pick taxa",
       "Keep or remove the selected taxa?",
@@ -105,6 +112,14 @@ SelectNormCard <- card(
 #############################################################################################################
 filterpage <- nav_panel(
   useShinyjs(),
+  layout_column_wrap(
+    width=1/2,fill=TRUE,
+    actionButton("filter_prevpage","Previous step"),
+    actionButton("filter_nextpage","Next step")
+  ),
+  HTML("<h2>Choose filtering options </h2>"),
+  "Use the options on this page to define what part of your dataset to evaluate. You can choose only a few samples or taxa, for example, or remove blanks and singletons. ",
+  br(),
   card(
   layout_columns(col_widths=c(6,6),
                  SelectPruneCard,

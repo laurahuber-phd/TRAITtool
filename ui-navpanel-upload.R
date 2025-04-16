@@ -122,6 +122,12 @@ Files_PartialCard <- tagList(
 uploadpage <- nav_panel("Files",
           shinyFeedback::useShinyFeedback(),
           open=TRUE,
+          layout_column_wrap(
+            width=1/2,fill=TRUE,
+            actionButton("fileupload_prevpage","Previous page",width='100%'),
+            actionButton("fileupload_nextpage_v2","Next step",width='100%')
+            ),
+          br(),
           HTML("<h4 style='text-align:center;'>Select the option that fits your data best: </h4>"),
           layout_columns(col_widths=c(4,8),
                          radioGroupButtons(inputId = "selectupload", 
@@ -156,12 +162,9 @@ uploadpage <- nav_panel("Files",
                      label="Build dataset",
                      style="unite",
                      color="success",
-                     block=TRUE),
-          br(),
-          br(),
+                     block=TRUE)
          #HTML("<h4>Or, alternatively, use our example dataset: </h4>"),
         #  Ex_Card,
-         # br(),
-          actionButton("fileupload_nextpage_v2","Next step",width='100%')
+         # br()
 )
 ##########################################################################################

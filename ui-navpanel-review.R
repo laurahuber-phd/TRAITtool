@@ -38,7 +38,13 @@ reviewpage <- nav_panel("Review",
                       }
                       ")),
                         shinyFeedback::useShinyFeedback(),
-                        card( HTML("<h2 style='text-align:center;'>Step 1: Review Files</h2>"),
+                        layout_column_wrap(
+                          width=1/2,fill=TRUE,
+                          actionButton("reviewfiles_prevpage","Previous step"),
+                          actionButton("reviewfiles_nextpage","Next step")
+                        ),
+                        br(),
+                        card( HTML("<h2 style='text-align:center;'>Review Files</h2>"),
                               HTML("<p>Before analyzing your sequences, it is a good idea to double check that you have uploaded the right files and that they have uploaded correctly. Do sample names match? Does the metadata file contain all the information you need to answer the questions you have? </p>"),
                               HTML("<small'>As a reminder, the first column of the metadata file should be a set of unique identifiers. These identifiers will be the column names in the sequence table. </small>"),
                               br(),
@@ -52,11 +58,6 @@ reviewpage <- nav_panel("Review",
                           fill=FALSE,
                           jqui_resizable(Review_otuCard),
                           jqui_resizable(Review_TaxCard)
-                        ),
-                        layout_column_wrap(
-                          width=1/2,fill=TRUE,
-                          actionButton("reviewfiles_prevpage","Previous step"),
-                          actionButton("reviewfiles_nextpage","Next step")
                         )
 )
 #############################################################################################################

@@ -1,6 +1,10 @@
 reportpage <- nav_panel(
   "Report",
-  "Download the report here",
+  actionButton("report_prevpage","Previous step",width='100%'),
+  br(),
+  HTML("<h4>Download report </h4>"),
+  br(),
+  "Click on the button to gather all the analyses together and generate the report. This will likely take awhile.",
   actionButton('gen_report', 'Generate report'),
   br(),
   conditionalPanel(condition = "output.reportbuilt", # This button appears after the report has been generated and is ready for download.
