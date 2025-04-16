@@ -4,7 +4,11 @@ Ex_Card <- card(id="ex_data",
                 card_header("Use example data"),
                 "Load the example dataset. You can use this dataset to explore the feautures of the app prior to using it on your own data.",
                 actionButton("load_ex",
-                             "Load"))
+                             "Load"),
+                hidden( p(id='load_success',
+                          bs_icon("patch-check",size='4em'),
+                          "Success!"))
+                )
 ############################################# Metadata #############################################
 Files_MetadataCard <- card(
   card_header("Add your metadata file here",
