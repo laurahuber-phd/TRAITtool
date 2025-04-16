@@ -68,7 +68,9 @@ rnames <- reactive({ #read the metadata file and identify the variable names
 # ---- # Filter by blanks # ---- 
 observe({ 
   req(ps.sub())
-  blavar <- as.list(MetadataTable$x[[input$blank_cols]]) %>% unique() #unique(get_variable(ps.sub(),input$blank_cols))
+  req(input$blank_cols)
+  
+  blavar <- as.list(get_variable(ps.sub(),{input$blank_cols})) %>% unique() #unique list of values 
   updateCheckboxGroupInput(session,
                            "blank_samples",
                            choices=as.list(blavar))
@@ -79,13 +81,14 @@ observe({
 
 #  ---- # Filter by samples # ---- 
 observe({
-  if(input$sample_switch) { #if sample_switch==TRUE
+  if(isTruthy(input$sample_switch)) { #if sample_switch==TRUE
     
     accordion_panel_open(session, #open the accordion panel to allow selecting samples  
                          id='sample_accord',
                          values=TRUE)
-    
-    selvar <- as.list(MetadataTable$x[[input$sample_cols]]) %>% unique() #unique list of values 
+    req(input$sample_cols)
+    selvar <- as.list(get_variable(ps.sub(),{input$sample_cols})) %>% unique() #unique list of values 
+    #selvar <- as.list(MetadataTable$x[[input$sample_cols]]) %>% unique() #unique list of values 
     updateCheckboxGroupInput(session,
                              "select_samples",
                              choices=as.list(selvar)) #update the available filtering options
@@ -118,34 +121,36 @@ observe({
 
 # ---- # Filter by taxa # ----  
 observe({
-  if(input$taxa_switch) { #if taxa_switch==TRUE
+  if(isTruthy(input$taxa_switch)) { #if tax subset panel is open
     
-    accordion_panel_open(session, #open the accordion panel to allow selecting samples  
+    accordion_panel_open(session, #open the accordion panel 
                          id='select_taxaccord',
                          values=TRUE)
     req(input$select_rank)
-    #taxvar <- as.list(TaxTable$x[[input$select_rank]]) %>% unique() #problem with this is that it doesn't update based on what's in the previously subset dataset
-    taxvar <- as.list(get_taxa_unique(ps.sub(),input$select_rank)) #unique list of values 
+    
+    taxvar <- as.list(get_taxa_unique(ps.sub(),input$select_rank)) #make list of unique values 
     updateCheckboxGroupInput(session,
                              "select_taxa",
                              choices=as.list(taxvar)) #update the available filtering options
     
-  } else if (!isTruthy(input$taxa_switch)) {
+  } else if (!isTruthy(input$taxa_switch)) { #if tax subset panel is closed 
     
-    accordion_panel_close(session, #close the accordion panel to allow selecting samples  
+    accordion_panel_close(session, #close the accordion panel 
                           id='select_taxaccord',
                           values=TRUE)
     
-    updateCheckboxGroupInput(session,
+    updateCheckboxGroupInput(session, #clear selectable taxa 
                              'select_taxa',
                              choices=c(""))
     
-    shinyjs::hide("befaft_tax")
+    shinyjs::hide("befaft_tax") #hide counts
   }
 }) %>% bindEvent(input$taxa_switch,
                  input$select_rank,
+                 input$adjust,
                  MetadataTable$x
                  ) 
+
 observe({
   req(ps.sub())
   if(isTruthy(input$taxa_switch && input$go_taxa && !is.null(input$select_taxa))) {
@@ -200,7 +205,7 @@ ps.sub <- reactive({
         blacolvals = as.data.frame(as.matrix(sample_data(ps))) %>% select(input$blank_cols) #get sample_data of selected variable 
         blakeep = row.names(blacolvals %>% filter(!blacolvals[[1]] %in% input$blank_samples)) #list of sample names EXCEPT for those selected
       }
-      ps <- subfunc(prune_samples(blakeep,ps))
+      ps <- prune_samples(blakeep,ps)
       trackNums$remblank_aft <- as.character(nsamples(ps))
     }
     else {
@@ -221,29 +226,45 @@ ps.sub <- reactive({
         selcolvals = as.data.frame(as.matrix(sample_data(ps))) %>% select(input$sample_cols) #get sample_data of selected variable 
         selkeep = row.names(selcolvals %>% filter(selcolvals[[1]] %in% input$select_samples)) #list of sample names selected
       }
-      ps <- subfunc(prune_samples(selkeep,ps))
+      ps <- prune_samples(selkeep,ps)
     } else {
       ps <- ps
     }
     trackNums$selsamp_aft <- as.character(nsamples(ps))
   }
   ############################### TAXA ############################################
-  if(isTruthy(input$taxa_switch) && input$go_taxa) { #if user selects specific taxa to vis 
-    trackNums$seltax_aft <- trackNums$seltax_bef <- NULL
+  if(isTruthy(input$adjust) && input$go_taxa) { #if remove selected taxa is selected
+    runif(input$go_taxa)
+  
+    trackNums$seltax_aft <- trackNums$seltax_bef <- NULL #reset counts
     trackNums$seltax_bef <- as.character(ntaxa(ps))
+    
     taxkeep = NULL #make blank list
     taxsam = as.data.frame(as.matrix(tax_table(ps)))
     
-    if(isTruthy(input$adjust)) { #if keep selected taxa is selected
-      taxsamsel = select(taxsam,input$select_rank)
-      taxkeep = rownames(filter(taxsamsel, taxsamsel[[1]] %in% input$select_taxa))
-    } else { #if remove selected taxa is selected
-      taxsamsel = select(taxsam,input$select_rank)
-      taxkeep = rownames(filter(taxsamsel, !taxsamsel[[1]] %in% input$select_taxa))
-    }
-    ps <- subfunc(prune_taxa(taxkeep,ps))
+    taxsamsel = select(taxsam,input$select_rank)
+    taxkeep = rownames(filter(taxsamsel, taxsamsel[[1]] %in% input$select_taxa))
+
+    ps <- prune_taxa(taxkeep,ps)
+    trackNums$seltax_aft <- as.character(ntaxa(ps))
+  } 
+  
+  if(!isTruthy(input$adjust) && input$go_taxa) { #if keep selected taxa is selected
+    runif(input$go_taxa)
+    
+    trackNums$seltax_aft <- trackNums$seltax_bef <- NULL #reset counts
+    trackNums$seltax_bef <- as.character(ntaxa(ps))
+    
+    taxkeep = NULL #make blank list
+    taxsam = as.data.frame(as.matrix(tax_table(ps)))
+    
+    taxsamsel = select(taxsam,input$select_rank)
+    taxkeep = rownames(filter(taxsamsel, !taxsamsel[[1]] %in% input$select_taxa))
+    
+    ps <- prune_taxa(taxkeep,ps)
     trackNums$seltax_aft <- as.character(ntaxa(ps))
   }
+ 
   return(ps)
 }) %>% bindEvent(input$prune_tax,input$prune_samples, #update ps when pruning numbers change
                  
