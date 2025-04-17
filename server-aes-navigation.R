@@ -42,8 +42,8 @@ observeEvent(input$fileupload_nextpage_v4, switch_page("filtertab"))
 observeEvent(input$fileupload_prevpage,switch_page("introtab"))
 
 # navigation from review page
-observeEvent(input$reviewfiles_nextpage, switch_page("filtertab")) #next button from review page takes you to basic stats page
-observeEvent(input$reviewfiles_prevpage, switch_page("uploadtab")) #previous button from review page takes you back to file upload page
+observeEvent(input$review_nextpage, switch_page("filtertab")) #next button from review page takes you to basic stats page
+observeEvent(input$review_prevpage, switch_page("uploadtab")) #previous button from review page takes you back to file upload page
 
 # navigation from filtering page
 observeEvent(input$filter_nextpage, switch_page("basicstab"))
@@ -106,3 +106,32 @@ observe({
     ) 
   }
 }) %>% bindEvent(input$assemble_ps)
+
+# --- # Sidebar # --------
+observe({
+  sidebar_toggle(
+    id="sidebar_main",
+    open=FALSE #sidebar with selection to remove blanks and unassigned sequences is hidden by default
+  )
+  if(input$pages == "Basic Stats" || input$pages == "Analysis") { #blank/unassigned selection sidebar is open for these two pages
+    sidebar_toggle(
+      id="sidebar_main",
+      open = TRUE
+    ) 
+    if (!isTruthy(MetadataTable$x) || !isTruthy(OTUTable$x) || !isTruthy(TaxTable$x)) {
+      showModal(
+        modalDialog(title="You do not have all the appropriate files for this page, go back to the beginning and check files",
+                    paste("The issue is: ", isgood()),
+                    size='l',
+                    actionButton("psfail_goback","Go to review your files",width='100%'),
+                    easyClose = FALSE
+        )
+      ) 
+    } else if (!is.null(ps.all())) {removeModal()} 
+  } else {
+    sidebar_toggle(
+      id="sidebar_main",
+      open = FALSE
+    )
+  }
+},priority=1) %>% bindEvent(input$pages)

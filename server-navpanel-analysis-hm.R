@@ -27,11 +27,11 @@ hm_base <- reactive({
                  hmplot_general$x()
 )
 
-hmplot <- eventReactive(input$plot_hm, {
+hmplot <- eventReactive(input$go_hm, {
   hm_base() + hmplot_general$facet() + hmplot_pretty() + hmplot_size() 
 }) 
 
-output$hm <- renderPlot({hmplot()})
+output$hm_plot <- renderPlot({hmplot()})
 
 observe({
   showModal(modalDialog(
@@ -43,7 +43,7 @@ observe({
 }) %>% bindEvent(input$hm_click)
 
 
-output$download_hmplot <- output$download_hmplot_popup <-  downloadHandler(
+output$hm_plotdwnld <- output$hm_plotdwnld_popup <-  downloadHandler(
   filename = "hmplot.png",
   contentType = 'image/png',
   content = function(file) {

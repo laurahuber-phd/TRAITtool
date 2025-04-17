@@ -6,7 +6,7 @@ source('server-aes-vis.R',local=TRUE) #base theme for ggplot2
 
 
 observe({ #whenever ps.sub() changes 
-  updatePickerInput(inputId = 'ranks', 
+  updatePickerInput(inputId = 'basics_ranks', 
                     label = 'Taxonomic Rank', 
                     choices = c(rnames())
   ) #update picker selection using the rank names of the ps object
@@ -69,9 +69,16 @@ observe({
   #                                               )) %>% round(digits=0)
   
  # Num_seq_subset$N_seq_blanks = if(is.null(input$blank_samples)) {return(0)} else 
- #   sum(taxa_sums(subset_blanks_rem(ps,input$cols,input$blank_samples)))
+ #   sum(taxa_sums(subset_blanks_rem(ps,input$blank_cols,input$blank_samples)))
+  
+ # isolate({
+#    Num_seq_subset_list <- reactiveValuesToList(Num_seq_subset)
+#    Num_seq_subset_names <- c("Total number of sequences:","Number of assigned sequences:")#,"Number of sequences in blanks:")
+#    Num_seq_subset_df <- data.frame("Value"=Num_seq_subset_names,"Number"=Num_seq_subset_list)
+#  })
+  
 }) %>% 
-  bindEvent(input$cols,
+  bindEvent(input$blank_cols,
             input$blank_samples,
             ps.sub(), 
             ignoreNULL=FALSE)
@@ -95,9 +102,16 @@ observe({
                                            error=function(e){return(0)})
   
   #Num_otu_subset$N_otu_blanks = if(is.null(input$blank_samples)) {return(0)} else 
-    #ntaxa(subset_blanks_rem(ps,input$cols,input$blank_samples))
+    #ntaxa(subset_blanks_rem(ps,input$blank_cols,input$blank_samples))
+  
+  #isolate({
+  #  Num_otu_subset_list <- reactiveValuesToList(Num_otu_subset)
+  #  Num_otu_subset_names <- c("Total number of ASVs:","Number of assigned ASVs:")#,"Number of ASVs in blanks:")
+  #  Num_otu_subset_df <- data.frame("Value"=Num_otu_subset_names,"Number"=Num_otu_subset_list)
+  #})
+  
 }) %>% 
-  bindEvent(input$cols,
+  bindEvent(input$blank_cols,
             input$blank_samples,
             ps.sub(), 
             ignoreNULL=FALSE)
@@ -143,9 +157,9 @@ observe({
   #                                           ))) %>% round(digits=0)
   
   #Num_seq_all$N_seq_blanks = if(is.null(input$blank_samples)) {return(0)} else 
-  #  sum(taxa_sums(subset_blanks_rem(ps,input$cols,input$blank_samples)))
+  #  sum(taxa_sums(subset_blanks_rem(ps,input$blank_cols,input$blank_samples)))
 }) %>% 
-  bindEvent(input$cols,
+  bindEvent(input$blank_cols,
             input$blank_samples,
             ps.all(), 
             ignoreNULL = FALSE) 
@@ -168,49 +182,48 @@ observe({
                                         error=function(e){return(0)}) 
   
   #Num_otu_all$N_otu_blanks = if(is.null(input$blank_samples)) {return(0)} else 
-  #  ntaxa(subset_blanks_rem(ps,input$cols,input$blank_samples))
+  #  ntaxa(subset_blanks_rem(ps,input$blank_cols,input$blank_samples))
 }) %>% 
-  bindEvent(input$cols,
+  bindEvent(input$blank_cols,
             input$blank_samples,
             ps.all(), 
             ignoreNULL=FALSE)
 
 # ---- Tax Info # ---- 
-N_rankperc_df <- reactive({
+rankperc_df <- reactive({
   req(ps.sub.melt())
   ps <- ps.sub.melt()
-  psplot.df <- ps %>% group_by(.data[[input$ranks]]) %>%
+  psplot.df <- ps %>% group_by(.data[[input$basics_ranks]]) %>%
     reframe(Abund=sum(Abundance),
             Total=sum(ps$Abundance),
             Perc=Abund/Total) %>%
     filter(
-      !is.na( .data[[input$ranks]] ) 
+      !is.na( .data[[input$basics_ranks]] ) 
       ) %>% 
     arrange(.,desc(Perc),.by_group = TRUE)
-  psplot.df[[input$ranks]] <- factor( psplot.df[[input$ranks]], 
-                                      levels= psplot.df[[input$ranks]])
+  psplot.df[[input$basics_ranks]] <- factor( psplot.df[[input$basics_ranks]], 
+                                      levels= psplot.df[[input$basics_ranks]])
   psplot.df
 })
 
 rankpercplot_pretty  <- plotPrettyServer(id="basics_pretty")
 rankpercplot_size <- plotSizeServer(id="basics_size") 
 
-N_rankperc_base <- reactive({
-  req(N_rankperc_df())
-  ggplot(N_rankperc_df(),
-         aes(y=.data[[input$ranks]],
+rankperc_base <- reactive({
+  req(rankperc_df())
+  ggplot(rankperc_df(),
+         aes(y=.data[[input$basics_ranks]],
              x=Perc,
-             fill=.data[[input$ranks]]
+             fill=.data[[input$basics_ranks]]
          )) + geom_col() + 
     labs(title="Distribution of taxonomic assignments",
          subtitle="(across the entire dataset)",
-         x="Percent",
-         caption="Unassigned sequences were included in percentage calculation but not plotted")
+         x="Percent")
 }) %>% bindEvent(ps.sub.melt(),
-                 input$ranks)
+                 input$basics_ranks)
 
-N_rankperc_plot <- eventReactive(input$plot_rankperc, {
-  N_rankperc_base() + rankpercplot_pretty() + rankpercplot_size() 
+rankperc_plot <- eventReactive(input$go_rankperc, {
+  rankperc_base() + rankpercplot_pretty() + rankpercplot_size() 
 }) 
 
 # --- # Returns # --------  
@@ -253,35 +266,35 @@ output$N_otu_blanks <- renderText({ paste("Number of OTUs in blanks:",Num_otu_al
 ## ---- ## Taxa Info ## ---- 
 
 ### ---- ### List taxa ### ----
-output$listtaxa <- renderDataTable({
+output$basics_listtaxa <- renderDataTable({
   req(ps.sub())
-  tax_glom(ps.sub(),taxrank = input$ranks, NArm=TRUE) %>% 
+  tax_glom(ps.sub(),taxrank = input$basics_ranks, NArm=TRUE) %>% 
     tax_table(.) %>% 
     as.data.frame(.,row.names=FALSE) #throws error because tax_glom %>% tax_table doesn't work and I dont remember the workaround
-  #cbind(tax_table(tax_glom(ps.sub(),taxrank = input$ranks, NArm=TRUE))) #does not fix error
+  #cbind(tax_table(tax_glom(ps.sub(),taxrank = input$basics_ranks, NArm=TRUE))) #does not fix error
 }) %>% bindEvent(input$rem_blanks,
                  input$adjust,
-                 input$ranks,
+                 input$basics_ranks,
                  ps.sub())
 
 ### ---- ### Plot taxa ### ----
-output$N_otu_byrank_plot <- renderPlot({N_rankperc_plot()})
+output$rankperc_plot <- renderPlot({rankperc_plot()})
 
 
 observe({
   showModal(modalDialog(
-    renderPlot(N_rankperc_plot()),
-    footer = downloadButton('download_rankperc_Plot_popup', 'Download'),
+    renderPlot(rankperc_plot()),
+    footer = downloadButton('rankperc_plotdwnld_popup', 'Download'),
     size="xl",
     easyClose = TRUE
   ))
-}) %>% bindEvent(input$notu_click)
+}) %>% bindEvent(input$rankperc_click)
 
-output$download_rankperc_Plot_popup <- output$download_rankperc_Plot <- downloadHandler(
+output$rankperc_plotdwnld_popup <- output$rankperc_plotdwnld <- downloadHandler(
   filename = "Pct_comp_plot.png",
   contentType = 'image/png',
   content = function(file) {
-    ggsave(file,plot=N_rankperc_plot(),
+    ggsave(file,plot=rankperc_plot(),
            width=input$rankper_width,height=input$rankper_height
     )
   }) 

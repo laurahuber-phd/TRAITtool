@@ -12,36 +12,36 @@ observe({
                     )
 }) 
 
-distreact <- eventReactive(input$calc_ord, {
-  runif(input$calc_ord)
+distreact <- eventReactive(input$go_ord, {
+  runif(input$go_ord)
   
-  req(input$orddist)
-  req(input$ordmeth)
+  req(input$ord_dist)
+  req(input$ord_meth)
   
   ps <- ps.sub()
   withProgress(
-    
-    ordinate(
+    tryCatch(ordinate(
       physeq=ps,
       k=3,
       trymax=150,
       maxit=500,
-      method=input$ordmeth, #ordination method #c("DCA", "CCA", "RDA", "CAP", "DPCoA", "NMDS", "MDS", "PCoA")
-      distance=input$orddist, #distance matrix
-  )
-  
+      method=input$ord_meth, #ordination method #c("DCA", "CCA", "RDA", "CAP", "DPCoA", "NMDS", "MDS", "PCoA")
+      distance=input$ord_dist, #distance matrix
+    ),error=function(e){return("Calculation failed")} 
+    )
     )
 })
 
-output$report_ord <- renderText({
+output$ord_complete <- renderText({
+  if(distreact()=="Calculation failed") { return(paste0(distreact()))} else
   return( paste0("Stress: ",distreact()$stress) )
 })
 
-# Hide download button until report is generated
-output$ord_complete <- reactive({
-  return(!is.null(distreact()))
-})
-outputOptions(output, 'ord_complete', suspendWhenHidden= FALSE)
+## Hide download button until report is generated
+#output$ord_complete <- reactive({
+#  return(!is.null(distreact()))
+#})
+#outputOptions(output, 'ord_complete', suspendWhenHidden= FALSE)
 
 returnconverged <- eventReactive(input$ReturnStress, {
   req(distreact())
@@ -85,18 +85,18 @@ observe({
   }
 })
 
-ordplot <- eventReactive(input$DrawPlot, { #assign a variable that runs when plot button is pushed
+ordplot <- eventReactive(input$go_ord, { #assign a variable that runs when plot button is pushed
   req(distreact())
-  runif(input$DrawPlot)
+  runif(input$go_ord)
   
   # ells <- input$choose_metavars4
   
   baseplot <- plot_ordination(physeq=ps.sub(),
                   ordination=distreact(),
-                  type=input$ordvis,
+                  type=input$ord_vis,
                   color=input$choose_ord_color,
                   shape=input$choose_ord_shape ) + 
-    geom_point(size=input$disp_point) 
+    geom_point(size=input$ord_plotpoint) 
   
   if(input$choose_ord_ellipse=="Color") {
       finalplot <- baseplot +  stat_ellipse(aes(group=.data[[input$choose_ord_color]],
@@ -119,12 +119,12 @@ ordplot <- eventReactive(input$DrawPlot, { #assign a variable that runs when plo
   }
 
   
-  finalplot + theme(text = element_text(size=input$disp_text),aspect.ratio=(input$ordplot_height/input$ordplot_width)) + 
-    labs(subtitle=paste0("Using ",input$orddist," distance matrix"),
-         title=paste0(input$ordmeth," Ordination Plot")
+  finalplot + theme(text = element_text(size=input$ord_plottext),aspect.ratio=(input$ord_plotheight/input$ord_plotwidth)) + 
+    labs(subtitle=paste0("Using ",input$ord_dist," distance matrix"),
+         title=paste0(input$ord_meth," Ordination Plot")
     )
 })
-output$ord <- renderPlot({
+output$ord_plot <- renderPlot({
   ordplot()
 })
 observe({

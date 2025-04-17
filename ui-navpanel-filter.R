@@ -54,12 +54,12 @@ SelectSamplesCard <- card(
   useShinyjs(),
   materialSwitch(inputId='sample_switch', value=FALSE, label="Go to subset samples"), #toggle to open accordion 
   accordion( id='sample_accord', open=FALSE,
-    accordion_panel( id='select_panel',title="Pick samples",
-      actionButton('go_samples',"Go: Use selected samples"),
-      selectInput('sample_cols',"Select filtering group",
+    accordion_panel( id='sample_prunepanel',title="Pick samples",
+      actionButton('go_sample',"Go: Use selected samples"),
+      selectInput('sample_filterby',"Select filtering group",
                   character()
                   ),
-      checkboxGroupInput('select_samples', label="Select samples",
+      checkboxGroupInput('sample_select', label="Select samples",
                          list()
                          )
     )
@@ -75,18 +75,18 @@ SelectTaxaCard <- card(
   "Choose this if you want to specify which taxa to include/exclude. You don't need to do anything here if you are interested in viewing the entire dataset.",
   br(),
   h5("Click on the toggle to select samples. Clicking it again will reset all selections."),
-  materialSwitch(inputId='taxa_switch', value=FALSE, label="Go to subset taxa"), #toggle to open accordion 
-  accordion( id='select_taxaccord', open=FALSE,
-    accordion_panel( id='select_taxpanel',title="Pick taxa",
+  materialSwitch(inputId='tax_switch', value=FALSE, label="Go to subset taxa"), #toggle to open accordion 
+  accordion( id='tax_accord', open=FALSE,
+    accordion_panel( id='tax_prunepanel',title="Pick taxa",
       "Keep or remove the selected taxa?",
-      switchInput(inputId='adjust',value=FALSE, width = "100%",
+      switchInput(inputId='tax_keepremove',value=FALSE, width = "100%",
                   onLabel = "Keep",
                   offLabel = "Remove"),
-      actionButton('go_taxa',"Go"),
-      selectInput('select_rank',"Select rank",
+      actionButton('go_tax',"Go"),
+      selectInput('tax_filterby',"Select rank",
                   character()
                   ),
-      checkboxGroupInput('select_taxa',label="Select taxa",
+      checkboxGroupInput('tax_select',label="Select taxa",
                          list()
                          )
       )

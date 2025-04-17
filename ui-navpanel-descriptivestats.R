@@ -60,12 +60,12 @@ Basics_TaxCard <- card(
   #full_screen=TRUE,
   card_header("Taxonomy summary"),
   p("Use the dropdown button to select a taxonomic rank, and the tabs below will fill out information on it."),
-  pickerInput("ranks","Taxonomic Ranks",character(),width='fit',inline=TRUE),
+  pickerInput("basics_ranks","Taxonomic Ranks",character(),width='fit',inline=TRUE),
   navset_card_tab(
     nav_panel(title="Members",
               h5("List members of a taxonomic group present in the dataset"),
               p("The table here will list the various taxa found in your dataset up to the rank you chose in the dropdown button above."),
-              dataTableOutput("listtaxa")),
+              dataTableOutput("basics_listtaxa")),
     nav_panel(title="Percent Composition",
               p("Using the taxonomic rank selected in the dropdown button above, visualize proportionally how much each taxa appears in the dataset. What taxa are most common? Do you have rare taxa? "),
               br(),
@@ -79,9 +79,9 @@ Basics_TaxCard <- card(
                 plotSizeUI('basics_size')
               ),
               layout_columns(col_widths=c(10,-1,1),
-                             actionButton("plot_rankperc","Plot"),
-                             downloadButton('download_rankperc_Plot', label=NULL)),
-              withSpinner(plotOutput("N_otu_byrank_plot",click="notu_click"))
+                             actionButton("go_rankperc","Plot"),
+                             downloadButton('rankperc_plotdwnld', label=NULL)),
+              withSpinner(plotOutput("rankperc_plot",click="rankperc_click"))
               #withSpinner(dataTableOutput("N_otu_byrank"))
     )
   )

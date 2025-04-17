@@ -40,8 +40,8 @@ reviewpage <- nav_panel("Review",
                         shinyFeedback::useShinyFeedback(),
                         layout_column_wrap(
                           width=1/2,fill=TRUE,
-                          actionButton("reviewfiles_prevpage","Previous step"),
-                          actionButton("reviewfiles_nextpage","Next step")
+                          actionButton("review_prevpage","Previous step"),
+                          actionButton("review_nextpage","Next step")
                         ),
                         br(),
                         card( HTML("<h2 style='text-align:center;'>Review Files</h2>"),

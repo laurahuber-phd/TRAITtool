@@ -11,45 +11,32 @@ output$alphametrics_var2 <- output$alphametrics_var1 <- renderUI({
               'Select the explanatory variable',
               sample_variables(ps))
 })
-richplot <- eventReactive(input$DrawAlphaPlot, { #draw alpha div plot when 'plot' button is clicked
+richplot <- eventReactive(input$go_rich, { #draw alpha div plot when 'plot' button is clicked
   if (input$normoptions != "none") {ps <- ps.norm()} else {ps <- ps.sub()}
-  runif(input$DrawAlphaPlot)
+  runif(input$go_rich)
   withProgress(message="Making richness plot",
                plot_richness(ps, x=input$alpha_xvar, measures=input$alphametrics) + geom_boxplot()
   )
 })
-output$richness <- renderPlot({ #need separate call to actually render the plot
+output$rich_plot <- renderPlot({ #need separate call to actually render the plot
   richplot()
 })
 observe({
   showModal(modalDialog(
     renderPlot(richplot()),
-    footer = downloadButton('download_richplot_popup', 'Download'),
+    footer = downloadButton('rich_plotdwnld_popup', 'Download'),
     size="xl",
     easyClose = TRUE
   ))
 }) %>% bindEvent(input$rich_click)
 
-output$download_richplot <- output$download_richplot_popup <-  downloadHandler(
+output$rich_plotdwnld <- output$rich_plotdwnld_popup <-  downloadHandler(
   filename = "richness_plot.png",
   contentType = 'image/png',
   content = function(file) {
     ggsave(file,plot=richplot()
     )
   }) 
-
-#histo_plot <- plotServer(id='histo',
-#                         df=(if (input$normoptions != "none") {ps <- ps.norm()} else {ps <- ps.sub()}),
-#                         type='bar',
-#                         ranks=rnames(),
-#                         samplevars=Meta_vars()
-#) %>% bindEvent(ps.norm(),
-#                ps.sub(),
-#                rnames(),
-#                Meta_vars())
-
-#output$histo <- renderPlot({req(histo_plot())})
-#histoplot_general <- reactiveValues(x=NULL,y=NULL,color=NULL,facet=NULL)
 
 histoplot_pretty  <- plotPrettyServer(id="histo_pretty")
 histoplot_size <- plotSizeServer(id="histo_size") 
@@ -68,11 +55,6 @@ histo_base <- reactive({
     geom_bar(stat='identity',position='stack',aes(color=.data[[histoplot_general$color()]],
                                                   fill=.data[[histoplot_general$color()]])) + 
     guides(color='none',fill=guide_legend(histoplot_general$color()))
-  #histoplot_general$facet() + base_theme 
-  #labs(title="Distribution of taxonomic assignments",
-  #     subtitle="(across the entire dataset)",
-  #     x="Percent",
-  #     caption="Unassigned sequences were included in percentage calculation but not plotted")
 
 }) %>% bindEvent(ps.norm(),
                  ps.sub(),
@@ -80,23 +62,23 @@ histo_base <- reactive({
                  histoplot_general$x()
 )
 
-histoplot <- eventReactive(input$plot_histo, {
+histoplot <- eventReactive(input$go_histoplot, {
   histo_base() + histoplot_general$facet() + histoplot_pretty() + histoplot_size() 
 }) 
 
-output$histo <- renderPlot({histoplot()})
+output$histo_plot <- renderPlot({histoplot()})
 
 observe({
   showModal(modalDialog(
     renderPlot(histoplot()),
-    footer = downloadButton('download_histoplot_popup', 'Download'),
+    footer = downloadButton('histo_plotdwnld_popup', 'Download'),
     size="xl",
     easyClose = TRUE
   ))
 }) %>% bindEvent(input$histo_click)
 
 
-output$download_histoplot <- output$download_histoplot_popup <-  downloadHandler(
+output$histo_plotdwnld <- output$histo_plotdwnld_popup <-  downloadHandler(
   filename = "histoplot.png",
   contentType = 'image/png',
   content = function(file) {
