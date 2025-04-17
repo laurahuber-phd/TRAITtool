@@ -4,11 +4,11 @@
 #  HTML(markdown::mark_html(knitr::knit("ProjectReport.Rmd",
 #                                       quiet=TRUE)))
 #}) 
-
+##### report parameters #####
 report <- reactiveValues(pdffilepath=NULL,
-                         htmlfilepath=NULL#,
-                         #docxfilepath=NULL
-                         ) #This creates a short-term storage location for a filepath
+                         htmlfilepath=NULL
+) 
+
 params <- reactiveValues(blanks=NA, #create list of parameters to read into rmarkdown
                          unass=NA,
                          rembl=NA,
@@ -22,39 +22,54 @@ params <- reactiveValues(blanks=NA, #create list of parameters to read into rmar
                          ordmeth=NA,
                          ordtype=NA,
                          ordplot=NA,
-                         N_seq_total_num_sel=NA,
-                         N_seq_assigned_num_sel=NA,
-                         N_otu_total_num_sel=NA,
-                         N_otu_assigned_num_sel=NA,
-                         N_seq_blanks_num_sel=NA,
-                         N_otu_blanks_num_sel=NA,
-                         richmet=NA
+                         nseq=NA,
+                         notu=NA,
+                         richmet=NA,
+                         pnsamp=NA,
+                         pntax=NA,
+                         remtax=NA,
+                         remsam=NA,
+                         histplot=NA,
+                         hmplot=NA
 )
+
+mkdwnrptfun <- function(x) { #tryCatch will check to see if the 'function' exists, and if it does not, returns NA as an error
+  tryCatch(x,error=function(e){return(as.numeric(NA))}) 
+}
 
 observeEvent(input$gen_report, {
   
-  #tryCatch will check to see if the 'function' exists, and if it does not, returns NA as an error
-  params[["ps"]] <- tryCatch(ps.sub(),error=function(e){return(as.numeric(NA))}) 
-  params[["richplot"]] <- tryCatch(richplot(),error=function(e){return(as.numeric(NA))})
-  params[["percplot"]] <- tryCatch(histoplot(),error=function(e){return(as.numeric(NA))})
-  params[["ordplot"]] <- tryCatch(ordplot(),error=function(e){return(as.numeric(NA))})
-  params$blanks <- tryCatch(input$blank_samples,error=function(e){return("No blanks selected")})
-  params$unass <- tryCatch(input$adjust,error=function(e){return(as.numeric(NA))})
-  params$rembl <- tryCatch(input$rem_blanks,error=function(e){return(as.numeric(NA))})
-  params$norm <- tryCatch(input$normoptions,error=function(e){return("No normalization performed")})
-  params$ordmeth <- tryCatch(input$ordmeth,error=function(e){return(as.numeric(NA))})
-  params$ordtype <- tryCatch(input$ordvis,error=function(e){return(as.numeric(NA))})
-  params$ntaxa <- tryCatch(N_taxa_tab(),error=function(e){return(as.numeric(NA))})
-  params$numsam <- tryCatch(Summ_seqs_sel(),error=function(e){return(as.numeric(NA))})
-  params$numog <- tryCatch(Summ_seqs(),error=function(e){return(as.numeric(NA))})
-  params$N_seq_total_num_sel <- tryCatch(N_seq_total_num_sel(),error=function(e){return(as.numeric(NA))})
-  params$N_seq_assigned_num_sel <- tryCatch(N_seq_assigned_num_sel(),error=function(e){return(as.numeric(NA))})
-  params$N_otu_total_num_sel <- tryCatch(N_otu_total_num_sel(),error=function(e){return(as.numeric(NA))})
-  params$N_otu_assigned_num_sel <- tryCatch(N_otu_assigned_num_sel(),error=function(e){return(as.numeric(NA))})
-  params$N_seq_blanks_num_sel <- tryCatch(N_seq_blanks_num_sel(),error=function(e){return(as.numeric(NA))})
-  params$N_otu_blanks_num_sel <- tryCatch(N_otu_blanks_num_sel(),error=function(e){return(as.numeric(NA))})
-  params$richmet <- tryCatch(input$alphametrics, error=function(e){return(as.numeric(NA))})
+  params[["ps"]] <- mkdwnrptfun(ps.sub())
+  params[["richplot"]] <- mkdwnrptfun(richplot())
+  params[["percplot"]] <- mkdwnrptfun(rankperc_plot())
+  params[["ordplot"]] <- mkdwnrptfun(ordplot())
+  params[["histplot"]] <- mkdwnrptfun(histoplot())
+  params[["hmplot"]] <- mkdwnrptfun(hmplot())
   
+  params$pnsamp <- mkdwnrptfun(input$prune_samples) #min sample number
+  params$pntax <- mkdwnrptfun(input$prune_tax) #min tax occurrence 
+  params$blanks <- tryCatch(input$blank_samples, #blanks selected
+                            error=function(e){return("No blanks selected")}) 
+  params$rembl <- mkdwnrptfun(input$rem_blanks) #blanks removed?
+  
+  params$unass <- if(isTruthy(input$tax_keepremove)) {"Keep"} else if (!isTruthy(input$tax_keepremove) && isTruthy(input$tax_switch)) {"Remove"} else {as.numeric(NA)}  #keep or remove taxa?
+  params$remtax <- mkdwnrptfun(taxfilter_list()) #list of ranks and names of taxa used to filter  
+  params$remsam <- mkdwnrptfun(input$sample_select) #list of samples removed 
+  
+  params$norm <- tryCatch(input$normoptions, #normalized? 
+                          error=function(e){return("No normalization performed")})
+  
+  params$ordmeth <- mkdwnrptfun(input$ord_meth) #ordination method
+  params$ordtype <- mkdwnrptfun(input$ord_vis) #ordination visualization method
+  
+  params$ntaxa <- mkdwnrptfun(N_taxa_tab())
+  params$numsam <- mkdwnrptfun(Summ_seqs_sel())
+  params$numog <- mkdwnrptfun(Summ_seqs())
+  
+  params$nseq <- mkdwnrptfun(Num_seq_subset_df)
+  params$notu <- mkdwnrptfun(Num_otu_subset_df)
+  
+  params$richmet <- mkdwnrptfun(input$alphametrics)
   paramvals <- reactiveValuesToList(params) #convert reactive values to list to read into render
   #params[params=="NULL"] <- NA #any NULL values (because input$x does not exist) are replaced with NA because markdown does not like NULL in the YAML header
   
