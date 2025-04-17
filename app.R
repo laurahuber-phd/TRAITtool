@@ -20,6 +20,7 @@ library(knitr)
 library(markdown)
 library(rmarkdown)
 library(stringr)
+library(shinyjs)
 #
 # source scripts --------
 source("function-buildps.R")
@@ -187,34 +188,6 @@ source('server-aes-vis.R',local=TRUE) #base theme for ggplot2
 source('server-aes-navigation.R',local=TRUE)
 # --- # Load Data # --------
 source('server-aes-load-data.R',local=TRUE) #loads the functionality to read in the files and go through any manipulations to normalize or subset the ps object
-# --- # Sidebar # --------
-  observe({
-    sidebar_toggle(
-      id="sidebar_main",
-      open=FALSE #sidebar with selection to remove blanks and unassigned sequences is hidden by default
-    )
-    if(input$pages == "Basic Stats" || input$pages == "Analysis") { #blank/unassigned selection sidebar is open for these two pages
-      sidebar_toggle(
-        id="sidebar_main",
-        open = TRUE
-        ) 
-      if (!isTruthy(MetadataTable$x) || !isTruthy(OTUTable$x) || !isTruthy(TaxTable$x)) {
-        showModal(
-          modalDialog(title="You do not have all the appropriate files for this page, go back to the beginning and check files",
-                      paste("The issue is: ", isgood()),
-                      size='l',
-                      actionButton("psfail_goback","Go to review your files",width='100%'),
-                      easyClose = FALSE
-          )
-        ) 
-      } else if (!is.null(ps.all())) {removeModal()} 
-    } else {
-        sidebar_toggle(
-          id="sidebar_main",
-          open = FALSE
-        )
-      }
-  },priority=1) %>% bindEvent(input$pages)
 # --- # Upload Page # --------
 source('server-navpanel-upload.R',local=TRUE)
 # --- # Review Page # --------
