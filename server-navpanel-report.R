@@ -5,6 +5,43 @@
 #                                       quiet=TRUE)))
 #}) 
 
+#### checks #### 
+#output$rep_ps <- mkdwnrptfun(ps.sub())
+observe({
+  req(ps.sub())
+  output$rep_richplot <- renderPlot({mkdwnrptfun(richplot())})
+  output$rep_percplot <- renderPlot({mkdwnrptfun(rankperc_plot())})
+  output$rep_ordplot <- renderPlot({mkdwnrptfun(ordplot())})
+  output$rep_histplot <- renderPlot({mkdwnrptfun(histoplot())})
+  output$rep_hmplot <- renderPlot({mkdwnrptfun(hmplot())})
+  
+  output$rep_pnsamp <- renderText({mkdwnrptfun(input$prune_samples)}) #min sample number
+  output$rep_pntax <- renderText({mkdwnrptfun(input$prune_tax)}) #min tax occurrence 
+  output$rep_blanks <- renderText({tryCatch(input$blank_samples, #blanks selected
+                                            error=function(e){return("No blanks selected")})})
+  output$rep_rembl <- renderText({mkdwnrptfun(input$rem_blanks)}) #blanks removed?
+  
+  output$rep_unass <- renderText({if(isTruthy(input$tax_keepremove)) {"The following taxa were kept:"} else if (!isTruthy(input$tax_keepremove) && isTruthy(input$tax_switch)) {"The following taxa were removed:"} else {"No taxa were specifically identified for special analysis"} }) #keep or remove taxa?
+  output$rep_remtax <- renderPrint({mkdwnrptfun(reactiveValuesToList(taxfilter_list))}) #list of ranks and names of taxa used to filter  
+  output$rep_remsam <- renderText({mkdwnrptfun(input$sample_select)}) #list of samples removed 
+  
+  output$rep_norm <- renderText({tryCatch(input$normoptions, #normalized? 
+                                          error=function(e){return("No normalization performed")})})
+  
+  #output$rep_ordmeth <- mkdwnrptfun(input$ord_meth) #ordination method
+  #output$rep_ordtype <- mkdwnrptfun(input$ord_vis) #ordination visualization method
+  
+  output$rep_ntaxa <- renderDataTable({mkdwnrptfun(N_taxa_tab())})
+  output$rep_numsam <- renderDataTable({mkdwnrptfun(Summ_seqs_sel())})
+  output$rep_numog <- renderDataTable({mkdwnrptfun(Summ_seqs())})
+  
+  output$rep_nseq <- renderDataTable({mkdwnrptfun(Num_seq_subset_df)})
+  output$rep_notu <- renderDataTable({mkdwnrptfun(Num_otu_subset_df)})
+  
+  #output$rep_richmet <- mkdwnrptfun(input$alphametrics)
+  
+  
+})
 
 ##### report parameters #####
 report <- reactiveValues(pdffilepath=NULL,
