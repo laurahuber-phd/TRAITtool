@@ -32,6 +32,9 @@ output$selsamp_aft <- renderText({paste("Number of samples after: ",trackNums$se
 output$seltax_bef <- renderText({paste("Number of ASVs before: ",trackNums$seltax_bef)}) #samples before selection
 output$seltax_aft <- renderText({paste("Number of ASVs after: ",trackNums$seltax_aft)}) #samples after selection
 
+output$selrank <- renderText({paste0("Ranks chosen: ",names(taxfilter_list))})
+output$seltax <- renderText({paste0("Taxa chosen: ",reactiveValuesToList(taxfilter_list))})
+
 # ---- # Update picker variables # ---- 
 observe({ 
   req(Meta_vars())
@@ -120,7 +123,7 @@ observe({
                  ignoreInit=TRUE)
 
 # ---- # Filter by taxa # ----  
-taxfilter_list <- reactiveValues(rank=NULL,name=NULL) #make list to record what taxa are used to filter and what rank they belong to
+taxfilter_list <- reactiveValues() #make list to record what taxa are used to filter and what rank they belong to
 
 observe({
   if(isTruthy(input$tax_switch)) { #if tax subset panel is open
@@ -146,7 +149,7 @@ observe({
                              choices=c(""))
     
     shinyjs::hide("befaft_tax") #hide counts
-    taxfilter_list$rank <- taxfilter_list$name <- NULL #reset the list of taxa used to filter
+    taxfilter_list <- NULL #reset the list of taxa used to filter
   }
 }) %>% bindEvent(input$tax_switch,
                  input$tax_filterby,
@@ -247,9 +250,10 @@ ps.sub <- reactive({
     taxsam = as.data.frame(as.matrix(tax_table(ps)))
     taxsamsel = select(taxsam,input$tax_filterby)
     
-    taxfilter_list$rank[[length(taxfilter_list$rank)+1]] <- input$tax_filterby
-    taxfilter_list$name[[length(taxfilter_list$name)+1]] <- input$tax_select
+    # make a new sublist each time go_tax is clicked 
     
+    taxfilter_list[[input$tax_filterby]] <-  list(input$tax_select)
+   
     if(isTruthy(input$tax_keepremove)) {
       taxkeep = tryCatch(rownames(filter(taxsamsel, taxsamsel[[1]] %in% input$tax_select)),
                          error=function(e){return(FALSE)})

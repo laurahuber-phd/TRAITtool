@@ -92,7 +92,7 @@ SelectTaxaCard <- card(
       )
   ),
   shinyjs::hidden(
-    wellPanel(id="befaft_tax",textOutput("seltax_bef"),textOutput("seltax_aft"))
+    wellPanel(id="befaft_tax",textOutput("seltax_bef"),textOutput("seltax_aft"),textOutput("selrank"),textOutput('seltax'))
   )
 )
 
