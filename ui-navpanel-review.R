@@ -44,9 +44,10 @@ reviewpage <- nav_panel("Review",
                           actionButton("review_nextpage","Next step")
                         ),
                         br(),
-                        card( HTML("<h2 style='text-align:center;'>Review Files</h2>"),
+                        card( HTML("<h2>Review Files</h2>"),
                               HTML("<p>Before analyzing your sequences, it is a good idea to double check that you have uploaded the right files and that they have uploaded correctly. Do sample names match? Does the metadata file contain all the information you need to answer the questions you have? </p>"),
                               HTML("<small'>As a reminder, the first column of the metadata file should be a set of unique identifiers. These identifiers will be the column names in the sequence table. </small>"),
+                              br(),
                               br(),
                               HTML("<h4 style='text-align:center;'>We are going to look at a small sample of the files you uploaded: Does this look like your data? </h4>")
                             ), 

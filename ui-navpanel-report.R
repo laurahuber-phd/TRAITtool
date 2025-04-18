@@ -3,11 +3,12 @@ reportpage <- nav_panel(
   useShinyjs(),
   actionButton("report_prevpage","Previous step",width='20%'),
   br(),
-  br(),br(),
+  br(),
   h2("Collect everything into one report"),
   "Use this page to check that you have completed all analyses that you were interested in and that figures look the way you want them to before generating the report, which can be computationally intensive and annoying to do multiple times.",
   br(),
-  "Before generating the full report, check that you have calculated everything you need in the panels below: ",
+  br(),
+  HTML("<i><b>Before generating the full report, check that you have calculated everything you need in the panels below: </i></b>"),
   br(),
   card(
     accordion(id="report_accord",
@@ -30,11 +31,26 @@ reportpage <- nav_panel(
                               ),
               accordion_panel(title="Figures",
                               accordion(
-                                accordion_panel(title="Percent composition"),
-                                accordion_panel(title="Richness"),
-                                accordion_panel(title="Taxonomic diversity"),
-                                accordion_panel(title="Heatmap"),
-                                accordion_panel(title="Ordination plot")
+                                accordion_panel(title="Percent composition",
+                                                plotOutput("rep_percplot"),
+                                                actionButton("repaccd_percplot",label="Go back to this page")
+                                                ),
+                                accordion_panel(title="Richness",
+                                                plotOutput("rep_richplot"),
+                                                actionButton("repaccd_richplot",label="Go back to this page")
+                                                ),
+                                accordion_panel(title="Taxonomic diversity",
+                                                plotOutput("rep_histplot"),
+                                                actionButton("repaccd_histplot",label="Go back to this page")
+                                                ),
+                                accordion_panel(title="Heatmap",
+                                                plotOutput("rep_hmplot"),
+                                                actionButton("repaccd_hmplot",label="Go back to this page")
+                                                ),
+                                accordion_panel(title="Ordination plot",
+                                                plotOutput("rep_ordplot"),
+                                                actionButton("repaccd_ordplot",label="Go back to this page")
+                                                )
                               ))
               )
   ),
@@ -49,7 +65,6 @@ reportpage <- nav_panel(
                    layout_columns(
                      col_widths=c(6,6),
                      card("View the report in-app before downloading:",
-                          br(),
                           br(),
                           br(),
                           actionButton(inputId = 'view_report',label="View report")),
