@@ -4,10 +4,60 @@
 #  HTML(markdown::mark_html(knitr::knit("ProjectReport.Rmd",
 #                                       quiet=TRUE)))
 #}) 
+
+isolate({
+  Num_seq_subset_list <- reactiveValuesToList(Num_seq_subset)
+  Num_seq_subset_names <- c("Total number of sequences:","Number of assigned sequences:","Number of sequences in blanks:")
+  Num_seq_subset_df <- data.frame("Value"=Num_seq_subset_names,"Number"=Num_seq_subset_list)
+})
+isolate({
+  Num_otu_subset_list <- reactiveValuesToList(Num_otu_subset)
+  Num_otu_subset_names <- c("Total number of ASVs:","Number of assigned ASVs:","Number of ASVs in blanks:")
+  Num_otu_subset_df <- data.frame("Value"=Num_otu_subset_names,"Number"=Num_otu_subset_list)
+})
+
+#### checks #### 
+#output$rep_ps <- mkdwnrptfun(ps.sub())
+observe({
+  req(ps.sub())
+output$rep_richplot <- renderPlot({mkdwnrptfun(richplot())})
+output$rep_percplot <- renderPlot({mkdwnrptfun(rankperc_plot())})
+output$rep_ordplot <- renderPlot({mkdwnrptfun(ordplot())})
+output$rep_histplot <- renderPlot({mkdwnrptfun(histoplot())})
+output$rep_hmplot <- renderPlot({mkdwnrptfun(hmplot())})
+
+output$rep_pnsamp <- renderText({mkdwnrptfun(input$prune_samples)}) #min sample number
+output$rep_pntax <- renderText({mkdwnrptfun(input$prune_tax)}) #min tax occurrence 
+output$rep_blanks <- renderText({tryCatch(input$blank_samples, #blanks selected
+                          error=function(e){return("No blanks selected")})})
+output$rep_rembl <- renderText({mkdwnrptfun(input$rem_blanks)}) #blanks removed?
+
+output$rep_unass <- renderText({if(isTruthy(input$tax_keepremove)) {"Keep"} else if (!isTruthy(input$tax_keepremove) && isTruthy(input$tax_switch)) {"Remove"} else {as.numeric(NA)} }) #keep or remove taxa?
+output$rep_remtax <- renderText({mkdwnrptfun(taxfilter_list())}) #list of ranks and names of taxa used to filter  
+output$rep_remsam <- renderText({mkdwnrptfun(input$sample_select)}) #list of samples removed 
+
+output$rep_norm <- renderText({tryCatch(input$normoptions, #normalized? 
+                        error=function(e){return("No normalization performed")})})
+
+#output$rep_ordmeth <- mkdwnrptfun(input$ord_meth) #ordination method
+#output$rep_ordtype <- mkdwnrptfun(input$ord_vis) #ordination visualization method
+
+output$rep_ntaxa <- renderDataTable({mkdwnrptfun(N_taxa_tab())})
+output$rep_numsam <- renderDataTable({mkdwnrptfun(Summ_seqs_sel())})
+output$rep_numog <- renderDataTable({mkdwnrptfun(Summ_seqs())})
+
+output$rep_nseq <- renderDataTable({mkdwnrptfun(Num_seq_subset_df)})
+output$rep_notu <- renderDataTable({mkdwnrptfun(Num_otu_subset_df)})
+
+#output$rep_richmet <- mkdwnrptfun(input$alphametrics)
+
+
+})
+
 ##### report parameters #####
 report <- reactiveValues(pdffilepath=NULL,
                          htmlfilepath=NULL
-) 
+                         ) 
 
 params <- reactiveValues(blanks=NA, #create list of parameters to read into rmarkdown
                          unass=NA,
@@ -69,7 +119,7 @@ observeEvent(input$gen_report, {
   
   params$ordmeth <- mkdwnrptfun(input$ord_meth) #ordination method
   params$ordtype <- mkdwnrptfun(input$ord_vis) #ordination visualization method
-  
+
   params$ntaxa <- mkdwnrptfun(N_taxa_tab())
   params$numsam <- mkdwnrptfun(Summ_seqs_sel())
   params$numog <- mkdwnrptfun(Summ_seqs())
