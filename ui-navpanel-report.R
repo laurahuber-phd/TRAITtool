@@ -11,7 +11,7 @@ reportpage <- nav_panel(
   HTML("<i><b>Before generating the full report, check that you have calculated everything you need in the panels below: </i></b>"),
   br(),
   card(
-    accordion(id="report_accord",
+    accordion(id="report_accord",open=FALSE,
               accordion_panel(title="Filtering Report",
                               p("Minimum sample size:", textOutput("rep_pnsamp",inline=TRUE)),
                               p("Minimum number occurrences to keep an ASV: ", textOutput("rep_pntax",inline=TRUE)),
@@ -30,7 +30,7 @@ reportpage <- nav_panel(
                               tableOutput("rep_numsam"),
                               ),
               accordion_panel(title="Figures",
-                              accordion(
+                              accordion(id='fig_accord',open=FALSE,
                                 accordion_panel(title="Percent composition",
                                                 plotOutput("rep_percplot"),
                                                 actionButton("repaccd_percplot",label="Go back to this page")
@@ -61,7 +61,8 @@ reportpage <- nav_panel(
   br(),
   br(),
   br(),
-  conditionalPanel(condition = "output.reportbuilt", # This button appears after the report has been generated and is ready for download.
+  card(id='dwnldviewreport',
+  #conditionalPanel(condition = "output.reportbuilt", # This button appears after the report has been generated and is ready for download.
                    layout_columns(
                      col_widths=c(6,6),
                      card("View the report in-app before downloading:",
