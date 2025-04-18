@@ -31,12 +31,9 @@ observe({
   #output$rep_ordmeth <- mkdwnrptfun(input$ord_meth) #ordination method
   #output$rep_ordtype <- mkdwnrptfun(input$ord_vis) #ordination visualization method
   
-  output$rep_ntaxa <- renderDataTable({mkdwnrptfun(N_taxa_tab())})
-  output$rep_numsam <- renderDataTable({mkdwnrptfun(Summ_seqs_sel())})
-  output$rep_numog <- renderDataTable({mkdwnrptfun(Summ_seqs())})
+  output$rep_numsam <- renderTable({mkdwnrptfun(Summ_seqs_sel())},rownames = TRUE,digits=0) #max/min/avg seqs (subset)
+  output$rep_numog <- renderTable({mkdwnrptfun(Summ_seqs())},rownames = TRUE,digits=0) #max/min/avg seqs (original)
   
-  output$rep_nseq <- renderDataTable({mkdwnrptfun(Num_seq_subset_df)})
-  output$rep_notu <- renderDataTable({mkdwnrptfun(Num_otu_subset_df)})
   
   #output$rep_richmet <- mkdwnrptfun(input$alphametrics)
   

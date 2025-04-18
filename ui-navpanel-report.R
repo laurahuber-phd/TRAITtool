@@ -21,7 +21,13 @@ reportpage <- nav_panel(
                               textOutput("rep_unass"),
                               verbatimTextOutput("rep_remtax")
                               ),
-              accordion_panel(title="Data Descriptions"),
+              accordion_panel(title="Data Descriptions",
+                              HTML("<p><i> (For the original dataset)</i> <u>Minimum and maximum number of sequences per sample: </u></p>"),
+                              tableOutput("rep_numog"),
+                              
+                              HTML("<p><i> (For the analyzed dataset)</i> <u>Minimum and maximum number of sequences per sample: </u></p>"),
+                              tableOutput("rep_numsam"),
+                              ),
               accordion_panel(title="Figures",
                               accordion(
                                 accordion_panel(title="Percent composition"),
