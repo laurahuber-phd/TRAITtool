@@ -210,6 +210,7 @@ source('server-navpanel-filter.R',local=TRUE)
 source('server-navpanel-analysis-alpha.R',local=TRUE)
 source('server-navpanel-analysis-ord.R',local=TRUE)
 source('server-navpanel-analysis-hm.R',local=TRUE)
+  source('server-navpanel-analysis-violin.R',local=TRUE)
 ## --- # Report Tab # --------  
 source('server-navpanel-report.R',local=TRUE)
   

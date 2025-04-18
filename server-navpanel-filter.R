@@ -310,4 +310,9 @@ ps.norm <- reactive({
 ps.sub.melt <- reactive({
   req(ps.sub())
   psmelt(ps.sub())
-})
+}) %>% bindEvent(ps.sub())
+
+ps.norm.melt <- reactive({
+  req(ps.norm())
+  psmelt(ps.norm.melt())
+}) %>% bindEvent(ps.norm())

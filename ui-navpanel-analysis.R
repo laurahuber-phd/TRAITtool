@@ -172,7 +172,28 @@ Anlys_hmCard <- tagList(
     withSpinner(plotOutput("hm_plot",click="hm_click")) #add a reaction when the plot is clicked
   
 )
+
+############################################# Violin plot #############################################
+Anlys_ViolinCard <- tagList(
+  h5("This tab will generate a heatmap to show patterns in when a taxa occurs"),
+  HTML("<p>Use the <u>'Controls'</u> button to change the taxonomic rank visualized or to alter what variable is used on the x-axis. You can also add up to two 'faceting' variables, which will separate the data into different plots based on which variables you facet by.</p>"),
+  br(),
+  HTML("<p>Use the <u>'Aesthetics'</u> button to change aesthetic elements such as the plotting theme, which will influence how the background and gridlines look. Here you can also change the position of the legend, text size, and the direction of text on the x-axis.</p>"),
+  br(),
+  HTML("<p>Use the <u>'Plot Size' </u> button to change the aspect ratio of the plot. </p>"),
+  br(),
   
+  layout_columns(
+    plotControlsUI('violin_gen',color=TRUE,x=TRUE,y=TRUE,facet=TRUE
+    ),
+    plotPrettyUI("violin_pretty"),
+    plotSizeUI('violin_size')
+  ),
+  actionButton("go_violin","Plot"),
+  downloadButton('violin_plotdwnld', label=NULL),
+  withSpinner(plotOutput("violin_plot",click="violin_click")) #add a reaction when the plot is clicked
+  
+) 
 ############################################# Trophic diversity #############################################
 Anlys_TrophCard <- layout_sidebar(
   sidebar=sidebar(
@@ -210,7 +231,10 @@ analysispage <- nav_panel("Analysis",
                           ),
                 nav_panel(id="trophic", title="Trophic composition",
                           Anlys_TrophCard
-                          )
+                          ),
+                nav_panel(id="violin", title="Violin plot",
+                          Anlys_ViolinCard
+                )
                 )
 )
 #############################################################################################################
