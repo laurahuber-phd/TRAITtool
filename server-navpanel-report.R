@@ -9,11 +9,11 @@
 #output$rep_ps <- mkdwnrptfun(ps.sub())
 observe({
   req(ps.sub())
-  output$rep_richplot <- renderPlot({mkdwnrptfun(richplot())})
-  output$rep_percplot <- renderPlot({mkdwnrptfun(rankperc_plot())})
-  output$rep_ordplot <- renderPlot({mkdwnrptfun(ordplot())})
-  output$rep_histplot <- renderPlot({mkdwnrptfun(histoplot())})
-  output$rep_hmplot <- renderPlot({mkdwnrptfun(hmplot())})
+  output$rep_richplot <- renderPlot({richplot()})
+  output$rep_percplot <- renderPlot({rankperc_plot()})
+  output$rep_ordplot <- renderPlot({ordplot()})
+  output$rep_histplot <- renderPlot({histoplot()})
+  output$rep_hmplot <- renderPlot({hmplot()})
   
   output$rep_pnsamp <- renderText({mkdwnrptfun(input$prune_samples)}) #min sample number
   output$rep_pntax <- renderText({mkdwnrptfun(input$prune_tax)}) #min tax occurrence 
@@ -34,10 +34,7 @@ observe({
   output$rep_numsam <- renderTable({mkdwnrptfun(Summ_seqs_sel())},rownames = TRUE,digits=0) #max/min/avg seqs (subset)
   output$rep_numog <- renderTable({mkdwnrptfun(Summ_seqs())},rownames = TRUE,digits=0) #max/min/avg seqs (original)
   
-  
   #output$rep_richmet <- mkdwnrptfun(input$alphametrics)
-  
-  
 })
 
 ##### report parameters #####
@@ -184,6 +181,11 @@ output$download_report <- downloadHandler(
                      ), file)
   }
 )
+
+#Hide report if ps.sub changes
+observeEvent(ps.sub(),{
+  shinyjs::hide("viewfinalreport")
+})
 
 #View report in app
 observeEvent(input$view_report, {

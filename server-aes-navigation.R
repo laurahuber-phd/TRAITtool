@@ -75,6 +75,13 @@ observeEvent(input$go_help, switch_page("helptab"))
 observeEvent(input$go_settings, switch_page("settingstab"))
 observeEvent(input$go_report, switch_page("reporttab"))
 
+# report accordion
+observeEvent(input$repaccd_percplot,switch_page("basicstab"))
+observeEvent(input$repaccd_richplot, switch_page("statstab"))
+observeEvent(input$repaccd_ordplot, switch_page("statstab"))
+observeEvent(input$repaccd_histplot, switch_page("statstab"))
+observeEvent(input$repaccd_hmplot,switch_page("statstab"))
+
 # not using yet
 observeEvent(input$demux_nextpage, switch_page("Assign OTU"))
 observeEvent(input$demux_prevpage, switch_page("uploadtab")) 
