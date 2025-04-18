@@ -89,27 +89,27 @@ In addition, this will summarize some basic features of the data, including the 
 #### 1. Size constraints   
 Removing ASVs with only one occurrence can reduce the likelihood of overestimating diversity. Samples with dramatically fewer sequences can also bias analyses.  
   
-Samples with less than `r params$pnsamp` sequences were removed from the dataset.   
-ASVs occurring less than `r params$pntax` times in the dataset were removed.   
+_Samples with less than `r params$pnsamp` sequences were removed from the dataset._   
+_ASVs occurring less than `r params$pntax` times in the dataset were removed._  
 
 #### 2. Normalized data  
 Normalizing a dataset is done to make findings comparable across samples with uneven sequencing depth. Relative abundance calculates the proportion of the total for each taxa. Rarefaction will randomly subsample the sequences in each sample to match the number of the smallest sample.  
 
-Normalization method: `r params$norm`  
+_Normalization method:_ `r params$norm`  
 
 #### 3. Blanks  
 During the process of collecting samples, filtering water, or performing PCR, you likely had 'blanks' for quality control and to track any sources of contamination.   
 
-The following were selected as your blanks:  
+_The following were selected as your blanks:_  
 ```{r listblanks}
 params$blanks
 ```
-Were blanks removed? `r params$rembl`  
+_Were blanks removed?_ `r params$rembl`  
 
 #### 4. Specific sample and taxa choices  
 You had the option to specify specific samples to analyze instead of the entire dataset. Similarly, you could have selected specific taxa to include or exclude. 
 
-Specific samples removed: `r params$remsam`
+_Specific samples removed:_ `r params$remsam`
 
 `r if(!is.na(params$unass)) (paste0("You chose to ",params$unass," the following taxa:")) else "You kept all taxa for analysis"`  
 ```{r listtaxa}
@@ -132,10 +132,10 @@ Sys.sleep(2)
 This section is a sanity check.  
 The information we get from this page is useful because it can be used for troubleshooting and can tell us about the quality and reliability of the data we're looking at. Large, dramatic changes here could be the reason why you see differences in what species are showing up or why community composition appears to change. We want to know if the changes are real, biological changes or due to the dataset.  
 
-## Mean, median, etc.    
+### Mean, median, etc.    
 This is an overview of sequences, ASVs, and how that changes depending on the filtering parameters. You probably don't need to look too far into this, but it will tell you how well your sequences clustered into distinct units/ASVs, how much contamination was found in the blanks (if you defined blanks in the review section), and the spread/evenness of sequences within the dataset.  
 
-For the original dataset:  
+#### Of the original dataset:  
 ```{r ogseqmean}
 if (any(is.na(params$numog)==FALSE))  (
   knitr::kable(params$numog,
@@ -148,7 +148,7 @@ if (any(is.na(params$numog)==FALSE))  (
   ) else "Characteristics of your sequencing run were not calculated" 
 ```
 
-For the subset dataset:  
+#### Of the subsetted dataset:  
 (This could be the same, depending on whether or not you chose to do any dataset manipulations)  
 ```{r subseqmean}
 if (any(is.na(params$numsam)==FALSE)) (
@@ -162,13 +162,15 @@ if (any(is.na(params$numsam)==FALSE)) (
   ) else "Characteristics of the analyzed dataset were not calculated"
 ```
 
-```{r}
-params$nseq
-```
+_Total number of sequences_: `r params$N_seq_total_num_sel`  
+_Number of assigned sequences_: `r params$N_seq_assigned_num_sel`  
 
-```{r}
-params$notu
-```
+_Total number of OTUs_: `r params$N_otu_total_num_sel`  
+_Number of assigned OTUs_: `r params$N_otu_assigned_num_sel`  
+
+
+_Number of sequences in blanks_: `r params$N_seq_blanks_num_sel`  
+_Number of OTUs in blanks_: `r params$N_otu_blanks_num_sel` 
 
 
 ```{r progresstwo}
@@ -176,7 +178,7 @@ incProgress(2/10)
 Sys.sleep(2)
 ```
 
-## Sample distribution    
+### Sample distribution    
 This is a table that shows each of the samples in the dataset you are looking at and how many sequences are in that sample. We want to know if one sample has way more (or less) sequences than the rest of the dataset - unbalanced data makes it difficult to see real patterns.  
 ```{r seqspersample}
 if (any(is.na(params$samsum)==FALSE)) (
@@ -281,8 +283,8 @@ Sys.sleep(2)
 ```
 
 # Ordination plot  
-Ordination method: `r params$ordmeth`  
-Type: `r params$ordtype`  
+_Ordination method:_ `r params$ordmeth`  
+_Type:_ `r params$ordtype`  
 ```{r}
 params$ordplot
 ```

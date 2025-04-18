@@ -31,7 +31,13 @@ params <- reactiveValues(blanks=NA, #create list of parameters to read into rmar
                          remsam=NA,
                          histplot=NA,
                          hmplot=NA,
-                         samsum=NA
+                         samsum=NA,
+                         N_seq_total_num_sel=NA,
+                         N_seq_assigned_num_sel=NA,
+                         N_otu_total_num_sel=NA,
+                         N_otu_assigned_num_sel=NA,
+                         N_seq_blanks_num_sel=NA,
+                         N_otu_blanks_num_sel=NA
 )
 
 mkdwnrptfun <- function(x) { #tryCatch will check to see if the 'function' exists, and if it does not, returns NA as an error
@@ -69,8 +75,17 @@ observeEvent(input$gen_report, {
   params$numog <- mkdwnrptfun(Summ_seqs())
   params$samsum <- mkdwnrptfun(N_sample_df())
   
-  params$nseq <- mkdwnrptfun(reactiveValuestoList(Num_seq_subset_df))
-  params$notu <- mkdwnrptfun(reactiveValuestoList(Num_otu_subset_df))
+  params$nseq <- mkdwnrptfun(reactiveValuestoList(Num_seq_subset))
+  params$notu <- mkdwnrptfun(reactiveValuestoList(Num_otu_subset))
+  
+  params$N_seq_total_num_sel <- mkdwnrptfun(Num_seq_all$N_seq_num)
+  params$N_seq_assigned_num_sel <- mkdwnrptfun(Num_seq_all$N_seq_assigned) 
+  
+  params$N_otu_total_num_sel <- mkdwnrptfun(Num_otu_all$N_otu_num) 
+  params$N_otu_assigned_num_sel <- mkdwnrptfun(Num_otu_all$N_otu_assigned) 
+  
+  params$N_seq_blanks_num_sel <- mkdwnrptfun(Num_seq_all$N_seq_blanks)
+  params$N_otu_blanks_num_sel <- mkdwnrptfun(Num_otu_all$N_otu_blanks)
   
   params$richmet <- mkdwnrptfun(input$alphametrics)
   paramvals <- reactiveValuesToList(params) #convert reactive values to list to read into render
