@@ -27,6 +27,13 @@ Anlys_AlphaCard <- tagList(
 )
 ############################################# Histo #############################################
 Anlys_HistoCard <- tagList(
+  h5("This tab will generate a histogram showing the occurrences of different taxa"),
+  HTML("<p>Use the <u>'Controls'</u> button to change the taxonomic rank visualized or to alter what variable is used on the x-axis. You can also add up to two 'faceting' variables, which will separate the data into different plots based on which variables you facet by.</p>"),
+  br(),
+  HTML("<p>Use the <u>'Aesthetics'</u> button to change aesthetic elements such as the plotting theme, which will influence how the background and gridlines look. Here you can also change the position of the legend, text size, and the direction of text on the x-axis.</p>"),
+  br(),
+  HTML("<p>Use the <u>'Plot Size' </u> button to change the aspect ratio of the plot. </p>"),
+  br(),
   layout_columns(col_widths=c(4,4,4),
     plotControlsUI('histo_gen'),  #,color=TRUE,x=TRUE,y=FALSE,facet=TRUE
     plotPrettyUI("histo_pretty"),
@@ -146,6 +153,14 @@ Anlys_BetaCard <- accordion(
 
 ############################################# Heat Map #############################################
 Anlys_hmCard <- tagList(
+  h5("This tab will generate a heatmap to show patterns in when a taxa occurs"),
+  HTML("<p>Use the <u>'Controls'</u> button to change the taxonomic rank visualized or to alter what variable is used on the x-axis. You can also add up to two 'faceting' variables, which will separate the data into different plots based on which variables you facet by.</p>"),
+  br(),
+  HTML("<p>Use the <u>'Aesthetics'</u> button to change aesthetic elements such as the plotting theme, which will influence how the background and gridlines look. Here you can also change the position of the legend, text size, and the direction of text on the x-axis.</p>"),
+  br(),
+  HTML("<p>Use the <u>'Plot Size' </u> button to change the aspect ratio of the plot. </p>"),
+  br(),
+  
   layout_columns(
     plotControlsUI('hm_gen',color=TRUE,x=TRUE,y=FALSE,facet=TRUE
     ),
@@ -179,18 +194,18 @@ analysispage <- nav_panel("Analysis",
     actionButton("analysis_nextpage","Next step")
     ),
   br(),
-  HTML("<h4>Generate figures </h4>"),
+  HTML("<h2>Generate figures </h2>"),
   navset_card_tab(id="anlys", 
-                nav_panel(id='alpha', title="Alpha Diversity",
+                nav_panel(id='alpha', title="Species richness",
                           Anlys_AlphaCard
                           ),
                 nav_panel(id="taxcomp",title="Taxonomic composition", full_screen=TRUE,
                           Anlys_HistoCard
                           ),
-                nav_panel(id="beta", title="Beta Diversity",
+                nav_panel(id="beta", title="Beta biversity",
                           Anlys_BetaCard
                           ),
-                nav_panel(id="hm", title="Heat Map",
+                nav_panel(id="hm", title="Heat map",
                           Anlys_hmCard
                           ),
                 nav_panel(id="trophic", title="Trophic composition",

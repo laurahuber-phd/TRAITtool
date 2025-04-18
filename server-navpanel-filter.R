@@ -59,8 +59,9 @@ Meta_vars <- reactive({ #read the metadata file and identify the variable names
   #req(input$Metadata)
   return(names(MetadataTable$x))
 }) %>% bindEvent(input$load_ex, #update meta_vars if the load button is pressed (new dataset)
-                 input$Metadata, #update meta_vars if a new metadata table is uploaded manual
-                 MetadataTable$x
+                 input$assemble_ps
+                 #input$Metadata, #update meta_vars if a new metadata table is uploaded manual
+                 #MetadataTable$x
                  )
 
 rnames <- reactive({ #read the metadata file and identify the variable names 
