@@ -4,10 +4,12 @@
 #  HTML(markdown::mark_html(knitr::knit("ProjectReport.Rmd",
 #                                       quiet=TRUE)))
 #}) 
+
+
 ##### report parameters #####
 report <- reactiveValues(pdffilepath=NULL,
                          htmlfilepath=NULL
-) 
+                         ) 
 
 params <- reactiveValues(blanks=NA, #create list of parameters to read into rmarkdown
                          unass=NA,
@@ -69,7 +71,7 @@ observeEvent(input$gen_report, {
   
   params$ordmeth <- mkdwnrptfun(input$ord_meth) #ordination method
   params$ordtype <- mkdwnrptfun(input$ord_vis) #ordination visualization method
-  
+
   params$ntaxa <- mkdwnrptfun(N_taxa_tab())
   params$numsam <- mkdwnrptfun(Summ_seqs_sel())
   params$numog <- mkdwnrptfun(Summ_seqs())
@@ -78,14 +80,14 @@ observeEvent(input$gen_report, {
   params$nseq <- mkdwnrptfun(reactiveValuestoList(Num_seq_subset))
   params$notu <- mkdwnrptfun(reactiveValuestoList(Num_otu_subset))
   
-  params$N_seq_total_num_sel <- mkdwnrptfun(Num_seq_all$N_seq_num)
-  params$N_seq_assigned_num_sel <- mkdwnrptfun(Num_seq_all$N_seq_assigned) 
+  params$N_seq_total_num_sel <- mkdwnrptfun(Num_seq_subset$N_seq_num)
+  params$N_seq_assigned_num_sel <- mkdwnrptfun(Num_seq_subset$N_seq_assigned) 
   
-  params$N_otu_total_num_sel <- mkdwnrptfun(Num_otu_all$N_otu_num) 
-  params$N_otu_assigned_num_sel <- mkdwnrptfun(Num_otu_all$N_otu_assigned) 
+  params$N_otu_total_num_sel <- mkdwnrptfun(Num_otu_subset$N_otu_num) 
+  params$N_otu_assigned_num_sel <- mkdwnrptfun(Num_otu_subset$N_otu_assigned) 
   
-  params$N_seq_blanks_num_sel <- mkdwnrptfun(Num_seq_all$N_seq_blanks)
-  params$N_otu_blanks_num_sel <- mkdwnrptfun(Num_otu_all$N_otu_blanks)
+  params$N_seq_blanks_num_sel <- mkdwnrptfun(Num_seq_subset$N_seq_blanks)
+  params$N_otu_blanks_num_sel <- mkdwnrptfun(Num_otu_subset$N_otu_blanks)
   
   params$richmet <- mkdwnrptfun(input$alphametrics)
   paramvals <- reactiveValuesToList(params) #convert reactive values to list to read into render
