@@ -55,7 +55,6 @@ observeEvent(input$gen_report, {
   params$rembl <- mkdwnrptfun(input$rem_blanks) #blanks removed?
   
   params$unass <- if(isTruthy(input$tax_keepremove)) {"Keep"} else if (!isTruthy(input$tax_keepremove) && isTruthy(input$tax_switch)) {"Remove"} else {as.numeric(NA)}  #keep or remove taxa?
-  #params$remtax <- mkdwnrptfun(as.list(input$tax_select)) #list of ranks and names of taxa used to filter  
   params$remtax <- mkdwnrptfun(reactiveValuesToList(taxfilter_list)) #list of ranks and names of taxa used to filter  
   params$remsam <- mkdwnrptfun(input$sample_select) #list of samples removed 
   
