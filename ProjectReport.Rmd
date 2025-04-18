@@ -111,7 +111,7 @@ You had the option to specify specific samples to analyze instead of the entire 
 
 Specific samples removed: `r params$remsamp`
 
-`r if(!is.na(params$unass)) (paste0("You chose to ",params$unass,"the following taxa:")) else "You kept all taxa for analysis"`  
+`r if(!is.na(params$unass)) (paste0("You chose to ",params$unass," the following taxa:")) else "You kept all taxa for analysis"`  
 ```{r}
 if (any(is.na(params$remtax)==FALSE)) (
   knitr::kable(params$remtax) %>% 
@@ -119,11 +119,11 @@ if (any(is.na(params$remtax)==FALSE)) (
                               bootstrap_options = "bordered",
                               full_width=FALSE,
                               position = "left")
-  ) else "Sequence distribution not calculated"
+  ) else "No taxa picked"
 ```
 
 ```{r}
-incProgress(1/5)
+incProgress(1/10)
 Sys.sleep(2)
 ```
 
@@ -171,7 +171,7 @@ params$notu
 
 
 ```{r}
-incProgress(1/5)
+incProgress(2/10)
 Sys.sleep(2)
 ```
 
@@ -189,6 +189,11 @@ if (any(is.na(params$samsum)==FALSE)) (
   ) else "Sequence distribution not calculated"
 ```
 
+```{r}
+incProgress(3/10)
+Sys.sleep(2)
+```
+
 ### Sequence distribution   
 In this plot, we are looking at the number of sequences in each sample. 
 
@@ -200,6 +205,11 @@ p_bar <- plot_bar(params$ps,
  #+ geom_line(aes(y=100000,color="green")) #add horizontal line at 100,000 to show goal minimum sequencing depth 
 
 p_bar
+```
+
+```{r}
+incProgress(4/10)
+Sys.sleep(2)
 ```
 
 ## Taxonomy  
@@ -217,6 +227,10 @@ if (any(is.na(params$ntaxa)==FALSE)) (
 ) else "Taxonomic diversity was not summarized"
 ```
 
+```{r}
+incProgress(5/10)
+Sys.sleep(2)
+```
 ### Percent composition  
 Visualize proportionally how much each taxa appears in the dataset. What taxa are most common? Do you have rare taxa?  
 
@@ -230,7 +244,7 @@ params$percplot
 ```
 
 ```{r}
-incProgress(1/5)
+incProgress(6/10)
 Sys.sleep(2)
 ```
 
@@ -241,7 +255,7 @@ params$richplot
 ```
 
 ```{r}
-incProgress(1/5)
+incProgress(7/10)
 Sys.sleep(2)
 ```
 
@@ -251,7 +265,7 @@ params$histplot
 ```
 
 ```{r}
-incProgress(1/5)
+incProgress(8/10)
 Sys.sleep(2)
 ```
 
@@ -261,7 +275,7 @@ params$hmplot
 ```
 
 ```{r}
-incProgress(1/5)
+incProgress(9/10)
 Sys.sleep(2)
 ```
 
@@ -273,7 +287,7 @@ params$ordplot
 ```
 
 ```{r}
-incProgress(1/5)
+incProgress(10/10)
 Sys.sleep(2)
 ```
 \newpage  

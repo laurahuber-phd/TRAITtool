@@ -30,7 +30,8 @@ params <- reactiveValues(blanks=NA, #create list of parameters to read into rmar
                          remtax=NA,
                          remsam=NA,
                          histplot=NA,
-                         hmplot=NA
+                         hmplot=NA,
+                         samsum=NA
 )
 
 mkdwnrptfun <- function(x) { #tryCatch will check to see if the 'function' exists, and if it does not, returns NA as an error
@@ -38,7 +39,8 @@ mkdwnrptfun <- function(x) { #tryCatch will check to see if the 'function' exist
 }
 
 observeEvent(input$gen_report, {
-  
+  report$pdffilepath <- report$htmlfilepath <- NULL
+  shinyjs::hide("viewfinalreport")
   params[["ps"]] <- mkdwnrptfun(ps.sub())
   params[["richplot"]] <- mkdwnrptfun(richplot())
   params[["percplot"]] <- mkdwnrptfun(rankperc_plot())
@@ -53,7 +55,7 @@ observeEvent(input$gen_report, {
   params$rembl <- mkdwnrptfun(input$rem_blanks) #blanks removed?
   
   params$unass <- if(isTruthy(input$tax_keepremove)) {"Keep"} else if (!isTruthy(input$tax_keepremove) && isTruthy(input$tax_switch)) {"Remove"} else {as.numeric(NA)}  #keep or remove taxa?
-  params$remtax <- mkdwnrptfun(taxfilter_list()) #list of ranks and names of taxa used to filter  
+  params$remtax <- mkdwnrptfun(reactiveValuesToList(taxfilter_list$name)) #list of ranks and names of taxa used to filter  
   params$remsam <- mkdwnrptfun(input$sample_select) #list of samples removed 
   
   params$norm <- tryCatch(input$normoptions, #normalized? 
@@ -65,9 +67,10 @@ observeEvent(input$gen_report, {
   params$ntaxa <- mkdwnrptfun(N_taxa_tab())
   params$numsam <- mkdwnrptfun(Summ_seqs_sel())
   params$numog <- mkdwnrptfun(Summ_seqs())
+  params$samsum <- mkdwnrptfun(N_sample_df())
   
-  params$nseq <- mkdwnrptfun(Num_seq_subset_df)
-  params$notu <- mkdwnrptfun(Num_otu_subset_df)
+  params$nseq <- mkdwnrptfun(reactiveValuestoList(Num_seq_subset_df))
+  params$notu <- mkdwnrptfun(reactiveValuestoList(Num_otu_subset_df))
   
   params$richmet <- mkdwnrptfun(input$alphametrics)
   paramvals <- reactiveValuesToList(params) #convert reactive values to list to read into render
@@ -109,7 +112,7 @@ observeEvent(input$gen_report, {
 # Hide download button until report is generated
 output$reportbuilt <- reactive({
   return(!is.null(report$htmlfilepath))
-})
+}) %>% bindEvent(input$gen_report)
 outputOptions(output, 'reportbuilt', suspendWhenHidden= FALSE)
 
 #Download report  
@@ -133,6 +136,8 @@ output$download_report <- downloadHandler(
 
 #View report in app
 observeEvent(input$view_report, {
+  shinyjs::show("viewfinalreport")
+  
   req(report$htmlfilepath)
   addResourcePath('vwfile',tempdir())
   
