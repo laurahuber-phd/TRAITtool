@@ -55,7 +55,7 @@ knitr::opts_chunk$set(message = FALSE,warning = FALSE,echo = FALSE, error=TRUE,
                       dev = "png", dpi = 300,fig_caption=TRUE)
 ```
 
-```{r, out.width='100%',fig.align='center', fig.pos='b'}
+```{r titlegraphic, out.width='100%',fig.align='center', fig.pos='b'}
 knitr::include_graphics("www/Placeholder_Artwork_long.png")
 ```
 
@@ -72,7 +72,7 @@ This report is a distillation of the analyses ran within the app. If anything is
 This was developed with support from the Marine Conservation Lab at the Smithsonian Environmental Research Center.  
 
 
-```{r, out.width='25%',fig.align='right', fig.pos='b'}
+```{r logographic, out.width='25%',fig.align='right', fig.pos='b'}
 knitr::include_graphics("www/MCL_SERC.png")
 ```
 \newpage
@@ -101,7 +101,7 @@ Normalization method: `r params$norm`
 During the process of collecting samples, filtering water, or performing PCR, you likely had 'blanks' for quality control and to track any sources of contamination.   
 
 The following were selected as your blanks:  
-```{r}
+```{r listblanks}
 params$blanks
 ```
 Were blanks removed? `r params$rembl`  
@@ -112,17 +112,18 @@ You had the option to specify specific samples to analyze instead of the entire 
 Specific samples removed: `r params$remsamp`
 
 `r if(!is.na(params$unass)) (paste0("You chose to ",params$unass," the following taxa:")) else "You kept all taxa for analysis"`  
-```{r}
-if (any(is.na(params$remtax)==FALSE)) (
-  knitr::kable(params$remtax) %>% 
-    kableExtra::kable_styling(params$remtax,
-                              bootstrap_options = "bordered",
-                              full_width=FALSE,
-                              position = "left")
-  ) else "No taxa picked"
+```{r listtaxa}
+params$remtax
+#if (any(is.na(params$remtax)==FALSE)) (
+#  knitr::kable(params$remtax) %>% 
+#    kableExtra::kable_styling(params$remtax,
+#                              bootstrap_options = "bordered",
+#                              full_width=FALSE,
+#                              position = "left")
+#  ) else "No taxa picked"
 ```
 
-```{r}
+```{r progressone}
 incProgress(1/10)
 Sys.sleep(2)
 ```
@@ -135,7 +136,7 @@ The information we get from this page is useful because it can be used for troub
 This is an overview of sequences, ASVs, and how that changes depending on the filtering parameters. You probably don't need to look too far into this, but it will tell you how well your sequences clustered into distinct units/ASVs, how much contamination was found in the blanks (if you defined blanks in the review section), and the spread/evenness of sequences within the dataset.  
 
 For the original dataset:  
-```{r}
+```{r ogseqmean}
 if (any(is.na(params$numog)==FALSE))  (
   knitr::kable(params$numog,
                digits=2,
@@ -149,7 +150,7 @@ if (any(is.na(params$numog)==FALSE))  (
 
 For the subset dataset:  
 (This could be the same, depending on whether or not you chose to do any dataset manipulations)  
-```{r}
+```{r subseqmean}
 if (any(is.na(params$numsam)==FALSE)) (
   knitr::kable(params$numsam,
                digits=2,
@@ -170,14 +171,14 @@ params$notu
 ```
 
 
-```{r}
+```{r progresstwo}
 incProgress(2/10)
 Sys.sleep(2)
 ```
 
 ## Sample distribution    
 This is a table that shows each of the samples in the dataset you are looking at and how many sequences are in that sample. We want to know if one sample has way more (or less) sequences than the rest of the dataset - unbalanced data makes it difficult to see real patterns.  
-```{r}
+```{r seqspersample}
 if (any(is.na(params$samsum)==FALSE)) (
   knitr::kable(params$samsum,
                digits=2,
@@ -189,7 +190,7 @@ if (any(is.na(params$samsum)==FALSE)) (
   ) else "Sequence distribution not calculated"
 ```
 
-```{r}
+```{r progressthree}
 incProgress(3/10)
 Sys.sleep(2)
 ```
@@ -198,7 +199,7 @@ Sys.sleep(2)
 In this plot, we are looking at the number of sequences in each sample. 
 
 This tool is a useful gut check to get a high-level overview of the entire dataset. Do any samples have significantly more or less sequences than another? That is normally a signal that some kind of normalization will be needed prior to performing any analyses or that there should have been a higher cutoff for sample number.  
-```{r} 
+```{r seqdist} 
 p_bar <- plot_bar(params$ps,
                    title="Number of sequences per sample") 
 
@@ -207,7 +208,7 @@ p_bar <- plot_bar(params$ps,
 p_bar
 ```
 
-```{r}
+```{r progressfour}
 incProgress(4/10)
 Sys.sleep(2)
 ```

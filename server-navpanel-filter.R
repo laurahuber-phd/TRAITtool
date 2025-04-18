@@ -157,14 +157,6 @@ observe({
 
 observe({
   req(ps.sub())
-  if(isTruthy(input$tax_select)) {
-  taxfilter_list$rank <- c(taxfilter_list$rank, input$tax_filterby)
-  taxfilter_list$name <- c(taxfilter_list$name, input$tax_select)
-  }
-}) %>% bindEvent(input$go_tax)
-
-observe({
-  req(ps.sub())
   if(isTruthy(input$tax_switch && input$go_tax && !is.null(input$tax_select))) {
     shinyjs::show("befaft_tax")
   }
@@ -254,6 +246,9 @@ ps.sub <- reactive({
     taxkeep = NULL #make blank list
     taxsam = as.data.frame(as.matrix(tax_table(ps)))
     taxsamsel = select(taxsam,input$tax_filterby)
+    
+    taxfilter_list$rank[[length(taxfilter_list$rank)+1]] <- input$tax_filterby
+    taxfilter_list$name[[length(taxfilter_list$name)+1]] <- input$tax_select
     
     if(isTruthy(input$tax_keepremove)) {
       taxkeep = tryCatch(rownames(filter(taxsamsel, taxsamsel[[1]] %in% input$tax_select)),
