@@ -124,7 +124,7 @@ params$remtax
 ```
 
 ```{r progressone}
-incProgress(1/10)
+incProgress(1/11)
 Sys.sleep(2)
 ```
 
@@ -174,7 +174,7 @@ _Number of OTUs in blanks_: `r params$N_otu_blanks_num_sel`
 
 
 ```{r progresstwo}
-incProgress(2/10)
+incProgress(2/11)
 Sys.sleep(2)
 ```
 
@@ -193,7 +193,7 @@ if (any(is.na(params$samsum)==FALSE)) (
 ```
 
 ```{r progressthree}
-incProgress(3/10)
+incProgress(3/11)
 Sys.sleep(2)
 ```
 
@@ -211,7 +211,7 @@ p_bar
 ```
 
 ```{r progressfour}
-incProgress(4/10)
+incProgress(4/11)
 Sys.sleep(2)
 ```
 
@@ -231,7 +231,7 @@ if (any(is.na(params$ntaxa)==FALSE)) (
 ```
 
 ```{r}
-incProgress(5/10)
+incProgress(5/11)
 Sys.sleep(2)
 ```
 ### Percent composition  
@@ -247,7 +247,7 @@ params$percplot
 ```
 
 ```{r}
-incProgress(6/10)
+incProgress(6/11)
 Sys.sleep(2)
 ```
 
@@ -258,7 +258,7 @@ params$richplot
 ```
 
 ```{r}
-incProgress(7/10)
+incProgress(7/11)
 Sys.sleep(2)
 ```
 
@@ -268,7 +268,7 @@ params$histplot
 ```
 
 ```{r}
-incProgress(8/10)
+incProgress(8/11)
 Sys.sleep(2)
 ```
 
@@ -278,7 +278,7 @@ params$hmplot
 ```
 
 ```{r}
-incProgress(9/10)
+incProgress(9/11)
 Sys.sleep(2)
 ```
 
@@ -290,7 +290,7 @@ params$ordplot
 ```
 
 ```{r}
-incProgress(10/10)
+incProgress(10/11)
 Sys.sleep(2)
 ```
 \newpage  

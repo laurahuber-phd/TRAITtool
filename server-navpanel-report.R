@@ -156,12 +156,16 @@ observeEvent(input$gen_report, {
   
 })
 
+observeEvent(input$gen_report, {
+  if(is.null(input$gen_report)) shinyjs::hide("dwnldviewreport")
+  if(!is.null(report$htmlfilepath)) shinyjs::show("dwnldviewreport")
+})
 
 # Hide download button until report is generated
-output$reportbuilt <- reactive({
-  return(!is.null(report$htmlfilepath))
-}) %>% bindEvent(input$gen_report)
-outputOptions(output, 'reportbuilt', suspendWhenHidden= FALSE)
+#output$reportbuilt <- reactive({
+#  return(!is.null(report$htmlfilepath))
+#}) %>% bindEvent(input$gen_report)
+#outputOptions(output, 'reportbuilt', suspendWhenHidden= FALSE)
 
 #Download report  
 output$download_report <- downloadHandler(
@@ -185,6 +189,7 @@ output$download_report <- downloadHandler(
 #Hide report if ps.sub changes
 observeEvent(ps.sub(),{
   shinyjs::hide("viewfinalreport")
+  shinyjs::hide("dwnldviewreport")
 })
 
 #View report in app
