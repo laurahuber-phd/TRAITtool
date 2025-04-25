@@ -55,20 +55,6 @@ observeEvent(input$tax_switch, { #whenever switch to subset taxa is triggered
   ) #update picker selection using the rank names of the ps object
 }) 
 
-Meta_vars <- reactive({ #read the metadata file and identify the variable names 
-  #req(input$Metadata)
-  return(names(MetadataTable$x))
-}) %>% bindEvent(input$load_ex, #update meta_vars if the load button is pressed (new dataset)
-                 input$assemble_ps
-                 #input$Metadata, #update meta_vars if a new metadata table is uploaded manual
-                 #MetadataTable$x
-                 )
-
-rnames <- reactive({ #read the metadata file and identify the variable names 
-  #req(input$Metadata)
-  return(rank_names(ps.sub()))
-}) %>% bindEvent(ps.sub() )
-
 # ---- # Filter by blanks # ---- 
 observe({ 
   req(ps.sub())
@@ -248,21 +234,43 @@ ps.sub <- reactive({
     trackNums$seltax_bef <- as.character(ntaxa(ps))
     
     taxkeep = NULL #make blank list
-    taxsam = as.data.frame(as.matrix(tax_table(ps)))
-    taxsamsel = select(taxsam,input$tax_filterby)
+    taxsam = as.data.frame(as.matrix(tax_table(ps))) #taxonomy table
+    taxsamsel = select(taxsam,input$tax_filterby) #subset taxonomy table by selecting the specified rank 
     
     # make a new sublist each time go_tax is clicked 
-    
-    taxfilter_list[[input$tax_filterby]] <-  list(input$tax_select)
-   
-    if(isTruthy(input$tax_keepremove)) {
-      taxkeep = tryCatch(rownames(filter(taxsamsel, taxsamsel[[1]] %in% input$tax_select)),
-                         error=function(e){return(FALSE)})
+    selected_taxalist <- input$tax_select
+    selected_taxalist[selected_taxalist=="NA"] <- NA
+    selected_taxalist[selected_taxalist==""] <- NA
+      
+    taxfilter_list[[input$tax_filterby]] <- list(selected_taxalist) #list(input$tax_select)
+
+      # prune taxa 
+    if(isTruthy(input$tax_keepremove)) { 
+      if (any(is.na(selected_taxalist))) {
         
+        taxkeep = tryCatch(rownames(filter(taxsamsel, 
+                                           taxsamsel[[1]] %in% selected_taxalist | is.na(taxsamsel[[1]])
+                                           )),
+                           error=function(e){return(FALSE)})
+      }
+      else { 
+      taxkeep = tryCatch(rownames(filter(taxsamsel, taxsamsel[[1]] %in% selected_taxalist)),
+                         error=function(e){return(FALSE)})
+      }
     }
     if(!isTruthy(input$tax_keepremove)) {
-      taxkeep =  tryCatch(rownames(filter(taxsamsel, !taxsamsel[[1]] %in% input$tax_select)),
+      if (any(is.na(selected_taxalist))) {
+        
+        taxkeep = tryCatch(rownames(filter(taxsamsel, 
+                                           !taxsamsel[[1]] %in% selected_taxalist | !is.na(taxsamsel[[1]])
+        )),
+        error=function(e){return(FALSE)})
+      }
+      else { 
+      taxkeep =  tryCatch(rownames(filter(taxsamsel, 
+                                          !taxsamsel[[1]] %in% selected_taxalist)),
                           error=function(e){return(FALSE)})
+      }
     }
     if (isTruthy(taxkeep)) {
       ps <- prune_taxa(taxkeep,ps)
@@ -297,22 +305,3 @@ ps.sub <- reactive({
                  input$assemble_ps, #update ps when assemble is clicked
                  input$load_ex #update ps when example data is loaded 
                  )
-
-ps.norm <- reactive({
-  req(ps.all())
-  req(ps.sub())
-  ps <- ps.sub()
-  if(input$normoptions != "none") {TRANSFORM(ps,input$normoptions)}
-}) %>% bindEvent(input$normoptions,
-                 ps.sub()
-)
-
-ps.sub.melt <- reactive({
-  req(ps.sub())
-  psmelt(ps.sub())
-}) %>% bindEvent(ps.sub())
-
-ps.norm.melt <- reactive({
-  req(ps.norm())
-  psmelt(ps.norm.melt())
-}) %>% bindEvent(ps.norm())
