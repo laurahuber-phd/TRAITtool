@@ -16,7 +16,7 @@ plotControlsUI <- function(id,color=TRUE,x=TRUE,y=FALSE,facet=TRUE) {
         label="controls",
         circle=FALSE,
         icon = icon("gear"), 
-        selectInput(inputId = NS(id,"choose_color"),label="Color",choices=list()),
+        selectInput(inputId = NS(id,"choose_color"),label="Taxa category",choices=list()),
         selectInput(inputId = NS(id,"choose_x"),label="X-axis variable",choices=list()),
         selectizeInput(inputId = NS(id,"facet"),label="Faceting variable",choices=list(),multiple=TRUE,options = list(maxItems = 2))
       )
@@ -29,7 +29,7 @@ plotControlsUI <- function(id,color=TRUE,x=TRUE,y=FALSE,facet=TRUE) {
         label="controls",
         circle=FALSE,
         icon = icon("gear"), 
-        selectInput(inputId = NS(id,"choose_color"),label="Color",choices=list()),
+        selectInput(inputId = NS(id,"choose_color"),label="Taxa category",choices=list()),
         selectInput(inputId = NS(id,"choose_x"),label="X-axis variable",choices=list()),
         selectInput(inputId = NS(id,"choose_y"),label="y-axis variable",choices=list()),
         selectizeInput(inputId = NS(id,"facet"),label="Faceting variable",choices=list(),multiple=TRUE,options = list(maxItems = 2))
@@ -43,7 +43,7 @@ plotControlsUI <- function(id,color=TRUE,x=TRUE,y=FALSE,facet=TRUE) {
         label="controls",
         circle=FALSE,
         icon = icon("gear"), 
-        selectInput(inputId = NS(id,"choose_color"),label="Color",choices=list()),
+        selectInput(inputId = NS(id,"choose_color"),label="Taxa category",choices=list()),
         selectInput(inputId = NS(id,"choose_x"),label="X-axis variable",choices=list()),
         selectInput(inputId = NS(id,"choose_y"),label="y-axis variable",choices=list())
       )
@@ -56,7 +56,7 @@ plotControlsUI <- function(id,color=TRUE,x=TRUE,y=FALSE,facet=TRUE) {
         label="controls",
         circle=FALSE,
         icon = icon("gear"), 
-        selectInput(inputId = NS(id,"choose_color"),label="Color",choices=list()),
+        selectInput(inputId = NS(id,"choose_color"),label="Taxa category",choices=list()),
         selectInput(inputId = NS(id,"choose_x"),label="X-axis variable",choices=list())
       )
     )
@@ -68,7 +68,7 @@ plotControlsUI <- function(id,color=TRUE,x=TRUE,y=FALSE,facet=TRUE) {
         label="controls",
         circle=FALSE,
         icon = icon("gear"), 
-        selectInput(inputId = NS(id,"choose_color"),label="Color",choices=list())
+        selectInput(inputId = NS(id,"choose_color"),label="Taxa category",choices=list())
       )
     )
   } else if (color==FALSE & x==FALSE & y==FALSE & facet==TRUE) {

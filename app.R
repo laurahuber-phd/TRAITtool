@@ -165,6 +165,7 @@ server <- function(input,output,session) {
 #observe(session$setCurrentTheme(
 #  if(isTRUE(input$dark_mode)) dark else light
 #))
+source('server-globalvars.R',local=TRUE) #global variables
 source('server-aes-vis.R',local=TRUE) #base theme for ggplot2
 # --- # Page Navigation # --------
 source('server-aes-navigation.R',local=TRUE)
