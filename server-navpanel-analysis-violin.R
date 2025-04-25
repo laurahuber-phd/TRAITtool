@@ -16,7 +16,9 @@ violin_base <- reactive({
   req(violinplot_general$x())
   (if (input$normoptions != "none") {ps <- ps.norm.melt()} else {ps <- ps.sub.melt()})
   
-  ggplot(ps, aes(x=violinplot_general$x, y=violinplot_general$y, fill=violinplot_general$color))
+  ggplot(ps, aes(x=violinplot_general$x, y=violinplot_general$y, 
+                 fill=violinplot_general$color)) + 
+    geom_violin() + geom_boxplot(width=0.1)
 
 }) %>% bindEvent(ps.norm.melt(),
                  ps.sub.melt(),
