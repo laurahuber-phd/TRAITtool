@@ -130,33 +130,7 @@ plotControlsServer <- function(id,df,ranks,samplevars) {
       } else { NULL } 
     }) %>% bindEvent(input$facet,
                      ignoreNULL=FALSE)
-    
-    # observe({
-    #   if (length(input$facet)==1) {
-    #      #plotting() + 
-    #        faceting <- facet_wrap(~.data[[input$facet]],scales="free_x") 
-    #    } else if (length(input$facet)==2) {
-    #      #plotting() + 
-    #        faceting <- facet_grid(rows=vars(.data[[input$facet[1]]]),
-    #                   cols= vars(.data[[input$facet[2]]]),
-    #                   scales="free") 
-    #    } else { faceting <- NULL } 
-    #  }) %>% bindEvent(input$facet,
-    #                   ignoreNULL=FALSE)
-    
-    #reactive({list(
-    #  color = input$choose_color,
-    #  x = input$choose_x,
-    #  y = input$choose_y,
-    #  facet = faceting()
-    #)})
-    
-    #observe({
-    #  rv$color = input$choose_color
-    #  rv$x = input$choose_x
-    #  rv$y = input$choose_y
-    #  rv$facet = faceting()
-    #})
+
 
     return(list(
       color = reactive(input$choose_color),
