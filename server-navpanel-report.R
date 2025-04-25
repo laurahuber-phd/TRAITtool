@@ -157,8 +157,8 @@ observeEvent(input$gen_report, {
 })
 
 observeEvent(input$gen_report, {
-  if(is.null(input$gen_report)) hide("dwnldviewreport")
-  if(!is.null(report$htmlfilepath)) show("dwnldviewreport")
+  if(is.null(input$gen_report)) shinyjs::hide("dwnldviewreport")
+  if(!is.null(report$htmlfilepath)) shinyjs::show("dwnldviewreport")
 })
 
 # Hide download button until report is generated
