@@ -37,7 +37,7 @@ uploadFunction <- function(file,id,sep=',',header=TRUE,type) {
                       delim=sep,
                       show_col_types = FALSE,
                       trim_ws=TRUE,
-                      na = c("", "NA","NULL","Unassigned","unassigned")
+                      na = c(".","","NA","NULL","Unassigned","unassigned")
                       )
     } else
     {x <- vroom::vroom(file$datapath,
@@ -45,10 +45,10 @@ uploadFunction <- function(file,id,sep=',',header=TRUE,type) {
                      col_names = FALSE,
                      show_col_types = FALSE,
                      trim_ws=TRUE,
-                     na = c("", "NA","NULL","Unassigned","unassigned")
+                     na = c(".","","NA","NULL","Unassigned","unassigned")
     )}
   
-  
-  
+  #y <- x %>% replace(is.na(.),"Not assigned")
   return(x)
+  #return(y)
 }
