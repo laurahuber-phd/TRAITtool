@@ -22,6 +22,9 @@ library(rmarkdown)
 library(stringr)
 library(shinyjs)
 #
+# Specify the application port
+options(shiny.host = "0.0.0.0")
+options(shiny.port = 8180)
 # source scripts --------
 source("function-buildps.R")
 source("function-upload.R")
