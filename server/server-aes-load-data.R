@@ -1,4 +1,4 @@
-source("function-buildps.R")
+source("functions/function-buildps.R")
 
 MetadataTable <- reactiveValues(x=NULL,og=NULL)
 observeEvent(input$Metadata, {

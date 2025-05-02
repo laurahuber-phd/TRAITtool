@@ -1,8 +1,8 @@
-source('module-plotting-pretty.R',local=TRUE)
-source('module-plotting-size.R',local=TRUE)
-source('module-plotting-general.R',local=TRUE)
+source('functions/module-plotting-pretty.R',local=TRUE)
+source('functions/module-plotting-size.R',local=TRUE)
+source('functions/module-plotting-general.R',local=TRUE)
 
-source('server-aes-vis.R',local=TRUE) #base theme for ggplot2
+source('server/server-aes-vis.R',local=TRUE) #base theme for ggplot2
 
 
 observe({ #whenever ps.sub() changes 
