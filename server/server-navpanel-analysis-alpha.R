@@ -1,7 +1,6 @@
-#source('mod-plot2.R')
-source('module-plotting-general.R',local=TRUE)
-source('module-plotting-pretty.R',local=TRUE)
-source('module-plotting-size.R',local=TRUE)
+source('functions/module-plotting-general.R',local=TRUE)
+source('functions/module-plotting-pretty.R',local=TRUE)
+source('functions/module-plotting-size.R',local=TRUE)
 library(shinycssloaders)
 
 output$alphametrics_var2 <- output$alphametrics_var1 <- renderUI({
