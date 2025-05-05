@@ -36,12 +36,8 @@ tableUI <- function(id,editable=FALSE) {
                                            downloadButton(NS(id,'download'),'Download Modifications'))
                                  )
       )),
-      conditionalPanel(condition='output.badtable==TRUE',#'output.goodtable==FALSE',#'output.checktable',# #condition='MetadataTable==NULL'
-                            DTOutput(NS(id,"failtable"))
-                            ),
-           conditionalPanel(condition='ouput.goodtable==TRUE',#'!output.checktable',#
-                            DTOutput(NS(id,"table"))
-                            )
+      DTOutput(NS(id,"failtable")),DTOutput(NS(id,"table"))
+                            
          )
     } else if(editable==FALSE) {
            card(
@@ -56,12 +52,8 @@ tableUI <- function(id,editable=FALSE) {
                                                 placement="right",
                                                 downloadButton(NS(id,'download'),'Download'))
              )),
-             conditionalPanel(condition='output.badtable==TRUE',#'output.goodtable==FALSE',#'output.checktable',# #condition='MetadataTable==NULL'
-                              DTOutput(NS(id,"failtable"))
-             ),
-             conditionalPanel(condition='ouput.goodtable==TRUE',#'!output.checktable',#
-                              DTOutput(NS(id,"table_noedit"))
-             )
+             DTOutput(NS(id,"failtable")),DTOutput(NS(id,"table_noedit"))
+             
            )}
 }
 
@@ -97,10 +89,19 @@ tableServer <- function(id,data,editable=FALSE) {
       data.frame(ID=c("Sample1","Sample2","Sample3"),Var1=c("","Placeholder",""),Var2=c("","",""),Var3=c("","",""))
     })
     outputOptions(output, "failtable", suspendWhenHidden = FALSE) 
+    #outputOptions(output, "table", suspendWhenHidden = FALSE) 
+    #outputOptions(output, "table_noedit", suspendWhenHidden = FALSE) 
 
     observeEvent(values$table, {
-      if(values$table==TRUE)
-      {hide('failtable')} else show('failtable')
+      if(values$table==TRUE)  {
+        hide('failtable')
+        show('table')
+        show('table_noedit')
+        } else {
+          show('failtable')
+          hide('table')
+          hide('table_noedit')
+          }
     })
     
     observe({
