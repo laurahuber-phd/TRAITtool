@@ -1,16 +1,10 @@
-#source('mod-plot2.R')
 source('module-plotting-general.R',local=TRUE)
 source('module-plotting-pretty.R',local=TRUE)
 source('module-plotting-size.R',local=TRUE)
 
 ############################################# Alpha diversity #############################################
-Anlys_AlphaCard <- tagList(#layout_sidebar(
-  #sidebar=sidebar(
-  #  "Select the explanatory variable", #title of sidebar (maintained across all tabs in the panel)
-  #  uiOutput("alphametrics_var1")  #reactive output variable (used to select variables from the metadata for the x axis)
-  #),
-  layout_columns(#"Select the explanatory variable", #title of sidebar (maintained across all tabs in the panel)
-                 uiOutput("alphametrics_var1"),  #reactive output variable (used to select variables from the metadata for the x axis)
+Anlys_AlphaCard <- tagList(
+  layout_columns(uiOutput("alphametrics_var1"),  #reactive output variable (used to select variables from the metadata for the x axis)
                  selectInput("alphametrics",
                              "Which alpha diversity measures?",
                              c(
@@ -24,61 +18,55 @@ Anlys_AlphaCard <- tagList(#layout_sidebar(
                              ),
                              selected="Shannon",
                              multiple=TRUE
-                 )
+                             )
                  ),
-  layout_columns(
-    col_widths=c(10,-1,1),
-    actionButton("DrawAlphaPlot","Plot"),
-            downloadButton('download_richplot', label=NULL)),
-  plotOutput("richness",click="rich_click") #add a reaction when the plot is clicked
-  
+  layout_columns(col_widths=c(10,-1,1),
+                 actionButton("go_rich","Plot"),
+                 downloadButton('rich_plotdwnld', label=NULL)),
+  plotOutput("rich_plot",click="rich_click") 
 )
-
+############################################# Histo #############################################
+Anlys_HistoCard <- tagList(
+  h5("This tab will generate a histogram showing the occurrences of different taxa"),
+  HTML("<p>Use the <u>'Controls'</u> button to change the taxonomic rank visualized or to alter what variable is used on the x-axis. You can also add up to two 'faceting' variables, which will separate the data into different plots based on which variables you facet by.</p>"),
+  br(),
+  HTML("<p>Use the <u>'Aesthetics'</u> button to change aesthetic elements such as the plotting theme, which will influence how the background and gridlines look. Here you can also change the position of the legend, text size, and the direction of text on the x-axis.</p>"),
+  br(),
+  HTML("<p>Use the <u>'Plot Size' </u> button to change the aspect ratio of the plot. </p>"),
+  br(),
+  layout_columns(col_widths=c(4,4,4),
+    plotControlsUI('histo_gen'),  #,color=TRUE,x=TRUE,y=FALSE,facet=TRUE
+    plotPrettyUI("histo_pretty"),
+    plotSizeUI('histo_size')
+    ),
+  layout_columns(col_widths=c(10,-1,1),
+    actionButton("go_histoplot","Plot"),
+    downloadButton('histo_plotdwnld', label=NULL)
+    ),
+  withSpinner(plotOutput("histo_plot",click="histo_click"))
+)
 ############################################# Ordination ##############################################
-PlottingChoices_Card <- card(
-  numericInput("disp_text",  
-               "Plot text size",
-               min=1,
-               max=100,
-               #max=50,
-               step=1,
-               value=16 #starting value 
-  ),
-  numericInput("disp_point", 
-               "Plot point size",
-               min=1,
-               max=100,
-               #max=50,
-               step=1,
-               value=5 #starting value 
-  )
-)
 Ordinate_Card <- layout_column_wrap(
-  card(
-    full_screen=TRUE,
-    #card_header("Ordination"),
+  card(full_screen=TRUE,
     layout_columns(col_widths=c(4,4,4),
-                   selectInput("ordmeth",
-                               label="Select ordination method",
+                   selectInput("ord_meth",label="Select ordination method",
                                choices=c("NMDS","PCoA","CCA", "RDA", "CAP", "DCA", "DPCoA","MDS"),
                                selected = "NMDS" #default selection is NMDS
                                ),
-                   radioButtons("orddist",
-                                label="Select distance matrix",
+                   radioButtons("ord_dist",label="Select distance matrix",
                                 choices=c("jaccard","bray"),
                                 selected = "bray", #default selection is bray
                                 inline=TRUE #choices are laid out horizontally
                                 ),
-                   radioButtons("ordvis",
-                                label="Ordination of samples or taxa?",
+                   radioButtons("ord_vis",label="Ordination of samples or taxa?",
                                 choices=c("samples","taxa"),
                                 selected="samples",
                                 inline=TRUE
                                 )
                    ),
-    actionButton("calc_ord","Calculate"),
+    actionButton("go_ord","Calculate"),
     conditionalPanel(condition='output.ord_complete',
-                     textOutput("report_ord")
+                     textOutput("ord_complete")
                      )
   )
 )
@@ -98,7 +86,7 @@ Anlys_BetaCard <- accordion(
                                                     }
                                                     "))),
                           card_header( layout_columns(col_widths=c(6,6),
-                        shinyWidgets::dropdown(inputId="ordgen_controls",
+                        shinyWidgets::dropdown(inputId="ord_plotgrouping",
                                                      label="Grouping choices",
                                                      icon=icon("gear"),
                       pickerInput("choose_ord_color",label="Color",
@@ -126,34 +114,27 @@ Anlys_BetaCard <- accordion(
                                            selected = "None",
                                         justified=TRUE,
                                            disabled=TRUE)
-                      #pickerInput("choose_ord_ellipse",label="Ellipse grouping",
-                      #            choices=list(),
-                      #            multiple = TRUE,
-                      #            options = pickerOptions(maxOptions = 1,
-                      #                                    container = "body", 
-                      #                                    actionsBox = TRUE,
-                      #                                    deselectAllText = "Clear selection"))
                       ),
-                    shinyWidgets::dropdownButton(inputId="ordgen_controls",
+                    shinyWidgets::dropdownButton(inputId="ord_plotsizes",
                                                  label="Size choices",
                                                  circle=FALSE,
                                                  icon=icon("expand"),
-                                                 numericInput("disp_text", "Plot text size",
+                                                 numericInput("ord_plottext", "Plot text size",
                                                               value=16 #starting value 
                                                  ),
-                                                 numericInput("disp_point", "Plot point size",
+                                                 numericInput("ord_plotpoint", "Plot point size",
                                                               value=5 
                                                  ),
-                                                 numericInput("ordplot_height",label="Height of plot",
+                                                 numericInput("ord_plotheight",label="Height of plot",
                                                               value=5
                                                  ),
-                                                 numericInput("ordplot_width", label="Width of plot",
+                                                 numericInput("ord_plotwidth", label="Width of plot",
                                                               value=10
                                                  )
                     ))
                     ),
-                    actionButton("DrawPlot","Plot"),
-                      withSpinner(plotOutput("ord",click="ord_click"))
+                    actionButton("go_ord","Plot"),
+                      withSpinner(plotOutput("ord_plot",click="ord_click"))
                     )
     ),
     accordion_panel("Stress Plots",
@@ -170,6 +151,28 @@ Anlys_BetaCard <- accordion(
     )
   )
 
+############################################# Heat Map #############################################
+Anlys_hmCard <- tagList(
+  h5("This tab will generate a heatmap to show patterns in when a taxa occurs"),
+  HTML("<p>Use the <u>'Controls'</u> button to change the taxonomic rank visualized or to alter what variable is used on the x-axis. You can also add up to two 'faceting' variables, which will separate the data into different plots based on which variables you facet by.</p>"),
+  br(),
+  HTML("<p>Use the <u>'Aesthetics'</u> button to change aesthetic elements such as the plotting theme, which will influence how the background and gridlines look. Here you can also change the position of the legend, text size, and the direction of text on the x-axis.</p>"),
+  br(),
+  HTML("<p>Use the <u>'Plot Size' </u> button to change the aspect ratio of the plot. </p>"),
+  br(),
+  
+  layout_columns(
+    plotControlsUI('hm_gen',color=TRUE,x=TRUE,y=FALSE,facet=TRUE
+    ),
+    plotPrettyUI("hm_pretty"),
+    plotSizeUI('hm_size')
+  ),
+    actionButton("go_hm","Plot"),
+    downloadButton('hm_plotdwnld', label=NULL),
+    withSpinner(plotOutput("hm_plot",click="hm_click")) #add a reaction when the plot is clicked
+  
+)
+  
 ############################################# Trophic diversity #############################################
 Anlys_TrophCard <- layout_sidebar(
   sidebar=sidebar(
@@ -185,35 +188,29 @@ Anlys_TrophCard <- layout_sidebar(
 )
 
 #############################################################################################################
-analysispage <- nav_panel(
-  "Analysis",
+analysispage <- nav_panel("Analysis",
+  layout_column_wrap(width=1/2,fill=TRUE,
+    actionButton("analysis_prevpage","Previous step"),
+    actionButton("analysis_nextpage","Next step")
+    ),
+  br(),
+  HTML("<h2>Generate figures </h2>"),
   navset_card_tab(id="anlys", 
-                nav_panel(id='alpha',
-                          title="Alpha Diversity",
+                nav_panel(id='alpha', title="Species richness",
                           Anlys_AlphaCard
-                ),
-                nav_panel(id="taxcomp",
-                          title="Taxonomic composition",full_screen=TRUE,
-                          layout_columns(
-                            plotControlsUI('histo_gen'#,color=TRUE,x=TRUE,y=FALSE,facet=TRUE
-                            ),
-                              plotPrettyUI("histo_pretty"),
-                              plotSizeUI('histo_size')
-                            ),
-                            layout_columns(
-                              col_widths=c(10,-1,1),
-                              actionButton("plot_histo","Plot"),
-                              downloadButton('download_histoplot', label=NULL)),
-                            withSpinner(plotOutput("histo",click="histo_click"))
-                ),
-                nav_panel(id="beta",
-                          title="Beta Diversity",
+                          ),
+                nav_panel(id="taxcomp",title="Taxonomic composition", full_screen=TRUE,
+                          Anlys_HistoCard
+                          ),
+                nav_panel(id="beta", title="Beta biversity",
                           Anlys_BetaCard
-                ),
-                nav_panel(id="trophic",
-                          title="Trophic composition",
+                          ),
+                nav_panel(id="hm", title="Heat map",
+                          Anlys_hmCard
+                          ),
+                nav_panel(id="trophic", title="Trophic composition",
                           Anlys_TrophCard
+                          )
                 )
-                ), actionButton("analysis_prevpage","Previous step",width='100%')
 )
 #############################################################################################################

@@ -7,3 +7,7 @@ output$otutab <- renderText({ # report what file is selected
 output$taxtab <- renderText({ # report what file is selected
   paste('Selected file: ', basename(file.path(input$taxtab)))
 })
+
+observe({
+  shinyjs::show("load_success")
+}) %>% bindEvent(ps.all())

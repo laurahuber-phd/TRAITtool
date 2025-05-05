@@ -15,7 +15,7 @@ uploadFunction <- function(file,id,sep=',',header=TRUE,type) {
     confirm <- any(lapply(tmp, class) == "character" | lapply(tmp, class) == "factor")
     textwarn <- "Values are not characters"
   } else if (type=="tax") {
-    confirm <- any(lapply(tmp, class) == "character" | lapply(tmp, class) == "factor") & any(colnames(tmp)=="Kingdom" | colnames(tmp)=="Phylum" | colnames(tmp)=="Species")
+    confirm <- any(lapply(tmp, class) == "character" | lapply(tmp, class) == "factor") & any(colnames(tmp)=="Kingdom" | colnames(tmp)=="Phylum" | colnames(tmp)=="Species" | colnames(tmp)=="kingdom" | colnames(tmp)=="phylum" | colnames(tmp)=="species")
     #confirm <- any(lapply(tmp, class) == "character" | lapply(tmp, class) == "factor")
     textwarn <- "Values do not have traditional taxonomic levels"
   } else if (type=="otu") {
@@ -35,11 +35,20 @@ uploadFunction <- function(file,id,sep=',',header=TRUE,type) {
   if(header==TRUE) {
     x <- vroom::vroom(file$datapath,
                       delim=sep,
-                      show_col_types = FALSE)
+                      show_col_types = FALSE,
+                      trim_ws=TRUE,
+                      na = c("", "NA","NULL","Unassigned","unassigned")
+                      )
     } else
     {x <- vroom::vroom(file$datapath,
                      delim=sep,
                      col_names = FALSE,
-                     show_col_types = FALSE)}
-  return(x)
+                     show_col_types = FALSE,
+                     trim_ws=TRUE,
+                     na = c("", "NA","NULL","Unassigned","unassigned")
+    )}
+  
+  y <- x %>% replace(is.na(.),"Not assigned")
+  
+  return(y)
 }

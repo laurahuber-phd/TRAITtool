@@ -1,0 +1,313 @@
+output$psog_filter <- renderPrint({ps.all()})
+output$pstext_filter <- renderPrint({ps.sub()})
+
+trackNums <- reactiveValues(remblank_bef=NULL,
+                            remblank_aft=NULL,
+                            prune_bef=NULL,
+                            prune_aft=NULL,
+                            selsamp_bef=NULL,
+                            selsamp_aft=NULL,
+                            seltax_bef=NULL,
+                            seltax_aft=NULL)
+observeEvent(ps.all(),{
+  trackNums$remblank_bef=NULL
+  trackNums$remblank_aft=NULL
+  trackNums$prune_bef=NULL
+  trackNums$prune_aft=NULL
+  trackNums$selsamp_bef=NULL
+  trackNums$selsamp_aft=NULL
+  trackNums$seltax_bef=NULL
+  trackNums$seltax_aft=NULL
+})
+
+output$prune_bef <- renderText({paste("Number of samples before pruning: ",trackNums$prune_bef)}) #samples before pruning
+output$prune_aft <- renderText({paste("Number of samples after pruning: ",trackNums$prune_aft)}) #samples after pruning
+
+output$remblank_bef <- renderText({paste("Number of samples before: ",trackNums$remblank_bef)}) #samples before blank removal
+output$remblank_aft <- renderText({paste("Number of samples after: ",trackNums$remblank_aft)}) #samples after blank removal
+
+output$selsamp_bef <- renderText({paste("Number of samples before: ",trackNums$selsamp_bef)}) #samples before selection
+output$selsamp_aft <- renderText({paste("Number of samples after: ",trackNums$selsamp_aft)}) #samples after selection
+
+output$seltax_bef <- renderText({paste("Number of ASVs before: ",trackNums$seltax_bef)}) #samples before selection
+output$seltax_aft <- renderText({paste("Number of ASVs after: ",trackNums$seltax_aft)}) #samples after selection
+
+output$selrank <- renderText({paste0("Ranks chosen: ",names(taxfilter_list))})
+output$seltax <- renderText({paste0("Taxa chosen: ",reactiveValuesToList(taxfilter_list))})
+
+# ---- # Update picker variables # ---- 
+observe({ 
+  req(Meta_vars())
+  updateSelectInput(session,
+                    "blank_cols",#for blank selection
+                    choices=c(Meta_vars())) 
+  updateSelectInput(session,
+                    "sample_filterby",#for sample selection
+                    choices=c(Meta_vars())) 
+}) %>% 
+  bindEvent(Meta_vars()) #respond to any changes in the Metadata file that is uploaded
+
+observeEvent(input$tax_switch, { #whenever switch to subset taxa is triggered
+  req(ps.sub())
+  updateSelectInput(inputId = 'tax_filterby', 
+                    label = 'Taxonomic Rank', 
+                    choices = c(as.list(rank_names(ps.sub())))
+  ) #update picker selection using the rank names of the ps object
+}) 
+
+Meta_vars <- reactive({ #read the metadata file and identify the variable names 
+  #req(input$Metadata)
+  return(names(MetadataTable$x))
+}) %>% bindEvent(input$load_ex, #update meta_vars if the load button is pressed (new dataset)
+                 input$assemble_ps
+                 #input$Metadata, #update meta_vars if a new metadata table is uploaded manual
+                 #MetadataTable$x
+                 )
+
+rnames <- reactive({ #read the metadata file and identify the variable names 
+  #req(input$Metadata)
+  return(rank_names(ps.sub()))
+}) %>% bindEvent(ps.sub() )
+
+# ---- # Filter by blanks # ---- 
+observe({ 
+  req(ps.sub())
+  req(input$blank_cols)
+  
+  blavar <- as.list(get_variable(ps.sub(),{input$blank_cols})) %>% unique() #unique list of values 
+  updateCheckboxGroupInput(session,
+                           "blank_samples",
+                           choices=as.list(blavar))
+}) %>% bindEvent(input$blank_cols, #update blank selection if a new column is selected
+                 MetadataTable$x#, #update blank selection if a new metadata table is loaded 
+                 #input$load_ex #update blank selection if 'load' button is pressed
+) 
+
+#  ---- # Filter by samples # ---- 
+observe({
+  if(isTruthy(input$sample_switch)) { #if sample_switch==TRUE
+    
+    accordion_panel_open(session, #open the accordion panel to allow selecting samples  
+                         id='sample_accord',
+                         values=TRUE)
+    req(input$sample_filterby)
+    selvar <- as.list(get_variable(ps.sub(),{input$sample_filterby})) %>% unique() #unique list of values 
+    #selvar <- as.list(MetadataTable$x[[input$sample_filterby]]) %>% unique() #unique list of values 
+    updateCheckboxGroupInput(session,
+                             "sample_select",
+                             choices=as.list(selvar)) #update the available filtering options
+    
+  } else if (!isTruthy(input$sample_switch)) {
+    
+    accordion_panel_close(session, #close the accordion panel to allow selecting samples  
+                          id='sample_accord',
+                          values=TRUE)
+    
+    updateCheckboxGroupInput(session,
+                             'sample_select',
+                             choices=c(""))
+    
+    shinyjs::hide("befaft_sample")
+  }
+}) %>% bindEvent(input$sample_switch,
+                 input$sample_filterby,
+                 MetadataTable$x
+                 ) 
+
+observe({
+  req(ps.sub())
+  if(isTruthy(input$sample_switch) && input$go_sample && !is.null(input$sample_select)) {
+    shinyjs::show("befaft_sample")
+  } 
+}) %>% bindEvent(input$sample_switch,
+                 input$go_sample,
+                 ignoreInit=TRUE)
+
+# ---- # Filter by taxa # ----  
+taxfilter_list <- reactiveValues() #make list to record what taxa are used to filter and what rank they belong to
+
+observe({
+  if(isTruthy(input$tax_switch)) { #if tax subset panel is open
+    
+    accordion_panel_open(session, #open the accordion panel 
+                         id='tax_accord',
+                         values=TRUE)
+    req(input$tax_filterby)
+    
+    taxvar <- as.list(get_taxa_unique(ps.sub(),input$tax_filterby)) #make list of unique values 
+    updateCheckboxGroupInput(session,
+                             "tax_select",
+                             choices=as.list(taxvar)) #update the available filtering options
+    
+  } else if (!isTruthy(input$tax_switch)) { #if tax subset panel is closed 
+    
+    accordion_panel_close(session, #close the accordion panel 
+                          id='tax_accord',
+                          values=TRUE)
+    
+    updateCheckboxGroupInput(session, #clear selectable taxa 
+                             'tax_select',
+                             choices=c(""))
+    
+    shinyjs::hide("befaft_tax") #hide counts
+    taxfilter_list <- NULL #reset the list of taxa used to filter
+  }
+}) %>% bindEvent(input$tax_switch,
+                 input$tax_filterby,
+                 ps.sub(),
+                 #input$tax_keepremove,
+                 MetadataTable$x
+                 ) 
+
+observe({
+  req(ps.sub())
+  if(isTruthy(input$tax_switch && input$go_tax && !is.null(input$tax_select))) {
+    shinyjs::show("befaft_tax")
+  }
+}) %>% bindEvent(input$tax_switch,
+                 input$go_tax,
+                 ignoreInit=TRUE)
+
+subfunc <- function(ps,x) {
+  tryCatch(x,error=function(e){return(FALSE)})
+}
+
+# ---- # Do the filtering # -----
+ps.sub <- reactive({
+  req(ps.all())
+  trackNums$prune_aft <- trackNums$prune_bef <- NULL #reset counts
+  trackNums$prune_bef <- as.character(nsamples(ps.all()))
+    
+  ps <- subfunc(ps.all(),
+                ps.all() %>% 
+                  prune_taxa(taxa_sums(.)>=input$prune_tax,.) %>% 
+                  prune_samples(sample_sums(.)>=input$prune_samples,.)
+  )
+  
+  if (!isTruthy(ps)) {
+    showModal(
+      modalDialog(title="ERROR",
+                  "One or more of your subsetting criteria is too strict",
+                  size='l',
+                  easyClose = FALSE
+      )
+    ) 
+  }
+  
+  req(ps)
+  tnames <- rank_names(ps)
+  trackNums$prune_aft <- as.character(nsamples(ps))
+  
+  ############################### BLANKS ############################################
+  if(isTruthy(input$rem_blanks)) { #if remove blanks is selected
+    trackNums$remblank_bef <- trackNums$remblank_aft <- NULL #reset counts
+    trackNums$remblank_bef <- as.character(nsamples(ps))
+    blakeep = NULL #make empty list of samples
+    
+    if(!is.null(input$blank_samples)) { #if there are blanks selected
+      if(input$blank_cols == "Sample") { #if the filtering parameter is sample id
+        blasam = sample_names(ps)
+        blarem = input$blank_samples #list of blank samples 
+        blakeep = blasam[!blasam %in% blarem] #remove blanks from sample list 
+      } else { #with any other filtering parameter
+        blacolvals = as.data.frame(as.matrix(sample_data(ps))) %>% select(input$blank_cols) #get sample_data of selected variable 
+        blakeep = row.names(blacolvals %>% filter(!blacolvals[[1]] %in% input$blank_samples)) #list of sample names EXCEPT for those selected
+      }
+      ps <- prune_samples(blakeep,ps)
+      trackNums$remblank_aft <- as.character(nsamples(ps))
+    }
+    else {
+      ps <- ps
+    }
+  }
+  ############################### SAMPLES ###########################################   
+  if(isTruthy(input$sample_switch) && input$go_sample) { #if user selects specific samples to vis
+    runif(input$go_sample)
+    trackNums$selsamp_aft <- trackNums$selsamp_bef <- NULL #reset counts
+    trackNums$selsamp_bef <- as.character(nsamples(ps))
+    if(!is.null(input$sample_select)) {
+      selkeep = NULL #make empty list of samples 
+      
+      if(input$sample_filterby == "Sample") { #if the filtering parameter is sample id
+        selkeep = input$sample_select #list of selected samples 
+      } else {
+        selcolvals = as.data.frame(as.matrix(sample_data(ps))) %>% select(input$sample_filterby) #get sample_data of selected variable 
+        selkeep = row.names(selcolvals %>% filter(selcolvals[[1]] %in% input$sample_select)) #list of sample names selected
+      }
+      ps <- prune_samples(selkeep,ps)
+    } else {
+      ps <- ps
+    }
+    trackNums$selsamp_aft <- as.character(nsamples(ps))
+  }
+  ############################### TAXA ############################################
+  if(input$go_tax) { #if remove selected taxa is selected
+    runif(input$go_tax)
+  
+    trackNums$seltax_aft <- trackNums$seltax_bef <- NULL #reset counts
+    trackNums$seltax_bef <- as.character(ntaxa(ps))
+    
+    taxkeep = NULL #make blank list
+    taxsam = as.data.frame(as.matrix(tax_table(ps)))
+    taxsamsel = select(taxsam,input$tax_filterby)
+    
+    # make a new sublist each time go_tax is clicked 
+    
+    taxfilter_list[[input$tax_filterby]] <-  list(input$tax_select)
+   
+    if(isTruthy(input$tax_keepremove)) {
+      taxkeep = tryCatch(rownames(filter(taxsamsel, taxsamsel[[1]] %in% input$tax_select)),
+                         error=function(e){return(FALSE)})
+        
+    }
+    if(!isTruthy(input$tax_keepremove)) {
+      taxkeep =  tryCatch(rownames(filter(taxsamsel, !taxsamsel[[1]] %in% input$tax_select)),
+                          error=function(e){return(FALSE)})
+    }
+    if (isTruthy(taxkeep)) {
+      ps <- prune_taxa(taxkeep,ps)
+    } else { 
+      ps <- ps 
+      showModal(
+        modalDialog(title="ERROR",
+                    "Selected taxa cannot be removed. Reset and try again.",
+                    size='l',
+                    easyClose = FALSE )
+        ) 
+      }
+    
+    trackNums$seltax_aft <- as.character(ntaxa(ps))
+  } 
+ ps <- ps %>% prune_samples(sample_sums(.)>0,.) %>% prune_taxa(taxa_sums(.)>0,.)
+  return(ps)
+}) %>% bindEvent(input$prune_tax,input$prune_samples, #update ps when pruning numbers change
+                 
+                 input$rem_blanks,#update ps when remove blanks is selected
+                 #input$blank_samples, #update ps when selected blank samples change
+                 
+                 input$sample_switch, #update ps when switch to remove samples is toggled
+                 #input$tax_keepremove, #update ps whenever switch from keep/remove taxa
+                 input$tax_switch, #update ps when switch to remove taxa is toggled 
+                 
+                 #input$tax_filterby, #update when rank is selected (this is updated whenever tax_switch is updated too)
+                 #input$tax_select,
+                 input$go_sample, #update ps when 'go' is clicked to subset samples
+                 input$go_tax, #update ps when 'go' is clicked to subset taxa 
+                 
+                 input$assemble_ps, #update ps when assemble is clicked
+                 input$load_ex #update ps when example data is loaded 
+                 )
+
+ps.norm <- reactive({
+  req(ps.all())
+  req(ps.sub())
+  ps <- ps.sub()
+  if(input$normoptions != "none") {TRANSFORM(ps,input$normoptions)}
+}) %>% bindEvent(input$normoptions,
+                 ps.sub()
+)
+
+ps.sub.melt <- reactive({
+  req(ps.sub())
+  psmelt(ps.sub())
+})

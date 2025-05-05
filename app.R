@@ -20,6 +20,7 @@ library(knitr)
 library(markdown)
 library(rmarkdown)
 library(shinyjs)
+
 #
 # source scripts --------
 source("function-buildps.R")
@@ -34,9 +35,11 @@ source('module-plotting-general.R',local=TRUE)
 
 source('ui-aes-sidebar.R',local=TRUE)
 
+source('ui-navpanel-intro.R')
 source('ui-navpanel-assign.R')
 source('ui-navpanel-upload.R')
 source('ui-navpanel-review.R')
+source('ui-navpanel-filter.R')
 source('ui-navpanel-descriptivestats.R')
 source('ui-navpanel-analysis.R')
 source('ui-navpanel-report.R')
@@ -49,6 +52,15 @@ ui <- page_navbar(id="pages",
                   theme=bs_theme(bootswatch='lux'),
                   tags$head(
                     tags$style(HTML("
+                    table {
+                    padding: 0px;
+                    cellpadding: 0px;
+                    cellspacing: 0px; 
+                    border-collapse: separate;
+                    border-spacing: 0px;
+                    margin-bottom: 0px;
+                    margin-top: 0px;
+                    }
                       [data-bs-theme=light] .accordion {
                       --bs-accordion-btn-color: #0c3e53;
                       --bs-accordion-border-width: 1.5px;
@@ -109,11 +121,12 @@ ui <- page_navbar(id="pages",
                   fillable=FALSE,
   sidebar=sidebar(id="sidebar_main",
                   title="Sidebar",
-                  input_dark_mode(id='dark_mode',mode='light'),
-                  open=FALSE,
-    SelectFiltersCard,
-    SelectNormCard,
-    SelectSamplesCard
+                 layout_columns(col_widths = c(8,4),
+                                "Light/Dark mode:",
+                                input_dark_mode(id='dark_mode',mode='light')),
+                  br(),
+                  navigation,
+                  open=FALSE
   ),
 ## Group 1 # Starting information  --------  
   nav_menu(title=div(class="title",
@@ -122,6 +135,8 @@ ui <- page_navbar(id="pages",
                          align = "left",
                          style="margin-bottom:5px; margin-left:1px;margin-top:1px;margin-right:1px;"
                          )),
+           nav_panel("Introduction",value='introtab',
+                     titlepage)
            ),
 ## Group 2 # Upload and review files  --------  
 nav_menu("Files", 
@@ -129,6 +144,10 @@ nav_menu("Files",
                    uploadpage),
          nav_panel("Review",value="reviewtab",
                    reviewpage)
+         ),
+nav_menu("Filter", #filtering options 
+         nav_panel("Filter",value='filtertab',
+                   filterpage)
          ),
 ## Group 3 # Process from raw  --------  
 nav_menu("From Scratch",
@@ -169,38 +188,12 @@ source('server-aes-vis.R',local=TRUE) #base theme for ggplot2
 source('server-aes-navigation.R',local=TRUE)
 # --- # Load Data # --------
 source('server-aes-load-data.R',local=TRUE) #loads the functionality to read in the files and go through any manipulations to normalize or subset the ps object
-# --- # Sidebar # --------
-  observe({
-    sidebar_toggle(
-      id="sidebar_main",
-      open=FALSE #sidebar with selection to remove blanks and unassigned sequences is hidden by default
-    )
-    if(input$pages == "Basic Stats" || input$pages == "Analysis") { #blank/unassigned selection sidebar is open for these two pages
-      sidebar_toggle(
-        id="sidebar_main",
-        open = TRUE
-        ) 
-      if (!isTruthy(MetadataTable$x) || !isTruthy(OTUTable$x) || !isTruthy(TaxTable$x)) {
-        showModal(
-          modalDialog(title="You do not have all the appropriate files for this page, go back to the beginning and check files",
-                      paste("The issue is: ", isgood()),
-                      size='l',
-                      actionButton("psfail_goback","Go to review your files",width='100%'),
-                      easyClose = FALSE
-          )
-        ) 
-      } else if (!is.null(ps.all())) {removeModal()} 
-    } else {
-        sidebar_toggle(
-          id="sidebar_main",
-          open = FALSE
-        )
-      }
-  },priority=1) %>% bindEvent(input$pages)
 # --- # Upload Page # --------
 source('server-navpanel-upload.R',local=TRUE)
 # --- # Review Page # --------
 source('server-navpanel-review.R',local=TRUE)
+# --- # Filter Page # --------
+source('server-navpanel-filter.R',local=TRUE)  
   # --- # Page 2 # --------
   output$selected_Quality <- renderText({ 
     paste('Selected stringency: ',input$Quality)  # return the values selected from the checkboxes
@@ -213,10 +206,10 @@ source('server-navpanel-review.R',local=TRUE)
   }) 
 # --- # Descriptive Stats Page  # --------  
  source("server-navpanel-descriptivestats.R",local=TRUE)
-## --- # Richness Tab # --------  
+## --- # Analysis Page # --------  
 source('server-navpanel-analysis-alpha.R',local=TRUE)
-## --- # Distance Matrices Tab # --------  
 source('server-navpanel-analysis-ord.R',local=TRUE)
+source('server-navpanel-analysis-hm.R',local=TRUE)
 ## --- # Report Tab # --------  
 source('server-navpanel-report.R',local=TRUE)
   

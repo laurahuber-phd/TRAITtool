@@ -1,3 +1,5 @@
+source("function-buildps.R")
+
 MetadataTable <- reactiveValues(x=NULL,og=NULL)
 observeEvent(input$Metadata, {
   MetadataTable$x <- NULL
@@ -73,29 +75,31 @@ observeEvent(input$load_ex, {
   TaxTable$x <- NULL
   TaxTable$og <- NULL
   
-  metfile <- vroom::vroom('data/Mock_metadata.csv',delim=',',show_col_types = FALSE)
+  metfile <- vroom::vroom('data/Mock_metadata.csv',delim=',',
+                          show_col_types = FALSE,
+                          trim_ws=TRUE,
+                          na = c("", "NA","NULL","Unassigned","unassigned")
+  )
+  metfile <- metfile  %>% replace(is.na(.),"Not assigned")
   MetadataTable$og <- MetadataTable$x <- metfile
   
-  otufile <- vroom::vroom('data/otu_table.csv',delim=',',show_col_types = FALSE)
+  otufile <- vroom::vroom('data/otu_table.csv',delim=',',
+                          show_col_types = FALSE,
+                          trim_ws=TRUE,
+                          na = c("", "NA","NULL","Unassigned","unassigned")
+  )
+  otufile <- otufile  %>% replace(is.na(.),"Not assigned")
   OTUTable$og <- OTUTable$x <- otufile
   
-  taxfile <- vroom::vroom('data/tax_table.csv',delim=',',show_col_types = FALSE)
+  taxfile <- vroom::vroom('data/tax_table.csv',delim=',',
+                          show_col_types = FALSE,
+                          trim_ws=TRUE,
+                          na = c("", "NA","NULL","Unassigned","unassigned")
+  )
+  taxfile <- taxfile  %>% replace(is.na(.),"Not assigned")
   TaxTable$og <- TaxTable$x <- taxfile
 })
 
-Meta_vars <- reactive({ #read the metadata file and identify the variable names 
-  #req(input$Metadata)
-  return(names(MetadataTable$x))
-}) %>% bindEvent(input$load_ex, #update meta_vars if the load button is pressed (new dataset)
-                 input$Metadata, #update meta_vars if a new metadata table is uploaded manual
-                 MetadataTable$x
-)
-
-rnames <- reactive({ #read the metadata file and identify the variable names 
-  #req(input$Metadata)
-  return(rank_names(ps.sub()))
-}) %>% bindEvent(ps.sub()
-)
 
 ## check that all the files are right to make a phyloseq object 
 isgood <- reactive({
@@ -108,10 +112,9 @@ isgood <- reactive({
   } else {"Everything is great"}
 }) %>% bindEvent(input$Metadata,input$taxtab,input$otutab,ignoreNULL=FALSE)  
 
-ps.all <- reactive({
-  #req(input$Metadata)
-  #req(input$otutab)
-  #req(input$taxtab)
+ps.all <- eventReactive(c(input$assemble_ps,input$load_ex), {
+  runif(input$assemble_ps)
+  runif(input$load_ex)
   req(MetadataTable$x)
   req(OTUTable$x)
   req(TaxTable$x)
@@ -119,55 +122,6 @@ ps.all <- reactive({
               tax=TaxTable$x,
               meta=MetadataTable$x
   )
-}) %>% bindEvent(OTUTable$x,TaxTable$x,MetadataTable$x,
-                 input$load_ex)
-ps.sub <- reactive({
-  req(ps.all())
-  ps <- ps.all()
-  if(input$select_switch==TRUE && input$go) { 
-    req(input$select_samples)
-    new.ps <- subset_keep(ps,input$cols2,input$select_samples)
-    if(input$adjust) { #if adjust is selected, remove unassigned sequences
-      subset_taxa(new.ps,Kingdom!="Unassigned") %>% prune_samples(sample_sums(.)>1,.)
-    } else { #otherwise just return new.ps
-      new.ps
-    }
-  } else if(input$adjust && input$rem_blanks) { #if 'remove unassigned' and 'remove blanks' are both checked
-    if(is.null(input$blank_samples)) { #but no blank samples are identified
-      subset_taxa(ps,Kingdom!="Unassigned") %>% #only remove unassigned sequences
-        prune_samples(sample_sums(.)>=1,.)
-    } else
-      subset_blanks_rem(ps,input$cols,input$blank_samples) %>% 
-      subset_taxa(.,Kingdom!="Unassigned") %>% 
-      prune_samples(sample_sums(.)>=1,.)
-  } else
-    if(input$adjust) { #if 'remove unassigned' is the only one checked
-      subset_taxa(ps,Kingdom!="Unassigned") %>% 
-        prune_samples(sample_sums(.)>=1,.)
-    } else
-      if(input$rem_blanks) { #if 'remove blanks' is the only one checked
-        subset_blanks_rem(ps,input$cols,input$blank_samples) %>% 
-          prune_samples(sample_sums(.)>=1,.)
-      } else
-        ps %>% prune_samples(sample_sums(.)>=1,.) #if neither is checked, just prune samples
-}) %>% bindEvent(input$adjust,
-                 input$rem_blanks,input$blank_samples,
-                 input$Metadata,input$taxtab,input$otutab,
-                 input$select_switch,input$go,
-                 input$load_ex)
-
-ps.norm <- reactive({
-  req(ps.all())
-  req(ps.sub())
-  ps <- ps.sub()
-  if(input$normoptions != "none") {TRANSFORM(ps,input$normoptions)}
-}) %>% bindEvent(input$normoptions,
-                 ps.sub()
-                 )
-
-ps.sub.melt <- reactive({
-  req(ps.sub())
-  psmelt(ps.sub())
 })
 
 checking <- reactiveValues()
@@ -185,5 +139,5 @@ observeEvent(MetadataTable$x, {
 }, ignoreNULL = FALSE)
 
 
-
+})
 
