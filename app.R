@@ -31,7 +31,6 @@ source('functions/function-upload.R')
 source('functions/ps_div.R')
 
 source('functions/module-readtable.R')
-source('functions/module-plotting.R')
 source('functions/module-plotting-pretty.R',local=TRUE)
 source('functions/module-plotting-size.R',local=TRUE)
 source('functions/module-plotting-general.R',local=TRUE)

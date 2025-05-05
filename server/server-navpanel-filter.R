@@ -324,7 +324,10 @@ ps.norm <- reactive({
   req(ps.all())
   req(ps.sub())
   ps <- ps.sub()
-  if(input$normoptions != "none") {TRANSFORM(ps,input$normoptions)}
+  #if(input$normoptions != "none") {TRANSFORM(ps,input$normoptions)}
+  
+  TRANSFORM(ps,input$normoptions)
+  
 }) %>% bindEvent(input$normoptions,
                  ps.sub()
 )
