@@ -7,24 +7,41 @@ violinplot_pretty  <- plotPrettyServer(id="violin_pretty")
 violinplot_size <- plotSizeServer(id="violin_size") 
 violinplot_general <- plotControlsServer(id="violin_gen",
                                         df=(if (input$normoptions != "none") {ps.norm.melt()} else {ps.sub.melt()}),
-                                        ranks=rnames(),
-                                        samplevars=Meta_vars()
-)
+                                        var1=rnames(), #color
+                                        var2=Meta_vars(), #x
+                                        #var3=Meta_vars(), #y
+                                        var4=Meta_vars(), #facet
+                                        #var1=Meta_vars(), #color
+                                        #var2=Meta_vars(), #x
+                                        var3=(ps.sub.melt() %>% select(contains("Troph")) %>% colnames() )#, #y
+                                        #var4=Meta_vars() #facet
+) 
 
 violin_base <- reactive({
-  req(ps.sub.melt())
-  req(violinplot_general$x())
+  req(ps.sub())
+  #req(violinplot_general$x())
   (if (input$normoptions != "none") {ps <- ps.norm.melt()} else {ps <- ps.sub.melt()})
   
-  ggplot(ps, aes(x=violinplot_general$x, y=violinplot_general$y, 
-                 fill=violinplot_general$color)) + 
+  ps.edit <- ps %>% mutate(Trophic.Level = (as.numeric(.data[[violinplot_general$y()]]))) %>% filter(Abundance >0)
+  
+  ggplot(ps.edit, #x=.data[[violinplot_general$x()]], #x axis
+            #          y=.data[[violinplot_general$y()]], #must be numeric
+            #          fill=.data[[violinplot_general$x()]]
+                       aes(x=.data[[violinplot_general$x()]], #x axis
+                 y=Trophic.Level, #must be numeric
+                 fill=.data[[violinplot_general$x()]]
+                 )
+         ) + 
     geom_violin() + geom_boxplot(width=0.1)
 
-}) %>% bindEvent(ps.norm.melt(),
-                 ps.sub.melt(),
-                 violinplot_general$color(),
+}) %>% bindEvent(ps.sub(), 
+                 input$normoptions,
+                 #ps.norm.melt(),
+                 #ps.sub.melt(),
+                 #violinplot_general$color(),
                  violinplot_general$x(),
-                 violinplot_general$y()
+                 violinplot_general$y(),
+                 violinplot_general$facet()
 )
 
 violinplot <- eventReactive(input$go_violin, {
