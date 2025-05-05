@@ -139,5 +139,3 @@ observeEvent(MetadataTable$x, {
 }, ignoreNULL = FALSE)
 
 
-})
-
