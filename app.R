@@ -21,6 +21,7 @@ library(markdown)
 library(rmarkdown)
 library(stringr)
 library(shinyjs)
+
 #
 # Specify the application port
 options(shiny.host = "0.0.0.0")

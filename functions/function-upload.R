@@ -47,9 +47,7 @@ uploadFunction <- function(file,id,sep=',',header=TRUE,type) {
                      trim_ws=TRUE,
                      na = c(".","","NA","NULL","Unassigned","unassigned")
     )}
-
   #y <- x %>% replace(is.na(.),"Not assigned")
   return(x)
   #return(y)
-
 }
