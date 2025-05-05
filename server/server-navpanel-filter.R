@@ -55,20 +55,6 @@ observeEvent(input$tax_switch, { #whenever switch to subset taxa is triggered
   ) #update picker selection using the rank names of the ps object
 }) 
 
-Meta_vars <- reactive({ #read the metadata file and identify the variable names 
-  #req(input$Metadata)
-  return(names(MetadataTable$x))
-}) %>% bindEvent(input$load_ex, #update meta_vars if the load button is pressed (new dataset)
-                 input$assemble_ps
-                 #input$Metadata, #update meta_vars if a new metadata table is uploaded manual
-                 #MetadataTable$x
-)
-
-rnames <- reactive({ #read the metadata file and identify the variable names 
-  #req(input$Metadata)
-  return(rank_names(ps.sub()))
-}) %>% bindEvent(ps.sub() )
-
 # ---- # Filter by blanks # ---- 
 observe({ 
   req(ps.sub())
@@ -331,8 +317,3 @@ ps.norm <- reactive({
 }) %>% bindEvent(input$normoptions,
                  ps.sub()
 )
-
-ps.sub.melt <- reactive({
-  req(ps.sub())
-  psmelt(ps.sub())
-})
