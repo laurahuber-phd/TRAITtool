@@ -12,8 +12,8 @@ observe({
                     )
 }) 
 
-distreact <- eventReactive(input$go_ord, {
-  runif(input$go_ord)
+distreact <- eventReactive(input$calc_ord, {
+  runif(input$calc_ord)
   
   req(input$ord_dist)
   req(input$ord_meth)

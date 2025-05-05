@@ -64,7 +64,7 @@ Ordinate_Card <- layout_column_wrap(
                                 inline=TRUE
                                 )
                    ),
-    actionButton("go_ord","Calculate"),
+    actionButton("calc_ord","Calculate"),
     conditionalPanel(condition='output.ord_complete',
                      textOutput("ord_complete")
                      )

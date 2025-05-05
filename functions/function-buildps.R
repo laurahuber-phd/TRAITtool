@@ -98,8 +98,20 @@ subset_blanks_rem <- function(ps,var,samples,prop) { #need the ps object, the va
    new.ps %>% prune_samples(sample_sums(.)>0,.) #return new.ps
 }
 
-TRANSFORM <- function(ps,TRANSFORMATION) {
-  if (TRANSFORMATION == "log") {
+TRANSFORM <- function(ps,TRANSFORMATION,abund_cutoff=NULL,mean_cutoff=NULL) {
+  if (TRANSFORMATION == "none") {
+    ps %>% 
+      prune_samples(sample_sums(.) > 0,.) %>% 
+      prune_taxa(taxa_sums(.) > 0,.)
+  } 
+  else if (TRANSFORMATION == "tax_count") {
+    ps %>% filter_taxa(function(x)sum(x>0)>=abund_cutoff,prune=TRUE)
+  } 
+  else if (TRANSFORMATION == "tax_rel") {
+    ps %>% transform_sample_counts(function(x) x/sum(x)) %>% 
+      filter_taxa(function(x){mean(x)>=mean_cutoff},prune=TRUE)
+  }
+  else if (TRANSFORMATION == "log") {
     ps %>% 
       prune_samples(sample_sums(.) > 0,.) %>% 
       transform_sample_counts(., function(x) log(1 + x)) %>% 

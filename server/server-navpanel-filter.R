@@ -306,4 +306,14 @@ ps.sub <- reactive({
                  input$load_ex #update ps when example data is loaded 
                  )
 
-
+ps.norm <- reactive({
+  req(ps.all())
+  req(ps.sub())
+  ps <- ps.sub()
+  #if(input$normoptions != "none") {TRANSFORM(ps,input$normoptions)}
+  
+  TRANSFORM(ps,input$normoptions)
+  
+}) %>% bindEvent(input$normoptions,
+                 ps.sub()
+)
