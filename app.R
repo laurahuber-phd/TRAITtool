@@ -31,7 +31,6 @@ source('functions/function-upload.R')
 source('functions/ps_div.R')
 
 source('functions/module-readtable.R')
-source('functions/module-plotting.R')
 source('functions/module-plotting-pretty.R',local=TRUE)
 source('functions/module-plotting-size.R',local=TRUE)
 source('functions/module-plotting-general.R',local=TRUE)
@@ -182,6 +181,7 @@ nav_panel(title=bs_icon("printer-fill",size="2em"), value='reporttab',
 )
 # define server logic -----
 server <- function(input,output,session) {
+  source('server/server-globalvars.R',local=TRUE)
 # --- # Overall themes # --------
 #observe(session$setCurrentTheme(
 #  if(isTRUE(input$dark_mode)) dark else light
@@ -213,6 +213,7 @@ source('server/server-navpanel-filter.R',local=TRUE)
 source('server/server-navpanel-analysis-alpha.R',local=TRUE)
 source('server/server-navpanel-analysis-ord.R',local=TRUE)
 source('server/server-navpanel-analysis-hm.R',local=TRUE)
+source('server/server-navpanel-analysis-violin.R',local=TRUE)
 ## --- # Report Tab # --------  
 source('server/server-navpanel-report.R',local=TRUE)
   

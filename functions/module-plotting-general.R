@@ -82,7 +82,20 @@ plotControlsUI <- function(id,color=TRUE,x=TRUE,y=FALSE,facet=TRUE) {
         selectizeInput(inputId = NS(id,"facet"),label="Faceting variable",choices=list(),multiple=TRUE,options = list(maxItems = 2))
       )
     )
-  } else { #color==FALSE & x==TRUE & y==FALSE & facet==FALSE
+  } else if(color==FALSE & x==TRUE & y==TRUE & facet==TRUE) { 
+    tagList(
+      shinyWidgets::dropdownButton(
+        #tags$h3("List of Inputs"),
+        inputId=NS(id,"mydropdown"),
+        label="controls",
+        circle=FALSE,
+        icon = icon("gear"), 
+        selectInput(inputId = NS(id,"choose_x"),label="X-axis variable",choices=list()),
+        selectInput(inputId = NS(id,"choose_y"),label="y-axis variable",choices=list()), 
+        selectizeInput(inputId = NS(id,"facet"),label="Faceting variable",choices=list(),multiple=TRUE,options = list(maxItems = 2))
+      )
+    )
+  }  else { #color==FALSE & x==TRUE & y==FALSE & facet==FALSE
     tagList(
       shinyWidgets::dropdownButton(
         #tags$h3("List of Inputs"),
@@ -96,7 +109,7 @@ plotControlsUI <- function(id,color=TRUE,x=TRUE,y=FALSE,facet=TRUE) {
   }
 }
 
-plotControlsServer <- function(id,df,ranks,samplevars) {
+plotControlsServer <- function(id,df,var1=NULL,var2=NULL,var3=NULL,var4=NULL) {
   moduleServer(id, function(input,output,session) {
     ns <- session$ns
     # plotControlsOutput <- reactiveValues(color=NULL,
@@ -108,17 +121,17 @@ plotControlsServer <- function(id,df,ranks,samplevars) {
       req(df)
       updateSelectInput(session,
                         "choose_color", #response=return column names as color choice options
-                        choices=ranks)
+                        choices=var1)
       updateSelectInput(session,
                         "choose_x", #use column names as fill options
-                        choices=samplevars)
+                        choices=var2)
       updateSelectInput(session,
                         "choose_y", #use column names as fill options
-                        choices=samplevars)
+                        choices=var3)
       updateSelectizeInput(session,
                            "facet", #use column names as fill options
-                           choices=samplevars)
-    }) 
+                           choices=var4)
+    }) %>% bindEvent(var1,var2,var3,var4,df)
     
     faceting <- reactive({
       if (length(input$facet)==1) {

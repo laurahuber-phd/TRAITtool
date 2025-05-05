@@ -41,8 +41,10 @@ histoplot_pretty  <- plotPrettyServer(id="histo_pretty")
 histoplot_size <- plotSizeServer(id="histo_size") 
 histoplot_general <- plotControlsServer(id="histo_gen",
                    df=(if (input$normoptions != "none") {ps.norm()} else {ps.sub()}),
-                   ranks=rnames(),
-                   samplevars=Meta_vars()
+                   var1=rnames(), #color
+                   var2=Meta_vars(), #x
+                   var3=Meta_vars(), #y
+                   var4=Meta_vars() #facet
                    )
 
 histo_base <- reactive({
