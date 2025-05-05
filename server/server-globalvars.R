@@ -1,4 +1,5 @@
 
+
 #Num_vars <- reactive({ #what metadata variables are numeric
 #  req(MetadataTable$x)  
 #  a <- as.data.frame(lapply(MetadataTable$x,class)) 

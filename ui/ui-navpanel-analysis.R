@@ -64,7 +64,7 @@ Ordinate_Card <- layout_column_wrap(
                                 inline=TRUE
                                 )
                    ),
-    actionButton("go_ord","Calculate"),
+    actionButton("calc_ord","Calculate"),
     conditionalPanel(condition='output.ord_complete',
                      textOutput("ord_complete")
                      )
@@ -153,7 +153,6 @@ Anlys_BetaCard <- accordion(
 
 ############################################# Heat Map #############################################
 Anlys_hmCard <- tagList(
-  h5("This tab will generate a heatmap to show patterns in when a taxa occurs"),
   HTML("<p>The heatmap will generate a plot with ASVs on the y-axis and samples on the x-axis. You can change the labels on both with the <u>Controls</u> button.</p>"),
   HTML("<p>Use the <u>'Controls'</u> button to change the taxonomic rank visualized or to alter what variable is used on the x-axis. You can also add up to two 'faceting' variables, which will separate the data into different plots based on which variables you facet by.</p>"),
   br(),
@@ -186,7 +185,7 @@ Anlys_ViolinCard <- tagList(
   br(),
   
   layout_columns(
-    plotControlsUI('violin_gen',color=TRUE,x=TRUE,y=TRUE,facet=TRUE
+    plotControlsUI('violin_gen',color=FALSE,x=TRUE,y=TRUE,facet=TRUE
     ),
     plotPrettyUI("violin_pretty"),
     plotSizeUI('violin_size')
@@ -226,7 +225,7 @@ analysispage <- nav_panel("Analysis",
                 nav_panel(id="taxcomp",title="Taxonomic composition", full_screen=TRUE,
                           Anlys_HistoCard
                           ),
-                nav_panel(id="beta", title="Ordination",
+                nav_panel(id="beta", title="Beta diversity",
                           Anlys_BetaCard
                           ),
                 nav_panel(id="hm", title="Heat map",
@@ -236,6 +235,7 @@ analysispage <- nav_panel("Analysis",
                           Anlys_TrophCard
                           ),
                 nav_panel(id="violin", title="Violin plot",
+
                           Anlys_ViolinCard
                 )
                 )

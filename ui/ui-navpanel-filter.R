@@ -103,10 +103,18 @@ SelectNormCard <- card(
                                                       "Normalizing a dataset is done to make findings comparable across samples with uneven sequencing depth. Relative abundance calculates the proportion of the total for each taxa. Rarefaction will randomly subsample the sequences in each sample to match the number of the smallest sample.")),
   radioButtons(
     "normoptions",label=NULL,
-    choiceNames=list('None','Relative Abundance','Presence/Absence','Rarefaction'),
-    choiceValues = list("none","relabund",'presence',"raref"),
+    choiceNames=list('None','Relative Abundance','Presence/Absence','Rarefaction','Taxa occurring in at least this many samples:','Taxa with relative abundance greater than:'),
+    choiceValues = list("none","relabund",'presence',"raref","tax_count","tax_rel"),
     selected="none"
-    )
+    ),
+  conditionalPanel(condition="input.normoptions == 'tax_count'",
+                   numericInput("abund_cutoff",label="Minimum number of samples a taxa should appear in",
+                                value=0)
+                   ),
+  conditionalPanel(condition="input.normoptions == 'tax_rel'",
+                   numericInput("mean_cutoff",label="Minimum percentage of sequences a taxa should appear in",
+                                value=0)
+  )
 )
 
 #############################################################################################################
