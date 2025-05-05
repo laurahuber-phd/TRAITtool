@@ -2,7 +2,6 @@ source('functions/module-plotting-pretty.R',local=TRUE)
 source('functions/module-plotting-size.R',local=TRUE)
 source('functions/module-plotting-general.R',local=TRUE)
 
-
 Basics_NumCard <- navset_card_tab(
   sidebar=sidebar(title="Original dataset overview",
                   position="right",

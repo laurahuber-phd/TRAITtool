@@ -317,3 +317,4 @@ ps.norm <- reactive({
 }) %>% bindEvent(input$normoptions,
                  ps.sub()
 )
+

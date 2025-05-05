@@ -153,7 +153,7 @@ Anlys_BetaCard <- accordion(
 
 ############################################# Heat Map #############################################
 Anlys_hmCard <- tagList(
-  h5("This tab will generate a heatmap to show patterns in when a taxa occurs"),
+  HTML("<p>The heatmap will generate a plot with ASVs on the y-axis and samples on the x-axis. You can change the labels on both with the <u>Controls</u> button.</p>"),
   HTML("<p>Use the <u>'Controls'</u> button to change the taxonomic rank visualized or to alter what variable is used on the x-axis. You can also add up to two 'faceting' variables, which will separate the data into different plots based on which variables you facet by.</p>"),
   br(),
   HTML("<p>Use the <u>'Aesthetics'</u> button to change aesthetic elements such as the plotting theme, which will influence how the background and gridlines look. Here you can also change the position of the legend, text size, and the direction of text on the x-axis.</p>"),
@@ -167,8 +167,9 @@ Anlys_hmCard <- tagList(
     plotPrettyUI("hm_pretty"),
     plotSizeUI('hm_size')
   ),
-    actionButton("go_hm","Plot"),
-    downloadButton('hm_plotdwnld', label=NULL),
+  layout_columns(col_widths=c(10,-1,1),
+                 actionButton("go_hm","Plot"),
+                 downloadButton('hm_plotdwnld', label=NULL)),
     withSpinner(plotOutput("hm_plot",click="hm_click")) #add a reaction when the plot is clicked
   
 )
@@ -224,7 +225,7 @@ analysispage <- nav_panel("Analysis",
                 nav_panel(id="taxcomp",title="Taxonomic composition", full_screen=TRUE,
                           Anlys_HistoCard
                           ),
-                nav_panel(id="beta", title="Beta biversity",
+                nav_panel(id="beta", title="Beta diversity",
                           Anlys_BetaCard
                           ),
                 nav_panel(id="hm", title="Heat map",
@@ -233,7 +234,8 @@ analysispage <- nav_panel("Analysis",
                 nav_panel(id="trophic", title="Trophic composition",
                           Anlys_TrophCard
                           ),
-                nav_panel(id="violin", title="Violin",
+                nav_panel(id="violin", title="Violin plot",
+
                           Anlys_ViolinCard
                 )
                 )

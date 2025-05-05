@@ -186,6 +186,7 @@ server <- function(input,output,session) {
 #observe(session$setCurrentTheme(
 #  if(isTRUE(input$dark_mode)) dark else light
 #))
+source('server/server-globalvars.R',local=TRUE) #global variables
 source('server/server-aes-vis.R',local=TRUE) #base theme for ggplot2
 # --- # Page Navigation # --------
 source('server/server-aes-navigation.R',local=TRUE)
@@ -210,6 +211,7 @@ source('server/server-navpanel-filter.R',local=TRUE)
 # --- # Descriptive Stats Page  # --------  
  source('server/server-navpanel-descriptivestats.R',local=TRUE)
 ## --- # Analysis Page # --------  
+
 source('server/server-navpanel-analysis-alpha.R',local=TRUE)
 source('server/server-navpanel-analysis-ord.R',local=TRUE)
 source('server/server-navpanel-analysis-hm.R',local=TRUE)
