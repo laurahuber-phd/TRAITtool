@@ -1,5 +1,4 @@
 
-
 #Num_vars <- reactive({ #what metadata variables are numeric
 #  req(MetadataTable$x)  
 #  a <- as.data.frame(lapply(MetadataTable$x,class)) 
@@ -8,6 +7,7 @@
 #  return(c)
 #}) %>% bindEvent(input$load_ex,
 #                 input$assemble_ps)
+
 
 Meta_vars <- reactive({ #read the metadata file and identify the variable names 
   #req(input$Metadata)
