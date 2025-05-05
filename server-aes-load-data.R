@@ -123,3 +123,21 @@ ps.all <- eventReactive(c(input$assemble_ps,input$load_ex), {
               meta=MetadataTable$x
   )
 })
+
+checking <- reactiveValues()
+checking$table <- checking$empty <- NULL
+
+observeEvent(MetadataTable$x, {
+  checking$table <- checking$empty <- NULL #resets values
+  if(is.null(MetadataTable$x)) { #if there is no input data to make a table out of
+    checking$empty <- TRUE 
+    checking$table <- FALSE
+  } else if (!is.null(MetadataTable$x)) {
+    checking$empty <- FALSE
+    checking$table <- TRUE
+  }
+}, ignoreNULL = FALSE)
+
+
+})
+
