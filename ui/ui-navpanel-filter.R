@@ -27,7 +27,9 @@ Select_BlanksCard <- card(
     )
   ),
   conditionalPanel(condition="input.rem_blanks==true",
-                        wellPanel(textOutput('remblank_bef'),textOutput('remblank_aft')))
+                        wellPanel(textOutput('remblank_bef'),textOutput('remblank_aft'),
+                                  textOutput('remblanktax_bef'),textOutput('remblanktax_aft')
+                                  ))
 )
 
 # ---- # Samples # ---- 
@@ -112,9 +114,9 @@ SelectNormCard <- card(
                                 value=0)
                    ),
   conditionalPanel(condition="input.normoptions == 'tax_rel'",
-                   numericInput("mean_cutoff",label="Minimum percentage of sequences a taxa should appear in",
-                                value=0)
-  )
+                   numericInput("mean_cutoff",label="Minimum total percentage of sequences a taxa should appear in",
+                                value=0,min=0,max=1,step=0.01)
+                   )
 )
 
 #############################################################################################################
@@ -133,7 +135,13 @@ filterpage <- nav_panel(
                  SelectPruneCard,
                  SelectNormCard
                  ),
-  wellPanel(textOutput("prune_bef"),textOutput("prune_aft"))
+  layout_columns(col_widths=c(6,6),
+                 wellPanel(id='befaft_prune',
+                             textOutput("prune_bef"),textOutput("prune_aft"),
+                             textOutput("prunetax_bef"),textOutput("prunetax_aft")),
+                 shinyjs::hidden(wellPanel(id="befaft_norm",
+                                           textOutput("norm_bef"),textOutput("norm_aft")))
+                 )
   ),
   jqui_resizable(Select_BlanksCard), #This card allows you to select the sequencing blanks,
   SelectSamplesCard,
