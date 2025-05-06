@@ -5,35 +5,35 @@ source('functions/module-plotting-general.R',local=TRUE)
 source('server/server-aes-vis.R',local=TRUE) #base theme for ggplot2
 
 
-observe({ #whenever ps.sub() changes 
+observe({ #whenever ps.norm() changes 
   updatePickerInput(inputId = 'basics_ranks', 
                     label = 'Taxonomic Rank', 
                     choices = c(rnames())
   ) #update picker selection using the rank names of the ps object
-}) %>% bindEvent(ps.sub())   
+}) %>% bindEvent(ps.norm())   
 
 # ---- # Tab 1 (Sequences per sample) # ----- 
 N_sample_df <- reactive({
-  req(ps.sub())
-  data.frame(Sample=sample_names(ps.sub()),
-             "Sequences"=(sample_sums(ps.sub())),
+  req(ps.norm())
+  data.frame(Sample=sample_names(ps.norm()),
+             "Sequences"=(sample_sums(ps.norm())),
              row.names=NULL
   ) %>% arrange(.,Sample)
-}) %>%  bindEvent(ps.sub())
+}) %>%  bindEvent(ps.norm())
 
 # ---- # Tab 2 (Num of each taxa) # ---- 
 N_taxa_tab <- reactive({
-  req(ps.sub())
-  tibble(Rank = rank_names(ps.sub())) %>% 
+  req(ps.norm())
+  tibble(Rank = rank_names(ps.norm())) %>% 
     rowwise %>%
-    mutate(Unique = length(get_taxa_unique((ps.sub()),Rank)))
-}) %>% bindEvent(ps.sub())
+    mutate(Unique = length(get_taxa_unique((ps.norm()),Rank)))
+}) %>% bindEvent(ps.norm())
 
 # ---- # Tab 3 (Sequence distribution/qualities) # ---- 
 ## ---- ## Summary (min/max/avg) ## ---- 
 Summ_seqs_sel <- reactive({
-  req(ps.sub())
-  ps <- ps.sub()
+  req(ps.norm())
+  ps <- ps.norm()
   df <- data.frame(MinNoReads=min(sample_sums(ps)) %>% round(digits=0),
                    MaxNoReads=max(sample_sums(ps)) %>% round(digits=0),
                    AvgNoReads=mean(sample_sums(ps)) %>% round(digits=0),
@@ -45,7 +45,7 @@ Summ_seqs_sel <- reactive({
                       "Average number of reads"=AvgNoReads,
                       "Median number of reads"=MedNoReads)
   t(df_pretty)
-}) %>% bindEvent(ps.sub())
+}) %>% bindEvent(ps.norm())
 
 ## ---- ## Num sequences (in subset) ## ----
 Num_seq_subset <- reactiveValues(
@@ -56,8 +56,8 @@ Num_seq_subset <- reactiveValues(
 ) 
 
 observe({
-  req(ps.sub())
-  ps <- ps.sub()
+  req(ps.norm())
+  ps <- ps.norm()
   
   Num_seq_subset$N_seq_num = sum(taxa_sums(ps)) 
   
@@ -80,7 +80,7 @@ observe({
 }) %>% 
   bindEvent(input$blank_cols,
             input$blank_samples,
-            ps.sub(), 
+            ps.norm(), 
             ignoreNULL=FALSE)
 
 ## ---- ## Num ASVs ## ---- 
@@ -91,8 +91,8 @@ Num_otu_subset <- reactiveValues(
 ) 
 
 observe({
-  req(ps.sub())
-  ps <- ps.sub()
+  req(ps.norm())
+  ps <- ps.norm()
   
   Num_otu_subset$N_otu_num = ntaxa(ps)
   
@@ -113,7 +113,7 @@ observe({
 }) %>% 
   bindEvent(input$blank_cols,
             input$blank_samples,
-            ps.sub(), 
+            ps.norm(), 
             ignoreNULL=FALSE)
 
 # ---- # Sidebar (Original sequence distribution/qualities) # ----
@@ -191,8 +191,8 @@ observe({
 
 # ---- Tax Info # ---- 
 rankperc_df <- reactive({
-  req(ps.sub.melt())
-  ps <- ps.sub.melt()
+  req(ps.norm.melt())
+  ps <- ps.norm.melt()
   psplot.df <- ps %>% group_by(.data[[input$basics_ranks]]) %>%
     reframe(Abund=sum(Abundance),
             Total=sum(ps$Abundance),
@@ -219,7 +219,7 @@ rankperc_base <- reactive({
     labs(title="Distribution of taxonomic assignments",
          subtitle="(across the entire dataset)",
          x="Percent")
-}) %>% bindEvent(ps.sub.melt(),
+}) %>% bindEvent(ps.norm.melt(),
                  input$basics_ranks)
 
 rankperc_plot <- eventReactive(input$go_rankperc, {
@@ -295,15 +295,15 @@ output$N_otu_blanks <- renderText({ paste("Number of OTUs in blanks:",Num_otu_al
 
 ### ---- ### List taxa ### ----
 output$basics_listtaxa <- renderDataTable({
-  req(ps.sub())
-  tax_glom(ps.sub(),taxrank = input$basics_ranks, NArm=TRUE) %>% 
+  req(ps.norm())
+  tax_glom(ps.norm(),taxrank = input$basics_ranks, NArm=TRUE) %>% 
     tax_table(.) %>% 
     as.data.frame(.,row.names=FALSE) #throws error because tax_glom %>% tax_table doesn't work and I dont remember the workaround
-  #cbind(tax_table(tax_glom(ps.sub(),taxrank = input$basics_ranks, NArm=TRUE))) #does not fix error
+  #cbind(tax_table(tax_glom(ps.norm(),taxrank = input$basics_ranks, NArm=TRUE))) #does not fix error
 }) %>% bindEvent(input$rem_blanks,
                  input$adjust,
                  input$basics_ranks,
-                 ps.sub())
+                 ps.norm())
 
 ### ---- ### Plot taxa ### ----
 output$rankperc_plot <- renderPlot({rankperc_plot()})

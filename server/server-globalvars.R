@@ -1,4 +1,4 @@
-
+library(dplyr)
 
 #Num_vars <- reactive({ #what metadata variables are numeric
 #  req(MetadataTable$x)  
@@ -21,25 +21,10 @@ Meta_vars <- reactive({ #read the metadata file and identify the variable names
 
 rnames <- reactive({ #read the metadata file and identify the variable names 
   #req(input$Metadata)
-  return(rank_names(ps.sub()))
-}) %>% bindEvent(ps.sub() )
-
-
-ps.norm <- reactive({
-  req(ps.all())
-  req(ps.sub())
-  ps <- ps.sub()
-  if(input$normoptions != "none") {TRANSFORM(ps,input$normoptions)}
-}) %>% bindEvent(input$normoptions,
-                 ps.sub()
-)
-
-ps.sub.melt <- reactive({
-  req(ps.sub())
-  psmelt(ps.sub())
-}) %>% bindEvent(ps.sub())
+  return(rank_names(ps.norm()))
+}) %>% bindEvent(ps.norm() )
 
 ps.norm.melt <- reactive({
   req(ps.norm())
-  psmelt(ps.norm.melt())
+  psmelt(ps.norm())
 }) %>% bindEvent(ps.norm())
