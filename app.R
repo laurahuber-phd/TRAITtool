@@ -19,32 +19,35 @@ library(colourpicker)
 library(knitr)
 library(markdown)
 library(rmarkdown)
+library(stringr)
 library(shinyjs)
 
 #
+# Specify the application port
+options(shiny.host = "0.0.0.0")
+options(shiny.port = 8180)
 # source scripts --------
-source("function-buildps.R")
-source("function-upload.R")
-source('ps_div.R')
+source('functions/function-buildps.R')
+source('functions/function-upload.R')
+source('functions/ps_div.R')
 
-source("module-readtable.R")
-source('module-plotting.R')
-source('module-plotting-pretty.R',local=TRUE)
-source('module-plotting-size.R',local=TRUE)
-source('module-plotting-general.R',local=TRUE)
+source('functions/module-readtable.R')
+source('functions/module-plotting-pretty.R',local=TRUE)
+source('functions/module-plotting-size.R',local=TRUE)
+source('functions/module-plotting-general.R',local=TRUE)
 
-source('ui-aes-sidebar.R',local=TRUE)
+source('ui/ui-aes-sidebar.R',local=TRUE)
 
-source('ui-navpanel-intro.R')
-source('ui-navpanel-assign.R')
-source('ui-navpanel-upload.R')
-source('ui-navpanel-review.R')
-source('ui-navpanel-filter.R')
-source('ui-navpanel-descriptivestats.R')
-source('ui-navpanel-analysis.R')
-source('ui-navpanel-report.R')
-source('ui-navpanel-help.R')
-source('ui-navpanel-settings.R')
+source('ui/ui-navpanel-intro.R')
+source('ui/ui-navpanel-assign.R')
+source('ui/ui-navpanel-upload.R')
+source('ui/ui-navpanel-review.R')
+source('ui/ui-navpanel-filter.R')
+source('ui/ui-navpanel-descriptivestats.R')
+source('ui/ui-navpanel-analysis.R')
+source('ui/ui-navpanel-report.R')
+source('ui/ui-navpanel-help.R')
+source('ui/ui-navpanel-settings.R')
 
 # define UI --------  
 ui <- page_navbar(id="pages",
@@ -179,21 +182,23 @@ nav_panel(title=bs_icon("printer-fill",size="2em"), value='reporttab',
 )
 # define server logic -----
 server <- function(input,output,session) {
+  source('server/server-globalvars.R',local=TRUE)
 # --- # Overall themes # --------
 #observe(session$setCurrentTheme(
 #  if(isTRUE(input$dark_mode)) dark else light
 #))
-source('server-aes-vis.R',local=TRUE) #base theme for ggplot2
+source('server/server-globalvars.R',local=TRUE) #global variables
+source('server/server-aes-vis.R',local=TRUE) #base theme for ggplot2
 # --- # Page Navigation # --------
-source('server-aes-navigation.R',local=TRUE)
+source('server/server-aes-navigation.R',local=TRUE)
 # --- # Load Data # --------
-source('server-aes-load-data.R',local=TRUE) #loads the functionality to read in the files and go through any manipulations to normalize or subset the ps object
+source('server/server-aes-load-data.R',local=TRUE) #loads the functionality to read in the files and go through any manipulations to normalize or subset the ps object
 # --- # Upload Page # --------
-source('server-navpanel-upload.R',local=TRUE)
+source('server/server-navpanel-upload.R',local=TRUE)
 # --- # Review Page # --------
-source('server-navpanel-review.R',local=TRUE)
+source('server/server-navpanel-review.R',local=TRUE)
 # --- # Filter Page # --------
-source('server-navpanel-filter.R',local=TRUE)  
+source('server/server-navpanel-filter.R',local=TRUE)  
   # --- # Page 2 # --------
   output$selected_Quality <- renderText({ 
     paste('Selected stringency: ',input$Quality)  # return the values selected from the checkboxes
@@ -205,13 +210,15 @@ source('server-navpanel-filter.R',local=TRUE)
     paste('Selected habitat type: ',input$HabitatType)  # return the values selected from the checkboxes
   }) 
 # --- # Descriptive Stats Page  # --------  
- source("server-navpanel-descriptivestats.R",local=TRUE)
+ source('server/server-navpanel-descriptivestats.R',local=TRUE)
 ## --- # Analysis Page # --------  
-source('server-navpanel-analysis-alpha.R',local=TRUE)
-source('server-navpanel-analysis-ord.R',local=TRUE)
-source('server-navpanel-analysis-hm.R',local=TRUE)
+
+source('server/server-navpanel-analysis-alpha.R',local=TRUE)
+source('server/server-navpanel-analysis-ord.R',local=TRUE)
+source('server/server-navpanel-analysis-hm.R',local=TRUE)
+source('server/server-navpanel-analysis-violin.R',local=TRUE)
 ## --- # Report Tab # --------  
-source('server-navpanel-report.R',local=TRUE)
+source('server/server-navpanel-report.R',local=TRUE)
   
   #
   #

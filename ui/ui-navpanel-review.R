@@ -1,4 +1,4 @@
-source('module-readtable.R')
+source('functions/module-readtable.R')
 
 Review_MetadataCard <- layout_columns(
   #col_widths=c(12,12),

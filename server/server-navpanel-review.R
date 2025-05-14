@@ -1,4 +1,4 @@
-source("module-readtable.R")
+source("functions/module-readtable.R")
 
 tableServer(id='meta_table',
             editable=TRUE,

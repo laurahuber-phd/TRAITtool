@@ -1,18 +1,17 @@
-#source('mod-plot2.R')
-source('module-plotting-general.R',local=TRUE)
-source('module-plotting-pretty.R',local=TRUE)
-source('module-plotting-size.R',local=TRUE)
+source('functions/module-plotting-general.R',local=TRUE)
+source('functions/module-plotting-pretty.R',local=TRUE)
+source('functions/module-plotting-size.R',local=TRUE)
 library(shinycssloaders)
 
 output$alphametrics_var2 <- output$alphametrics_var1 <- renderUI({
-  req(ps.sub())
-  ps <- ps.sub()
+  req(ps.norm())
+  ps <- ps.norm()
   selectInput('alpha_xvar',
               'Select the explanatory variable',
               sample_variables(ps))
 })
 richplot <- eventReactive(input$go_rich, { #draw alpha div plot when 'plot' button is clicked
-  if (input$normoptions != "none") {ps <- ps.norm()} else {ps <- ps.sub()}
+  if (input$normoptions != "none") {ps <- ps.norm()} else {ps <- ps.norm()}
   runif(input$go_rich)
   withProgress(message="Making richness plot",
                plot_richness(ps, x=input$alpha_xvar, measures=input$alphametrics) + geom_boxplot()
@@ -41,15 +40,17 @@ output$rich_plotdwnld <- output$rich_plotdwnld_popup <-  downloadHandler(
 histoplot_pretty  <- plotPrettyServer(id="histo_pretty")
 histoplot_size <- plotSizeServer(id="histo_size") 
 histoplot_general <- plotControlsServer(id="histo_gen",
-                   df=(if (input$normoptions != "none") {ps.norm()} else {ps.sub()}),
-                   ranks=rnames(),
-                   samplevars=Meta_vars()
+                   df=ps.norm(),
+                   var1=rnames(), #color
+                   var2=Meta_vars(), #x
+                   var3=Meta_vars(), #y
+                   var4=Meta_vars() #facet
                    )
 
 histo_base <- reactive({
-  req(ps.sub())
+  req(ps.norm())
   req(histoplot_general$color())
-  (if (input$normoptions != "none") {ps <- ps.norm()} else {ps <- ps.sub()})
+  ps <- ps.norm()
   plot_bar(ps,
            x=histoplot_general$x()) + 
     geom_bar(stat='identity',position='stack',aes(color=.data[[histoplot_general$color()]],
@@ -57,7 +58,6 @@ histo_base <- reactive({
     guides(color='none',fill=guide_legend(histoplot_general$color()))
 
 }) %>% bindEvent(ps.norm(),
-                 ps.sub(),
                  histoplot_general$color(),
                  histoplot_general$x()
 )
