@@ -1,0 +1,50 @@
+observeEvent(input$defaultgo, {
+  req(ps.all())
+  
+  updateNumericInput(session,"prune_samples",value=100)
+  updateNumericInput(session,"prune_tax",value=10)
+  updateRadioButtons(session,"normoptions",selected="tax_rel")
+  
+  req(ps.norm())
+  shinyjs::show("def_prune")
+  
+  output$rich_plot <- renderPlot({richplot() })
+  output$histo_plot <- renderPlot({histoplot() })
+  
+  output$N_sample <- renderDataTable({ N_sample_df() })
+  output$N_taxa <- renderDataTable({ N_taxa_tab() })
+  output$summ_seqs_sel <- renderTable({ Summ_seqs_sel() },
+                                      digits=0,rownames=TRUE,colnames=FALSE,striped=TRUE)
+  output$N_sel_seq_total <- renderText({ paste("Total number of sequences:",Num_seq_subset$N_seq_num) })
+  output$N_sel_seq_assigned <- renderText({ paste("Number of assigned sequences:", Num_seq_subset$N_seq_assigned) })
+  output$N_sel_seq_blanks <- renderText({ paste("Number of sequences in blanks:",Num_seq_subset$N_seq_blanks) })
+  output$N_sel_otu_total  <- renderText({ paste("Total number of OTUs:",Num_otu_subset$N_otu_num) })
+  output$N_sel_otu_assigned <- renderText({ paste("Number of assigned OTUs:",Num_otu_subset$N_otu_assigned) })
+  output$N_sel_otu_blanks <- renderText({ paste("Number of OTUs in blanks:",Num_otu_subset$N_otu_blanks) })
+  
+  output$summ_seqs <- renderTable({ Summ_seqs() },
+                                  digits=0,rownames=TRUE,colnames=FALSE,striped=TRUE)
+  output$N_seq_total <- renderText({ paste("Total number of sequences:",Num_seq_all$N_seq_num) })
+  output$N_seq_assigned <- renderText({ paste("Number of assigned sequences:",Num_seq_all$N_seq_assigned) })
+  output$N_seq_blanks <- renderText({ paste("Number of sequences in blanks:",Num_seq_all$N_seq_blanks) })
+  output$N_otu_total  <- renderText({ paste("Total number of OTUs:",Num_otu_all$N_otu_num) })
+  output$N_otu_assigned <- renderText({ paste("Number of assigned OTUs:",Num_otu_all$N_otu_assigned) })
+  output$N_otu_blanks <- renderText({ paste("Number of OTUs in blanks:",Num_otu_all$N_otu_blanks) })
+  
+  output$basics_listtaxa <- renderDataTable({
+    req(ps.norm())
+    tax_glom(ps.norm(),taxrank = input$basics_ranks, NArm=TRUE) %>% 
+      tax_table(.) %>% 
+      as.data.frame(.,row.names=FALSE) #throws error because tax_glom %>% tax_table doesn't work and I dont remember the workaround
+    #cbind(tax_table(tax_glom(ps.norm(),taxrank = input$basics_ranks, NArm=TRUE))) #does not fix error
+  }) %>% bindEvent(input$rem_blanks,
+                   input$adjust,
+                   input$basics_ranks,
+                   ps.norm())
+  
+  output$rankperc_plot <- renderPlot({rankperc_plot()})
+  
+  switch_page("reporttab")
+  
+  
+})

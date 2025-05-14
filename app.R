@@ -43,6 +43,7 @@ source('ui/ui-navpanel-assign.R')
 source('ui/ui-navpanel-upload.R')
 source('ui/ui-navpanel-review.R')
 source('ui/ui-navpanel-filter.R')
+source('ui/ui-defaultanalysis.R')
 source('ui/ui-navpanel-descriptivestats.R')
 source('ui/ui-navpanel-analysis.R')
 source('ui/ui-navpanel-report.R')
@@ -150,7 +151,8 @@ nav_menu("Files",
          ),
 nav_menu("Filter", #filtering options 
          nav_panel("Filter",value='filtertab',
-                   filterpage)
+                   filterpage),
+         nav_panel("Default",value='defaulttab',defaultanalysis)
          ),
 ## Group 3 # Process from raw  --------  
 nav_menu("From Scratch",
@@ -199,6 +201,7 @@ source('server/server-navpanel-upload.R',local=TRUE)
 source('server/server-navpanel-review.R',local=TRUE)
 # --- # Filter Page # --------
 source('server/server-navpanel-filter.R',local=TRUE)  
+  source('server/server-defaultanalysis.R',local=TRUE)
   # --- # Page 2 # --------
   output$selected_Quality <- renderText({ 
     paste('Selected stringency: ',input$Quality)  # return the values selected from the checkboxes
