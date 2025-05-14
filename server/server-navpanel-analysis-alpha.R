@@ -12,7 +12,7 @@ output$alphametrics_var2 <- output$alphametrics_var1 <- renderUI({
 })
 richplot <- eventReactive(input$go_rich, { #draw alpha div plot when 'plot' button is clicked
   withProgress(message="Making richness plot",
-               plot_richness(ps, x=input$alpha_xvar, measures=input$alphametrics) + geom_boxplot()
+               plot_richness(ps.norm(), x=input$alpha_xvar, measures=input$alphametrics) + geom_boxplot()
   )
 })
 output$rich_plot <- renderPlot({ #need separate call to actually render the plot

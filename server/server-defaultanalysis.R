@@ -52,7 +52,7 @@ observeEvent(input$defaultgo, {
   shinyjs::click("go_ord") #ordination plot
   shinyjs::show("def_plotord")
   
-  switch_page("reporttab")
+  shinyjs::delay(4000,switch_page("reporttab"))
   
   
 })
