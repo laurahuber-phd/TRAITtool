@@ -1,6 +1,6 @@
-defaultanalysis <- nav_panel("Default",
+defaultanalysis <- tagList("Default",
                              useShinyjs(),
-                             actionButton("defaultgo","Run with default settings",width='100%'),
+                             actionButton("defaultgo","Run with default settings?",width='100%',disabled=TRUE),
                              shinyjs::hidden(
                                wellPanel(id="def_prune",
                                          "Used default pruning settings of removing samples with less than 100 sequences and retaining all taxa. Dataset was converted to relative abundance"),

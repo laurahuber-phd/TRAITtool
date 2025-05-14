@@ -159,14 +159,8 @@ uploadpage <- nav_panel("Files",
                          conditionalPanel(condition="input.selectupload == 'choose_ex'",
                                           Ex_Card
                                           )
-                         )#,
-                         #h5("Make sure to upload a metadata file before proceeding. At minimum, this should include some way to connect sample names in the sequencing data."),
-                         #Files_MetadataCard, #card directing to metadata csv file,
-                         
                          )
-
-         #HTML("<h4>Or, alternatively, use our example dataset: </h4>"),
-        #  Ex_Card,
-         # br()
+                         ),
+          card(id='default',defaultanalysis)
 )
 ##########################################################################################
