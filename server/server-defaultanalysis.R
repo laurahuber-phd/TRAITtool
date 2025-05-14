@@ -2,14 +2,11 @@ observeEvent(input$defaultgo, {
   req(ps.all())
   
   updateNumericInput(session,"prune_samples",value=100)
-  updateNumericInput(session,"prune_tax",value=10)
+  updateNumericInput(session,"prune_tax",value=1)
   updateRadioButtons(session,"normoptions",selected="tax_rel")
   
   req(ps.norm())
   shinyjs::show("def_prune")
-  
-  output$rich_plot <- renderPlot({richplot() })
-  output$histo_plot <- renderPlot({histoplot() })
   
   output$N_sample <- renderDataTable({ N_sample_df() })
   output$N_taxa <- renderDataTable({ N_taxa_tab() })
@@ -41,8 +38,19 @@ observeEvent(input$defaultgo, {
                    input$adjust,
                    input$basics_ranks,
                    ps.norm())
+
+  shinyjs::click("go_rankperc") #simulate clicking 'go' for percent ranking plot 
+  shinyjs::show("def_plotrank")
   
-  output$rankperc_plot <- renderPlot({rankperc_plot()})
+  shinyjs::click("go_rich") #simulate clicking 'go' for richness plot
+  shinyjs::show("def_plotrich")
+  
+  shinyjs::click("go_histoplot") #simulate clicking 'go' for basic histogram
+  shinyjs::show("def_plothisto")
+  
+  shinyjs::click("calc_ord") #calculate distance matrix 
+  shinyjs::click("go_ord") #ordination plot
+  shinyjs::show("def_plotord")
   
   switch_page("reporttab")
   
