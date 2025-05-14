@@ -61,7 +61,7 @@ Ordinate_Card <- layout_column_wrap(
                                 inline=TRUE
                                 )
                    ),
-    actionButton("go_ord","Calculate"),
+    actionButton("calc_ord","Calculate"),
     conditionalPanel(condition='output.ord_complete',
                      textOutput("ord_complete")
                      )
@@ -219,12 +219,9 @@ analysispage <- nav_panel("Analysis",
                 nav_panel(id="hm", title="Heat map",
                           Anlys_hmCard
                           ),
-                #nav_panel(id="trophic", title="Trophic composition",
-                #          Anlys_TrophCard
-                #          ),
                 nav_panel(id="violin", title="Trophic composition",
                           Anlys_ViolinCard
-                )
+                         )
                 )
 )
 #############################################################################################################

@@ -8,7 +8,7 @@
 #### checks #### 
 #output$rep_ps <- mkdwnrptfun(ps.sub())
 observe({
-  req(ps.sub())
+  req(ps.norm())
   output$rep_richplot <- renderPlot({richplot()})
   output$rep_percplot <- renderPlot({rankperc_plot()})
   output$rep_ordplot <- renderPlot({ordplot()})
@@ -80,7 +80,7 @@ mkdwnrptfun <- function(x) { #tryCatch will check to see if the 'function' exist
 observeEvent(input$gen_report, {
   report$pdffilepath <- report$htmlfilepath <- NULL
   shinyjs::hide("viewfinalreport")
-  params[["ps"]] <- mkdwnrptfun(ps.sub())
+  params[["ps"]] <- mkdwnrptfun(ps.norm())
   params[["richplot"]] <- mkdwnrptfun(richplot())
   params[["percplot"]] <- mkdwnrptfun(rankperc_plot())
   params[["ordplot"]] <- mkdwnrptfun(ordplot())
@@ -186,8 +186,8 @@ output$download_report <- downloadHandler(
   }
 )
 
-#Hide report if ps.sub changes
-observeEvent(ps.sub(),{
+#Hide report if ps.norm changes
+observeEvent(ps.norm(),{
   shinyjs::hide("viewfinalreport")
   shinyjs::hide("dwnldviewreport")
 })

@@ -17,9 +17,10 @@ observe({
   req(TaxTable$x)
   showModal(modalDialog(title="Data uploaded. Move on to review your files",
                         size='l',
-                        actionButton("fileupload_nextpage","Go to review your files",width='100%'),
+                        layout_columns(col_widths = c(6,6),
+                          actionButton("fileupload_nextpage","Go to review files"),
+                          actionButton('fileupload_nextpage_v4',"Go to filter page")),
                         actionButton("fileupload_nextpage_v3","Go directly to stats",width='100%'),
-                        actionButton('fileupload_nextpage_v4',"Go to filter page",width='50%'),
                         easyClose = TRUE,
                         footer=NULL
   )

@@ -27,7 +27,9 @@ Select_BlanksCard <- card(
     )
   ),
   conditionalPanel(condition="input.rem_blanks==true",
-                        wellPanel(textOutput('remblank_bef'),textOutput('remblank_aft')))
+                        wellPanel(textOutput('remblank_bef'),textOutput('remblank_aft'),
+                                  textOutput('remblanktax_bef'),textOutput('remblanktax_aft')
+                                  ))
 )
 
 # ---- # Samples # ---- 
@@ -103,10 +105,18 @@ SelectNormCard <- card(
                                                       "Normalizing a dataset is done to make findings comparable across samples with uneven sequencing depth. Relative abundance calculates the proportion of the total for each taxa. Rarefaction will randomly subsample the sequences in each sample to match the number of the smallest sample.")),
   radioButtons(
     "normoptions",label=NULL,
-    choiceNames=list('None','Relative Abundance','Presence/Absence','Rarefaction'),
-    choiceValues = list("none","relabund",'presence',"raref"),
+    choiceNames=list('None','Relative Abundance','Presence/Absence','Rarefaction','Taxa occurring in at least this many samples:','Taxa with relative abundance greater than:'),
+    choiceValues = list("none","relabund",'presence',"raref","tax_count","tax_rel"),
     selected="none"
-    )
+    ),
+  conditionalPanel(condition="input.normoptions == 'tax_count'",
+                   numericInput("abund_cutoff",label="Minimum number of samples a taxa should appear in",
+                                value=0)
+                   ),
+  conditionalPanel(condition="input.normoptions == 'tax_rel'",
+                   numericInput("mean_cutoff",label="Minimum total percentage of sequences a taxa should appear in",
+                                value=0,min=0,max=1,step=0.01)
+                   )
 )
 
 #############################################################################################################
@@ -125,7 +135,13 @@ filterpage <- nav_panel(
                  SelectPruneCard,
                  SelectNormCard
                  ),
-  wellPanel(textOutput("prune_bef"),textOutput("prune_aft"))
+  layout_columns(col_widths=c(6,6),
+                 wellPanel(id='befaft_prune',
+                             textOutput("prune_bef"),textOutput("prune_aft"),
+                             textOutput("prunetax_bef"),textOutput("prunetax_aft")),
+                 shinyjs::hidden(wellPanel(id="befaft_norm",
+                                           textOutput("norm_bef"),textOutput("norm_aft")))
+                 )
   ),
   jqui_resizable(Select_BlanksCard), #This card allows you to select the sequencing blanks,
   SelectSamplesCard,

@@ -1,5 +1,5 @@
 observe({ 
-  req(ps.sub())
+  req(ps.norm())
   updatePickerInput(session,
                     "choose_ord_color", 
                     choices=c(Meta_vars()),
@@ -12,13 +12,14 @@ observe({
                     )
 }) 
 
-distreact <- eventReactive(input$go_ord, {
-  runif(input$go_ord)
+distreact <- eventReactive(input$calc_ord, {
+  runif(input$calc_ord)
+
   
   req(input$ord_dist)
   req(input$ord_meth)
   
-  ps <- ps.sub()
+  ps <- ps.norm()
   withProgress(
     tryCatch(ordinate(
       physeq=ps,
@@ -91,7 +92,7 @@ ordplot <- eventReactive(input$go_ord, { #assign a variable that runs when plot 
   
   # ells <- input$choose_metavars4
   
-  baseplot <- plot_ordination(physeq=ps.sub(),
+  baseplot <- plot_ordination(physeq=ps.norm(),
                   ordination=distreact(),
                   type=input$ord_vis,
                   color=input$choose_ord_color,
@@ -143,4 +144,4 @@ output$download_ordplot_popup <-  downloadHandler(
     )
   }) 
 output$psog <- renderPrint({ps.all()})
-output$pstext <- renderPrint({ps.sub()})
+output$pstext <- renderPrint({ps.norm()})
