@@ -49,13 +49,6 @@ observeEvent(input$defaultgo, {
   shinyjs::show("def_plotrich")
   
   shinyjs::click("go_histoplot") #simulate clicking 'go' for basic histogram
-  histoplot_general <- plotControlsServer(id="histo_gen",
-                                          df=ps.norm(),
-                                          var1=rnames()[[2]], #color
-                                          var2=Meta_vars()[[1]], #x
-                                          var3=Meta_vars()[[2]], #y
-                                          var4=Meta_vars() #facet
-  )
   shinyjs::show("def_plothisto")
   
   shinyjs::click("calc_ord") #calculate distance matrix 
@@ -63,24 +56,10 @@ observeEvent(input$defaultgo, {
   shinyjs::show("def_plotord")
   
   shinyjs::click("go_hm") #simulate clicking 'go' for heatmap  
-  hmplot_general <- plotControlsServer(id="hm_gen",
-                                       df=ps.norm(),
-                                       var1=rnames()[[1]], #color
-                                       var2=Meta_vars()[[1]], #x
-                                       var3=Meta_vars(), #y
-                                       var4=Meta_vars() #facet
-  )
   shinyjs::show("def_plothm")
   
   if (isTruthy(ps.norm.melt() %>% select(contains("Troph")) %>% colnames())) {
     shinyjs::click("go_violin")
-    violinplot_general <- plotControlsServer(id="violin_gen",
-                                             df=ps.norm.melt(),
-                                             var1=rnames()[[2]], #color
-                                             var2=Meta_vars()[[1]], #x
-                                             var4=Meta_vars(), #facet
-                                             var3=(ps.norm.melt() %>% select(contains("Troph")) %>% colnames() )[[1]]
-    ) 
     shinyjs::show("def_plotvio")
     
   }
