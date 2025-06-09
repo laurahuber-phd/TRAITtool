@@ -22,9 +22,9 @@ Meta_vars <- reactive({ #read the metadata file and identify the variable names
 rnames <- reactive({ #read the metadata file and identify the variable names 
   #req(input$Metadata)
   return(rank_names(ps.norm()))
-}) %>% bindEvent(ps.norm() )
+}) %>% bindEvent(ps.norm(),ps.all() )
 
 ps.norm.melt <- reactive({
   req(ps.norm())
   psmelt(ps.norm())
-}) %>% bindEvent(ps.norm())
+}) %>% bindEvent(ps.norm(),ps.all())

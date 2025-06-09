@@ -72,17 +72,18 @@ observeEvent(input$defaultgo, {
   )
   shinyjs::show("def_plothm")
   
-  #shinyjs::click("go_violin")
-  #violinplot_general <- plotControlsServer(id="violin_gen",
-  #                                         df=ps.norm.melt(),
-  #                                         var1=rnames()[[2]], #color
-  #                                         var2=Meta_vars()[[1]], #x
-  #                                         var4=Meta_vars(), #facet
-  #                                         var3=(ps.norm.melt() %>% select(contains("Troph")) %>% colnames() )[[1]]
-  #) 
-  #shinyjs::show("def_plotvio")
-  
-  
+  if (isTruthy(ps.norm.melt() %>% select(contains("Troph")) %>% colnames())) {
+    shinyjs::click("go_violin")
+    violinplot_general <- plotControlsServer(id="violin_gen",
+                                             df=ps.norm.melt(),
+                                             var1=rnames()[[2]], #color
+                                             var2=Meta_vars()[[1]], #x
+                                             var4=Meta_vars(), #facet
+                                             var3=(ps.norm.melt() %>% select(contains("Troph")) %>% colnames() )[[1]]
+    ) 
+    shinyjs::show("def_plotvio")
+    
+  }
   
   shinyjs::delay(4000,switch_page("reporttab"))
   

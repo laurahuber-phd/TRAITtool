@@ -361,7 +361,8 @@ ps.norm <- reactive({
 }) %>% bindEvent(input$normoptions,
                  input$abund_cutoff,
                  input$mean_cutoff,
-                 ps.sub()
+                 ps.sub(),
+                 ps.all()
 )
 
 observe({
