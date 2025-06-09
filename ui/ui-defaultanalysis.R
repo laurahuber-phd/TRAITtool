@@ -1,4 +1,4 @@
-defaultanalysis <- tagList("Default analysis inputs",
+defaultanalysis <- tagList(h4("Default analysis inputs"),
                            "After generating these figures, you will automatically be directed to the report page",
                              useShinyjs(),
                              actionButton("defaultgo","Run with default settings?",width='100%',disabled=TRUE),
