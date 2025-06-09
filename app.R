@@ -151,8 +151,10 @@ nav_menu("Files",
          ),
 nav_menu("Filter", #filtering options 
          nav_panel("Filter",value='filtertab',
+                   #defaultanalysis,
                    filterpage)#,
-         #nav_panel("Default",value='defaulttab',defaultanalysis)
+         #nav_panel("Default",value='defaulttab',
+         #          defaultanalysis)
          ),
 ## Group 3 # Process from raw  --------  
 nav_menu("From Scratch",

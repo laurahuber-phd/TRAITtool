@@ -1,4 +1,4 @@
-
+source('ui/ui-defaultanalysis.R')
 ############################################# Example dataset #############################################
 Ex_Card <- card(id="ex_data",
                 card_header("Use example data"),

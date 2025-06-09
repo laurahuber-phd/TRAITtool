@@ -82,6 +82,7 @@ observeEvent(input$repaccd_richplot, switch_page("statstab"))
 observeEvent(input$repaccd_ordplot, switch_page("statstab"))
 observeEvent(input$repaccd_histplot, switch_page("statstab"))
 observeEvent(input$repaccd_hmplot,switch_page("statstab"))
+observeEvent(input$repaccd_vioplot,switch_page("statstab"))
 
 # not using yet
 observeEvent(input$demux_nextpage, switch_page("Assign OTU"))
