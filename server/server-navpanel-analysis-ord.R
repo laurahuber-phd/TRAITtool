@@ -132,12 +132,12 @@ observeEvent(input$go_ord,{
 observe({
   showModal(modalDialog(
     renderPlot(ordplot()),
-    footer = downloadButton('download_ordplot_popup', 'Download'),
+    footer = downloadButton('ord_plotdwnld_popup', 'Download'),
     size="xl",
     easyClose = TRUE
   ))
 }) %>% bindEvent(input$ord_click)
-output$download_ordplot_popup <-  downloadHandler(
+output$ord_plotdwnld <- output$ord_plotdwnld_popup <-  downloadHandler(
   filename = "ord_plot.png",
   contentType = 'image/png',
   content = function(file) {

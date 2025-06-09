@@ -130,8 +130,11 @@ Anlys_BetaCard <- accordion(
                                                  )
                     ))
                     ),
-                    actionButton("go_ord","Plot"),
-                      withSpinner(plotOutput("ord_plot",click="ord_click"))
+                    layout_columns(col_widths=c(10,-1,1),
+                                   actionButton("go_ord","Plot"),
+                                   downloadButton('ord_plotdwnld', label=NULL)
+                                   ),
+                    withSpinner(plotOutput("ord_plot",click="ord_click"))
                     )
     ),
     accordion_panel("Stress Plots",
@@ -160,8 +163,9 @@ Anlys_hmCard <- tagList(
     plotPrettyUI("hm_pretty"),
     plotSizeUI('hm_size')
   ),
-    actionButton("go_hm","Plot"),
-    downloadButton('hm_plotdwnld', label=NULL),
+  layout_columns(col_widths=c(10,-1,1),
+                 actionButton("go_hm","Plot"),
+                 downloadButton('hm_plotdwnld', label=NULL)),
     withSpinner(plotOutput("hm_plot",click="hm_click")) #add a reaction when the plot is clicked
   
 )

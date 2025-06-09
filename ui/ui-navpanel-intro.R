@@ -2,10 +2,10 @@ titlepage <- tagList(
   HTML("<h1 style='text-align:center;'>Environmental DNA management tool</h1>"),
   tags$figure(class="centerFigure",
       tags$img(src="Placeholder_Artwork_long.png", 
-          width="100%",
+          width="100%",height="75%",
           alt="Picture of an island Belizean mangrove caye with the Marine Conservation Lab logo superseded on the left",
       #align = "center",
-      #style='flex-grow:1; margin-left: 20px;resize:both;overflow:none;'
+      #style='max-height:300px;width:auto;'
       ),
       tags$figcaption(HTML("<p style='text-align:right'><small><i>Image of mangrove caye by Dr. Hannah Morrissette, 2024. Logo by ____ </i></small></p>"))),
   actionBttn(
@@ -27,8 +27,35 @@ titlepage <- tagList(
                       br(),
                       "With this, you will get information regarding what species are in your samples, how the community composition and diversity differs between samples, and follow patterns in specific taxa."
                       ),
-                 card("Example use case",
+                 card("Example use cases",
                       #some pretty graphs that you can generate with this app
+                      layout_columns(col_widths=c(12,12,12),
+                                     tags$figure(tags$img(src="violinplot.png", 
+                                                          width="100%",
+                                                          #alt="Picture of an island Belizean mangrove caye with the Marine Conservation Lab logo superseded on the left",
+                                                          align = "left",
+                                                          style='flex-grow:1; margin-top: 1px;margin-bottom: 1em;resize:both;overflow:none;'
+                                     ),
+                                     tags$figcaption(HTML("<p style='text-align:left'><small><i>Visualize patterns in trophic levels</i></small></p>"))
+                                     ),
+                                     tags$figure(tags$img(src="ord_plot.png", 
+                                                          width="100%",
+                                                          #alt="Picture of an island Belizean mangrove caye with the Marine Conservation Lab logo superseded on the left",
+                                                          align = "right",
+                                                          style='flex-grow:1; margin-top: 1px;margin-bottom: 1em;resize:both;overflow:none;'
+                                     ),
+                                     tags$figcaption(HTML("<p style='text-align:left'><small><i>Visualize how communities compare to one another</i></small></p>"))
+                                     ),
+                                     tags$figure(class="centerFigure",
+                                                 tags$img(src="richness_plot.png", 
+                                                          width="100%",
+                                                          #alt="Picture of an island Belizean mangrove caye with the Marine Conservation Lab logo superseded on the left",
+                                                          align = "center",
+                                                          style='flex-grow:1; margin-top: 1px;margin-bottom: 1em;resize:both;overflow:none;'
+                                                 ),
+                                                 tags$figcaption(HTML("<p style='text-align:left'><small><i>Get records of richness at each site</i></small></p>"))
+                                                 )
+                                     )
                       )
                  ),
   HTML("<p style='text-align:center;margin-bottom:1px'><i>Marine Conservation Lab: Smithsonian Environmental Research Center</i></p>"),
