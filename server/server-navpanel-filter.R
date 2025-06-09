@@ -1,3 +1,6 @@
+output$psog_filter <- renderPrint({ps.all()})
+output$pstext_filter <- renderPrint({ps.sub()})
+
 trackNums <- reactiveValues(remblank_bef=NULL,
                             remblank_aft=NULL,
                             remblanktax_bef=NULL,
@@ -28,8 +31,8 @@ observeEvent(ps.all(),{
   trackNums$seltax_bef=NULL
   trackNums$seltax_aft=NULL
   
-  output$psog_filter <- renderPrint({ps.all()})
-  output$pstext_filter <- renderPrint({ps.sub()})
+  N_sample_df  <- N_taxa_tab <- Summ_seqs_sel <- Num_seq_subset <- Num_otu_subset <- Summ_seqs <- Num_seq_all <- Num_otu_all <- NULL #reset
+  rankperc_plot <- ordplot <- histoplot <- violinplot <- hmplot <- NULL #reset plots  
 })
 
 output$prune_bef <- renderText({paste("Number of samples before pruning: ",trackNums$prune_bef)}) #samples before pruning
