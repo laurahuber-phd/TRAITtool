@@ -53,6 +53,7 @@ source('ui/ui-navpanel-settings.R')
 # define UI --------  
 ui <- page_navbar(id="pages",
                   title="",
+                  useShinyjs(),
                   theme=bs_theme(bootswatch='lux'),
                   tags$head(
                     tags$style(HTML("

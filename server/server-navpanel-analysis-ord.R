@@ -125,9 +125,10 @@ ordplot <- eventReactive(input$go_ord, { #assign a variable that runs when plot 
          title=paste0(input$ord_meth," Ordination Plot")
     )
 })
-output$ord_plot <- renderPlot({
-  ordplot()
+observeEvent(input$go_ord,{
+  output$ord_plot <- renderPlot({ ordplot() })
 })
+
 observe({
   showModal(modalDialog(
     renderPlot(ordplot()),

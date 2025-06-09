@@ -114,15 +114,28 @@ isgood <- reactive({
 }) %>% bindEvent(input$Metadata,input$taxtab,input$otutab,ignoreNULL=FALSE)  
 
 ps.all <- eventReactive(c(input$assemble_ps,input$load_ex), {
+  
+  ps.all <- ps.sub <- ps.norm <- NULL 
+  Meta_vars <- rnames <- NULL 
+  
   runif(input$assemble_ps)
   runif(input$load_ex)
   req(MetadataTable$x)
   req(OTUTable$x)
   req(TaxTable$x)
-  assemble_ps(otu=OTUTable$x, # build the phyloseq object
-              tax=TaxTable$x,
-              meta=MetadataTable$x
-  )
+  
+  all <- tryCatch(assemble_ps(otu=OTUTable$x, # build the phyloseq object
+                       tax=TaxTable$x,
+                       meta=MetadataTable$x
+  ), 
+           error=function(e){return(NULL)})
+  
+  if(isTruthy(all)) {
+    all
+  } else {
+      showModal(modalDialog("Components do not match. Check sample names and try again."))
+    all
+    }
 })
 
 observeEvent(ps.all(),{
@@ -144,4 +157,29 @@ observeEvent(MetadataTable$x, {
   }
 }, ignoreNULL = FALSE)
 
-
+observeEvent(c(input$assemble_ps,input$load_ex),{
+  shinyjs::hide("def_prune")
+  shinyjs::hide("def_plotrank")
+  shinyjs::hide("def_plotrich")
+  shinyjs::hide("def_plothisto")
+  shinyjs::hide("def_plotord")
+  shinyjs::hide("def_plothm")
+  shinyjs::hide("def_plotvio")
+  
+  output$rankperc_plot <- renderPlot({NULL})
+  output$rich_plot <- renderPlot({NULL})
+  output$histo_plot <- renderPlot({NULL})
+  output$hm_plot <- renderPlot({NULL})
+  output$ord_plot <- renderPlot({NULL})
+  output$violin_plot <- renderPlot({NULL})
+  
+  output$rep_richplot <- renderPlot({NULL})
+  output$rep_percplot <- renderPlot({NULL})
+  output$rep_ordplot <- renderPlot({NULL})
+  output$rep_histplot <- renderPlot({NULL})
+  output$rep_hmplot <- renderPlot({NULL})
+  output$rep_vioplot <- renderPlot({NULL})
+  
+  shinyjs::hide("viewfinalreport")
+  shinyjs::hide("dwnldviewreport")
+})

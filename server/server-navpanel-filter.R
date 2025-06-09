@@ -1,6 +1,3 @@
-output$psog_filter <- renderPrint({ps.all()})
-output$pstext_filter <- renderPrint({ps.sub()})
-
 trackNums <- reactiveValues(remblank_bef=NULL,
                             remblank_aft=NULL,
                             remblanktax_bef=NULL,
@@ -30,6 +27,9 @@ observeEvent(ps.all(),{
   trackNums$selsamp_aft=NULL
   trackNums$seltax_bef=NULL
   trackNums$seltax_aft=NULL
+  
+  output$psog_filter <- renderPrint({ps.all()})
+  output$pstext_filter <- renderPrint({ps.sub()})
 })
 
 output$prune_bef <- renderText({paste("Number of samples before pruning: ",trackNums$prune_bef)}) #samples before pruning

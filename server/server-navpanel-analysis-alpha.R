@@ -15,9 +15,13 @@ richplot <- eventReactive(input$go_rich, { #draw alpha div plot when 'plot' butt
                plot_richness(ps.norm(), x=input$alpha_xvar, measures=input$alphametrics) + geom_boxplot()
   )
 })
+
+observeEvent(input$go_rich, {
 output$rich_plot <- renderPlot({ #need separate call to actually render the plot
   richplot()
+  })
 })
+
 observe({
   showModal(modalDialog(
     renderPlot(richplot()),
@@ -64,7 +68,9 @@ histoplot <- eventReactive(input$go_histoplot, {
   histo_base() + histoplot_general$facet() + histoplot_pretty() + histoplot_size() 
 }) 
 
-output$histo_plot <- renderPlot({histoplot()})
+observeEvent(input$go_histoplot,{
+  output$histo_plot <- renderPlot({histoplot()})
+})
 
 observe({
   showModal(modalDialog(

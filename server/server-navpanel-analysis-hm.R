@@ -32,7 +32,9 @@ hmplot <- eventReactive(input$go_hm, {
   hm_base() + hmplot_general$facet() + hmplot_pretty() + hmplot_size() 
 }) 
 
-output$hm_plot <- renderPlot({hmplot()})
+observeEvent(input$go_hm, {
+  output$hm_plot <- renderPlot({hmplot()})
+})
 
 observe({
   showModal(modalDialog(

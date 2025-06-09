@@ -47,7 +47,9 @@ violinplot <- eventReactive(input$go_violin, {
   violin_base() + violinplot_general$facet() + violinplot_pretty() + violinplot_size() 
 }) 
 
-output$violin_plot <- renderPlot({violinplot()})
+observeEvent(input$go_violin, {
+  output$violin_plot <- renderPlot({violinplot()})
+})
 
 observe({
   showModal(modalDialog(

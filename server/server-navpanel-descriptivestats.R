@@ -306,8 +306,9 @@ output$basics_listtaxa <- renderDataTable({
                  ps.norm())
 
 ### ---- ### Plot taxa ### ----
+observeEvent(input$go_rankperc, {
 output$rankperc_plot <- renderPlot({rankperc_plot()})
-
+})
 
 observe({
   showModal(modalDialog(
