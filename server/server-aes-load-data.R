@@ -125,6 +125,11 @@ ps.all <- eventReactive(c(input$assemble_ps,input$load_ex), {
   )
 })
 
+observeEvent(ps.all(),{
+  req(ps.all())
+  updateActionButton(session,"defaultgo",disabled=FALSE)
+})
+
 checking <- reactiveValues()
 checking$table <- checking$empty <- NULL
 

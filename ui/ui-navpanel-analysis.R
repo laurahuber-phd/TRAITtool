@@ -213,7 +213,7 @@ analysispage <- nav_panel("Analysis",
                 nav_panel(id="taxcomp",title="Taxonomic composition", full_screen=TRUE,
                           Anlys_HistoCard
                           ),
-                nav_panel(id="beta", title="Beta biversity",
+                nav_panel(id="beta", title="Beta diversity",
                           Anlys_BetaCard
                           ),
                 nav_panel(id="hm", title="Heat map",

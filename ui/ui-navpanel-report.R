@@ -32,25 +32,29 @@ reportpage <- nav_panel(
               accordion_panel(title="Figures",
                               accordion(id='fig_accord',open=FALSE,
                                 accordion_panel(title="Percent composition",
-                                                plotOutput("rep_percplot"),
+                                                withSpinner(plotOutput("rep_percplot")),
                                                 actionButton("repaccd_percplot",label="Go back to this page")
                                                 ),
                                 accordion_panel(title="Richness",
-                                                plotOutput("rep_richplot"),
+                                                withSpinner(plotOutput("rep_richplot")),
                                                 actionButton("repaccd_richplot",label="Go back to this page")
                                                 ),
                                 accordion_panel(title="Taxonomic diversity",
-                                                plotOutput("rep_histplot"),
+                                                withSpinner(plotOutput("rep_histplot")),
                                                 actionButton("repaccd_histplot",label="Go back to this page")
                                                 ),
                                 accordion_panel(title="Heatmap",
-                                                plotOutput("rep_hmplot"),
+                                                withSpinner(plotOutput("rep_hmplot")),
                                                 actionButton("repaccd_hmplot",label="Go back to this page")
                                                 ),
                                 accordion_panel(title="Ordination plot",
-                                                plotOutput("rep_ordplot"),
+                                                withSpinner(plotOutput("rep_ordplot")),
                                                 actionButton("repaccd_ordplot",label="Go back to this page")
-                                                )
+                                                ),
+                                accordion_panel(title="Trophic index",
+                                                withSpinner(plotOutput("rep_vioplot")),
+                                                actionButton("repaccd_vioplot",label="Go back to this page")
+                                )
                               ))
               )
   ),
