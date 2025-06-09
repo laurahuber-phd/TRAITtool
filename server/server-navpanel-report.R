@@ -14,6 +14,7 @@ observe({
   output$rep_ordplot <- renderPlot({ordplot()})
   output$rep_histplot <- renderPlot({histoplot()})
   output$rep_hmplot <- renderPlot({hmplot()})
+  output$rep_vioplot <- renderPlot({violinplot()})
   
   output$rep_pnsamp <- renderText({mkdwnrptfun(input$prune_samples)}) #min sample number
   output$rep_pntax <- renderText({mkdwnrptfun(input$prune_tax)}) #min tax occurrence 
@@ -64,6 +65,7 @@ params <- reactiveValues(blanks=NA, #create list of parameters to read into rmar
                          remsam=NA,
                          histplot=NA,
                          hmplot=NA,
+                         vioplot=NA,
                          samsum=NA,
                          N_seq_total_num_sel=NA,
                          N_seq_assigned_num_sel=NA,
@@ -86,6 +88,7 @@ observeEvent(input$gen_report, {
   params[["ordplot"]] <- mkdwnrptfun(ordplot())
   params[["histplot"]] <- mkdwnrptfun(histoplot())
   params[["hmplot"]] <- mkdwnrptfun(hmplot())
+  params[["vioplot"]] <- mkdwnrptfun(violinplot())
   
   params$pnsamp <- mkdwnrptfun(input$prune_samples) #min sample number
   params$pntax <- mkdwnrptfun(input$prune_tax) #min tax occurrence 

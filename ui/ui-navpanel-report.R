@@ -50,7 +50,11 @@ reportpage <- nav_panel(
                                 accordion_panel(title="Ordination plot",
                                                 withSpinner(plotOutput("rep_ordplot")),
                                                 actionButton("repaccd_ordplot",label="Go back to this page")
-                                                )
+                                                ),
+                                accordion_panel(title="Trophic index",
+                                                withSpinner(plotOutput("rep_vioplot")),
+                                                actionButton("repaccd_vioplot",label="Go back to this page")
+                                )
                               ))
               )
   ),
