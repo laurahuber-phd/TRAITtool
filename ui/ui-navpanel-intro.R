@@ -1,7 +1,7 @@
 titlepage <- tagList(
   HTML("<h1 style='text-align:center;'>Environmental DNA management tool</h1>"),
   tags$figure(class="centerFigure",
-      tags$img(src="Placeholder_Artwork_long.png", 
+      tags$img(src="MCL_Shiny.png", 
           width="100%",height="75%",
           alt="Picture of an island Belizean mangrove caye with the Marine Conservation Lab logo superseded on the left",
       #align = "center",
