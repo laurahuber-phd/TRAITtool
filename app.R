@@ -161,16 +161,16 @@ nav_menu("Filter", #filtering options
 nav_menu("From Scratch",
          nav_panel("Demultiplex and Quality Control"#,qcpanel
          ),
-         nav_panel("Assign OTU"#,assignasvpanel
+         nav_panel("Build Sequence Table"#,assignasvpanel
          ),
          nav_panel("Assign Taxonomy"#,assigntaxapanel
          )
 ),
 ## Group 4 # Analysis --------  
 nav_menu(title="Analysis",
-         nav_panel("The Basics",value="basicstab",
+         nav_panel("At a Glance",value="basicstab",
                    descriptivepage),
-         nav_panel("The Stats", value='statstab',
+         nav_panel("Figures", value='statstab',
                    analysispage)
          ),
 nav_spacer(),

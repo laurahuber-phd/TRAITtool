@@ -41,9 +41,9 @@ SelectPruneCard <- card(
                       "Use this section to choose a minimum number of times a taxa occurs and/or how small of a sample to include. "
                       ),
               ),
-  "Removing ASVs with only one occurrence can reduce the likelihood of overestimating diversity. Samples with dramatically fewer sequences can also bias analyses.",
+  "Removing sequences with only one occurrence can reduce the likelihood of overestimating diversity. Samples with dramatically fewer sequences can also bias analyses.",
   numericInput("prune_samples", "Remove samples with less than this many sequences:", value = 100),
-  numericInput("prune_tax","Remove ASVs with less than this many occurrences:",value = 1)
+  numericInput("prune_tax","Remove sequences with less than this many occurrences:",value = 1)
 )
 
 ## ---- select samples ## ---- 

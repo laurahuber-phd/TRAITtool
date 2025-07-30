@@ -78,7 +78,7 @@ Files_ScratchCard <- tagList(
 ############################################# Analysis-only #############################################
 Card_OTU <- tagList(layout_columns(colwidths=c(8,4),
                                    fileInput("otutab",
-                                             label="Upload OTU table",
+                                             label="Upload sequence table",
                                              accept=c(".csv",".tsv")),
                                    layout_columns(
                                      radioButtons("otu_sep","File separator", #select separator in the file

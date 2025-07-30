@@ -98,7 +98,7 @@ descriptivepage = tagList(
     actionButton("basics_nextpage","Next step")
   ),
   br(),
-  h2("Basic Stats"),
+  h2("Data Overview"),
   h4("This page is essentially a sanity check."),
   p("The information we get from this page is useful because it can be used for troubleshooting and can tell us about the quality and reliability of the data we're looking at. Large, dramatic changes here could be the reason why you see differences in what species are showing up or why community composition appears to change. We want to know if the changes are real, biological changes or due to the dataset."),
   br(),
