@@ -59,6 +59,11 @@ reviewpage <- nav_panel("Review",
                           fill=FALSE,
                           jqui_resizable(Review_otuCard),
                           jqui_resizable(Review_TaxCard)
-                        )
+                        ),
+                        layout_column_wrap(
+                          width=1/2,fill=TRUE,
+                          actionButton("breview_prevpage","Previous step"),
+                          actionButton("breview_nextpage","Next step")
+                        ),
 )
 #############################################################################################################

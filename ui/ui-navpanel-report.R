@@ -81,5 +81,6 @@ reportpage <- nav_panel(
                    br(),
                    br(),
                    shinyjs::hidden(wellPanel(id="viewfinalreport",htmlOutput('markdown')))
-                   )
+                   ),
+  actionButton("breport_prevpage","Previous step",width='20%')
 )

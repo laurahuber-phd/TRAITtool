@@ -145,5 +145,10 @@ filterpage <- nav_panel(
   ),
   jqui_resizable(Select_BlanksCard), #This card allows you to select the sequencing blanks,
   SelectSamplesCard,
-  SelectTaxaCard
+  SelectTaxaCard,
+  layout_column_wrap(
+    width=1/2,fill=TRUE,
+    actionButton("bfilter_prevpage","Previous step"),
+    actionButton("bfilter_nextpage","Next step")
+  )
 )

@@ -226,6 +226,10 @@ analysispage <- nav_panel("Analysis",
                 nav_panel(id="violin", title="Trophic composition",
                           Anlys_ViolinCard
                          )
-                )
+                ),
+  layout_column_wrap(width=1/2,fill=TRUE,
+                     actionButton("banalysis_prevpage","Previous step"),
+                     actionButton("banalysis_nextpage","Next step")
+  )
 )
 #############################################################################################################

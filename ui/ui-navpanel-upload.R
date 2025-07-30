@@ -161,6 +161,11 @@ uploadpage <- nav_panel("Files",
                                           )
                          )
                          ),
-          card(id='default',defaultanalysis)
+          card(id='default',defaultanalysis),
+          layout_column_wrap(
+            width=1/2,fill=TRUE,
+            actionButton("bfileupload_prevpage","Previous page",width='100%'),
+            actionButton("bfileupload_nextpage_v2","Next step",width='100%')
+          )
 )
 ##########################################################################################

@@ -36,30 +36,43 @@ switch_page <- function(i) {
 observeEvent(input$titlepg_start, switch_page("uploadtab"))
 
 # navigation from upload page
+observeEvent(input$fileupload_prevpage,switch_page("introtab"))
+observeEvent(input$fileupload_nextpage_v2, switch_page("reviewtab")) 
+observeEvent(input$bfileupload_prevpage,switch_page("introtab"))
+observeEvent(input$bfileupload_nextpage_v2, switch_page("reviewtab")) 
+
+# navigation from modal dialog box after file upload
 observeEvent(input$fileupload_nextpage, switch_page("reviewtab")) #modal dialog box from file upload page takes you to review page
-observeEvent(input$fileupload_nextpage_v2, switch_page("reviewtab")) #next button from file upload page takes you to review page
 observeEvent(input$fileupload_nextpage_v3, switch_page("basicstab")) #modal dialog box from file upload page takes you to stats page
 observeEvent(input$fileupload_nextpage_v4, switch_page("filtertab")) 
-observeEvent(input$fileupload_prevpage,switch_page("introtab"))
 
 # navigation from review page
 observeEvent(input$review_nextpage, switch_page("filtertab")) #next button from review page takes you to basic stats page
 observeEvent(input$review_prevpage, switch_page("uploadtab")) #previous button from review page takes you back to file upload page
+observeEvent(input$breview_nextpage, switch_page("filtertab")) 
+observeEvent(input$breview_prevpage, switch_page("uploadtab")) 
 
 # navigation from filtering page
 observeEvent(input$filter_nextpage, switch_page("basicstab"))
 observeEvent(input$filter_prevpage, switch_page("reviewtab"))
+observeEvent(input$bfilter_nextpage, switch_page("basicstab"))
+observeEvent(input$bfilter_prevpage, switch_page("reviewtab"))
 
 # navigation from basics page
 observeEvent(input$basics_nextpage, switch_page("statstab"))
 observeEvent(input$basics_prevpage, switch_page("filtertab")) 
+observeEvent(input$bbasics_nextpage, switch_page("statstab"))
+observeEvent(input$bbasics_prevpage, switch_page("filtertab")) 
 
 # navigation from stats page
 observeEvent(input$analysis_nextpage, switch_page("reporttab"))
 observeEvent(input$analysis_prevpage, switch_page("basicstab")) 
+observeEvent(input$banalysis_nextpage, switch_page("reporttab"))
+observeEvent(input$banalysis_prevpage, switch_page("basicstab")) 
 
 # navigation from report page
 observeEvent(input$report_prevpage,switch_page("statstab"))
+observeEvent(input$breport_prevpage,switch_page("statstab"))
 
 # other navigation
 observeEvent(input$psfail_goback,switch_page("uploadtab"))

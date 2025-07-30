@@ -108,7 +108,12 @@ descriptivepage = tagList(
   br(),
   HTML("<h5>Next, look at taxonomy</h5>"),
   p(),
-          Basics_TaxCard
+          Basics_TaxCard,
           #include a section to output names of taxa at each rank/their relative abundances
+  layout_column_wrap(
+    width=1/2,fill=TRUE,
+    actionButton("bbasics_prevpage","Previous step"),
+    actionButton("bbasics_nextpage","Next step")
+  )
 )
 #############################################################################################################
