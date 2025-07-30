@@ -1,5 +1,6 @@
 titlepage <- tagList(
-  HTML("<h1 style='text-align:center;'>Environmental DNA management tool</h1>"),
+  HTML("<h2 style='text-align:center;'>Welcome to TRAIT</h2>"),
+  HTML("<h4 style='text-align:center;'><i>Trophic Rapid Assesssment and Integration Tool </i></h4>"),
   tags$figure(class="centerFigure",
       tags$img(src="MCL_Shiny.png", 
           width="100%",height="75%",
