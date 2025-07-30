@@ -54,18 +54,20 @@ SelectSamplesCard <- card(
   br(),
   h5("Click on the toggle to select samples. Clicking it again will reset all selections. "),
   useShinyjs(),
-  materialSwitch(inputId='sample_switch', value=FALSE, label="Go to subset samples"), #toggle to open accordion 
-  accordion( id='sample_accord', open=FALSE,
-    accordion_panel( id='sample_prunepanel',title="Pick samples",
-      actionButton('go_sample',"Go: Use selected samples"),
-      selectInput('sample_filterby',"Select filtering group",
-                  character()
-                  ),
-      checkboxGroupInput('sample_select', label="Select samples",
-                         list()
-                         )
-    )
-  ),
+  materialSwitch(inputId='sample_switch', value=FALSE, label="Subset samples?"), #toggle to open accordion 
+  
+  conditionalPanel(condition="input.sample_switch==true",
+                   splitLayout(cellWidths = c("50%","50%"),
+                               verticalLayout(selectInput('sample_filterby',"Filter by the following:",
+                                                          character()
+                               ),
+                               checkboxGroupInput('sample_select', label="Select samples",
+                                                  list()
+                               )),
+                               verticalLayout(br(),
+                                              actionButton('go_sample',"Go: Use selected samples"))
+                               )
+                               ),
   shinyjs::hidden(
          wellPanel(id="befaft_sample",textOutput("selsamp_bef"),textOutput("selsamp_aft"))
          )
@@ -77,21 +79,26 @@ SelectTaxaCard <- card(
   "Choose this if you want to specify which taxa to include/exclude. You don't need to do anything here if you are interested in viewing the entire dataset.",
   br(),
   h5("Click on the toggle to select samples. Clicking it again will reset all selections."),
-  materialSwitch(inputId='tax_switch', value=FALSE, label="Go to subset taxa"), #toggle to open accordion 
-  accordion( id='tax_accord', open=FALSE,
-    accordion_panel( id='tax_prunepanel',title="Pick taxa",
-      "Keep or remove the selected taxa?",
-      switchInput(inputId='tax_keepremove',value=FALSE, width = "100%",
-                  onLabel = "Keep",
-                  offLabel = "Remove"),
-      actionButton('go_tax',"Go"),
-      selectInput('tax_filterby',"Select rank",
-                  character()
-                  ),
-      checkboxGroupInput('tax_select',label="Select taxa",
-                         list()
-                         )
-      )
+  materialSwitch(inputId='tax_switch', value=FALSE, label="Subset taxa?"), #toggle to open accordion 
+  conditionalPanel(condition="input.tax_switch==true",
+                   
+                   splitLayout(cellWidths = c("50%","50%"),
+                               verticalLayout(
+                                 selectInput('tax_filterby',"Select rank",
+                                             character() ),
+                                 checkboxGroupInput('tax_select',label="Select taxa",
+                                                    list())
+                               ),
+                               card("Keep or remove the selected taxa?",
+                                              switchInput(inputId='tax_keepremove',
+                                                          value=FALSE, width = "100%",
+                                                          inline=TRUE,
+                                                          onLabel = "Keep",
+                                                          offLabel = "Remove"),
+                                              actionButton('go_tax',"Go: prune selected taxa",class = 'btn-warning')
+                               )
+                   )
+                   
   ),
   shinyjs::hidden(
     wellPanel(id="befaft_tax",textOutput("seltax_bef"),textOutput("seltax_aft"),textOutput("selrank"),textOutput('seltax'))

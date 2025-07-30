@@ -82,7 +82,7 @@ ui <- page_navbar(id="pages",
                       background-color:rgba(var(--bs-body-color-rgb), 0.1);
                       color: #0c3e53;
                       border-width: 3px;
-                      border-radius: 5rem;
+                      border-radius: 0.5rem;
                       border-color: rgba(var(--bs-body-color-rgb), 0.2);
                       font-weight: 1200;
                       }
