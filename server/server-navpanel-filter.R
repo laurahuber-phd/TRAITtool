@@ -145,7 +145,8 @@ observe({
     taxvar <- as.list(get_taxa_unique(ps.sub(),input$tax_filterby)) #make list of unique values 
     updateCheckboxGroupInput(session,
                              "tax_select",
-                             choices=as.list(taxvar)) #update the available filtering options
+                             choices=as.list(taxvar),
+                             selected=NULL) #update the available filtering options
     
   } else if (!isTruthy(input$tax_switch)) { #if tax subset panel is closed 
     
@@ -155,7 +156,8 @@ observe({
     
     updateCheckboxGroupInput(session, #clear selectable taxa 
                              'tax_select',
-                             choices=c(""))
+                             choices=c(""),
+                             selected=NULL)
     
     shinyjs::hide("befaft_tax") #hide counts
     taxfilter_list <- NULL #reset the list of taxa used to filter
@@ -257,39 +259,39 @@ ps.sub <- reactive({
     trackNums$selsamp_aft <- as.character(nsamples(ps))
   }
   ############################### TAXA ############################################
-  if(input$go_tax) { #if remove selected taxa is selected
+  if(isTruthy(input$tax_switch) && input$go_tax) { #if remove selected taxa is selected
     runif(input$go_tax)
   
     trackNums$seltax_aft <- trackNums$seltax_bef <- NULL #reset counts
     trackNums$seltax_bef <- as.character(ntaxa(ps))
     
     taxkeep = NULL #make blank list
-    taxsam = as.data.frame(as.matrix(tax_table(ps))) #taxonomy table
-    taxsamsel = select(taxsam,input$tax_filterby) #subset taxonomy table by selecting the specified rank 
+    taxsam = as.data.frame(as.matrix(tax_table(ps))) #extract taxonomy table
+    taxsamsel = select(taxsam,input$tax_filterby) #subset taxonomy table by the rank selected by the user
     
     # make a new sublist each time go_tax is clicked 
-    selected_taxalist <- input$tax_select
+    selected_taxalist <- input$tax_select 
     selected_taxalist[selected_taxalist=="NA"] <- NA
     selected_taxalist[selected_taxalist==""] <- NA
       
     taxfilter_list[[input$tax_filterby]] <- list(selected_taxalist) #list(input$tax_select)
 
       # prune taxa 
-    if(isTruthy(input$tax_keepremove)) { 
-      if (any(is.na(selected_taxalist))) {
+    if(isTruthy(input$tax_keepremove)) {  #if user selects keep taxa
+      if (any(is.na(selected_taxalist))) { #if any of the selected taxa are NA
         
         taxkeep = tryCatch(rownames(filter(taxsamsel, 
                                            taxsamsel[[1]] %in% selected_taxalist | is.na(taxsamsel[[1]])
                                            )),
                            error=function(e){return(FALSE)})
       }
-      else { 
-      taxkeep = tryCatch(rownames(filter(taxsamsel, taxsamsel[[1]] %in% selected_taxalist)),
-                         error=function(e){return(FALSE)})
+      else { #if NA is not selected
+      taxkeep = tryCatch(rownames(filter(taxsamsel, taxsamsel[[1]] %in% selected_taxalist)), #keep taxa from user list
+                         error=function(e){return(FALSE)}) #return FALSE if filtering cannot happen
       }
     }
-    if(!isTruthy(input$tax_keepremove)) {
-      if (any(is.na(selected_taxalist))) {
+    if(!isTruthy(input$tax_keepremove)) { #if user selected remove taxa
+      if (any(is.na(selected_taxalist))) { #if any of the selected taxa are NA
         
         taxkeep = tryCatch(rownames(filter(taxsamsel, 
                                            !taxsamsel[[1]] %in% selected_taxalist | !is.na(taxsamsel[[1]])
@@ -304,6 +306,8 @@ ps.sub <- reactive({
     }
     if (isTruthy(taxkeep)) {
       ps <- prune_taxa(taxkeep,ps)
+    } else if (is.null(input$tax_select)) {
+      ps <- ps
     } else { 
       ps <- ps 
       showModal(
