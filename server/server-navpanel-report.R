@@ -133,7 +133,8 @@ observeEvent(input$gen_report, {
     detail = "This may take a while. This window will disappear when the report is ready.",
     value=0, {
       render('ProjectReport.Rmd',
-             output_format = c('pdf_document','html_document'),#,'word_document'), 
+             output_format = c('html_document'),#,'pdf_document','word_document'), 
+             #output_format = c('pdf_document','html_document'),#,'word_document'), 
              params= paramvals, 
          #switch(input$format,
         #        PDF = pdf_document(),
