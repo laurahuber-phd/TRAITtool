@@ -64,6 +64,12 @@ observeEvent(input$basics_prevpage, switch_page("filtertab"))
 observeEvent(input$bbasics_nextpage, switch_page("statstab"))
 observeEvent(input$bbasics_prevpage, switch_page("filtertab")) 
 
+# navigation from trait page
+observeEvent(input$trait_nextpage, switch_page("statstab"))
+observeEvent(input$trait_prevpage, switch_page("filtertab")) 
+observeEvent(input$btrait_nextpage, switch_page("statstab"))
+observeEvent(input$btrait_prevpage, switch_page("filtertab")) 
+
 # navigation from stats page
 observeEvent(input$analysis_nextpage, switch_page("reporttab"))
 observeEvent(input$analysis_prevpage, switch_page("basicstab")) 
@@ -84,6 +90,7 @@ observeEvent(input$go_upload, switch_page("uploadtab"))
 observeEvent(input$go_review, switch_page("reviewtab"))
 observeEvent(input$go_filter, switch_page("filtertab"))
 observeEvent(input$go_desc, switch_page("basicstab"))
+observeEvent(input$go_trait, switch_page("traittab"))
 observeEvent(input$go_stat, switch_page("statstab"))
 observeEvent(input$go_help, switch_page("helptab"))
 observeEvent(input$go_settings, switch_page("settingstab"))
