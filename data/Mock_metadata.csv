@@ -1,49 +1,49 @@
-Barcode,SampleName,Date,Primers,Experiment,Organism,Notes
-barcode01,MC1,5/30/23,18S,Equimolar,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER",aimed to combine 40 ng of DNA per sample
-barcode02,MC1,5/30/23,18S,Equimolar,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER",aimed to combine 40 ng of DNA per sample
-barcode03,MC1,5/30/23,18S,Equimolar,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER",aimed to combine 40 ng of DNA per sample
-barcode04,MC2,5/30/23,18S,Dilution_1:10,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER","using MC1, diluted 1:10 with H20"
-barcode05,MC2,5/30/23,18S,Dilution_1:10,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER","using MC1, diluted 1:10 with H20"
-barcode06,MC2,5/30/23,18S,Dilution_1:10,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER","using MC1, diluted 1:10 with H20"
-barcode07,.,.,.,.,.,.
-barcode08,NegativeControl,5/30/23,18S,.,.,.
-barcode09,MC3,5/30/23,18S,Dilution_1:100,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER","using MC1, diluted 1:100 with H2o"
-barcode10,MC3,5/30/23,18S,Dilution_1:100,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER","using MC1, diluted 1:100 with H2o"
-barcode11,MC3,5/30/23,18S,Dilution_1:100,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER","using MC1, diluted 1:100 with H2o"
-barcode12,MC4,5/30/23,18S,Dilution_1:1000,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER","using MC3, diluted 1:100 with H2o"
-barcode13,MC4,5/30/23,18S,Dilution_1:1000,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER","using MC3, diluted 1:100 with H2o"
-barcode14,MC4,5/30/23,18S,Dilution_1:1000,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER","using MC3, diluted 1:100 with H2o"
-barcode15,.,.,.,,,
-barcode16,.,.,.,,,
-barcode17,MC1,5/30/23,COI,Equimolar,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER",aimed to combine 40 ng of DNA per sample
-barcode18,MC1,5/30/23,COI,Equimolar,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER",aimed to combine 40 ng of DNA per sample
-barcode19,MC1,5/30/23,COI,Equimolar,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER",aimed to combine 40 ng of DNA per sample
-barcode20,MC2,5/30/23,COI,Dilution_1:10,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER","using MC1, diluted 1:10 with H20"
-barcode21,MC2,5/30/23,COI,Dilution_1:10,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER","using MC1, diluted 1:10 with H20"
-barcode22,MC2,5/30/23,COI,Dilution_1:10,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER","using MC1, diluted 1:10 with H20"
-barcode23,.,.,.,.,.,.
-barcode24,NegativeControl,5/30/23,COI,.,.,.
-barcode25,MC3,5/30/23,COI,Dilution_1:100,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER","using MC1, diluted 1:100 with H2o"
-barcode26,MC3,5/30/23,COI,Dilution_1:100,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER","using MC1, diluted 1:100 with H2o"
-barcode27,MC3,5/30/23,COI,Dilution_1:100,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER","using MC1, diluted 1:100 with H2o"
-barcode28,MC4,5/30/23,COI,Dilution_1:1000,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER","using MC3, diluted 1:100 with H2o"
-barcode29,MC4,5/30/23,COI,Dilution_1:1000,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER","using MC3, diluted 1:100 with H2o"
-barcode30,MC4,5/30/23,COI,Dilution_1:1000,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER","using MC3, diluted 1:100 with H2o"
-barcode31,.,.,.,.,.,.
-barcode32,.,.,.,.,.,.
-barcode33,MC1,5/30/23,MiFish,Equimolar,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER",aimed to combine 40 ng of DNA per sample
-barcode34,MC1,5/30/23,MiFish,Equimolar,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER",aimed to combine 40 ng of DNA per sample
-barcode35,MC1,5/30/23,MiFish,Equimolar,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER",aimed to combine 40 ng of DNA per sample
-barcode36,MC2,5/30/23,MiFish,Dilution_1:10,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER","using MC1, diluted 1:10 with H20"
-barcode37,MC2,5/30/23,MiFish,Dilution_1:10,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER","using MC1, diluted 1:10 with H20"
-barcode38,MC2,5/30/23,MiFish,Dilution_1:10,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER","using MC1, diluted 1:10 with H20"
-barcode39,.,.,.,.,.,.
-barcode40,NegativeControl,5/30/23,MiFish,.,.,.
-barcode41,MC3,5/30/23,MiFish,Dilution_1:100,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER","using MC1, diluted 1:100 with H2o"
-barcode42,MC3,5/30/23,MiFish,Dilution_1:100,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER","using MC1, diluted 1:100 with H2o"
-barcode43,MC3,5/30/23,MiFish,Dilution_1:100,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER","using MC1, diluted 1:100 with H2o"
-barcode44,MC4,5/30/23,MiFish,Dilution_1:1000,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER","using MC3, diluted 1:100 with H2o"
-barcode45,MC4,5/30/23,MiFish,Dilution_1:1000,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER","using MC3, diluted 1:100 with H2o"
-barcode46,MC4,5/30/23,MiFish,Dilution_1:1000,"PEA CRAB, SKELETON SHRIMP, AMPHIPOD, MUD CRAB, BUGULA NERITINA, BLENNY, BRITTLE STAR, GRASS SHRIMP, ANEMONE, HS OYSTER","using MC3, diluted 1:100 with H2o"
-barcode47,.,.,.,.,.,.
-barcode48,.,.,.,.,.,.
+Barcode,SampleName,Date,Primers,Experiment,Notes
+barcode01,MC1,5/30/23,18S,Equimolar,aimed to combine 40 ng of DNA per sample
+barcode02,MC1,5/30/23,18S,Equimolar,aimed to combine 40 ng of DNA per sample
+barcode03,MC1,5/30/23,18S,Equimolar,aimed to combine 40 ng of DNA per sample
+barcode04,MC2,5/30/23,18S,Dilution_1:10,"using MC1, diluted 1:10 with H20"
+barcode05,MC2,5/30/23,18S,Dilution_1:10,"using MC1, diluted 1:10 with H20"
+barcode06,MC2,5/30/23,18S,Dilution_1:10,"using MC1, diluted 1:10 with H20"
+barcode07,.,.,.,.,.
+barcode08,NegativeControl,5/30/23,18S,.,.
+barcode09,MC3,5/30/23,18S,Dilution_1:100,"using MC1, diluted 1:100 with H2o"
+barcode10,MC3,5/30/23,18S,Dilution_1:100,"using MC1, diluted 1:100 with H2o"
+barcode11,MC3,5/30/23,18S,Dilution_1:100,"using MC1, diluted 1:100 with H2o"
+barcode12,MC4,5/30/23,18S,Dilution_1:1000,"using MC3, diluted 1:100 with H2o"
+barcode13,MC4,5/30/23,18S,Dilution_1:1000,"using MC3, diluted 1:100 with H2o"
+barcode14,MC4,5/30/23,18S,Dilution_1:1000,"using MC3, diluted 1:100 with H2o"
+barcode15,.,.,.,,
+barcode16,.,.,.,,
+barcode17,MC1,5/30/23,COI,Equimolar,aimed to combine 40 ng of DNA per sample
+barcode18,MC1,5/30/23,COI,Equimolar,aimed to combine 40 ng of DNA per sample
+barcode19,MC1,5/30/23,COI,Equimolar,aimed to combine 40 ng of DNA per sample
+barcode20,MC2,5/30/23,COI,Dilution_1:10,"using MC1, diluted 1:10 with H20"
+barcode21,MC2,5/30/23,COI,Dilution_1:10,"using MC1, diluted 1:10 with H20"
+barcode22,MC2,5/30/23,COI,Dilution_1:10,"using MC1, diluted 1:10 with H20"
+barcode23,.,.,.,.,.
+barcode24,NegativeControl,5/30/23,COI,.,.
+barcode25,MC3,5/30/23,COI,Dilution_1:100,"using MC1, diluted 1:100 with H2o"
+barcode26,MC3,5/30/23,COI,Dilution_1:100,"using MC1, diluted 1:100 with H2o"
+barcode27,MC3,5/30/23,COI,Dilution_1:100,"using MC1, diluted 1:100 with H2o"
+barcode28,MC4,5/30/23,COI,Dilution_1:1000,"using MC3, diluted 1:100 with H2o"
+barcode29,MC4,5/30/23,COI,Dilution_1:1000,"using MC3, diluted 1:100 with H2o"
+barcode30,MC4,5/30/23,COI,Dilution_1:1000,"using MC3, diluted 1:100 with H2o"
+barcode31,.,.,.,.,.
+barcode32,.,.,.,.,.
+barcode33,MC1,5/30/23,MiFish,Equimolar,aimed to combine 40 ng of DNA per sample
+barcode34,MC1,5/30/23,MiFish,Equimolar,aimed to combine 40 ng of DNA per sample
+barcode35,MC1,5/30/23,MiFish,Equimolar,aimed to combine 40 ng of DNA per sample
+barcode36,MC2,5/30/23,MiFish,Dilution_1:10,"using MC1, diluted 1:10 with H20"
+barcode37,MC2,5/30/23,MiFish,Dilution_1:10,"using MC1, diluted 1:10 with H20"
+barcode38,MC2,5/30/23,MiFish,Dilution_1:10,"using MC1, diluted 1:10 with H20"
+barcode39,.,.,.,.,.
+barcode40,NegativeControl,5/30/23,MiFish,.,.
+barcode41,MC3,5/30/23,MiFish,Dilution_1:100,"using MC1, diluted 1:100 with H2o"
+barcode42,MC3,5/30/23,MiFish,Dilution_1:100,"using MC1, diluted 1:100 with H2o"
+barcode43,MC3,5/30/23,MiFish,Dilution_1:100,"using MC1, diluted 1:100 with H2o"
+barcode44,MC4,5/30/23,MiFish,Dilution_1:1000,"using MC3, diluted 1:100 with H2o"
+barcode45,MC4,5/30/23,MiFish,Dilution_1:1000,"using MC3, diluted 1:100 with H2o"
+barcode46,MC4,5/30/23,MiFish,Dilution_1:1000,"using MC3, diluted 1:100 with H2o"
+barcode47,.,.,.,.,.
+barcode48,.,.,.,.,.
