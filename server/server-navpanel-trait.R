@@ -10,26 +10,17 @@ observeEvent(input$trait_assign, {
   taxa_df <- TaxTable$x
   
   # get chordate species  
+  get.fish.names <- taxa_df %>% 
+    filter(Phylum=="Chordata" & !is.na(Species)) %>% 
+    .$Species %>% unique() 
+
+  if(length(get.fish.names[!is.na(get.fish.names)]) > 0) {
+    fish.names <- get.fish.names[!is.na(get.fish.names)]
+  } else {
+    showModal(modalDialog("No fish species are assigned in this table. Try again without selecting fish, or check you are using the correct dataframe on the review tab."))
+  }
   
-  # check to see if species assignments in df are genus-species or species 
- # check <- taxa_df %>% 
-#    filter(!is.na(Species)) %>% .[1:10,] %>% .$Species %>% #just look at a subset of the species assignments
-#    countSpaces(.) #will return a vector of the number of spaces in each 
-  
-#  if(range(check)[2] < 1) { #we then look at the range of values; if the highest number is 0 
-#    taxa_df <- taxa_df %>% mutate(Species=case_when(!is.na(Species) ~ paste0(Genus," ",Species), #remake the species column to 
-#                                                    .default=NA))
-#    fish.names <- taxa_df %>% 
-#      filter(Phylum=="Chordata" & !is.na(Species)) %>% 
-#      .$Species %>% unique() 
-    
-#  } else {
-    
-    fish.names <- taxa_df %>% 
-      filter(Phylum=="Chordata" & !is.na(Species)) %>% 
-      .$Species %>% unique() 
-#  }
-  
+  req(fish.names)
   # select only valid species in fishbase   
   valid.fish.names <- fish.names %>% rfishbase::validate_names(server="fishbase") 
 #  valid.fish.names <- valid.fish.names[!is.na(valid.fish.names)]
