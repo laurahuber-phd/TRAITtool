@@ -69,6 +69,10 @@ observe({ #upload the taxonomy file
     filter(!is.na(Species)) %>% .[1:10,] %>% .$Species %>% #just look at a subset of the species assignments
     countSpaces(.) #will return a vector of the number of spaces in each 
   
+  
+  if(is.na(range(check)[2]) ) { #we then look at the range of values; if the highest number is 0 
+    taxfile <- taxfile
+  } else 
   if(range(check)[2] < 1) { #we then look at the range of values; if the highest number is 0 
     taxfile <- taxfile %>% 
       mutate(Species=case_when(!is.na(Species) ~ paste0(Genus," ",Species), #remake the species column to genus-species
