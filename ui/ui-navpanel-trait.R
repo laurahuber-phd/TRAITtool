@@ -19,7 +19,9 @@ Trait_TrophPullCard <- card(
 )
 
 Trait_TrophReviewCard <- card( #preview trait info 
-DTOutput("trait_review")
+  textOutput("fish.names"),
+  textOutput("not.names"),
+  DTOutput("trait_review")
   )
 
 #############################################################################################################
