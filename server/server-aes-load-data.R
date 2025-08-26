@@ -149,6 +149,7 @@ ps.all <- eventReactive(c(input$assemble_ps,input$load_ex,input$go_addtroph), {
   
   runif(input$assemble_ps)
   runif(input$load_ex)
+  runif(input$go_addtroph)
   
   req(MetadataTable$x)
   req(OTUTable$x)
@@ -178,6 +179,8 @@ ps.all <- eventReactive(c(input$assemble_ps,input$load_ex,input$go_addtroph), {
 observeEvent(ps.all(),{
   req(ps.all())
   updateActionButton(session,"defaultgo",disabled=FALSE)
+  
+  if(input$go_addtroph && !is.null(traits_tab$x)) {shinyjs::show("trait_ps_success")}
 })
 
 checking <- reactiveValues()
