@@ -13,32 +13,52 @@ Trait_TrophPullCard <- card(
                              choices=c("Fish","All species","None"),
                              selected = "Fish" #default selection is only fish species (only fishbase)
                  ),
-                 actionButton("trait_assign","Assign trophic level data")
-  # progress indicator
+                 actionButton("trait_assign","Assign trophic level data"),
+                 #withSpinner(id="trait_spinner",
+                #             ui_output=DTOutput("trait_summary")
+                #             )
 )
 
-Trait_TrophReviewCard <- wellPanel(id='viewtrait_panel', #preview trait info 
-                                   p("The following species were not found in the fishbase or sealifebase database:"),
-                                   verbatimTextOutput("not.names"),
-                                   br(),
-  #DTOutput("trait_review"),
-  downloadButton("dwnldtrait1", "Download trophic assignments", 
-                 style = "color: #fff; background-color: #337ab7; border-color: #2e6da4"
-  ),
-  downloadButton("dwnldtraittaxa1", "Download new taxa table", 
-                 style = "color: #fff; background-color: #337ab7; border-color: #2e6da4"
-  ),
-  br(),
-  h4("Direct output from fishbase and sealifebase:"),
-  tableUI("trait_review",editable=FALSE),
-  h4("Included with taxonomy table:"),
-  tableUI("newtax_review",editable=FALSE),
-  h3("If you want to use this table for further analysis, click here: "),
-  h5("WARNING: If you go back to change filtering parameters, you will need to redo this step."),
-  actionButton('go_addtroph',
-               "Go: Add trait information to my taxa table",
-               class = 'btn-warning',width="100%")
-  )
+Trait_TrophReviewCard <- card(id="trait_trophreview_card",
+  hidden(wellPanel( #base/loading screen
+    id='viewtrait_panel', #preview trait info 
+    p("The following species were not found in the fishbase or sealifebase database:"),
+    verbatimTextOutput("not.names"),
+    br(),
+    
+    #DTOutput("trait_review"),
+    downloadButton("dwnldtrait1", "Download trophic assignments", 
+                   style = "color: #fff; background-color: #337ab7; border-color: #2e6da4"
+    ),
+    downloadButton("dwnldtraittaxa1", "Download new taxa table", 
+                   style = "color: #fff; background-color: #337ab7; border-color: #2e6da4"
+    ),
+    br()
+  )),
+  hidden(wellPanel( #trait df 
+    id="loading_traits",
+    h4("Direct output from fishbase and sealifebase:"),
+    withSpinner(id="trait_spinner_review",
+                ui=tableUI("trait_review",editable=FALSE))
+  )),
+  hidden(wellPanel( #new taxa df
+    id="loading_traittax",
+    h4("Included with taxonomy table:"),
+    withSpinner(id="trait_spinner_taxreview",
+                ui=tableUI("newtax_review",editable=FALSE)),
+    br(),
+    br()
+  )),
+  hidden(wellPanel( #add to ps object
+    id="add_ps_trait",
+    h3("If you want to use this table for further analysis, click here: "),
+    h5("WARNING: If you go back to change filtering parameters, you will need to redo this step."),
+    actionButton('go_addtroph',
+                 "Go: Add trait information to my taxa table",
+                 class = 'btn-warning',width="100%"),
+    br()
+  ))
+)
 
 #############################################################################################################
 traitpage = nav_panel(
@@ -58,6 +78,9 @@ traitpage = nav_panel(
   br(),
   Trait_TrophPullCard,
   Trait_TrophReviewCard,
+  #hidden( p(id='trait_ps_success',
+  #          bs_icon("patch-check",size='4em'),
+  #          "Success!")),
   layout_column_wrap(
     width=1/2,fill=TRUE,
     actionButton("btrait_prevpage","Previous step"),

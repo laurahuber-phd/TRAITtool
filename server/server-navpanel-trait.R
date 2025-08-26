@@ -16,6 +16,9 @@ traits_tab <- reactiveValues(x=NULL)
 
 observeEvent(input$trait_assign, {
   req(TaxTable$x)
+ # shinyjs::show(id="viewtrait_panel")
+  shinyjs::show(id="trait_trophreview_card")
+  shinyjs::show(id="loading_traits")
   
   traits_vals$x <- traits_vals$fish.troph <- traits_vals$nonfish.troph <- traits_vals$fishbase.colnames <- traits_vals$invalid.nonfish.names <- traits_vals$taxa_traits_df <- traits_vals$taxa_traits_sub <- NULL
   traits_tab$x <- NULL
@@ -46,12 +49,15 @@ observeEvent(input$trait_assign, {
   # get the ecology info for those species  
   fish.troph <- rfishbase::ecology(species_list=valid.fish.names,
                                    server="fishbase")
+  # assign to reactiveValues to use later  
+  traits_vals$fish.troph <- (fish.troph %>% tibble::rownames_to_column(var="rownames")) #rfishbase::ecology for fish
   
   #add the ones that weren't found to invalid.fish.names
   invalid.fish.names <- c(invalid.fish.names,valid.fish.names[!valid.fish.names%in%fish.troph$Species])
   
   # make a variable with the column names  
   fishbase.colnames <- colnames(fish.troph)
+  traits_vals$fishbase.colnames <- (fishbase.colnames) #column names of the rfishbase::ecology output
   
   # this only gets us the fish though, and only species that are valid in fishbase  
   # so next we will look for non-fish species 
@@ -70,12 +76,13 @@ observeEvent(input$trait_assign, {
   valid.nonfish.names <- valid.nonfish.names[!is.na(valid.nonfish.names)]
   
   invalid.nonfish.names <- all.names[!all.names%in%valid.nonfish.names]
+  traits_vals$invalid.nonfish.names <- (invalid.nonfish.names) #what species names were not found in either of the data frames?  
   
   # get the ecology info for those species  
-  nonfish.troph <- rfishbase::ecology(species_list=valid.nonfish.names,
+    nonfish.troph <- rfishbase::ecology(species_list=valid.nonfish.names,
                                       server="sealifebase"
   )
-  
+  traits_vals$nonfish.troph <- (nonfish.troph %>% tibble::rownames_to_column(var="rownames")) #rfishbase::ecology for non-fish
   # ~~~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~~~ # combine # ~~~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~~~
   
   # standardize the column names  
@@ -85,29 +92,19 @@ observeEvent(input$trait_assign, {
   # combine the two dataframes with bind_rows, because that will fill any missing values with NA  
   # include 'db' as an ID column so we can tell later what database the results came from  
   traits.df <- bind_rows(fish.troph, nonfish.troph,.id="db") 
+  traits_vals$x <- traits_vals$traits.df <- (traits.df %>% tibble::rownames_to_column(var="rownames")) #combined fish/nonfish df
   
   # merge with the taxa table  
   taxa_traits_df <- merge(taxa_df,traits.df,by="Species",all.x=TRUE)
-  
   taxa_traits_df <- relocate(taxa_traits_df,"Species",.after="Genus") 
   rownames(taxa_traits_df) <- taxa_traits_df[[1]]
+  # save 
+  traits_tab$x <- traits_vals$taxa_traits_df <- (taxa_traits_df %>% tibble::rownames_to_column(var="rownames")) #combined fish/nonfish df with taxonomy table 
+  
   taxa_traits_sub <- select(taxa_traits_df, -c(1:14))
-  
-  # assign to reactiveValues to use later  
-  traits_vals$fish.troph <- (fish.troph %>% tibble::rownames_to_column(var="rownames")) #rfishbase::ecology for fish
-  traits_vals$nonfish.troph <- (nonfish.troph %>% tibble::rownames_to_column(var="rownames")) #rfishbase::ecology for non-fish
-  
-  traits_vals$fishbase.colnames <- (fishbase.colnames) #column names of the rfishbase::ecology output
-  
-  traits_vals$invalid.nonfish.names <- (invalid.nonfish.names) #what species names were not found in either of the data frames?  
-  
-  traits_vals$traits.df <- (traits.df %>% tibble::rownames_to_column(var="rownames")) #combined fish/nonfish df
-  traits_vals$taxa_traits_df <- (taxa_traits_df %>% tibble::rownames_to_column(var="rownames")) #combined fish/nonfish df with taxonomy table 
   traits_vals$taxa_traits_sub <- (taxa_traits_sub %>% tibble::rownames_to_column(var="rownames"))  #final data frame used for ps
   
-  traits_vals$x <- (traits.df %>% tibble::rownames_to_column(var="rownames")) #combined fish/nonfish df
-  traits_tab$x <- (taxa_traits_df %>% tibble::rownames_to_column(var="rownames") ) #final data frame used for ps
-}) 
+})
 
   # ~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~ # make report table # ~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~  
   
@@ -139,9 +136,22 @@ observeEvent(input$trait_assign, {
 #  if(!is.null(traits_vals$x)) {shinyjs::show("viewtrait_panel")}
 #}) %>% bindEvent(input$trait_assign)
 
+#observe({
+#  if(is.null(traits_vals$x)) {shinyjs::hide(id="viewtrait_panel")}
+  #if(input$trait_assign && is.null(traits_vals$x)) {shinyjs::show(id="viewtrait_panel")}
+ # if(!is.null(traits_vals$x)) {shinyjs::show(id="viewtrait_panel")}
+#})
+
 observe({
-  if(is.null(traits_vals$x)) {shinyjs::hide(id="viewtrait_panel")}
+  if(!is.null(traits_vals$fish.troph)) {shinyjs::show("loading_traittax")} #after traits are assigned show the progress on the next table
+  if(!is.null(traits_vals$invalid.nonfish.names)) {shinyjs::show("viewtrait_panel")} #show loading screen once invalid names list is complete
+})
+
+
+observe({
+  #if(is.null(traits_vals$x)) {shinyjs::hide(id="viewtrait_panel")}
   if(!is.null(traits_vals$traits.df)) {
+    shinyjs::delay(5000,
   showModal(
     modalDialog(title="Save data",
                 downloadButton("dwnldtrait2", "Download trophic assignments", 
@@ -153,7 +163,9 @@ observe({
                 size='l',
                 easyClose = FALSE )
   )
-    shinyjs::show(id="viewtrait_panel")
+)
+    shinyjs::show(id="add_ps_trait")
+    #shinyjs::show(id="viewtrait_panel")
     }
 }) %>% bindEvent(input$trait_assign,ignoreNULL=FALSE)
 
@@ -175,17 +187,24 @@ output$dwnldtraittaxa1 <- output$dwnldtraittaxa2 <- downloadHandler(
   }
 )
 
+#observe(input$go_addtroph, {
+#  shinyjs::show("trait_ps_success")
+#}) %>% bindEvent(ps.all())
   # ~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~ # outputs # ~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~  
   
 #specifically just look at the trait df  
+showSpinner("trait_spinner_review", {
   tableServer(id='trait_review',
               data=traits_vals
-  )
+              )
+  })
 
 #look at the entire new taxa df ?
+showSpinner("trait_spinner_taxreview", {
   tableServer(id='newtax_review',
               data=traits_tab
-  )
+              )
+  })
   
   output$not.names <- renderPrint(traits_vals$invalid.nonfish.names)
 #  valid.nonfish.names
