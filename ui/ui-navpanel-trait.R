@@ -59,11 +59,11 @@ Trait_TrophReviewCard <- hidden(card(id="trait_trophreview_card",
     actionButton('go_addtroph',
                  "Go: Add trait information to my taxa table",
                  class = 'btn-warning',width="100%"),
-    hidden( p(id='trait_ps_success',
-              bs_icon("patch-check",size='4em'),
-              "Success!")),
     br()
-  ))
+  )),
+  hidden( p(id='trait_ps_success',
+            bs_icon("patch-check",size='4em'),
+            "Success!"))
 )
 )
 
