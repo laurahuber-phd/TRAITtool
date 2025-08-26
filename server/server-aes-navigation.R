@@ -36,9 +36,10 @@ switch_page <- function(i) {
 observeEvent(input$titlepg_start, switch_page("uploadtab"))
 
 # navigation from upload page
-observeEvent(input$fileupload_prevpage,switch_page("introtab"))
+observeEvent(input$fileupload_prevpage, switch_page("introtab")) #top button
+observeEvent(input$bfileupload_prevpage, switch_page("introtab")) #bottom button
+
 observeEvent(input$fileupload_nextpage_v2, switch_page("reviewtab")) 
-observeEvent(input$bfileupload_prevpage,switch_page("introtab"))
 observeEvent(input$bfileupload_nextpage_v2, switch_page("reviewtab")) 
 
 # navigation from modal dialog box after file upload
@@ -47,28 +48,28 @@ observeEvent(input$fileupload_nextpage_v3, switch_page("basicstab")) #modal dial
 observeEvent(input$fileupload_nextpage_v4, switch_page("filtertab")) 
 
 # navigation from review page
-observeEvent(input$review_nextpage, switch_page("filtertab")) #next button from review page takes you to basic stats page
-observeEvent(input$review_prevpage, switch_page("uploadtab")) #previous button from review page takes you back to file upload page
-observeEvent(input$breview_nextpage, switch_page("filtertab")) 
+observeEvent(input$review_nextpage, switch_page("traittab")) 
+observeEvent(input$review_prevpage, switch_page("uploadtab")) 
+observeEvent(input$breview_nextpage, switch_page("traittab")) 
 observeEvent(input$breview_prevpage, switch_page("uploadtab")) 
+
+# navigation from trait page
+observeEvent(input$trait_nextpage, switch_page("filtertab"))
+observeEvent(input$trait_prevpage, switch_page("reviewtab")) 
+observeEvent(input$btrait_nextpage, switch_page("filtertab"))
+observeEvent(input$btrait_prevpage, switch_page("reviewtab")) 
 
 # navigation from filtering page
 observeEvent(input$filter_nextpage, switch_page("basicstab"))
-observeEvent(input$filter_prevpage, switch_page("reviewtab"))
+observeEvent(input$filter_prevpage, switch_page("traittab"))
 observeEvent(input$bfilter_nextpage, switch_page("basicstab"))
-observeEvent(input$bfilter_prevpage, switch_page("reviewtab"))
+observeEvent(input$bfilter_prevpage, switch_page("traittab"))
 
 # navigation from basics page
 observeEvent(input$basics_nextpage, switch_page("statstab"))
 observeEvent(input$basics_prevpage, switch_page("filtertab")) 
 observeEvent(input$bbasics_nextpage, switch_page("statstab"))
 observeEvent(input$bbasics_prevpage, switch_page("filtertab")) 
-
-# navigation from trait page
-observeEvent(input$trait_nextpage, switch_page("statstab"))
-observeEvent(input$trait_prevpage, switch_page("filtertab")) 
-observeEvent(input$btrait_nextpage, switch_page("statstab"))
-observeEvent(input$btrait_prevpage, switch_page("filtertab")) 
 
 # navigation from stats page
 observeEvent(input$analysis_nextpage, switch_page("reporttab"))
