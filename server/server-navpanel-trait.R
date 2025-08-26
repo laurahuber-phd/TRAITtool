@@ -36,9 +36,9 @@ observeEvent(input$trait_assign, {
     showModal(modalDialog("No fish species are assigned in this table. Try again without selecting fish, or check you are using the correct dataframe on the review tab."))
   }
   
-  # only proceed if fish.names is made
-  
+  ################## only proceed if fish.names is made  ################## 
   req(fish.names)
+  
   # select only valid species in fishbase   
   valid.fish.names <- fish.names %>% rfishbase::validate_names(server="fishbase") 
   valid.fish.names <- valid.fish.names[!is.na(valid.fish.names)]
@@ -82,7 +82,8 @@ observeEvent(input$trait_assign, {
     nonfish.troph <- rfishbase::ecology(species_list=valid.nonfish.names,
                                       server="sealifebase"
   )
-  traits_vals$nonfish.troph <- (nonfish.troph %>% tibble::rownames_to_column(var="rownames")) #rfishbase::ecology for non-fish
+  traits_vals$nonfish.troph <- (nonfish.troph %>% 
+                                  tibble::rownames_to_column(var="rownames")) #rfishbase::ecology for non-fish
   # ~~~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~~~ # combine # ~~~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~~~
   
   # standardize the column names  
@@ -91,18 +92,30 @@ observeEvent(input$trait_assign, {
   
   # combine the two dataframes with bind_rows, because that will fill any missing values with NA  
   # include 'db' as an ID column so we can tell later what database the results came from  
-  traits.df <- bind_rows(fish.troph, nonfish.troph,.id="db") 
-  traits_vals$x <- traits_vals$traits.df <- (traits.df %>% tibble::rownames_to_column(var="rownames")) #combined fish/nonfish df
+  traits.df <- bind_rows(fish.troph, 
+                         nonfish.troph,
+                         .id="db") 
+  traits_vals$x <- traits_vals$traits.df <- (traits.df %>% 
+                                               tibble::rownames_to_column(var="rownames")) #combined fish/nonfish df
   
   # merge with the taxa table  
-  taxa_traits_df <- merge(taxa_df,traits.df,by="Species",all.x=TRUE)
-  taxa_traits_df <- relocate(taxa_traits_df,"Species",.after="Genus") 
-  rownames(taxa_traits_df) <- taxa_traits_df[[1]]
+  taxa_traits_df <- merge(taxa_df,
+                          traits.df,
+                          by="Species",
+                          all.x=TRUE)
+  taxa_traits_df <- relocate(taxa_traits_df,
+                             "Species",
+                             .after="Genus") 
+  
+  #rownames(taxa_traits_df) <- taxa_traits_df[[1]]
+  
   # save 
-  traits_tab$x <- traits_vals$taxa_traits_df <- (taxa_traits_df %>% tibble::rownames_to_column(var="rownames")) #combined fish/nonfish df with taxonomy table 
+  traits_tab$x <- traits_vals$taxa_traits_df <- (taxa_traits_df #%>% tibble::rownames_to_column(var="rownames")
+                                                 ) #combined fish/nonfish df with taxonomy table 
   
   taxa_traits_sub <- select(taxa_traits_df, -c(1:14))
-  traits_vals$taxa_traits_sub <- (taxa_traits_sub %>% tibble::rownames_to_column(var="rownames"))  #final data frame used for ps
+  traits_vals$taxa_traits_sub <- (taxa_traits_sub #%>% tibble::rownames_to_column(var="rownames")
+                                  )  #final data frame used for ps
   
 })
 
@@ -147,7 +160,7 @@ observe({
   if(!is.null(traits_vals$invalid.nonfish.names)) {shinyjs::show("viewtrait_panel")} #show loading screen once invalid names list is complete
 })
 
-
+################## Popup dialog box ################## 
 observe({
   #if(is.null(traits_vals$x)) {shinyjs::hide(id="viewtrait_panel")}
   if(!is.null(traits_vals$traits.df)) {
@@ -169,6 +182,7 @@ observe({
     }
 }) %>% bindEvent(input$trait_assign,ignoreNULL=FALSE)
 
+################## Download buttons ################## 
 output$dwnldtrait1 <- output$dwnldtrait2 <- downloadHandler(
   filename = function() {
       paste("trait_table_only", ".csv", sep="")
@@ -186,10 +200,6 @@ output$dwnldtraittaxa1 <- output$dwnldtraittaxa2 <- downloadHandler(
     write.csv(traits_tab$x,file)
   }
 )
-
-#observe(input$go_addtroph, {
-#  shinyjs::show("trait_ps_success")
-#}) %>% bindEvent(ps.all())
   # ~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~ # outputs # ~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~  
   
 #specifically just look at the trait df  
