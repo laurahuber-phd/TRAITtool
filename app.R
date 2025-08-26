@@ -59,14 +59,15 @@ ui <- page_navbar(id="pages",
                   theme=bs_theme(bootswatch='lux'),
                   tags$head(
                     tags$style(HTML("
-                    table {
+                    tr, td {
                     padding: 0px;
-                    cellpadding: 0px;
-                    cellspacing: 0px; 
-                    border-collapse: separate;
-                    border-spacing: 0px;
-                    margin-bottom: 0px;
-                    margin-top: 0px;
+                    height: 0px;
+                    border-spacing: -2px;
+                    margin: 0px;
+                    white-space: nowrap;
+                    }
+                    p {
+                    margin: 0px;
                     }
                       [data-bs-theme=light] .accordion {
                       --bs-accordion-btn-color: #0c3e53;
