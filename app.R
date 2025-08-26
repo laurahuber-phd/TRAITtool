@@ -153,19 +153,19 @@ nav_menu("Files",
          nav_panel("Review",value="reviewtab",
                    reviewpage)
          ),
-nav_menu("Filter", #filtering options 
-         nav_panel("Filter",value='filtertab',
-                   #defaultanalysis,
-                   filterpage)#,
-         #nav_panel("Default",value='defaulttab',
-         #          defaultanalysis)
-         ),
 ## Group 3 # Process from raw  --------  
 nav_menu("Trait Data", 
   nav_panel("Assign ecological data",value='traittab',
             traitpage)
 ),
 ## Group 4 # Analysis --------  
+nav_menu("Filter", #filtering options 
+         nav_panel("Filter",value='filtertab',
+                   #defaultanalysis,
+                   filterpage)#,
+         #nav_panel("Default",value='defaulttab',
+         #          defaultanalysis)
+),
 nav_menu(title="Analysis",
          nav_panel("At a Glance",value="basicstab",
                    descriptivepage),
