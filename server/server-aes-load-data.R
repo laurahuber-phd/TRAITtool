@@ -142,19 +142,27 @@ isgood <- reactive({
   } else {"Everything is great"}
 }) %>% bindEvent(input$Metadata,input$taxtab,input$otutab,ignoreNULL=FALSE)  
 
-ps.all <- eventReactive(c(input$assemble_ps,input$load_ex), {
+ps.all <- eventReactive(c(input$assemble_ps,input$load_ex,input$go_addtroph), {
   
   ps.all <- ps.sub <- ps.norm <- NULL 
   Meta_vars <- rnames <- NULL 
   
   runif(input$assemble_ps)
   runif(input$load_ex)
+  
   req(MetadataTable$x)
   req(OTUTable$x)
   req(TaxTable$x)
   
+  if(input$go_addtroph && !is.null(traits_tab$x)) {
+    new.tax <- traits_tab$x
+  } else {
+    new.tax <- TaxTable$x
+  }
+  
   all <- tryCatch(assemble_ps(otu=OTUTable$x, # build the phyloseq object
-                       tax=TaxTable$x,
+                       #tax=TaxTable$x,
+                       tax=new.tax,
                        meta=MetadataTable$x
   ), 
            error=function(e){return(NULL)})
@@ -186,7 +194,11 @@ observeEvent(MetadataTable$x, {
   }
 }, ignoreNULL = FALSE)
 
-observeEvent(c(input$assemble_ps,input$load_ex),{
+observeEvent(c(input$assemble_ps,input$load_ex,input$go_addtroph),{
+  #ps.all() <- NULL
+  #ps.sub() <- NULL
+  #ps.norm() <- NULL
+  #Meta_vars() <- rnames() <- NULL
   shinyjs::hide("def_prune")
   shinyjs::hide("def_plotrank")
   shinyjs::hide("def_plotrich")

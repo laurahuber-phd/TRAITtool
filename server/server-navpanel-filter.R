@@ -337,7 +337,8 @@ ps.sub <- reactive({
                  input$go_tax, #update ps when 'go' is clicked to subset taxa 
                  
                  input$assemble_ps, #update ps when assemble is clicked
-                 input$load_ex #update ps when example data is loaded 
+                 input$load_ex, #update ps when example data is loaded 
+                 input$go_addtroph #update ps when adding trait data
                  )
 
 ps.norm <- reactive({
