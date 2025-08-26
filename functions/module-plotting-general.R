@@ -138,19 +138,33 @@ plotControlsServer <- function(id,df,var1=NULL,var2=NULL,var3=NULL,var4=NULL) {
       updateSelectizeInput(session,
                            "facet", #use column names as fill options
                            choices=var4)
-    }) %>% bindEvent(var1,var2,var3,var4,df)
+    }) #%>% bindEvent(var1,var2,var3,var4,df)
+
+    faceting <- reactiveVal(NULL)
+    
+    observeEvent(input$facet, {
+      faceting(
+        if (length(input$facet)==1) {
+          facet_wrap(~.data[[input$facet]],scales="free_x") 
+        } else if (length(input$facet)==2) {
+          facet_grid(rows=vars(.data[[input$facet[1]]]),
+                     cols= vars(.data[[input$facet[2]]]),
+                     scales="free") 
+        } else { NULL } 
+      )
+    })
 
     
-    faceting <- reactive({
-      if (length(input$facet)==1) {
-        facet_wrap(~.data[[input$facet]],scales="free_x") 
-      } else if (length(input$facet)==2) {
-        facet_grid(rows=vars(.data[[input$facet[1]]]),
-                   cols= vars(.data[[input$facet[2]]]),
-                   scales="free") 
-      } else { NULL } 
-    }) %>% bindEvent(input$facet,
-                     ignoreNULL=FALSE)
+    #faceting <- reactive({
+    #  if (length(input$facet)==1) {
+    #    facet_wrap(~.data[[input$facet]],scales="free_x") 
+    #  } else if (length(input$facet)==2) {
+    #    facet_grid(rows=vars(.data[[input$facet[1]]]),
+    #               cols= vars(.data[[input$facet[2]]]),
+    #               scales="free") 
+    #  } else { NULL } 
+    #}) %>% bindEvent(input$facet,
+    #                 ignoreNULL=FALSE)
 
     return(list(
       color = reactive(input$choose_color),

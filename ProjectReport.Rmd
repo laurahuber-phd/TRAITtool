@@ -1,5 +1,6 @@
 ---
-title: "Dynamic Report"
+title: "TRAIT Report"
+subtitle: "Trophic Rapid Assessment and Integration Tool"
 output: 
   pdf_document: default  
   html_document: default   

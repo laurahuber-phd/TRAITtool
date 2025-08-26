@@ -144,5 +144,3 @@ output$ord_plotdwnld <- output$ord_plotdwnld_popup <-  downloadHandler(
     ggsave(file,plot=ordplot()
     )
   }) 
-output$psog <- renderPrint({ps.all()})
-output$pstext <- renderPrint({ps.norm()})

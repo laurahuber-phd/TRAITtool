@@ -13,9 +13,9 @@ violinplot_general <- plotControlsServer(id="violin_gen",
                                         var4=Meta_vars(), #facet
                                         #var1=Meta_vars(), #color
                                         #var2=Meta_vars(), #x
-                                        var3=(ps.norm.melt() %>% select(contains("Troph")) %>% colnames() )#, #y
+                                        var3=(ps.norm.melt() %>% select(contains("roph")) %>% colnames() )#, #y
                                         #var4=Meta_vars() #facet
-) 
+) %>% bindEvent(ps.norm.melt())
 
 violin_base <- reactive({
   req(ps.norm())

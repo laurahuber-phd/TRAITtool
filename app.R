@@ -21,6 +21,7 @@ library(markdown)
 library(rmarkdown)
 library(stringr)
 library(shinyjs)
+library(rfishbase)
 
 #
 # Specify the application port
@@ -44,6 +45,7 @@ source('ui/ui-navpanel-upload.R')
 source('ui/ui-navpanel-review.R')
 source('ui/ui-navpanel-filter.R')
 source('ui/ui-defaultanalysis.R')
+source('ui/ui-navpanel-trait.R')
 source('ui/ui-navpanel-descriptivestats.R')
 source('ui/ui-navpanel-analysis.R')
 source('ui/ui-navpanel-report.R')
@@ -57,14 +59,15 @@ ui <- page_navbar(id="pages",
                   theme=bs_theme(bootswatch='lux'),
                   tags$head(
                     tags$style(HTML("
-                    table {
+                    tr, td {
                     padding: 0px;
-                    cellpadding: 0px;
-                    cellspacing: 0px; 
-                    border-collapse: separate;
-                    border-spacing: 0px;
-                    margin-bottom: 0px;
-                    margin-top: 0px;
+                    height: 0px;
+                    border-spacing: -2px;
+                    margin: 0px;
+                    white-space: nowrap;
+                    }
+                    p {
+                    margin: 0px;
                     }
                       [data-bs-theme=light] .accordion {
                       --bs-accordion-btn-color: #0c3e53;
@@ -150,23 +153,19 @@ nav_menu("Files",
          nav_panel("Review",value="reviewtab",
                    reviewpage)
          ),
+## Group 3 # Process from raw  --------  
+nav_menu("Trait Data", 
+  nav_panel("Assign ecological data",value='traittab',
+            traitpage)
+),
+## Group 4 # Analysis --------  
 nav_menu("Filter", #filtering options 
          nav_panel("Filter",value='filtertab',
                    #defaultanalysis,
                    filterpage)#,
          #nav_panel("Default",value='defaulttab',
          #          defaultanalysis)
-         ),
-## Group 3 # Process from raw  --------  
-nav_menu("From Scratch",
-         nav_panel("Demultiplex and Quality Control"#,qcpanel
-         ),
-         nav_panel("Build Sequence Table"#,assignasvpanel
-         ),
-         nav_panel("Assign Taxonomy"#,assigntaxapanel
-         )
 ),
-## Group 4 # Analysis --------  
 nav_menu(title="Analysis",
          nav_panel("At a Glance",value="basicstab",
                    descriptivepage),
@@ -180,7 +179,13 @@ nav_menu("Info",
          nav_panel("Help",value='helptab',
                    helppage),
          nav_panel("Settings",value='settingstab',
-                   settingspage)
+                   settingspage),
+         nav_panel("Demultiplex and Quality Control"#,qcpanel
+         ),
+         nav_panel("Build Sequence Table"#,assignasvpanel
+         ),
+         nav_panel("Assign Taxonomy"#,assigntaxapanel
+         )
          ),
 nav_panel(title=bs_icon("printer-fill",size="2em"), value='reporttab',
           reportpage)
@@ -215,6 +220,7 @@ source('server/server-navpanel-filter.R',local=TRUE)
   output$selected_HabitatType <- renderText({ 
     paste('Selected habitat type: ',input$HabitatType)  # return the values selected from the checkboxes
   }) 
+source('server/server-navpanel-trait.R',local=TRUE)
 # --- # Descriptive Stats Page  # --------  
  source('server/server-navpanel-descriptivestats.R',local=TRUE)
 ## --- # Analysis Page # --------  

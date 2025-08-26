@@ -1,13 +1,14 @@
 source("functions/function-buildps.R")
 
-MetadataTable <- reactiveValues(x=NULL,og=NULL)
-observeEvent(input$Metadata, {
-  MetadataTable$x <- NULL
+###################### UPLOAD METADATA ######################
+MetadataTable <- reactiveValues(x=NULL,og=NULL) #start with an empty reactiveValues 
+observeEvent(input$Metadata, { #when a file is uploaded
+  MetadataTable$x <- NULL #reset the values to null 
   MetadataTable$og <- NULL
 })
 observe({
   req(input$Metadata) 
-  hideFeedback('Metadata')
+  hideFeedback('Metadata') 
   metfile <- uploadFunction(file=input$Metadata,
                             id="Metadata",
                             type="meta",
@@ -17,6 +18,7 @@ observe({
   MetadataTable$og <- metfile
 }) %>% bindEvent(input$Metadata,input$meta_sep,input$meta_header)
 
+###################### UPLOAD FEATURE TABLE ######################
 OTUTable <- reactiveValues(x=NULL,og=NULL)
 observeEvent(input$otutab, {
   OTUTable$x <- NULL
@@ -36,30 +38,53 @@ observe({ #upload the OTU file
 
 output$otucomplete <- renderText({
   req(input$otutab)
-  if(is.null(OTUTable$x)) {
+  if(is.null(OTUTable$x)) { #error message if OTU table isn't uploaded
     paste("uploaded file is not an otu table")
   } else {
     paste("table uploaded")
   }
 })
-#
+
+###################### UPLOAD TAXONOMY ######################
+countSpaces <- function(s) { sapply(gregexpr(" ", s), function(p) { sum(p>=0) } ) }
+
 TaxTable <- reactiveValues(x=NULL,og=NULL)  
 observeEvent(input$taxtab, {
   TaxTable$x <- NULL
   TaxTable$og <- NULL
 })
+
 observe({ #upload the taxonomy file
   req(input$taxtab)
   hideFeedback("taxtab")
-  taxfile <- uploadFunction(file=input$taxtab,
+  taxfile_upld <- uploadFunction(file=input$taxtab,
                             id='taxtab',
                             type="tax",
                             sep=input$tax_sep,
                             header=input$tax_header)
-  #taxfile <- taxfile %>% replace(is.na(.),"Not assigned")
+  
+  taxfile <- taxfile_upld %>% rename_with(str_to_title) #make column names title case
+  
+  check <- taxfile %>% 
+    filter(!is.na(Species)) %>% .[1:10,] %>% .$Species %>% #just look at a subset of the species assignments
+    countSpaces(.) #will return a vector of the number of spaces in each 
+  
+  
+  if(is.na(range(check)[2]) ) { #we then look at the range of values; if the highest number is 0 
+    taxfile <- taxfile
+  } else 
+  if(range(check)[2] < 1) { #we then look at the range of values; if the highest number is 0 
+    taxfile <- taxfile %>% 
+      mutate(Species=case_when(!is.na(Species) ~ paste0(Genus," ",Species), #remake the species column to genus-species
+                                                    .default=NA))
+  } else {
+    taxfile <- taxfile
+  }
+  
   TaxTable$x <- taxfile
-  TaxTable$og <- taxfile
+  TaxTable$og <- taxfile_upld
 }) %>% bindEvent(input$taxtab,input$tax_sep,input$tax_header)
+
 output$taxcomplete <- renderText({
   req(input$taxtab)
   if(is.null(TaxTable$x)) {
@@ -68,6 +93,8 @@ output$taxcomplete <- renderText({
     paste("table uploaded")
   }
 })
+
+###################### USING EXAMPLE DATA ######################
 observeEvent(input$load_ex, {
   MetadataTable$x <- NULL #reset to null every time input$load_ex is clicked
   MetadataTable$og <- NULL
@@ -81,7 +108,6 @@ observeEvent(input$load_ex, {
                           trim_ws=TRUE,
                           na = c("",".","NA","NULL","Unassigned","unassigned")
   )
- #metfile <- metfile  %>% replace(is.na(.),"Not assigned")
   MetadataTable$og <- MetadataTable$x <- metfile
   
   otufile <- vroom::vroom('data/otu_table.csv',delim=',',
@@ -89,16 +115,19 @@ observeEvent(input$load_ex, {
                           trim_ws=TRUE,
                           na = c("",".","NA","NULL","Unassigned","unassigned")
   )
-  #otufile <- otufile  %>% replace(is.na(.),"Not assigned")
   OTUTable$og <- OTUTable$x <- otufile
   
-  taxfile <- vroom::vroom('data/tax_table.csv',delim=',',
+  taxfile_upld <- vroom::vroom('data/tax_table.csv',delim=',',
                           show_col_types = FALSE,
                           trim_ws=TRUE,
                           na = c("",".","NA","NULL","Unassigned","unassigned")
   )
-  #taxfile <- taxfile  %>% replace(is.na(.),"Not assigned")
-  TaxTable$og <- TaxTable$x <- taxfile
+  taxfile <- taxfile_upld %>% rename_with(str_to_title) %>% #change column names to sentence case 
+      mutate(Species=case_when(!is.na(Species) ~ paste0(Genus," ",Species), #remake the species column to genus-species
+                               .default=NA))
+  TaxTable$x <- taxfile
+  TaxTable$og <- taxfile_upld
+
 })
 
 
@@ -113,19 +142,28 @@ isgood <- reactive({
   } else {"Everything is great"}
 }) %>% bindEvent(input$Metadata,input$taxtab,input$otutab,ignoreNULL=FALSE)  
 
-ps.all <- eventReactive(c(input$assemble_ps,input$load_ex), {
+ps.all <- eventReactive(c(input$assemble_ps,input$load_ex,input$go_addtroph), {
   
   ps.all <- ps.sub <- ps.norm <- NULL 
   Meta_vars <- rnames <- NULL 
   
   runif(input$assemble_ps)
   runif(input$load_ex)
+  runif(input$go_addtroph)
+  
   req(MetadataTable$x)
   req(OTUTable$x)
   req(TaxTable$x)
   
+  if(input$go_addtroph && !is.null(traits_tab$x)) {
+    new.tax <- traits_tab$x
+  } else {
+    new.tax <- TaxTable$x
+  }
+  
   all <- tryCatch(assemble_ps(otu=OTUTable$x, # build the phyloseq object
-                       tax=TaxTable$x,
+                       #tax=TaxTable$x,
+                       tax=new.tax,
                        meta=MetadataTable$x
   ), 
            error=function(e){return(NULL)})
@@ -141,6 +179,8 @@ ps.all <- eventReactive(c(input$assemble_ps,input$load_ex), {
 observeEvent(ps.all(),{
   req(ps.all())
   updateActionButton(session,"defaultgo",disabled=FALSE)
+  
+  if(input$go_addtroph && !is.null(traits_tab$x)) {shinyjs::show("trait_ps_success")}
 })
 
 checking <- reactiveValues()
@@ -157,7 +197,11 @@ observeEvent(MetadataTable$x, {
   }
 }, ignoreNULL = FALSE)
 
-observeEvent(c(input$assemble_ps,input$load_ex),{
+observeEvent(c(input$assemble_ps,input$load_ex,input$go_addtroph),{
+  #ps.all() <- NULL
+  #ps.sub() <- NULL
+  #ps.norm() <- NULL
+  #Meta_vars() <- rnames() <- NULL
   shinyjs::hide("def_prune")
   shinyjs::hide("def_plotrank")
   shinyjs::hide("def_plotrich")
