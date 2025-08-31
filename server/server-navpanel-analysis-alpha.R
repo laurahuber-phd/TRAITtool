@@ -39,6 +39,11 @@ output$rich_plotdwnld <- output$rich_plotdwnld_popup <-  downloadHandler(
     )
   }) 
 
+#histoplot_pretty <- reactiveVal(NULL)
+#histoplot_size <- reactiveVal(NULL)
+#histoplot_general <- reactiveValues(color=NULL,x=NULL,y=NULL,facet=NULL)
+
+#observeEvent(ps.norm(), {
 histoplot_pretty  <- plotPrettyServer(id="histo_pretty")
 histoplot_size <- plotSizeServer(id="histo_size") 
 histoplot_general <- plotControlsServer(id="histo_gen",
@@ -48,6 +53,7 @@ histoplot_general <- plotControlsServer(id="histo_gen",
                    var3=Meta_vars(), #y
                    var4=Meta_vars() #facet
                    )
+#})
 
 histo_base <- reactive({
   req(ps.norm())

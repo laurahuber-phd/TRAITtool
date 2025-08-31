@@ -123,11 +123,10 @@ plotControlsServer <- function(id,df,var1=NULL,var2=NULL,var3=NULL,var4=NULL) {
     #                                       y=NULL,
     #                                       facet=NULL)
     
-    observe({ 
+    observeEvent(df,{ 
       req(df)
       updateSelectInput(session,
                         "choose_color", #response=return column names as color choice options
-
                         choices=var1)
       updateSelectInput(session,
                         "choose_x", #use column names as fill options

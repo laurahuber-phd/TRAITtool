@@ -19,8 +19,13 @@ Meta_vars <- reactive({ #read the metadata file and identify the variable names
                  #MetadataTable$x
 )
 
-rnames <- reactive({ #read the metadata file and identify the variable names 
-  #req(input$Metadata)
+#rnames <- reactiveVal(NULL)
+#observeEvent(ps.all(),{
+#  req(ps.all())
+#  rnames <- rank_names(ps.norm())
+#})
+
+rnames <- reactive({ 
   return(rank_names(ps.norm()))
 }) %>% bindEvent(ps.norm(),ps.all() )
 

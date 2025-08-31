@@ -26,17 +26,6 @@ Review_TaxCard <- card(
 
 #############################################################################################################
 reviewpage <- nav_panel("Review",
-                        tags$style(HTML("
-                      #meta_table table {
-                    font-size: 1.25vw;
-                    }
-                      #otu_table table {
-                    font-size: 1.25vw;
-                    }
-                      #tax_table table {
-                    font-size: 1.24vw;
-                      }
-                      ")),
                         shinyFeedback::useShinyFeedback(),
                         layout_column_wrap(
                           width=1/2,fill=TRUE,
