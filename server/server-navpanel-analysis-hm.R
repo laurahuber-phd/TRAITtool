@@ -7,10 +7,10 @@ hmplot_pretty  <- plotPrettyServer(id="hm_pretty")
 hmplot_size <- plotSizeServer(id="hm_size") 
 hmplot_general <- plotControlsServer(id="hm_gen",
                                         df=ps.norm(),
-                                     var1=rnames(), #color
-                                     var2=Meta_vars(), #x
-                                     var3=Meta_vars(), #y
-                                     var4=Meta_vars() #facet
+                                     var1=rnames, #color
+                                     var2=Meta_vars, #x
+                                     var3=Meta_vars, #y
+                                     var4=Meta_vars #facet
 )
 
 hm_base <- reactive({
