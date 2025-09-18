@@ -6,11 +6,12 @@ source('server/server-aes-vis.R',local=TRUE) #base theme for ggplot2
 
 
 observe({ #whenever ps.norm() changes 
+  req(ps.all())
   updatePickerInput(inputId = 'basics_ranks', 
                     label = 'Taxonomic Rank', 
                     choices = c(rnames())
   ) #update picker selection using the rank names of the ps object
-}) %>% bindEvent(ps.norm())   
+}) #%>% bindEvent(ps.norm())   
 
 # ---- # Tab 1 (Sequences per sample) # ----- 
 N_sample_df <- reactive({
