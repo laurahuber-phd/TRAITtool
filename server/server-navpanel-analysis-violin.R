@@ -6,7 +6,7 @@ library(shinycssloaders)
 violinplot_pretty  <- plotPrettyServer(id="violin_pretty")
 violinplot_size <- plotSizeServer(id="violin_size") 
 violinplot_general <- plotControlsServer(id="violin_gen",
-                                        df=ps.norm.melt(),
+                                        df=ps.norm.melt,
                                         var1=rnames, #color
                                         var2=Meta_vars, #x
                                         #var3=Meta_vars(), #y
