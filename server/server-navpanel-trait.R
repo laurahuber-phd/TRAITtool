@@ -177,8 +177,8 @@ observeEvent(input$trait_assign, {
  # ~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~ # download trait table # ~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~  
 
 observe({
-  if(!is.null(traits_vals$fish.troph)) {shinyjs::show("loading_traittax")} #after traits are assigned show the progress on the next table
-  if(!is.null(traits_vals$invalid.nonfish.names)) {shinyjs::show("viewtrait_panel")} #show loading screen once invalid names list is complete
+  if(!is.null(traits_query$valid)) {shinyjs::show("loading_traittax")} #after traits are assigned show the progress on the next table
+  if(!is.null(traits_query$invalid)) {shinyjs::show("viewtrait_panel")} #show loading screen once invalid names list is complete
 })
 
 #observe(ps.all(), {

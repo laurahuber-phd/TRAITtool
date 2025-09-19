@@ -31,7 +31,7 @@ rnames <- reactive({
 
 ps.norm.melt <- reactive({
   req(ps.norm())
-  psmelt(ps.norm())
+  psmelt(ps.norm()) %>% filter(Abundance>0)
 }) %>% bindEvent(ps.norm(),ps.all())
 
 
