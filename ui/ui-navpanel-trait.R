@@ -9,14 +9,18 @@ Trait_TaxReviewCard <- card(#preview table that you are assigning trophic info t
 )
 
 Trait_TrophPullCard <- card(
-                 selectInput("trait_select",label="Select what taxa to look at:",
-                             choices=c("Fish","All species","None"),
-                             selected = "Fish" #default selection is only fish species (only FishBase)
+                 selectInput("trait_select",label="Select what database to query:",
+                             choices=c("Both","FishBase","SeaLifeBase"),
+                             selected = "Both" #default selection is all databases
                  ),
                  actionButton("trait_assign","Assign trophic level data"),
                  #withSpinner(id="trait_spinner",
                 #             ui_output=DTOutput("trait_summary")
                 #             )
+                hidden( p(id='p_fishquery',
+                         bs_icon("binoculars-fill",size='2em'),
+                         textOutput("n_fishquery"))
+                        )
 )
 
 Trait_TrophReviewCard <- hidden(card(id="trait_trophreview_card",
