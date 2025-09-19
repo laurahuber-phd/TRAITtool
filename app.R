@@ -40,7 +40,7 @@ source('functions/module-plotting-general.R',local=TRUE)
 source('ui/ui-aes-sidebar.R',local=TRUE)
 
 source('ui/ui-navpanel-intro.R')
-source('ui/ui-navpanel-assign.R')
+source('ui/ui-navpanel-preprocessing.R')
 source('ui/ui-navpanel-upload.R')
 source('ui/ui-navpanel-review.R')
 source('ui/ui-navpanel-filter.R')
