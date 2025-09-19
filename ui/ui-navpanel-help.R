@@ -1,19 +1,10 @@
 #outputs can be found on server-globalvars.R
 
-helppage <- nav_panel(
-  HTML("<h3>There are some requirements that your files must meet to be analyzed properly. Examine the example dataset below, which shows the results of an experiment that examines how the use of different primers and dilution impacts what species are identified in a mock community.</h3>"),
+helppage <- tagList(
+  h3("Settings"),
+  HTML("<p><strong>There are some requirements that your files must meet to be analyzed properly. Examine the example dataset below, which shows the results of an experiment that examines how the use of different primers and dilution impacts what species are identified in a mock community.</p></strong>"),
   br(),
-  "About the original dataset: ",
-       verbatimTextOutput('psog'),
   HTML("<p><i>This is the description of what is analyzed. Your OTU table connects the number of samples in the sequencing dataset with the number of sequences (referred to as taxa). Your sample data refers to the metadata file that was uploaded. It tells you how many samples there are and how many additional columns/variables were in the file. Finally, the tax table refers to how many unique sequences are in the dataset, and how many taxonomic ranks they are divided into. </i></p>"),
-  br(),
-  "About the subset dataset analyzed: ",
-  HTML("<p><i> (This may be the same as the original dataset if you did not choose to remove blanks or unassigned sequences.) </i></p>"),
-  verbatimTextOutput("pstext"),
-  HTML("<h5> These are the column names of the metadata file uploaded: </h5>"),
-  verbatimTextOutput("metavar_return"), #available metadata column names
-  HTML("<h5> These are the rank names in the taxonomy table: </h5>"),
-  verbatimTextOutput("rnames_return"), #available rank names
   br(),
   br(),
   card(

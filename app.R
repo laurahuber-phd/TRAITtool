@@ -51,6 +51,7 @@ source('ui/ui-navpanel-analysis.R')
 source('ui/ui-navpanel-report.R')
 source('ui/ui-navpanel-help.R')
 source('ui/ui-navpanel-settings.R')
+source('ui/ui-navpanel-about.R')
 
 # define UI --------  
 ui <- page_navbar(id="pages",
@@ -188,7 +189,10 @@ nav_menu("Info",
          ),
          nav_panel("Assign Taxonomy",value="infoassigntax",
                    assigntaxapanel
-         )
+         ),
+         nav_panel("About",value="intoabt",
+                   aboutpanel
+                   )
          ),
 nav_panel(title=bs_icon("printer-fill",size="2em"), value='reporttab',
           reportpage)
@@ -215,16 +219,7 @@ source('server/server-navpanel-review.R',local=TRUE)
 # --- # Filter Page # --------
 source('server/server-navpanel-filter.R',local=TRUE)  
   source('server/server-defaultanalysis.R',local=TRUE)
-  # --- # Page 2 # --------
-  output$selected_Quality <- renderText({ 
-    paste('Selected stringency: ',input$Quality)  # return the values selected from the checkboxes
-    }) 
-  output$selected_Location <- renderText({ 
-    paste('Selected location: ',input$Location)  # return the values selected from the checkboxes
-  }) 
-  output$selected_HabitatType <- renderText({ 
-    paste('Selected habitat type: ',input$HabitatType)  # return the values selected from the checkboxes
-  }) 
+  # --- # Trait Page # --------
 source('server/server-navpanel-trait.R',local=TRUE)
 # --- # Descriptive Stats Page  # --------  
  source('server/server-navpanel-descriptivestats.R',local=TRUE)
