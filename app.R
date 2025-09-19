@@ -138,7 +138,7 @@ ui <- page_navbar(id="pages",
   ),
 ## Group 1 # Starting information  --------  
   nav_menu(title=div(class="title",
-                     img(src="MCL_SERC.png", 
+                     img(src="smiths_logo.png", 
                          height=40, width=40, 
                          align = "left",
                          style="margin-bottom:5px; margin-left:1px;margin-top:1px;margin-right:1px;"
