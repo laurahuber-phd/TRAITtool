@@ -60,8 +60,13 @@ titlepage <- tagList(
                       )
                  ),
   HTML("<p style='text-align:center;margin-bottom:1px'><i>Marine Conservation Lab: Smithsonian Environmental Research Center</i></p>"),
+  br(),
 tags$footer(style="display: flex;justify-content: space-between;",
-            tags$img(src='smiths_logo.png',height='25px',
-                          alt="Smithsonian sun logo"),
-            HTML("<small><i>Developed with the generous support of the William H. Donner Foundation</i></small>"))
+            tags$img(src='smiths_logoLong.png',height='40px',
+                     alt="Smithsonian sun logo"),
+            HTML("<small><i>Developed with the generous support of our sponsors and collaborators</i></small>"),
+            tags$img(#src='ShinyFooter.png',
+                     src='titlefooter.png',
+                     height='30px',
+                     alt="William H. Donner Foundation and Smithsonian Women's Committee logos"))
 )

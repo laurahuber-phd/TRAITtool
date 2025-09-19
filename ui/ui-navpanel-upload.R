@@ -192,6 +192,13 @@ uploadpage <- nav_panel("Files",
             width=1/2,fill=TRUE,
             actionButton("bfileupload_prevpage","Previous page",width='100%'),
             actionButton("bfileupload_nextpage_v2","Next step",width='100%')
-          )
+          ),
+          tags$footer(style="display: flex;justify-content: space-between;",
+                      tags$img(src='smiths_logoLong.png',height='40px',
+                               alt="Smithsonian sun logo"),
+                      tags$img(#src='ShinyFooter.png',
+                        src='titlefooter.png',
+                        height='30px',
+                        alt="William H. Donner Foundation and Smithsonian Women's Committee logos"))
 )
 ##########################################################################################
