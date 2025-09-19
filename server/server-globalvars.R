@@ -35,9 +35,3 @@ ps.norm.melt <- reactive({
 }) %>% bindEvent(ps.norm(),ps.all())
 
 
-
-
-output$psog <- renderPrint({ps.all()})
-output$pstext <- renderPrint({ps.norm()})
-output$rnames_return <- renderPrint({rnames()})
-output$metavar_return <- renderPrint({Meta_vars()})

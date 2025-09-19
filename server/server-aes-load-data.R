@@ -141,6 +141,27 @@ isgood <- reactive({
     "Taxonomy are not in correct format or the wrong files are uploaded"
   } else {"Everything is great"}
 }) %>% bindEvent(input$Metadata,input$taxtab,input$otutab,ignoreNULL=FALSE)  
+ps.og <- eventReactive(c(input$assemble_ps,input$load_ex),{
+  
+  runif(input$assemble_ps)
+  runif(input$load_ex)
+  runif(input$go_addtroph)
+  
+  req(MetadataTable$x)
+  req(OTUTable$x)
+  req(TaxTable$x)
+  
+  all <- tryCatch(assemble_ps(otu=OTUTable$x, # build the phyloseq object
+                              tax=TaxTable$x,
+                              #tax=new.tax,
+                              meta=MetadataTable$x
+  ), error=function(e){return(NULL)})
+  if(isTruthy(all)) {
+    all
+  } else {
+    return("Dataset not assembled")
+  }
+})
 
 ps.all <- eventReactive(c(input$assemble_ps,input$load_ex,input$go_addtroph), {
   
