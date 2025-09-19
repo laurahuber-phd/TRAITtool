@@ -180,11 +180,14 @@ nav_menu("Info",
                    helppage),
          nav_panel("Settings",value='settingstab',
                    settingspage),
-         nav_panel("Demultiplex and Quality Control"#,qcpanel
+         nav_panel("Demultiplex and Quality Control",value="infodemux",
+                   qcpanel
          ),
-         nav_panel("Build Sequence Table"#,assignasvpanel
+         nav_panel("Build Sequence Table",value="infoassignseq",
+                   assignasvpanel
          ),
-         nav_panel("Assign Taxonomy"#,assigntaxapanel
+         nav_panel("Assign Taxonomy",value="infoassigntax",
+                   assigntaxapanel
          )
          ),
 nav_panel(title=bs_icon("printer-fill",size="2em"), value='reporttab',
@@ -194,6 +197,7 @@ nav_panel(title=bs_icon("printer-fill",size="2em"), value='reporttab',
 server <- function(input,output,session) {
   source('server/server-globalvars.R',local=TRUE)
   source('server/server-navpanel-settings.R',local=TRUE)
+  #source('server/server-navpanel-preprocessing.R',local=TRUE)
 # --- # Overall themes # --------
 #observe(session$setCurrentTheme(
 #  if(isTRUE(input$dark_mode)) dark else light

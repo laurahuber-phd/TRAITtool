@@ -64,7 +64,7 @@ QFilterCard <- card(
               selected = "Any")
 )
 Files_ScratchCard <- tagList(
-  p("Start here if you have raw sequencing data. You will need the files from the sequencing facility, usually in FASTQ or .fqz format, a tabular file that contains the indexing barcode sequences attached to each sample, and a metadata file (which you should have uploaded above).",
+  p("Start here if you have raw sequencing data. You will need the files from the sequencing facility, usually in FASTQ or .fqz format, a tabular file that contains the indexing barcode sequences attached to each sample, and a metadata file.",
   ),
   br(),
   layout_column_wrap(
@@ -107,7 +107,8 @@ uploadpage <- nav_panel("Files",
             actionButton("fileupload_nextpage_v2","Next step",width='100%')
             ),
           br(),
-          HTML("<h4 style='text-align:center;'>Select the option that fits your data best: </h4>"),
+          HTML("<h4 style='text-align:center;'>Select the option that fits your data best: </h4> <p>We have provided a few options for you to work through your data, depending on what state the data are currently in. Click the buttons on the left to decide which is best for you.</p> <p><em>To work through a demonstration, click the last button and load the example dataset. </em></p>"),
+          br(),
           layout_columns(col_widths=c(4,8),
                          radioGroupButtons(inputId = "selectupload", 
                                            width='100%', individual=TRUE,
@@ -120,28 +121,53 @@ uploadpage <- nav_panel("Files",
                                            direction = 'vertical',
                                            selected=NULL
                          ),
+                         
                          card(
                            conditionalPanel(condition="input.selectupload == 'choose_raw'",
-                                            p("Start here if you have raw sequencing data. You will need the files from the sequencing facility, usually in FASTQ or .fqz format, a tabular file that contains the indexing barcode sequences attached to each sample, and a metadata file (which you should have uploaded above).",
+                                            p("Start here if you have raw sequencing data. You will need the files from the sequencing facility, usually in FASTQ or .fqz format, a tabular file that contains the indexing barcode sequences attached to each sample, and a metadata file.",
                                             ),
                                             br(),
-                                            Files_RawCard
+                                            h4("Go to the Info tab and review the following:"),
+                                            actionBttn("view_infodemux",
+                                                       label="Demultiplex and Quality Control",
+                                                       style="stretch",
+                                                       color="primary",
+                                                       block=TRUE),
+                                            actionBttn("view_infoseq",
+                                                       label="Build Sequence Table",
+                                                       style="stretch",
+                                                       color="primary",
+                                                       block=TRUE),
+                                            actionBttn("view_infotax2",
+                                                       label="Assign Taxonomy",
+                                                       style="stretch",
+                                                       color="primary",
+                                                       block=TRUE)
+                                            #Files_RawCard
                                             #Files_ScratchCard #card directing to raw fastq files
                                             ),
                            conditionalPanel(condition="input.selectupload == 'choose_partial'",
-                                            p("Use this option if you have distilled your sequence data into a single sequence table, but you still need to assign taxonomy to your sequences. You can do so here using one of our databases. "),
+                                            p("Use this option if you have distilled your sequence data into a single sequence table, but you still need to assign taxonomy to your sequences. "),
                                             br(),
+                                            h4("Go to the Info tab and review the following:"),
+                                            actionBttn("view_infotax",
+                                                       label="Assign Taxonomy",
+                                                       style="stretch",
+                                                       color="primary",
+                                                       block=TRUE)
                            ),
-                           conditionalPanel(condition="input.selectupload == 'choose_partial' | input.selectupload == 'choose_analysis' ",
+                           conditionalPanel(condition="input.selectupload == 'choose_analysis' ",
+                                            #condition="input.selectupload == 'choose_partial' | input.selectupload == 'choose_analysis' ",
                                             Card_OTU
                            ),
-                           conditionalPanel(condition="input.selectupload == 'choose_raw' | input.selectupload == 'choose_partial' ",
-                                            QFilterCard
-                           ),
+                           #conditionalPanel(condition="input.selectupload == 'choose_raw' | input.selectupload == 'choose_partial' ",
+                           #                 QFilterCard
+                           #),
                            conditionalPanel(condition="input.selectupload == 'choose_analysis' ",
                                             Card_TAX
                            ),
-                           conditionalPanel(condition="input.selectupload != 'choose_ex'",
+                           conditionalPanel(condition="input.selectupload == 'choose_analysis' ",
+                                            #condition="input.selectupload != 'choose_ex'",
                                             p("Make sure to upload a metadata file before proceeding. At minimum, this should include some way to connect sample names in the sequencing data."),
                                             Files_MetadataCard,
                                             actionBttn("assemble_ps",
