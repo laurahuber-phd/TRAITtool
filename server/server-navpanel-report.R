@@ -209,3 +209,42 @@ observeEvent(input$view_report, {
   }) 
   
 })
+
+  output$norm_meltdwnld <- downloadHandler(
+    filename = function() {
+      paste("ShinyeDNA_fullDataset", ".csv", sep="")
+    },
+    content = function(file) {
+      write.csv(ps.norm.melt(),file)
+    }
+  )
+  
+  output$norm_taxdwnld <- downloadHandler(
+    filename = function() {
+      paste("ShinyeDNA_taxdataset", ".csv", sep="")
+    },
+    content = function(file) {
+      write.csv(as.data.frame(as.matrix(tax_table(ps.norm()))),
+                file)
+    }
+  )
+  
+  output$norm_asvdwnld <- downloadHandler(
+    filename = function() {
+      paste("ShinyeDNA_asvdataset", ".csv", sep="")
+    },
+    content = function(file) {
+      write.csv(as.data.frame(as.matrix(otu_table(ps.norm()))),
+                file)
+    }
+  )
+  
+  output$norm_metadwnld <- downloadHandler(
+    filename = function() {
+      paste("ShinyeDNA_metadataset", ".csv", sep="")
+    },
+    content = function(file) {
+      write.csv(as.data.frame(sample_data(ps.norm())),
+                file)
+    }
+  )

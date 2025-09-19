@@ -82,6 +82,13 @@ reportpage <- nav_panel(
                    br(),
                    shinyjs::hidden(wellPanel(id="viewfinalreport",htmlOutput('markdown')))
                    ),
+  h4("Download individual files used in the analysis"),
+  card(card_header("Files generated:"),
+       downloadButton('norm_meltdwnld', label="Full dataset:"),
+       downloadButton('norm_asvdwnld', label="Sequence table:"),
+       downloadButton('norm_metadwnld', label="Metadata table:"),
+       downloadButton('norm_taxdwnld', label="Taxonomy table:")
+       ),
   actionButton("breport_prevpage","Previous step",width='20%'),
   tags$footer(style="display: flex;justify-content: space-between;",
               tags$img(src='smiths_logoLong.png',height='40px',
