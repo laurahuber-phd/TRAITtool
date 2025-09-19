@@ -350,6 +350,7 @@ ps.norm <- reactive({
   if(input$normoptions=="tax_count") {psnorm <- subfunc(ps,TRANSFORM(ps,input$normoptions,abund_cutoff=input$abund_cutoff))}
   if(input$normoptions=="tax_rel") {psnorm <- subfunc(ps,TRANSFORM(ps,input$normoptions,mean_cutoff=input$mean_cutoff))}
   if(input$normoptions!="tax_count" && input$normoptions!="tax_rel") {psnorm <- subfunc(ps,TRANSFORM(ps,input$normoptions))}
+  if(input$normoptions=="none") {psnorm <- ps}
   
   if (!isTruthy(psnorm) && input$normoptions!="none") {
     showModal(

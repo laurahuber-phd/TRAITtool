@@ -6,16 +6,16 @@ library(shinycssloaders)
 violinplot_pretty  <- plotPrettyServer(id="violin_pretty")
 violinplot_size <- plotSizeServer(id="violin_size") 
 violinplot_general <- plotControlsServer(id="violin_gen",
-                                        df=ps.norm.melt(),
-                                        var1=rnames(), #color
-                                        var2=Meta_vars(), #x
+                                        df=ps.norm.melt,
+                                        var1=rnames, #color
+                                        var2=Meta_vars, #x
                                         #var3=Meta_vars(), #y
-                                        var4=Meta_vars(), #facet
+                                        var4=Meta_vars, #facet
                                         #var1=Meta_vars(), #color
                                         #var2=Meta_vars(), #x
-                                        var3=(ps.norm.melt() %>% select(contains("roph")) %>% colnames() )#, #y
+                                        var3=reactive(ps.norm.melt() %>% select(contains("roph")) %>% colnames() )#, #y
                                         #var4=Meta_vars() #facet
-) %>% bindEvent(ps.norm.melt())
+) 
 
 violin_base <- reactive({
   req(ps.norm())

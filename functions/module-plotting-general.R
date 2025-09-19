@@ -123,22 +123,38 @@ plotControlsServer <- function(id,df,var1=NULL,var2=NULL,var3=NULL,var4=NULL) {
     #                                       y=NULL,
     #                                       facet=NULL)
     
-    observe({ 
-      req(df)
+    #observeEvent(df,{ 
+    #  req(df)
+    observe({
+      req(!is.null(var1))
+      req(is.reactive(var1))
       updateSelectInput(session,
                         "choose_color", #response=return column names as color choice options
-
-                        choices=var1)
-      updateSelectInput(session,
+                        choices=var1())
+    })
+    observe({
+      req(!is.null(var2))
+      req(is.reactive(var2))
+        updateSelectInput(session,
                         "choose_x", #use column names as fill options
-                        choices=var2)
+                        choices=var2())
+    })
+    observe({     
+      req(!is.null(var3))
+      req(is.reactive(var3))
       updateSelectInput(session,
                         "choose_y", #use column names as fill options
-                        choices=var3)
+                        choices=var3())
+      })
+      observe({
+        req(!is.null(var4))
+        req(is.reactive(var4))
       updateSelectizeInput(session,
                            "facet", #use column names as fill options
-                           choices=var4)
-    }) #%>% bindEvent(var1,var2,var3,var4,df)
+                           choices=var4())
+      })
+      
+   # }) #%>% bindEvent(var1,var2,var3,var4,df)
 
     faceting <- reactiveVal(NULL)
     
