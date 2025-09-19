@@ -9,10 +9,14 @@ Trait_TaxReviewCard <- card(#preview table that you are assigning trophic info t
 )
 
 Trait_TrophPullCard <- card(
-                 selectInput("trait_select",label="Select what database to query:",
-                             choices=c("Both","FishBase","SeaLifeBase"),
-                             selected = "Both" #default selection is all databases
-                 ),
+  h5("Query information databases to source ecological information about the species in your dataset"),
+                 layout_columns(col_widths=c(4,8),
+                                selectInput("trait_select",label="Select what database to query:",
+                                            choices=c("Both","FishBase","SeaLifeBase"),
+                                            selected = "Both" #default selection is all databases
+                                ),
+                                HTML("<p><u>FishBase</u> collects and gathers information on the fishes of the world, including estimated trophic level, known habitat and distribution, and uses.</p> <p><u>SeaLifeBase</u> was developed as a similar database for non-fish marine species.</p> <p>Default query option is <u>Both</u>, which will query your species against both databases.</p>")
+                                ),
                  actionButton("trait_assign","Assign trophic level data"),
                  #withSpinner(id="trait_spinner",
                 #             ui_output=DTOutput("trait_summary")

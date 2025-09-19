@@ -13,12 +13,12 @@ traits_vals <- reactiveValues(x=NULL, #final data frame
                               taxa_traits_sub=NULL #final df used for ps
                               )  
 traits_tab <- reactiveValues(x=NULL)
-traits_query <- reactiveValues(serv=NULL,
-                        all=NULL, #all species
-                        choose=NULL,
-                        nona=NULL, #without na values 
-                        valid=NULL,
-                        invalid=NULL
+traits_query <- reactiveValues(serv=NULL, #database to query 
+                               choose=NULL, #list of species to query 
+                               nona=NULL, #list of species to query without na values 
+                               valid=NULL, #validated names from nona list
+                               invalid=NULL, #invalid names not queried
+                        all=NULL #all species? I think I'm not using this anymore but have not deleted yet
                              )
 
 observeEvent(input$trait_select, {
@@ -26,9 +26,6 @@ observeEvent(input$trait_select, {
   
   shinyjs::hide(id="trait_trophreview_card")
   shinyjs::hide(id="p_fishquery")
-  #shinyjs::hide(id="loading_traits")
-  #shinyjs::hide(id="viewtrait_panel")
-  #shinyjs::hide(id="loading_traittax")
   
   traits_query$serv <- switch(input$trait_select,
          "Both" = c("fishbase","sealifebase"),
@@ -61,10 +58,10 @@ observeEvent(input$trait_assign, {
                              "SeaLifeBase" = c(taxa_df %>% filter(!is.na(Species)) %>% .$Species %>% unique())
   )
   
-  if(length(traits_query$choose[!is.na(traits_query$choose)]) > 0) {
-    traits_query$nona <- traits_query$choose[!is.na(traits_query$choose)]
+  if(length(traits_query$choose[!is.na(traits_query$choose)]) > 0) { #number of species to query has to be more than 0
+    traits_query$nona <- traits_query$choose[!is.na(traits_query$choose)] 
     
-    shinyjs::show(id="p_fishquery")
+    shinyjs::show(id="p_fishquery") #report the number of species queried 
     output$n_fishquery <-  renderText({paste("Number of species queried: ",length(traits_query$nona))})
     
   } else {
