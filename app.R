@@ -51,7 +51,6 @@ source('ui/ui-navpanel-analysis.R')
 source('ui/ui-navpanel-report.R')
 source('ui/ui-navpanel-help.R')
 source('ui/ui-navpanel-settings.R')
-source('ui/ui-navpanel-preprocessing.R')
 
 # define UI --------  
 ui <- page_navbar(id="pages",
