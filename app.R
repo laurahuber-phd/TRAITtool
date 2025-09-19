@@ -193,6 +193,7 @@ nav_panel(title=bs_icon("printer-fill",size="2em"), value='reporttab',
 # define server logic -----
 server <- function(input,output,session) {
   source('server/server-globalvars.R',local=TRUE)
+  source('server/server-navpanel-settings.R',local=TRUE)
 # --- # Overall themes # --------
 #observe(session$setCurrentTheme(
 #  if(isTRUE(input$dark_mode)) dark else light
