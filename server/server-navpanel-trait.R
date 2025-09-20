@@ -241,7 +241,7 @@ showSpinner("trait_spinner_taxreview", {
               )
   })
   
-  output$not.names <- renderPrint(traits_vals$invalid.nonfish.names)
+  output$not.names <- renderPrint(traits_query$invalid)
 #  valid.nonfish.names
 
 
