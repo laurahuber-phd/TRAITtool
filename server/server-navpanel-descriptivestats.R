@@ -72,9 +72,29 @@ observe({
   Num_seq_subset$N_singleton = length(taxa_names(prune_taxa(taxa_sums(ps)==1,ps) #calculate total number of singleton sequences  
                                                  )) %>% round(digits=0)
 }) %>% 
-  bindEvent(#input$blank_cols,
-            #input$blank_samples,
-            ps.norm())
+  bindEvent(ps.norm())
+
+observe({
+  req(ps.norm())
+  ps <- ps.og()
+  
+  if(isTruthy(input$rem_blanks)) { #if the user has selected remove blanks, return 'NA' 
+    Num_seq_subset$N_seq_blanks <- NA } else { 
+    if(!is.null(input$blank_cols) & !is.null(input$blank_samples)) { 
+      if(input$blank_cols == "Sample") { #if the filtering parameter is sample id
+        blasam = sample_names(ps)
+        blarem = input$blank_samples #list of blank samples 
+        blakeep = blasam[blasam %in% blarem] #keep only blank samples
+      } else { #with any other filtering parameter
+        blacolvals = as.data.frame(as.matrix(sample_data(ps))) %>% select(input$blank_cols) #get sample_data of selected variable 
+        blakeep = row.names(blacolvals %>% filter(blacolvals[[1]] %in% input$blank_samples)) #list of sample names selected
+      }
+      if(!is.null(blakeep)) {psbla <- prune_samples(blakeep,ps)} 
+    }
+    
+    Num_seq_subset$N_seq_blanks <- if(!is.null(input$blank_cols) & !is.null(input$blank_samples)) {sum(taxa_sums(psbla))} else {0}
+    }
+})
 
 ## ---- ## Sidebar (Original dataset summary) ## ---- ##
 Summ_seqs <- reactive({
