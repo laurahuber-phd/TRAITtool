@@ -230,7 +230,7 @@ ps.sub <- reactive({
         blacolvals = as.data.frame(as.matrix(sample_data(ps))) %>% select(input$blank_cols) #get sample_data of selected variable 
         blakeep = row.names(blacolvals %>% filter(!blacolvals[[1]] %in% input$blank_samples)) #list of sample names EXCEPT for those selected
       }
-      ps <- prune_samples(blakeep,ps)
+      ps <- prune_samples(blakeep,ps) %>% prune_samples(sample_sums(.)>0,.) %>% prune_taxa(taxa_sums(.)>0,.)
       trackNums$remblank_aft <- as.character(nsamples(ps))
       trackNums$remblanktax_aft <- as.character(ntaxa(ps))
     }
@@ -305,7 +305,7 @@ ps.sub <- reactive({
       }
     }
     if (isTruthy(taxkeep)) {
-      ps <- prune_taxa(taxkeep,ps)
+      ps <- prune_taxa(taxkeep,ps) %>% prune_taxa(taxa_sums(.)>0,.)
     } else if (is.null(input$tax_select)) {
       ps <- ps
     } else { 
