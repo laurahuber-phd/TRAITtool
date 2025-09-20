@@ -15,7 +15,7 @@ Basics_NumCard <- navset_card_tab(
                                   textOutput("N_seq_assigned"),
                                   textOutput("N_seq_blanks")
                                   ),
-                  accordion_panel(title="OTU breakdown",
+                  accordion_panel(title="ASV breakdown",
                                   textOutput("N_otu_total"),
                                   textOutput("N_otu_assigned"),
                                   textOutput("N_otu_blanks")
@@ -53,7 +53,7 @@ Basics_NumCard <- navset_card_tab(
                               textOutput("N_sel_seq_total"),
                               textOutput("N_sel_seq_assigned"),
                               textOutput("N_sel_seq_blanks")),
-              accordion_panel(title="OTU breakdown",
+              accordion_panel(title="ASV breakdown",
                               textOutput("N_sel_otu_total"),
                               textOutput("N_sel_otu_assigned"),
                               textOutput("N_sel_otu_blanks"))

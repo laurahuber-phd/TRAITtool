@@ -31,16 +31,17 @@ N_taxa_tab <- reactive({
 }) %>% bindEvent(ps.norm())
 
 # ---- # Tab 3 (Sequence distribution/qualities) # ---- 
-## ---- ## Summary (min/max/avg) ## ---- 
+
+## ---- ## Subset summary ## ---- 
 Summ_seqs_sel <- reactive({
   req(ps.norm())
   ps <- ps.norm()
-  df <- data.frame(MinNoReads=min(sample_sums(ps)) %>% round(digits=0),
-                   MaxNoReads=max(sample_sums(ps)) %>% round(digits=0),
-                   AvgNoReads=mean(sample_sums(ps)) %>% round(digits=0),
+  df <- data.frame(MinNoReads=min(sample_sums(ps)) %>% round(digits=0), #what is the minimum number of sequences in a sample
+                   MaxNoReads=max(sample_sums(ps)) %>% round(digits=0), #what is the maximum 
+                   AvgNoReads=mean(sample_sums(ps)) %>% round(digits=0), #what is the average  
                    MedNoReads=median(sample_sums(ps)) %>% round(digits=0)
   )
-  df_pretty <- rename(df,  
+  df_pretty <- rename(df,  #then rename the dataframe 
                       "Minimum number of reads"=MinNoReads,
                       "Maximum number of reads"=MaxNoReads,
                       "Average number of reads"=AvgNoReads,
@@ -48,147 +49,76 @@ Summ_seqs_sel <- reactive({
   t(df_pretty)
 }) %>% bindEvent(ps.norm())
 
-## ---- ## Num sequences (in subset) ## ----
+# make empty reactive values variables to hold information about the subsetted dataset
 Num_seq_subset <- reactiveValues(
   N_seq_num = NULL, #total number of sequences
   N_seq_assigned = NULL,  #number of assigned sequences
   N_singleton = NULL, #number of singletons
   N_seq_blanks = NULL #number of seqs in blanks
 ) 
-
-observe({
-  req(ps.norm())
-  ps <- ps.norm()
-  
-  Num_seq_subset$N_seq_num = sum(taxa_sums(ps)) 
-  
-  Num_seq_subset$N_seq_assigned = tryCatch(sum(taxa_sums(subset_taxa(ps, rank_names(ps)[1]!="Not assigned" )
-                                                         )),
-                                           error=function(e){return(0)})
-  
-  #Num_seq_subset$N_singleton = length(taxa_names(prune_taxa(taxa_sums(ps)==1,ps)
-  #                                               )) %>% round(digits=0)
-  
- # Num_seq_subset$N_seq_blanks = if(is.null(input$blank_samples)) {return(0)} else 
- #   sum(taxa_sums(subset_blanks_rem(ps,input$blank_cols,input$blank_samples)))
-  
- # isolate({
-#    Num_seq_subset_list <- reactiveValuesToList(Num_seq_subset)
-#    Num_seq_subset_names <- c("Total number of sequences:","Number of assigned sequences:")#,"Number of sequences in blanks:")
-#    Num_seq_subset_df <- data.frame("Value"=Num_seq_subset_names,"Number"=Num_seq_subset_list)
-#  })
-  
-}) %>% 
-  bindEvent(input$blank_cols,
-            input$blank_samples,
-            ps.norm(), 
-            ignoreNULL=FALSE)
-
-## ---- ## Num ASVs ## ---- 
 Num_otu_subset <- reactiveValues(
-  N_otu_num = NULL, #number of OTUs
-  N_otu_assigned = NULL, #number of assigned OTUs 
-  N_otu_blanks = NULL #number of OTUs in blanks
+  N_otu_num = NULL, #number of ASVs
+  N_otu_assigned = NULL, #number of assigned ASVs 
+  N_otu_blanks = NULL #number of ASVs in blanks
 ) 
 
 observe({
   req(ps.norm())
   ps <- ps.norm()
   
-  Num_otu_subset$N_otu_num = ntaxa(ps)
+  Num_seq_subset$N_seq_num = sum(taxa_sums(ps)) #calculate total number of sequences  
+  Num_otu_subset$N_otu_num = ntaxa(ps) #calculate total number of ASVs
   
-  Num_otu_subset$N_otu_assigned = tryCatch(ntaxa(subset_taxa(ps, 
-                                              rank_names(ps)[1]!="Not assigned"
-                                              )),
-                                           error=function(e){return(0)})
-  
-  #Num_otu_subset$N_otu_blanks = if(is.null(input$blank_samples)) {return(0)} else 
-    #ntaxa(subset_blanks_rem(ps,input$blank_cols,input$blank_samples))
-  
-  #isolate({
-  #  Num_otu_subset_list <- reactiveValuesToList(Num_otu_subset)
-  #  Num_otu_subset_names <- c("Total number of ASVs:","Number of assigned ASVs:")#,"Number of ASVs in blanks:")
-  #  Num_otu_subset_df <- data.frame("Value"=Num_otu_subset_names,"Number"=Num_otu_subset_list)
-  #})
-  
+  Num_seq_subset$N_singleton = length(taxa_names(prune_taxa(taxa_sums(ps)==1,ps) #calculate total number of singleton sequences  
+                                                 )) %>% round(digits=0)
 }) %>% 
-  bindEvent(input$blank_cols,
-            input$blank_samples,
-            ps.norm(), 
-            ignoreNULL=FALSE)
+  bindEvent(#input$blank_cols,
+            #input$blank_samples,
+            ps.norm())
 
-# ---- # Sidebar (Original sequence distribution/qualities) # ----
-## ---- ## Summary ## ----
+## ---- ## Sidebar (Original dataset summary) ## ---- ##
 Summ_seqs <- reactive({
-  req(ps.all())
-  ps <- ps.all()
-  df <- data.frame(MinNoReads=min(sample_sums(ps)) %>% round(digits=0),
-                   MaxNoReads=max(sample_sums(ps)) %>% round(digits=0),
-                   AvgNoReads=mean(sample_sums(ps)) %>% round(digits=0),
+  req(ps.og())
+  ps <- ps.og()
+  df <- data.frame(MinNoReads=min(sample_sums(ps)) %>% round(digits=0), #what is the minimum number of sequences in a sample
+                   MaxNoReads=max(sample_sums(ps)) %>% round(digits=0), #what is the maximum 
+                   AvgNoReads=mean(sample_sums(ps)) %>% round(digits=0), #what is the average  
                    MedNoReads=median(sample_sums(ps)) %>% round(digits=0))
-  df_pretty <- df %>% rename(  
+  df_pretty <- df %>% rename(  #then rename the dataframe 
     "Minimum"=MinNoReads,
     "Maximum"=MaxNoReads,
     "Average"=AvgNoReads,
     "Median"=MedNoReads)
   t(df_pretty)
-}) %>% bindEvent(ps.all())
+}) %>% bindEvent(ps.og())
 
-## ---- ## Num seq ## ----
+# make empty reactive values variables to hold information about the subsetted dataset
 Num_seq_all <- reactiveValues(
   N_seq_num = NULL, #total number of sequences
   N_seq_assigned = NULL, #number of assigned sequences
   N_singleton = NULL, #number of singletons
   N_seq_blanks = NULL #number of seqs in blanks
 ) 
-
-observe({
-  req(ps.all())
-  ps <- ps.all()
-  
-  Num_seq_all$N_seq_num = sum(taxa_sums(ps)) 
-  
-  Num_seq_all$N_seq_assigned = tryCatch(sum(taxa_sums(subset_taxa(ps, 
-                                                      rank_names(ps)[1]!="Not assigned"
-                                                      ))), 
-                                        error=function(e){return(0)}) 
-  
-  #Num_seq_all$N_singleton = length(taxa_names(prune_taxa(taxa_sums(ps)==1, 
-  #                                           ps
-  #                                           ))) %>% round(digits=0)
-  
-  #Num_seq_all$N_seq_blanks = if(is.null(input$blank_samples)) {return(0)} else 
-  #  sum(taxa_sums(subset_blanks_rem(ps,input$blank_cols,input$blank_samples)))
-}) %>% 
-  bindEvent(input$blank_cols,
-            input$blank_samples,
-            ps.all(), 
-            ignoreNULL = FALSE) 
-
-## ---- ## Num ASV ## ---- 
 Num_otu_all <- reactiveValues(
-  N_otu_num = NULL, #number of OTUs
-  N_otu_assigned = NULL,  #number of assigned OTUs
-  N_otu_blanks = NULL #number of OTUs in blanks
+  N_otu_num = NULL, #number of ASVs
+  N_otu_assigned = NULL,  #number of assigned ASVs
+  N_otu_blanks = NULL #number of ASVs in blanks
 ) 
 
 observe({
-  req(ps.all())
-  ps <- ps.all()
+  req(ps.og())
+  ps <- ps.og()
   
-  Num_otu_all$N_otu_num = ntaxa(ps) 
+  Num_seq_all$N_seq_num = sum(taxa_sums(ps)) #calculate total number of sequences  
+  Num_otu_all$N_otu_num = ntaxa(ps) #calculate total number of ASVs
   
-  Num_otu_all$N_otu_assigned = tryCatch(ntaxa(subset_taxa(ps, 
-                                              rank_names(ps)[1]!="Not assigned")),
-                                        error=function(e){return(0)}) 
-  
-  #Num_otu_all$N_otu_blanks = if(is.null(input$blank_samples)) {return(0)} else 
-  #  ntaxa(subset_blanks_rem(ps,input$blank_cols,input$blank_samples))
+  Num_seq_all$N_singleton = length(taxa_names(prune_taxa(taxa_sums(ps)==1, #calculate the number of singletons 
+                                             ps
+                                             ))) %>% round(digits=0)
 }) %>% 
   bindEvent(input$blank_cols,
             input$blank_samples,
-            ps.all(), 
-            ignoreNULL=FALSE)
+            ps.og())
 
 # ---- Tax Info # ---- 
 rankperc_df <- reactive({
@@ -271,12 +201,11 @@ output$summ_seqs_sel <- renderTable({ Summ_seqs_sel() },
                                     digits=0,rownames=TRUE,colnames=FALSE,striped=TRUE)
 #### ---- #### Num sequences (in subset) #### ----
 output$N_sel_seq_total <- renderText({ paste("Total number of sequences:",Num_seq_subset$N_seq_num) })
-output$N_sel_seq_assigned <- renderText({ paste("Number of assigned sequences:", Num_seq_subset$N_seq_assigned) })
+output$N_sel_seq_assigned <- renderText({ paste("Number of singleton sequences:", Num_seq_subset$N_singleton) })
 output$N_sel_seq_blanks <- renderText({ paste("Number of sequences in blanks:",Num_seq_subset$N_seq_blanks) })
 #### ---- #### Num ASVs (in subset) #### ----
-output$N_sel_otu_total  <- renderText({ paste("Total number of OTUs:",Num_otu_subset$N_otu_num) })
-output$N_sel_otu_assigned <- renderText({ paste("Number of assigned OTUs:",Num_otu_subset$N_otu_assigned) })
-output$N_sel_otu_blanks <- renderText({ paste("Number of OTUs in blanks:",Num_otu_subset$N_otu_blanks) })
+output$N_sel_otu_total  <- renderText({ paste("Total number of ASVs:",Num_otu_subset$N_otu_num) })
+output$N_sel_otu_blanks <- renderText({ paste("Number of ASVs in blanks:",Num_otu_subset$N_otu_blanks) })
 
 ## ---- ## Sidebar ## ----
 #### ---- #### Summary (min/max/avg) #### ----
@@ -284,13 +213,11 @@ output$summ_seqs <- renderTable({ Summ_seqs() },
                                 digits=0,rownames=TRUE,colnames=FALSE,striped=TRUE)
 #### ---- #### Num sequences (in subset) #### ----
 output$N_seq_total <- renderText({ paste("Total number of sequences:",Num_seq_all$N_seq_num) })
-output$N_seq_assigned <- renderText({ paste("Number of assigned sequences:",Num_seq_all$N_seq_assigned) })
+output$N_seq_assigned <- renderText({ paste("Number of singleton sequences:",Num_seq_all$N_singleton) })
 output$N_seq_blanks <- renderText({ paste("Number of sequences in blanks:",Num_seq_all$N_seq_blanks) })
 #### ---- #### Num ASVs (in subset) #### ----
-output$N_otu_total  <- renderText({ paste("Total number of OTUs:",Num_otu_all$N_otu_num) })
-output$N_otu_assigned <- renderText({ paste("Number of assigned OTUs:",Num_otu_all$N_otu_assigned) })
-output$N_otu_blanks <- renderText({ paste("Number of OTUs in blanks:",Num_otu_all$N_otu_blanks) })
-
+output$N_otu_total  <- renderText({ paste("Total number of ASVs:",Num_otu_all$N_otu_num) })
+output$N_otu_blanks <- renderText({ paste("Number of ASVs in blanks:",Num_otu_all$N_otu_blanks) })
 
 ## ---- ## Taxa Info ## ---- 
 
