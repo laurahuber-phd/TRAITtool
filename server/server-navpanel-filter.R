@@ -30,10 +30,13 @@ observeEvent(ps.all(),{
   trackNums$selsamp_aft=NULL
   trackNums$seltax_bef=NULL
   trackNums$seltax_aft=NULL
+  print("Filter: ps.all changed; trackNums reactiveValues reset to NULL")
   
   N_sample_df  <- N_taxa_tab <- Summ_seqs_sel <- Num_seq_subset <- Num_otu_subset <- Summ_seqs <- Num_seq_all <- Num_otu_all <- NULL #reset
+  print("Filter: Counting reactiveValues reset to NULL")
   rankperc_plot <- ordplot <- histoplot <- violinplot <- hmplot <- NULL #reset plots  
-})
+  print("Filter: plots reset to NULL")
+},ignoreInit = TRUE)
 
 output$prune_bef <- renderText({paste("Number of samples before pruning: ",trackNums$prune_bef)}) #samples before pruning
 output$prune_aft <- renderText({paste("Number of samples after pruning: ",trackNums$prune_aft)}) #samples after pruning
@@ -63,9 +66,11 @@ observe({
   updateSelectInput(session,
                     "blank_cols",#for blank selection
                     choices=c(Meta_vars())) 
+  print("Filter: updated blank selection options")
   updateSelectInput(session,
                     "sample_filterby",#for sample selection
-                    choices=c(Meta_vars())) 
+                    choices=c(Meta_vars()))
+  print("Filter: updated sample selection options")
 }) %>% 
   bindEvent(Meta_vars()) #respond to any changes in the Metadata file that is uploaded
 
@@ -75,6 +80,7 @@ observeEvent(input$tax_switch, { #whenever switch to subset taxa is triggered
                     label = 'Taxonomic Rank', 
                     choices = c(as.list(rank_names(ps.sub())))
   ) #update picker selection using the rank names of the ps object
+  print("Filter: updated taxonomic filter options")
 }) 
 
 # ---- # Filter by blanks # ---- 
@@ -83,6 +89,7 @@ observe({
   req(input$blank_cols)
   
   blavar <- as.list(get_variable(ps.sub(),{input$blank_cols})) %>% unique() #unique list of values 
+  print("Filter: listed blank sample options")
   updateCheckboxGroupInput(session,
                            "blank_samples",
                            choices=as.list(blavar))
@@ -94,30 +101,34 @@ observe({
 #  ---- # Filter by samples # ---- 
 observe({
   if(isTruthy(input$sample_switch)) { #if sample_switch==TRUE
-    
+    print("Filter: sample_switch==TRUE")
     accordion_panel_open(session, #open the accordion panel to allow selecting samples  
                          id='sample_accord',
                          values=TRUE)
+    print("Filter: sample selection accordion panel opened")
+    
     req(input$sample_filterby)
     selvar <- as.list(get_variable(ps.sub(),{input$sample_filterby})) %>% unique() #unique list of values 
     #selvar <- as.list(MetadataTable$x[[input$sample_filterby]]) %>% unique() #unique list of values 
     updateCheckboxGroupInput(session,
                              "sample_select",
                              choices=as.list(selvar)) #update the available filtering options
+    print("Filter: available sample filtering options updated")
     
   } else if (!isTruthy(input$sample_switch)) {
-    
+    print("Filter: sample_switch==FALSE")
     accordion_panel_close(session, #close the accordion panel to allow selecting samples  
                           id='sample_accord',
                           values=TRUE)
-    
+    print("Filter: sample selection accordion panel closed")
     updateCheckboxGroupInput(session,
                              'sample_select',
                              choices=c(""))
-    
+    print("Filter: available sample filtering options removed")
     shinyjs::hide("befaft_sample")
+    print("Filter: before/after sample selection count hidden")
   }
-}) %>% bindEvent(input$sample_switch,
+},suspended=TRUE) %>% bindEvent(input$sample_switch,
                  input$sample_filterby,
                  MetadataTable$x
                  ) 
@@ -126,6 +137,7 @@ observe({
   req(ps.sub())
   if(isTruthy(input$sample_switch) && input$go_sample && !is.null(input$sample_select)) {
     shinyjs::show("befaft_sample")
+    print("Filter: before/after sample selection count shown")
   } 
 }) %>% bindEvent(input$sample_switch,
                  input$go_sample,
@@ -136,10 +148,13 @@ taxfilter_list <- reactiveValues() #make list to record what taxa are used to fi
 
 observe({
   if(isTruthy(input$tax_switch)) { #if tax subset panel is open
+    print("Filter: tax_switch==TRUE")
     
     accordion_panel_open(session, #open the accordion panel 
                          id='tax_accord',
                          values=TRUE)
+    print("Filter: taxa selection accordion panel opened")
+    
     req(input$tax_filterby)
     
     taxvar <- as.list(get_taxa_unique(ps.sub(),input$tax_filterby)) #make list of unique values 
@@ -147,22 +162,28 @@ observe({
                              "tax_select",
                              choices=as.list(taxvar),
                              selected=NULL) #update the available filtering options
+    print("Filter: available taxa filtering options updated")
     
   } else if (!isTruthy(input$tax_switch)) { #if tax subset panel is closed 
+    print("Filter: tax_switch==FALSE")
     
     accordion_panel_close(session, #close the accordion panel 
                           id='tax_accord',
                           values=TRUE)
+    print("Filter: taxa selection accordion panel closed")
     
     updateCheckboxGroupInput(session, #clear selectable taxa 
                              'tax_select',
                              choices=c(""),
                              selected=NULL)
+    print("Filter: available tax filtering options removed")
     
     shinyjs::hide("befaft_tax") #hide counts
+    print("Filter: before/after tax selection count hidden")
     taxfilter_list <- NULL #reset the list of taxa used to filter
+    print("Filter: list of taxa used to filter cleared")
   }
-}) %>% bindEvent(input$tax_switch,
+},suspended=TRUE) %>% bindEvent(input$tax_switch,
                  input$tax_filterby,
                  ps.sub(),
                  #input$tax_keepremove,
@@ -173,6 +194,7 @@ observe({
   req(ps.sub())
   if(isTruthy(input$tax_switch && input$go_tax && !is.null(input$tax_select))) {
     shinyjs::show("befaft_tax")
+    print("Filter: before/after tax selection count shown")
   }
 }) %>% bindEvent(input$tax_switch,
                  input$go_tax,
@@ -347,9 +369,21 @@ ps.norm <- reactive({
   ps <- ps.sub()
 
   #if(input$normoptions != "none") {TRANSFORM(ps,input$normoptions)}
-  if(input$normoptions=="tax_count") {psnorm <- subfunc(ps,TRANSFORM(ps,input$normoptions,abund_cutoff=input$abund_cutoff))}
-  if(input$normoptions=="tax_rel") {psnorm <- subfunc(ps,TRANSFORM(ps,input$normoptions,mean_cutoff=input$mean_cutoff))}
-  if(input$normoptions!="tax_count" && input$normoptions!="tax_rel") {psnorm <- subfunc(ps,TRANSFORM(ps,input$normoptions))}
+  if(input$normoptions=="tax_count") {
+    #psnorm <- subfunc(ps,TRANSFORM(ps,input$normoptions,abund_cutoff=input$abund_cutoff))
+    psnorm <- tryCatch(TRANSFORM(ps,input$normoptions,abund_cutoff=input$abund_cutoff),
+                       error=function(e){ps})
+    }
+  if(input$normoptions=="tax_rel") {
+    #psnorm <- subfunc(ps,TRANSFORM(ps,input$normoptions,mean_cutoff=input$mean_cutoff))
+    psnorm <- tryCatch(TRANSFORM(ps,input$normoptions,mean_cutoff=input$mean_cutoff),
+                                 error=function(e){ps})
+    }
+  if(input$normoptions!="tax_count" && input$normoptions!="tax_rel") {
+    #psnorm <- subfunc(ps,TRANSFORM(ps,input$normoptions))
+    psnorm <- tryCatch(TRANSFORM(ps,input$normoptions),
+                       error=function(e){ps})
+    }
   if(input$normoptions=="none") {psnorm <- ps}
   
   if (!isTruthy(psnorm) && input$normoptions!="none") {
@@ -374,9 +408,10 @@ ps.norm <- reactive({
                  ps.all()
 )
 
+
 observe({
   req(ps.norm())
-  
+  print("Filter: ps.norm made")
   if(input$normoptions=="none") {shinyjs::hide('befaft_norm')}
   else {    
     trackNums$norm_bef <- isolate(as.character(ntaxa(ps.sub()) ))

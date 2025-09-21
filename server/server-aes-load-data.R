@@ -109,6 +109,7 @@ observeEvent(input$load_ex, {
                           na = c("",".","NA","NULL","Unassigned","unassigned")
   )
   MetadataTable$og <- MetadataTable$x <- metfile
+  print("Load: loaded metadata")
   
   otufile <- vroom::vroom('data/otu_table.csv',delim=',',
                           show_col_types = FALSE,
@@ -116,6 +117,7 @@ observeEvent(input$load_ex, {
                           na = c("",".","NA","NULL","Unassigned","unassigned")
   )
   OTUTable$og <- OTUTable$x <- otufile
+  print("Load: loaded asv table")
   
   taxfile_upld <- vroom::vroom('data/tax_table.csv',delim=',',
                           show_col_types = FALSE,
@@ -127,7 +129,7 @@ observeEvent(input$load_ex, {
                                .default=NA))
   TaxTable$x <- taxfile
   TaxTable$og <- taxfile_upld
-
+  print("Load: loaded tax file")
 })
 
 
@@ -140,16 +142,18 @@ isgood <- reactive({
   } else if (is.null(TaxTable$x)) {
     "Taxonomy are not in correct format or the wrong files are uploaded"
   } else {"Everything is great"}
-}) %>% bindEvent(input$Metadata,input$taxtab,input$otutab,ignoreNULL=FALSE)  
+
+  }) %>% bindEvent(input$Metadata,input$taxtab,input$otutab,ignoreNULL=FALSE)  
+
 ps.og <- eventReactive(c(input$assemble_ps,input$load_ex),{
   
   runif(input$assemble_ps)
   runif(input$load_ex)
   runif(input$go_addtroph)
   
-  req(MetadataTable$x)
-  req(OTUTable$x)
-  req(TaxTable$x)
+  req(!is.null(MetadataTable$x))
+  req(!is.null(OTUTable$x))
+  req(!is.null(TaxTable$x))
   
   all <- tryCatch(assemble_ps(otu=OTUTable$x, # build the phyloseq object
                               tax=TaxTable$x,
