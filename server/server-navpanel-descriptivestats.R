@@ -69,17 +69,13 @@ observe({
   Num_seq_subset$N_seq_num = sum(taxa_sums(ps)) #calculate total number of sequences  
   Num_otu_subset$N_otu_num = ntaxa(ps) #calculate total number of ASVs
   
-  #Num_seq_subset$N_seq_assigned = tryCatch(sum(taxa_sums(subset_taxa(ps, rank_names(ps)[1]!="Not assigned" )
-  #)),
-  #error=function(e){return(0)})
-  
   if(isTruthy(taxa_sums(ps)==1)) {
     Num_seq_subset$N_singleton = ntaxa(prune_taxa(taxa_sums(ps)==1,ps) ) 
   } else {
     Num_seq_subset$N_singleton = 0
   }
 
-}) %>% 
+  }) %>% 
   bindEvent(input$blank_cols,
             input$blank_samples,
             ps.norm(), 
@@ -88,54 +84,28 @@ observe({
 
 observe({
   req(ps.norm())
-  ps <- ps.norm()
+  ps <- ps.og()
   
-  Num_otu_subset$N_otu_num = ntaxa(ps)
-  
-  Num_otu_subset$N_otu_assigned = tryCatch(ntaxa(subset_taxa(ps, 
-                                                             rank_names(ps)[1]!="Not assigned"
-  )),
-  error=function(e){return(0)})
-  
-  #Num_otu_subset$N_otu_blanks = if(is.null(input$blank_samples)) {return(0)} else 
-  #ntaxa(subset_blanks_rem(ps,input$blank_cols,input$blank_samples))
-  
-  #isolate({
-  #  Num_otu_subset_list <- reactiveValuesToList(Num_otu_subset)
-  #  Num_otu_subset_names <- c("Total number of ASVs:","Number of assigned ASVs:")#,"Number of ASVs in blanks:")
-  #  Num_otu_subset_df <- data.frame("Value"=Num_otu_subset_names,"Number"=Num_otu_subset_list)
-  #})
-  
-}) %>% 
-  bindEvent(input$blank_cols,
-            input$blank_samples,
-            ps.norm(), 
-            ignoreNULL=FALSE)
-
-#observe({
-#  req(ps.norm())
-#  ps <- ps.og()
-  
-#  if(isTruthy(input$rem_blanks)) { #if the user has selected remove blanks, return 'NA' 
-#    Num_seq_subset$N_seq_blanks <- NA 
-#    Num_otu_subset$N_otu_blanks <- NA
-#    } else { 
-#    if(!is.null(input$blank_cols) & !is.null(input$blank_samples)) { 
-#      if(input$blank_cols == "Sample") { #if the filtering parameter is sample id
-#        blasam = sample_names(ps)
-#        blarem = input$blank_samples #list of blank samples 
-#        blakeep = blasam[blasam %in% blarem] #keep only blank samples
-#      } else { #with any other filtering parameter
-#        blacolvals = as.data.frame(as.matrix(sample_data(ps))) %>% select(input$blank_cols) #get sample_data of selected variable 
-#        blakeep = row.names(blacolvals %>% filter(blacolvals[[1]] %in% input$blank_samples)) #list of sample names selected
-#      }
-#      if(!is.null(blakeep)) {psbla <- prune_samples(blakeep,ps) %>% prune_taxa(taxa_sums(.)>0,.)} 
-#    }
+  if(isTruthy(input$rem_blanks)) { #if the user has selected remove blanks, return 'NA' 
+    Num_seq_subset$N_seq_blanks <- NA 
+    Num_otu_subset$N_otu_blanks <- NA
+    } else { 
+    if(!is.null(input$blank_cols) & !is.null(input$blank_samples)) { 
+      if(input$blank_cols == "Sample") { #if the filtering parameter is sample id
+        blasam = sample_names(ps)
+        blarem = input$blank_samples #list of blank samples 
+        blakeep = blasam[blasam %in% blarem] #keep only blank samples
+      } else { #with any other filtering parameter
+        blacolvals = as.data.frame(as.matrix(sample_data(ps))) %>% select(input$blank_cols) #get sample_data of selected variable 
+        blakeep = row.names(blacolvals %>% filter(blacolvals[[1]] %in% input$blank_samples)) #list of sample names selected
+      }
+      if(!is.null(blakeep)) {psbla <- prune_samples(blakeep,ps) %>% prune_taxa(taxa_sums(.)>0,.)} 
+    }
     
-#    Num_seq_subset$N_seq_blanks <- if(!is.null(input$blank_cols) & !is.null(input$blank_samples)) {sum(taxa_sums(psbla))} else {"No blanks selected"}
-#    Num_otu_subset$N_otu_blanks <- if(!is.null(input$blank_cols) & !is.null(input$blank_samples)) {ntaxa(psbla)} else {"No blanks selected"}
-#    }
-#})
+    Num_seq_subset$N_seq_blanks <- if(!is.null(input$blank_cols) & !is.null(input$blank_samples)) {sum(taxa_sums(psbla))} else {"No blanks selected"}
+    Num_otu_subset$N_otu_blanks <- if(!is.null(input$blank_cols) & !is.null(input$blank_samples)) {ntaxa(psbla)} else {"No blanks selected"}
+    }
+})
 
 ## ---- ## Sidebar (Original dataset summary) ## ---- ##
 Summ_seqs <- reactive({
@@ -185,44 +155,29 @@ observe({
             ps.og(), 
             ignoreNULL = FALSE) 
 
+
+
 observe({
   req(ps.og())
   ps <- ps.og()
   
-  Num_otu_all$N_otu_num = ntaxa(ps) 
-  
-  Num_otu_all$N_otu_assigned = tryCatch(ntaxa(subset_taxa(ps, 
-                                                          rank_names(ps)[1]!="Not assigned")),
-                                        error=function(e){return(0)}) 
-  
-  #Num_otu_all$N_otu_blanks = if(is.null(input$blank_samples)) {return(0)} else 
-  #  ntaxa(subset_blanks_rem(ps,input$blank_cols,input$blank_samples))
-}) %>% 
-  bindEvent(input$blank_cols,
-            input$blank_samples,
-            ps.og(), 
-            ignoreNULL=FALSE)
-
-#observe({
-#  req(ps.og())
-#  ps <- ps.og()
-  
-#    if(!is.null(input$blank_cols) & !is.null(input$blank_samples)) { 
-#      if(input$blank_cols == "Sample") { #if the filtering parameter is sample id
-#        blasam = sample_names(ps)
-#        blarem = input$blank_samples #list of blank samples 
-#        blakeep = blasam[blasam %in% blarem] #keep only blank samples
-#      } else { #with any other filtering parameter
-#        blacolvals = as.data.frame(as.matrix(sample_data(ps))) %>% select(input$blank_cols) #get sample_data of selected variable 
-#        blakeep = row.names(blacolvals %>% filter(blacolvals[[1]] %in% input$blank_samples)) #list of sample names selected
-#      }
-#      if(!is.null(blakeep)) {psbla <- prune_samples(blakeep,ps) %>% prune_taxa(taxa_sums(.)>0,.)} 
-#    }
+    if(!is.null(input$blank_cols) & !is.null(input$blank_samples)) { 
+      if(input$blank_cols == "Sample") { #if the filtering parameter is sample id
+        blasam = sample_names(ps)
+        blarem = input$blank_samples #list of blank samples 
+        blakeep = blasam[blasam %in% blarem] #keep only blank samples
+      } else { #with any other filtering parameter
+        blacolvals = as.data.frame(as.matrix(sample_data(ps))) %>% select(input$blank_cols) #get sample_data of selected variable 
+        blakeep = row.names(blacolvals %>% filter(blacolvals[[1]] %in% input$blank_samples)) #list of sample names selected
+      }
+      if(!is.null(blakeep)) {psbla <- prune_samples(blakeep,ps) %>% prune_taxa(taxa_sums(.)>0,.)} 
+    }
     
-#    Num_seq_all$N_seq_blanks <- if(!is.null(input$blank_cols) & !is.null(input$blank_samples)) {sum(taxa_sums(psbla))} else {"No blanks selected"}
-#    Num_otu_all$N_otu_blanks <- if(!is.null(input$blank_cols) & !is.null(input$blank_samples)) {ntaxa(psbla)} else {"No blanks selected"}
+    Num_seq_all$N_seq_blanks <- if(!is.null(input$blank_cols) & !is.null(input$blank_samples)) {sum(taxa_sums(psbla))} else {"No blanks selected"}
+    Num_otu_all$N_otu_blanks <- if(!is.null(input$blank_cols) & !is.null(input$blank_samples)) {ntaxa(psbla)} else {"No blanks selected"}
 
-#}) 
+}) 
+
 # ---- Tax Info # ---- 
 rankperc_df <- reactive({
   req(ps.norm.melt())
