@@ -67,15 +67,18 @@ observe({
   ps <- ps.norm()
   
   Num_seq_subset$N_seq_num = sum(taxa_sums(ps)) #calculate total number of sequences  
+  Num_otu_subset$N_otu_num = ntaxa(ps) #calculate total number of ASVs
   
-  Num_seq_subset$N_seq_assigned = tryCatch(sum(taxa_sums(subset_taxa(ps, rank_names(ps)[1]!="Not assigned" )
-  )),
-  error=function(e){return(0)})
+  #Num_seq_subset$N_seq_assigned = tryCatch(sum(taxa_sums(subset_taxa(ps, rank_names(ps)[1]!="Not assigned" )
+  #)),
+  #error=function(e){return(0)})
   
-  #Num_otu_subset$N_otu_num = ntaxa(ps) #calculate total number of ASVs
-  
-  #Num_seq_subset$N_singleton = length(taxa_names(prune_taxa(taxa_sums(ps)==1,ps) #calculate total number of singleton sequences  
-  #                                               )) %>% round(digits=0)
+  if(isTruthy(taxa_sums(ps)==1)) {
+    Num_seq_subset$N_singleton = ntaxa(prune_taxa(taxa_sums(ps)==1,ps) ) 
+  } else {
+    Num_seq_subset$N_singleton = 0
+  }
+
 }) %>% 
   bindEvent(input$blank_cols,
             input$blank_samples,
@@ -168,18 +171,15 @@ observe({
   ps <- ps.og()
   
   Num_seq_all$N_seq_num = sum(taxa_sums(ps)) #calculate total number of sequences  
-  
-  Num_seq_all$N_seq_assigned = tryCatch(sum(taxa_sums(subset_taxa(ps, 
-                                                                  rank_names(ps)[1]!="Not assigned"
-  ))), 
-  error=function(e){return(0)}) 
-  
-  #Num_otu_all$N_otu_num = ntaxa(ps) #calculate total number of ASVs
-  
-  #Num_seq_all$N_singleton = length(taxa_names(prune_taxa(taxa_sums(ps)==1, #calculate the number of singletons 
-  #                                           ps
-  #                                           ))) %>% round(digits=0)
-}) %>% 
+  Num_otu_all$N_otu_num = ntaxa(ps) #calculate total number of ASVs
+
+    if(isTruthy(taxa_sums(ps)==1)) {
+    Num_seq_all$N_singleton = ntaxa(prune_taxa(taxa_sums(ps)==1,ps) ) 
+  } else {
+    Num_seq_all$N_singleton = 0
+  }
+
+  }) %>% 
   bindEvent(input$blank_cols,
             input$blank_samples,
             ps.og(), 
