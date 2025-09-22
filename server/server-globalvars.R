@@ -1,17 +1,9 @@
 library(dplyr)
 
-#Num_vars <- reactive({ #what metadata variables are numeric
-#  req(MetadataTable$x)  
-#  a <- as.data.frame(lapply(MetadataTable$x,class)) 
-#  b <- t(a) %>% data.frame(Names=rownames(.)) %>% rename(.,"Vals"=".")
-#  c <- filter(b,Vals=="integer" | Vals == "double") %>% .$Names
-#  return(c)
-#}) %>% bindEvent(input$load_ex,
-#                 input$assemble_ps)
-
-
 Meta_vars <- reactive({ #read the metadata file and identify the variable names 
   #req(input$Metadata)
+  req(!is.null(MetadataTable$x))
+  print("Meta_vars() sample variables calculated")
   return(names(MetadataTable$x))
 }) %>% bindEvent(input$load_ex, #update meta_vars if the load button is pressed (new dataset)
                  input$assemble_ps
@@ -19,19 +11,14 @@ Meta_vars <- reactive({ #read the metadata file and identify the variable names
                  #MetadataTable$x
 )
 
-#rnames <- reactiveVal(NULL)
-#observeEvent(ps.all(),{
-#  req(ps.all())
-#  rnames <- rank_names(ps.norm())
-#})
-
 rnames <- reactive({ 
+  req(ps.norm())
+  print("Rank names calculated")
   return(rank_names(ps.norm()))
 }) %>% bindEvent(ps.norm(),ps.all() )
 
 ps.norm.melt <- reactive({
   req(ps.norm())
+  print("Melted normalized dataframe")
   psmelt(ps.norm()) %>% filter(Abundance>0)
 }) %>% bindEvent(ps.norm(),ps.all())
-
-
