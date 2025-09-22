@@ -227,6 +227,7 @@ observeEvent(c(input$assemble_ps,input$load_ex,input$go_addtroph),{
   #ps.sub() <- NULL
   #ps.norm() <- NULL
   #Meta_vars() <- rnames() <- NULL
+  print("Dataset replaced; plots should be removed")
   shinyjs::hide("def_prune")
   shinyjs::hide("def_plotrank")
   shinyjs::hide("def_plotrich")
@@ -251,4 +252,4 @@ observeEvent(c(input$assemble_ps,input$load_ex,input$go_addtroph),{
   
   shinyjs::hide("viewfinalreport")
   shinyjs::hide("dwnldviewreport")
-})
+},ignoreInit = TRUE)
