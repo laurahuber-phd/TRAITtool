@@ -64,33 +64,39 @@ Num_otu_subset <- reactiveValues(
 
 observe({
   req(ps.norm())
+  #runif(input$SeqSumNavTab=="Summary")
+  #runif(input$pages=="basicstab")
+  #runif(input$defaultgo)
+  #runif(input$pages=="reporttab" && is.null(Num_seq_subset$N_seq_num))
   ps <- ps.norm()
   
   Num_seq_subset$N_seq_num = sum(taxa_sums(ps)) #calculate total number of sequences  
   Num_otu_subset$N_otu_num = ntaxa(ps) #calculate total number of ASVs
-  
+  print("Desc: sequence summary calculated")
   if(isTruthy(taxa_sums(ps)==1)) {
     Num_seq_subset$N_singleton = ntaxa(prune_taxa(taxa_sums(ps)==1,ps) ) 
+    print("Desc: singletons calculated")
   } else {
     Num_seq_subset$N_singleton = 0
+    print("Desc: no singletons")
   }
 
-  }) %>% 
-  bindEvent(input$blank_cols,
-            input$blank_samples,
-            ps.norm(), 
-            ignoreNULL=FALSE
-            )
+  }) 
 
 observe({
   req(ps.norm())
+  #runif(input$pages=="basicstab")
+  #runif(input$defaultgo)
+  #runif(input$pages=="reporttab" && is.null(Num_seq_subset$N_seq_blanks))
   ps <- ps.og()
   
   if(isTruthy(input$rem_blanks)) { #if the user has selected remove blanks, return 'NA' 
     Num_seq_subset$N_seq_blanks <- NA 
     Num_otu_subset$N_otu_blanks <- NA
+    print("Desc: Blanks were removed; cannot calculate numbers")
     } else { 
     if(!is.null(input$blank_cols) & !is.null(input$blank_samples)) { 
+      #shinyjs::delay(3000)
       if(input$blank_cols == "Sample") { #if the filtering parameter is sample id
         blasam = sample_names(ps)
         blarem = input$blank_samples #list of blank samples 
@@ -99,13 +105,14 @@ observe({
         blacolvals = as.data.frame(as.matrix(sample_data(ps))) %>% select(input$blank_cols) #get sample_data of selected variable 
         blakeep = row.names(blacolvals %>% filter(blacolvals[[1]] %in% input$blank_samples)) #list of sample names selected
       }
+      print("Desc: blank nums calculated")
       if(!is.null(blakeep)) {psbla <- prune_samples(blakeep,ps) %>% prune_taxa(taxa_sums(.)>0,.)} 
     }
-    
     Num_seq_subset$N_seq_blanks <- if(!is.null(input$blank_cols) & !is.null(input$blank_samples)) {sum(taxa_sums(psbla))} else {"No blanks selected"}
     Num_otu_subset$N_otu_blanks <- if(!is.null(input$blank_cols) & !is.null(input$blank_samples)) {ntaxa(psbla)} else {"No blanks selected"}
+    
     }
-})
+},suspended=TRUE) 
 
 ## ---- ## Sidebar (Original dataset summary) ## ---- ##
 Summ_seqs <- reactive({
@@ -138,27 +145,32 @@ Num_otu_all <- reactiveValues(
 
 observe({
   req(ps.og())
+  #runif(input$pages=="basicstab")
+  #runif(input$defaultgo)
+  #runif(input$pages=="reporttab" && is.null(Num_seq_all$N_seq_num))
   ps <- ps.og()
   
   Num_seq_all$N_seq_num = sum(taxa_sums(ps)) #calculate total number of sequences  
   Num_otu_all$N_otu_num = ntaxa(ps) #calculate total number of ASVs
+print("Desc: original dataframe numbers calculated")
 
     if(isTruthy(taxa_sums(ps)==1)) {
     Num_seq_all$N_singleton = ntaxa(prune_taxa(taxa_sums(ps)==1,ps) ) 
+    print("Desc: singletons in original dataframe calculated")
   } else {
     Num_seq_all$N_singleton = 0
+    print("Desc: no singletons in original dataframe")
   }
 
   }) %>% 
-  bindEvent(input$blank_cols,
-            input$blank_samples,
-            ps.og(), 
+  bindEvent(ps.og(), 
             ignoreNULL = FALSE) 
-
-
 
 observe({
   req(ps.og())
+  #runif(input$pages=="basicstab")
+  #runif(input$defaultgo)
+  #runif(input$pages=="reporttab" && is.null(Num_seq_all$N_seq_blanks))
   ps <- ps.og()
   
     if(!is.null(input$blank_cols) & !is.null(input$blank_samples)) { 
@@ -172,11 +184,12 @@ observe({
       }
       if(!is.null(blakeep)) {psbla <- prune_samples(blakeep,ps) %>% prune_taxa(taxa_sums(.)>0,.)} 
     }
-    
+  print("Desc: blank nums in original dataset calculated")
     Num_seq_all$N_seq_blanks <- if(!is.null(input$blank_cols) & !is.null(input$blank_samples)) {sum(taxa_sums(psbla))} else {"No blanks selected"}
     Num_otu_all$N_otu_blanks <- if(!is.null(input$blank_cols) & !is.null(input$blank_samples)) {ntaxa(psbla)} else {"No blanks selected"}
 
-}) 
+}) %>% bindEvent(ps.og(),
+                 input$blank_samples)
 
 # ---- Tax Info # ---- 
 rankperc_df <- reactive({
@@ -236,14 +249,16 @@ observeEvent(checking$table, {
   if(checking$table==TRUE)
   {hide('N_sample_placeholder')
     hide('N_taxa_placeholder')
-    hide('listtaxa_placeholder')} else {show('N_sample_placeholder')
+    hide('listtaxa_placeholder')
+    print("Desc: placeholder table hidden")
+    } else {show('N_sample_placeholder')
       show('N_taxa_placeholder')
-      show('listtaxa_placeholder')}
+      show('listtaxa_placeholder')
+      print("Desc: placeholder table shown")
+      }
 })
 
-
 # --- # Returns # --------  
-
 
 ## ---- ## Tab 1 (Sequences per sample) ## ---- 
 output$N_sample <- renderDataTable({
@@ -294,6 +309,7 @@ output$basics_listtaxa <- renderDataTable({
 ### ---- ### Plot taxa ### ----
 observeEvent(input$go_rankperc, {
 output$rankperc_plot <- renderPlot({rankperc_plot()})
+print("Desc: taxonomic rank relative percentage plot rendered")
 })
 
 observe({
