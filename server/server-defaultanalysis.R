@@ -1,6 +1,6 @@
 observeEvent(input$defaultgo, {
   req(ps.all())
-  
+  print("Default analysis selected")
   updateNumericInput(session,"prune_samples",value=100)
   updateNumericInput(session,"prune_tax",value=1)
   updateRadioButtons(session,"normoptions",selected="tax_rel")
