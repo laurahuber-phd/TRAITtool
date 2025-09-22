@@ -16,6 +16,7 @@ observe({
                             header=input$meta_header)
   MetadataTable$x <- metfile
   MetadataTable$og <- metfile
+  print("Load: loaded metadata")
 }) %>% bindEvent(input$Metadata,input$meta_sep,input$meta_header)
 
 ###################### UPLOAD FEATURE TABLE ######################
@@ -34,6 +35,7 @@ observe({ #upload the OTU file
                             header=input$otu_header)
   OTUTable$x <- otufile
   OTUTable$og <- otufile
+  print("Load: loaded asv table")
 }) %>% bindEvent(input$otutab,input$otu_sep,input$otu_header)
 
 output$otucomplete <- renderText({
@@ -77,12 +79,14 @@ observe({ #upload the taxonomy file
     taxfile <- taxfile %>% 
       mutate(Species=case_when(!is.na(Species) ~ paste0(Genus," ",Species), #remake the species column to genus-species
                                                     .default=NA))
+    print("Load: taxfile species names changed to genus-species")
   } else {
     taxfile <- taxfile
   }
   
   TaxTable$x <- taxfile
   TaxTable$og <- taxfile_upld
+  print("Load: loaded tax file")
 }) %>% bindEvent(input$taxtab,input$tax_sep,input$tax_header)
 
 output$taxcomplete <- renderText({
@@ -109,7 +113,7 @@ observeEvent(input$load_ex, {
                           na = c("",".","NA","NULL","Unassigned","unassigned")
   )
   MetadataTable$og <- MetadataTable$x <- metfile
-  print("Load: loaded metadata")
+  print("Load: loaded example metadata")
   
   otufile <- vroom::vroom('data/otu_table.csv',delim=',',
                           show_col_types = FALSE,
@@ -117,7 +121,7 @@ observeEvent(input$load_ex, {
                           na = c("",".","NA","NULL","Unassigned","unassigned")
   )
   OTUTable$og <- OTUTable$x <- otufile
-  print("Load: loaded asv table")
+  print("Load: loaded example asv table")
   
   taxfile_upld <- vroom::vroom('data/tax_table.csv',delim=',',
                           show_col_types = FALSE,
@@ -129,7 +133,7 @@ observeEvent(input$load_ex, {
                                .default=NA))
   TaxTable$x <- taxfile
   TaxTable$og <- taxfile_upld
-  print("Load: loaded tax file")
+  print("Load: loaded example tax file")
 })
 
 
