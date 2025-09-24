@@ -194,6 +194,8 @@ observe({
 # ---- Tax Info # ---- 
 rankperc_df <- reactive({
   req(ps.norm.melt())
+  print("Desc: making tax rank df")
+  
   ps <- ps.norm.melt()
   psplot.df <- ps %>% group_by(.data[[input$basics_ranks]]) %>%
     reframe(Abund=sum(Abundance),
@@ -213,6 +215,7 @@ rankpercplot_size <- plotSizeServer(id="basics_size")
 
 rankperc_base <- reactive({
   req(rankperc_df())
+  print("Desc: making tax rank base plot")
   ggplot(rankperc_df(),
          aes(y=.data[[input$basics_ranks]],
              x=Perc,
@@ -225,6 +228,7 @@ rankperc_base <- reactive({
                  input$basics_ranks)
 
 rankperc_plot <- eventReactive(input$go_rankperc, {
+  print("Desc: assembling tax rank plot")
   rankperc_base() + rankpercplot_pretty() + rankpercplot_size() 
 }) 
 
