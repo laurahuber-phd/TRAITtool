@@ -229,7 +229,20 @@ observeEvent(input$view_report, {
   
 })
 
-  output$norm_meltdwnld <- downloadHandler(
+observeEvent(input$norm_meltdwnld,{
+  print("Download: dataset")
+})
+observeEvent(input$norm_taxdwnld,{
+  print("Download: tax data")
+})
+observeEvent(input$norm_asvdwnld,{
+  print("Download: asv data")
+})
+observeEvent(input$norm_metadwnld,{
+  print("Download: metadata")
+})
+
+output$norm_meltdwnld <- downloadHandler(
     filename = function() {
       paste("ShinyeDNA_fullDataset", ".csv", sep="")
     },
