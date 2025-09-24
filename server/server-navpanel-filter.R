@@ -254,7 +254,10 @@ ps.sub <- reactive({
         blacolvals = as.data.frame(as.matrix(sample_data(ps))) %>% select(input$blank_cols) #get sample_data of selected variable 
         blakeep = row.names(blacolvals %>% filter(!blacolvals[[1]] %in% input$blank_samples)) #list of sample names EXCEPT for those selected
       }
-      ps <- prune_samples(blakeep,ps) %>% prune_samples(sample_sums(.)>0,.) %>% prune_taxa(taxa_sums(.)>0,.)
+      shinyjs::delay(3000, #delay so it doesn't recalculate immediately when clicking samples
+                     ps <- prune_samples(blakeep,ps) %>% prune_samples(sample_sums(.)>0,.) %>% prune_taxa(taxa_sums(.)>0,.)
+                     )
+      
       trackNums$remblank_aft <- as.character(nsamples(ps))
       trackNums$remblanktax_aft <- as.character(ntaxa(ps))
     }
@@ -263,7 +266,7 @@ ps.sub <- reactive({
     }
   }
   ############################### SAMPLES ###########################################   
-  if(isTruthy(input$sample_switch) && input$go_sample) { #if user selects specific samples to vis
+  if(input$go_sample && isTruthy(input$sample_switch)) { #if user selects specific samples to vis
     runif(input$go_sample)
     trackNums$selsamp_aft <- trackNums$selsamp_bef <- NULL #reset counts
     trackNums$selsamp_bef <- as.character(nsamples(ps))
@@ -276,14 +279,16 @@ ps.sub <- reactive({
         selcolvals = as.data.frame(as.matrix(sample_data(ps))) %>% select(input$sample_filterby) #get sample_data of selected variable 
         selkeep = row.names(selcolvals %>% filter(selcolvals[[1]] %in% input$sample_select)) #list of sample names selected
       }
-      ps <- prune_samples(selkeep,ps)
+      shinyjs::delay(3000,
+                     ps <- prune_samples(selkeep,ps)
+                     )
     } else {
       ps <- ps
     }
     trackNums$selsamp_aft <- as.character(nsamples(ps))
   }
   ############################### TAXA ############################################
-  if(isTruthy(input$tax_switch) && input$go_tax) { #if remove selected taxa is selected
+  if(input$go_tax && isTruthy(input$tax_switch)) { #if remove selected taxa is selected
     runif(input$go_tax)
   
     trackNums$seltax_aft <- trackNums$seltax_bef <- NULL #reset counts
