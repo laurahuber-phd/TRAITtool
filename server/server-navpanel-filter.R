@@ -67,10 +67,12 @@ observe({
                     "blank_cols",#for blank selection
                     choices=c(Meta_vars())) 
   print("Filter: updated blank selection options")
+  
   updateSelectInput(session,
                     "sample_filterby",#for sample selection
                     choices=c(Meta_vars()))
   print("Filter: updated sample selection options")
+  
 }) %>% 
   bindEvent(Meta_vars()) #respond to any changes in the Metadata file that is uploaded
 
@@ -128,7 +130,7 @@ observe({
     shinyjs::hide("befaft_sample")
     print("Filter: before/after sample selection count hidden")
   }
-},suspended=TRUE) %>% bindEvent(input$sample_switch,
+}) %>% bindEvent(input$sample_switch,
                  input$sample_filterby,
                  MetadataTable$x
                  ) 
@@ -183,7 +185,7 @@ observe({
     taxfilter_list <- NULL #reset the list of taxa used to filter
     print("Filter: list of taxa used to filter cleared")
   }
-},suspended=TRUE) %>% bindEvent(input$tax_switch,
+}) %>% bindEvent(input$tax_switch,
                  input$tax_filterby,
                  ps.sub(),
                  #input$tax_keepremove,
