@@ -17,8 +17,31 @@ rnames <- reactive({
   return(rank_names(ps.norm()))
 }) %>% bindEvent(ps.norm(),ps.all() )
 
-ps.norm.melt <- reactive({
+ps.norm.melt <- eventReactive(c(input$go_violin,input$go_rankperc,input$norm_meltdwnld),{
   req(ps.norm())
+   
+  ps <- ps.norm()
   print("Melted normalized dataframe")
-  psmelt(ps.norm()) %>% filter(Abundance>0)
-}) %>% bindEvent(ps.norm(),ps.all())
+  #psmelt(ps.norm()) %>% filter(Abundance>0)
+  
+  otu_df <- otu_table(ps) %>% as.matrix() %>% as.data.frame() 
+  otu_df <- cbind(OTU=rownames(otu_df),otu_df)
+  
+  tax_df <- tax_table(ps)  %>% as.matrix() %>% as.data.frame() 
+  tax_df <- cbind(OTU=rownames(tax_df),tax_df)
+  
+  sample_df <- sample_data(ps) %>% as.matrix() %>% as.data.frame()
+  sample_df <- cbind(Sample=rownames(sample_df),sample_df)
+   
+  # Melt and merge with joins
+  melted_physeq_tidy <- otu_df %>%
+    pivot_longer(
+      cols = -OTU,
+      names_to = "Sample",
+      values_to = "Abundance"
+    ) %>%
+    left_join(tax_df, by = "OTU") %>%
+    left_join(sample_df, by = "Sample") %>% 
+    filter(Abundance > 0)
+  
+}) #%>% bindEvent(ps.norm(),ps.all())
