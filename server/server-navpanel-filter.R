@@ -233,6 +233,7 @@ ps.sub <- reactive({
   }
   
   req(ps)
+  print("Filter: dataset pruned by min taxa sum and sample sum")
   tnames <- rank_names(ps)
   trackNums$prune_aft <- as.character(nsamples(ps))
   trackNums$prunetax_aft <- as.character(ntaxa(ps))
@@ -257,6 +258,7 @@ ps.sub <- reactive({
       shinyjs::delay(3000, #delay so it doesn't recalculate immediately when clicking samples
                      ps <- prune_samples(blakeep,ps) %>% prune_samples(sample_sums(.)>0,.) %>% prune_taxa(taxa_sums(.)>0,.)
                      )
+      print("Filter: blank samples are pruned")
       
       trackNums$remblank_aft <- as.character(nsamples(ps))
       trackNums$remblanktax_aft <- as.character(ntaxa(ps))
@@ -267,7 +269,7 @@ ps.sub <- reactive({
   }
   ############################### SAMPLES ###########################################   
   if(input$go_sample && isTruthy(input$sample_switch)) { #if user selects specific samples to vis
-    runif(input$go_sample)
+    #runif(input$go_sample)
     trackNums$selsamp_aft <- trackNums$selsamp_bef <- NULL #reset counts
     trackNums$selsamp_bef <- as.character(nsamples(ps))
     if(!is.null(input$sample_select)) {
@@ -282,6 +284,7 @@ ps.sub <- reactive({
       shinyjs::delay(3000,
                      ps <- prune_samples(selkeep,ps)
                      )
+      print("Filter: sample prune parameters implemented")
     } else {
       ps <- ps
     }
@@ -307,6 +310,7 @@ ps.sub <- reactive({
 
       # prune taxa 
     if(isTruthy(input$tax_keepremove)) {  #if user selects keep taxa
+      print("Filter: keep selected taxa")
       if (any(is.na(selected_taxalist))) { #if any of the selected taxa are NA
         
         taxkeep = tryCatch(rownames(filter(taxsamsel, 
@@ -320,6 +324,7 @@ ps.sub <- reactive({
       }
     }
     if(!isTruthy(input$tax_keepremove)) { #if user selected remove taxa
+      print("Filter: remove selected taxa")
       if (any(is.na(selected_taxalist))) { #if any of the selected taxa are NA
         
         taxkeep = tryCatch(rownames(filter(taxsamsel, 
@@ -349,6 +354,7 @@ ps.sub <- reactive({
     
     trackNums$seltax_aft <- as.character(ntaxa(ps))
   } 
+  print("Filter: tax pruning parameters implemented")
  ps <- ps %>% prune_samples(sample_sums(.)>0,.) %>% prune_taxa(taxa_sums(.)>0,.)
   return(ps)
 }) %>% bindEvent(input$prune_tax,input$prune_samples, #update ps when pruning numbers change
@@ -377,21 +383,27 @@ ps.norm <- reactive({
 
   #if(input$normoptions != "none") {TRANSFORM(ps,input$normoptions)}
   if(input$normoptions=="tax_count") {
+    print("Norm: abundance cutoff across samples")
     #psnorm <- subfunc(ps,TRANSFORM(ps,input$normoptions,abund_cutoff=input$abund_cutoff))
     psnorm <- tryCatch(TRANSFORM(ps,input$normoptions,abund_cutoff=input$abund_cutoff),
                        error=function(e){ps})
     }
   if(input$normoptions=="tax_rel") {
+    print("Norm: relative abundance cutoff")
     #psnorm <- subfunc(ps,TRANSFORM(ps,input$normoptions,mean_cutoff=input$mean_cutoff))
     psnorm <- tryCatch(TRANSFORM(ps,input$normoptions,mean_cutoff=input$mean_cutoff),
                                  error=function(e){ps})
     }
   if(input$normoptions!="tax_count" && input$normoptions!="tax_rel") {
     #psnorm <- subfunc(ps,TRANSFORM(ps,input$normoptions))
+    print("Norm: transformation")
     psnorm <- tryCatch(TRANSFORM(ps,input$normoptions),
                        error=function(e){ps})
     }
-  if(input$normoptions=="none") {psnorm <- ps}
+  if(input$normoptions=="none") {
+    print("Norm: no normalization")
+    psnorm <- ps
+    }
   
   if (!isTruthy(psnorm) && input$normoptions!="none") {
     showModal(
