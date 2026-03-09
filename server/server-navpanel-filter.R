@@ -252,7 +252,31 @@ ps.sub <- reactive({
         selcolvals = as.data.frame(as.matrix(sample_data(ps))) %>% select(input$sample_filterby) #get sample_data of selected variable 
         selkeep = row.names(selcolvals %>% filter(selcolvals[[1]] %in% input$sample_select)) #list of sample names selected
       }
-      ps <- prune_samples(selkeep,ps)
+      
+      # add a check here to make sure that we can prune samples based on selkeep 
+      # need to take these rownames and check them against the feature table to make sure it doesn't return a blank otu table
+      # then can use to prune the ps object 
+
+      ps.pr <- tryCatch(prune_samples(selkeep,ps), 
+                        error=function(e){return(NULL)} #if it returns an error ps.pr will be NULL
+                        )
+      if(isTruthy(ps.pr)) { #if ps.pr is NULL, a modal dialog box will show up that tells you that the subsetting criteria you chose will not work and will reset the filtering selections
+        ps <- ps.pr
+      } else {
+    
+          showModal(
+            modalDialog(title="ERROR",
+                        "One or more of your subsetting criteria is too strict",
+                        size='l',
+                        easyClose = FALSE
+            )
+          ) 
+          shinyjs::reset("sample_filterby")
+          shinyjs::reset("sample_select")
+        
+      }
+      req(ps)
+      
     } else {
       ps <- ps
     }
