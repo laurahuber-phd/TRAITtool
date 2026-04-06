@@ -281,10 +281,6 @@ ps.sub <- reactive({
         selcolvals = as.data.frame(as.matrix(sample_data(ps))) %>% select(input$sample_filterby) #get sample_data of selected variable 
         selkeep = row.names(selcolvals %>% filter(selcolvals[[1]] %in% input$sample_select)) #list of sample names selected
       }
-      shinyjs::delay(3000,
-                     ps <- prune_samples(selkeep,ps)
-                     )
-      print("Filter: sample prune parameters implemented")
     } else {
       ps <- ps
     }

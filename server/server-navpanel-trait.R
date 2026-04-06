@@ -81,22 +81,21 @@ observeEvent(input$trait_assign, {
   
   ################## When both db is selected  ################## 
   if(input$trait_select=="Both") {
-    print("Traits: both databases selected")
-    # get valid species from each database 
-    fishlist <-  traits_query$nona %>% rfishbase::validate_names(server="fishbase") 
-    sealist <-  traits_query$nona %>% rfishbase::validate_names(server="sealifebase") 
-    # combine the two lists and remove any na values  
-    bothlist <- c(fishlist,sealist[!sealist%in%fishlist])
-    print("Traits: both databases; species lists validated")
-    traits_query$valid <- bothlist[!is.na(bothlist)] 
+    ### check if tax names are valid/found in the databases ### 
+    # fishbase will validate names with no problems 
+    # sealifebase will crash if I try to validate names 
+    # so that is skipped
+    
+    # remove NA values from species 
+    traits_query$valid <- traits_query$nona[!is.na(traits_query$nona)] 
     # make list of species that did not pass 
     traits_query$invalid <- traits_query$nona[!traits_query$nona%in%traits_query$valid] 
-    print("Traits: both databases; invalid names recorded")
+    # traits_query$invalid will then be used to print the tax names that were queried and not found in the database
     
     ################## get trophic info   ################## 
     fish.troph <- rfishbase::estimate(species_list=traits_query$valid,
                                       server="fishbase")
-    print("Traits: both databases; fishbase queried")
+    # remove any taxa that were found in fishbase before querying sealifebase 
     nonfish.troph <- rfishbase::estimate(species_list=traits_query$valid[!traits_query$valid%in%fish.troph$Species],
                                       server="sealifebase")
     print("Traits: both databases; sealifebase queried")
@@ -123,19 +122,10 @@ observeEvent(input$trait_assign, {
   } else { 
     print("Traits: only one database selected")
     ################## When a single db is selected  ################## 
-    # select only valid species   
-    traits_query$valid <- traits_query$nona %>% rfishbase::validate_names(server=traits_query$serv) 
-    traits_query$valid <- traits_query$valid[!is.na(traits_query$valid)]
-    print("Traits: species lists validated")
-    
-    # make new list of species that did not pass 
-    traits_query$invalid <- traits_query$nona[!traits_query$nona%in%traits_query$valid] 
-    print("Traits: invalid names recorded")
-    
+   
     # get the trophic info for those species  
     traits.df <- rfishbase::estimate(species_list=traits_query$valid,
                                       server=traits_query$serv)
-    print("Traits: database queried")
     
     # assign to reactiveValues to use later  
     colnames(traits.df) <- str_to_title(colnames(traits.df))
