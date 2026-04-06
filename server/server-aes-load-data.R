@@ -16,6 +16,7 @@ observe({
                             header=input$meta_header)
   MetadataTable$x <- metfile
   MetadataTable$og <- metfile
+  print("Load: loaded metadata")
 }) %>% bindEvent(input$Metadata,input$meta_sep,input$meta_header)
 
 ###################### UPLOAD FEATURE TABLE ######################
@@ -34,6 +35,7 @@ observe({ #upload the OTU file
                             header=input$otu_header)
   OTUTable$x <- otufile
   OTUTable$og <- otufile
+  print("Load: loaded asv table")
 }) %>% bindEvent(input$otutab,input$otu_sep,input$otu_header)
 
 output$otucomplete <- renderText({
@@ -77,12 +79,14 @@ observe({ #upload the taxonomy file
     taxfile <- taxfile %>% 
       mutate(Species=case_when(!is.na(Species) ~ paste0(Genus," ",Species), #remake the species column to genus-species
                                                     .default=NA))
+    print("Load: taxfile species names changed to genus-species")
   } else {
     taxfile <- taxfile
   }
   
   TaxTable$x <- taxfile
   TaxTable$og <- taxfile_upld
+  print("Load: loaded tax file")
 }) %>% bindEvent(input$taxtab,input$tax_sep,input$tax_header)
 
 output$taxcomplete <- renderText({
@@ -109,6 +113,7 @@ observeEvent(input$load_ex, {
                           na = c("",".","NA","NULL","Unassigned","unassigned")
   )
   MetadataTable$og <- MetadataTable$x <- metfile
+  print("Load: loaded example metadata")
   
   otufile <- vroom::vroom('data/otu_table.csv',delim=',',
                           show_col_types = FALSE,
@@ -116,6 +121,7 @@ observeEvent(input$load_ex, {
                           na = c("",".","NA","NULL","Unassigned","unassigned")
   )
   OTUTable$og <- OTUTable$x <- otufile
+  print("Load: loaded example asv table")
   
   taxfile_upld <- vroom::vroom('data/tax_table.csv',delim=',',
                           show_col_types = FALSE,
@@ -127,7 +133,7 @@ observeEvent(input$load_ex, {
                                .default=NA))
   TaxTable$x <- taxfile
   TaxTable$og <- taxfile_upld
-
+  print("Load: loaded example tax file")
 })
 
 
@@ -140,16 +146,18 @@ isgood <- reactive({
   } else if (is.null(TaxTable$x)) {
     "Taxonomy are not in correct format or the wrong files are uploaded"
   } else {"Everything is great"}
-}) %>% bindEvent(input$Metadata,input$taxtab,input$otutab,ignoreNULL=FALSE)  
+
+  }) %>% bindEvent(input$Metadata,input$taxtab,input$otutab,ignoreNULL=FALSE)  
+
 ps.og <- eventReactive(c(input$assemble_ps,input$load_ex),{
   
   runif(input$assemble_ps)
   runif(input$load_ex)
   runif(input$go_addtroph)
   
-  req(MetadataTable$x)
-  req(OTUTable$x)
-  req(TaxTable$x)
+  req(!is.null(MetadataTable$x))
+  req(!is.null(OTUTable$x))
+  req(!is.null(TaxTable$x))
   
   all <- tryCatch(assemble_ps(otu=OTUTable$x, # build the phyloseq object
                               tax=TaxTable$x,
@@ -223,6 +231,7 @@ observeEvent(c(input$assemble_ps,input$load_ex,input$go_addtroph),{
   #ps.sub() <- NULL
   #ps.norm() <- NULL
   #Meta_vars() <- rnames() <- NULL
+  print("Dataset replaced; plots should be removed")
   shinyjs::hide("def_prune")
   shinyjs::hide("def_plotrank")
   shinyjs::hide("def_plotrich")
@@ -247,4 +256,4 @@ observeEvent(c(input$assemble_ps,input$load_ex,input$go_addtroph),{
   
   shinyjs::hide("viewfinalreport")
   shinyjs::hide("dwnldviewreport")
-})
+},ignoreInit = TRUE)

@@ -32,6 +32,7 @@ observeEvent(input$trait_select, {
          "FishBase" = "fishbase",
          "SeaLifeBase" = "sealifebase",
          )
+  print("Traits: traits_query$serv updated")
 })
 
 observeEvent(input$trait_assign, {
@@ -49,7 +50,7 @@ observeEvent(input$trait_assign, {
   traits_query$serv <- traits_query$all <- traits_query$choose <- traits_query$nona <- traits_query$valid <- traits_query$invalid <- NULL
   
   taxa_df <- TaxTable$x
-  
+  print("Traits: reactive value variables reset")
   ################## update vars to show what db we're querying  ################## 
   traits_query$choose <- switch(input$trait_select, 
                                 #based on the selected database, get a list of species  
@@ -63,20 +64,27 @@ observeEvent(input$trait_assign, {
                                                  filter(!is.na(Species) & !str_detect(Class,"ctinop")) %>% 
                                                  .$Species %>% unique())
   )
+  print("Traits: species list gathered")
   
   if(length(traits_query$choose[!is.na(traits_query$choose)]) > 0) { #number of species to query has to be more than 0
     #make a list of species from the selection (remove NA species)
     traits_query$nona <- traits_query$choose[!is.na(traits_query$choose)] 
+    print("Traits: na values removed from species list")
     
     shinyjs::show(id="p_fishquery") #report the number of species queried 
+    print("Traits: show panel p_fishquery")
+    
     output$n_fishquery <-  renderText({paste("Number of species queried: ",length(traits_query$nona))})
+    print("Traits: number of query species calculated")
     
   } else {
     showModal(modalDialog("No species are assigned in this table. Check you are using the correct dataframe on the review tab."))
+    print("Traits: traits_query$choose is 0 or NA")
   }
   
   # only proceed if traits_query$nona is made 
   req(traits_query$nona)
+  print("Traits: traits_query$nona exists")
   
   ################## When both db is selected  ################## 
   if(input$trait_select=="Both") {
@@ -97,6 +105,7 @@ observeEvent(input$trait_assign, {
     # remove any taxa that were found in fishbase before querying sealifebase 
     nonfish.troph <- rfishbase::estimate(species_list=traits_query$valid[!traits_query$valid%in%fish.troph$Species],
                                       server="sealifebase")
+    print("Traits: both databases; sealifebase queried")
     
     # combine the two df
     # standardize the column names  
@@ -108,14 +117,17 @@ observeEvent(input$trait_assign, {
     traits.df <- bind_rows(fish.troph, 
                            nonfish.troph,
                            .id="db") 
+    print("Traits: both databases; trophic database assembled")
     
     traits_vals$fish.troph <- (traits.df %>% tibble::rownames_to_column(var="rownames")) 
     
     #add the ones that weren't found to traits_query$invalid
-    traits_query$invalid <- c(traits_query$invalid,traits_query$valid[!traits_query$valid%in%traits.df$Species])
+    traits_query$invalid <- c(traits_query$invalid,
+                              traits_query$valid[!traits_query$valid%in%traits.df$Species])
+    print("Traits: both databases; species not found added to invalid list")
     
   } else { 
-    
+    print("Traits: only one database selected")
     ################## When a single db is selected  ################## 
     # get the trophic info for those species  
     traits.df <- rfishbase::estimate(species_list=traits_query$nona,#species_list=traits_query$valid,
@@ -124,10 +136,12 @@ observeEvent(input$trait_assign, {
     # assign to reactiveValues to use later  
     colnames(traits.df) <- str_to_title(colnames(traits.df))
     traits_vals$fish.troph <- (traits.df %>% tibble::rownames_to_column(var="rownames")) #rfishbase::ecology for fish
+    print("Traits: database assembled")
     
     #add the ones that weren't found to traits_query$invalid
-    traits_query$invalid <- c(traits_query$invalid,traits_query$valid[!traits_query$valid%in%traits.df$Species])
-    
+    traits_query$invalid <- c(traits_query$invalid,
+                              traits_query$valid[!traits_query$valid%in%traits.df$Species])
+    print("Traits: species not found added to invalid list")
   }
   
   ################## Combine with tax table  ################## 
@@ -142,6 +156,7 @@ observeEvent(input$trait_assign, {
   taxa_traits_df <- relocate(taxa_traits_df,
                              "Species",
                              .after="Genus") 
+  print("Traits: trophic information added to tax table")
   
   #rownames(taxa_traits_df) <- taxa_traits_df[[1]]
   
@@ -182,8 +197,10 @@ observeEvent(input$trait_assign, {
 
 observe({
   if(!is.null(traits_query$valid)) {shinyjs::show("loading_traittax")} #after traits are assigned show the progress on the next table
+  print("Traits: traits_query$valid is no longer null, show loading_traittax")
   if(!is.null(traits_query$invalid)) {shinyjs::show("viewtrait_panel")} #show loading screen once invalid names list is complete
-})
+  print("Traits: traits_query$invalid is not null; show viewtrait_panel")
+},suspended = TRUE)
 
 #observe(ps.all(), {
 #  if(input$go_addtroph) {shinyjs::show("trait_ps_success")}
