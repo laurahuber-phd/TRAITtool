@@ -1,0 +1,26 @@
+
+aboutpanel <- tagList(
+  h3("About the team"),
+  h5("We are grateful to the teams who helped contribute to making this application possible"),
+  #p("Fisheries Department"),
+  #p("Forestry Department"),
+  #p("TASA"),
+  #p("CZMI"),
+  #p("EB"),
+  p("Marine Conservation Lab at the Smithsonian Environmental Research Center"),
+  #p("MarineGEO"),
+  br(),
+  h3("About our funders"),
+  p("The development of this application was funded in part by the William H. Donner Foundation and the Smithsonian Women's Committee"),
+  #h5("The development of this application was funded in part by the William H. Donner Foundation"),
+  #p(),
+  #h5("The development of this application was funded in part by the Smithsonian Women's Committee"),
+  br(),
+  tags$footer(style="display: flex;justify-content: space-between;",
+              tags$img(src='smiths_logoLong.png',height='40px',
+                       alt="Smithsonian sun logo"),
+              tags$img(#src='ShinyFooter.png',
+                src='titlefooter.png',
+                height='30px',
+                alt="William H. Donner Foundation and Smithsonian Women's Committee logos"))
+)

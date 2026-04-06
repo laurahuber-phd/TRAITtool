@@ -27,7 +27,9 @@ Select_BlanksCard <- card(
     )
   ),
   conditionalPanel(condition="input.rem_blanks==true",
-                        wellPanel(textOutput('remblank_bef'),textOutput('remblank_aft')))
+                        wellPanel(textOutput('remblank_bef'),textOutput('remblank_aft'),
+                                  textOutput('remblanktax_bef'),textOutput('remblanktax_aft')
+                                  ))
 )
 
 # ---- # Samples # ---- 
@@ -39,9 +41,9 @@ SelectPruneCard <- card(
                       "Use this section to choose a minimum number of times a taxa occurs and/or how small of a sample to include. "
                       ),
               ),
-  "Removing ASVs with only one occurrence can reduce the likelihood of overestimating diversity. Samples with dramatically fewer sequences can also bias analyses.",
+  "Removing sequences with only one occurrence can reduce the likelihood of overestimating diversity. Samples with dramatically fewer sequences can also bias analyses.",
   numericInput("prune_samples", "Remove samples with less than this many sequences:", value = 100),
-  numericInput("prune_tax","Remove ASVs with less than this many occurrences:",value = 1)
+  numericInput("prune_tax","Remove sequences with less than this many occurrences:",value = 1)
 )
 
 ## ---- select samples ## ---- 
@@ -52,18 +54,20 @@ SelectSamplesCard <- card(
   br(),
   h5("Click on the toggle to select samples. Clicking it again will reset all selections. "),
   useShinyjs(),
-  materialSwitch(inputId='sample_switch', value=FALSE, label="Go to subset samples"), #toggle to open accordion 
-  accordion( id='sample_accord', open=FALSE,
-    accordion_panel( id='sample_prunepanel',title="Pick samples",
-      actionButton('go_sample',"Go: Use selected samples"),
-      selectInput('sample_filterby',"Select filtering group",
-                  character()
-                  ),
-      checkboxGroupInput('sample_select', label="Select samples",
-                         list()
-                         )
-    )
-  ),
+  materialSwitch(inputId='sample_switch', value=FALSE, label="Subset samples?"), #toggle to open accordion 
+  
+  conditionalPanel(condition="input.sample_switch==true",
+                   splitLayout(cellWidths = c("50%","50%"),
+                               verticalLayout(selectInput('sample_filterby',"Filter by the following:",
+                                                          character()
+                               ),
+                               checkboxGroupInput('sample_select', label="Select samples",
+                                                  list()
+                               )),
+                               verticalLayout(br(),
+                                              actionButton('go_sample',"Go: Use selected samples"))
+                               )
+                               ),
   shinyjs::hidden(
          wellPanel(id="befaft_sample",textOutput("selsamp_bef"),textOutput("selsamp_aft"))
          )
@@ -75,21 +79,26 @@ SelectTaxaCard <- card(
   "Choose this if you want to specify which taxa to include/exclude. You don't need to do anything here if you are interested in viewing the entire dataset.",
   br(),
   h5("Click on the toggle to select samples. Clicking it again will reset all selections."),
-  materialSwitch(inputId='tax_switch', value=FALSE, label="Go to subset taxa"), #toggle to open accordion 
-  accordion( id='tax_accord', open=FALSE,
-    accordion_panel( id='tax_prunepanel',title="Pick taxa",
-      "Keep or remove the selected taxa?",
-      switchInput(inputId='tax_keepremove',value=FALSE, width = "100%",
-                  onLabel = "Keep",
-                  offLabel = "Remove"),
-      actionButton('go_tax',"Go"),
-      selectInput('tax_filterby',"Select rank",
-                  character()
-                  ),
-      checkboxGroupInput('tax_select',label="Select taxa",
-                         list()
-                         )
-      )
+  materialSwitch(inputId='tax_switch', value=FALSE, label="Subset taxa?"), #toggle to open accordion 
+  conditionalPanel(condition="input.tax_switch==true",
+                   
+                   splitLayout(cellWidths = c("50%","50%"),
+                               verticalLayout(
+                                 selectInput('tax_filterby',"Select rank",
+                                             character() ),
+                                 checkboxGroupInput('tax_select',label="Select taxa",
+                                                    list())
+                               ),
+                               card("Keep or remove the selected taxa?",
+                                              switchInput(inputId='tax_keepremove',
+                                                          value=FALSE, width = "100%",
+                                                          inline=TRUE,
+                                                          onLabel = "Keep",
+                                                          offLabel = "Remove"),
+                                              actionButton('go_tax',"Go: prune selected taxa",class = 'btn-warning')
+                               )
+                   )
+                   
   ),
   shinyjs::hidden(
     wellPanel(id="befaft_tax",textOutput("seltax_bef"),textOutput("seltax_aft"),textOutput("selrank"),textOutput('seltax'))
@@ -112,9 +121,9 @@ SelectNormCard <- card(
                                 value=0)
                    ),
   conditionalPanel(condition="input.normoptions == 'tax_rel'",
-                   numericInput("mean_cutoff",label="Minimum percentage of sequences a taxa should appear in",
-                                value=0)
-  )
+                   numericInput("mean_cutoff",label="Minimum total percentage of sequences a taxa should appear in",
+                                value=0,min=0,max=1,step=0.01)
+                   )
 )
 
 #############################################################################################################
@@ -133,9 +142,27 @@ filterpage <- nav_panel(
                  SelectPruneCard,
                  SelectNormCard
                  ),
-  wellPanel(textOutput("prune_bef"),textOutput("prune_aft"))
+  layout_columns(col_widths=c(6,6),
+                 wellPanel(id='befaft_prune',
+                             textOutput("prune_bef"),textOutput("prune_aft"),
+                             textOutput("prunetax_bef"),textOutput("prunetax_aft")),
+                 shinyjs::hidden(wellPanel(id="befaft_norm",
+                                           textOutput("norm_bef"),textOutput("norm_aft")))
+                 )
   ),
   jqui_resizable(Select_BlanksCard), #This card allows you to select the sequencing blanks,
   SelectSamplesCard,
-  SelectTaxaCard
+  SelectTaxaCard,
+  layout_column_wrap(
+    width=1/2,fill=TRUE,
+    actionButton("bfilter_prevpage","Previous step"),
+    actionButton("bfilter_nextpage","Next step")
+  ),
+  tags$footer(style="display: flex;justify-content: space-between;",
+              tags$img(src='smiths_logoLong.png',height='40px',
+                       alt="Smithsonian sun logo"),
+              tags$img(#src='ShinyFooter.png',
+                src='titlefooter.png',
+                height='30px',
+                alt="William H. Donner Foundation and Smithsonian Women's Committee logos"))
 )

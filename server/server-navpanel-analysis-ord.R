@@ -1,5 +1,5 @@
 observe({ 
-  req(ps.sub())
+  req(ps.norm())
   updatePickerInput(session,
                     "choose_ord_color", 
                     choices=c(Meta_vars()),
@@ -14,11 +14,12 @@ observe({
 
 distreact <- eventReactive(input$calc_ord, {
   runif(input$calc_ord)
+
   
   req(input$ord_dist)
   req(input$ord_meth)
   
-  ps <- ps.sub()
+  ps <- ps.norm()
   withProgress(
     tryCatch(ordinate(
       physeq=ps,
@@ -91,7 +92,7 @@ ordplot <- eventReactive(input$go_ord, { #assign a variable that runs when plot 
   
   # ells <- input$choose_metavars4
   
-  baseplot <- plot_ordination(physeq=ps.sub(),
+  baseplot <- plot_ordination(physeq=ps.norm(),
                   ordination=distreact(),
                   type=input$ord_vis,
                   color=input$choose_ord_color,
@@ -124,23 +125,22 @@ ordplot <- eventReactive(input$go_ord, { #assign a variable that runs when plot 
          title=paste0(input$ord_meth," Ordination Plot")
     )
 })
-output$ord_plot <- renderPlot({
-  ordplot()
+observeEvent(input$go_ord,{
+  output$ord_plot <- renderPlot({ ordplot() })
 })
+
 observe({
   showModal(modalDialog(
     renderPlot(ordplot()),
-    footer = downloadButton('download_ordplot_popup', 'Download'),
+    footer = downloadButton('ord_plotdwnld_popup', 'Download'),
     size="xl",
     easyClose = TRUE
   ))
 }) %>% bindEvent(input$ord_click)
-output$download_ordplot_popup <-  downloadHandler(
+output$ord_plotdwnld <- output$ord_plotdwnld_popup <-  downloadHandler(
   filename = "ord_plot.png",
   contentType = 'image/png',
   content = function(file) {
     ggsave(file,plot=ordplot()
     )
   }) 
-output$psog <- renderPrint({ps.all()})
-output$pstext <- renderPrint({ps.sub()})

@@ -98,6 +98,7 @@ subset_blanks_rem <- function(ps,var,samples,prop) { #need the ps object, the va
    new.ps %>% prune_samples(sample_sums(.)>0,.) #return new.ps
 }
 
+
 TRANSFORM <- function(ps,TRANSFORMATION,abund_cutoff=NULL,mean_cutoff=NULL) {
   if (TRANSFORMATION == "none") {
     ps %>% 

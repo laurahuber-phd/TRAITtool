@@ -6,21 +6,21 @@ library(shinycssloaders)
 violinplot_pretty  <- plotPrettyServer(id="violin_pretty")
 violinplot_size <- plotSizeServer(id="violin_size") 
 violinplot_general <- plotControlsServer(id="violin_gen",
-                                        df=(if (input$normoptions != "none") {ps.norm.melt()} else {ps.sub.melt()}),
-                                        var1=rnames(), #color
-                                        var2=Meta_vars(), #x
+                                        df=ps.norm.melt,
+                                        var1=rnames, #color
+                                        var2=Meta_vars, #x
                                         #var3=Meta_vars(), #y
-                                        var4=Meta_vars(), #facet
+                                        var4=Meta_vars, #facet
                                         #var1=Meta_vars(), #color
                                         #var2=Meta_vars(), #x
-                                        var3=(ps.sub.melt() %>% select(contains("Troph")) %>% colnames() )#, #y
+                                        var3=reactive(ps.norm.melt() %>% select(contains("roph")) %>% colnames() )#, #y
                                         #var4=Meta_vars() #facet
 ) 
 
 violin_base <- reactive({
-  req(ps.sub())
+  req(ps.norm())
   #req(violinplot_general$x())
-  (if (input$normoptions != "none") {ps <- ps.norm.melt()} else {ps <- ps.sub.melt()})
+  ps <- ps.norm.melt()
   
   ps.edit <- ps %>% mutate(Trophic.Level = (as.numeric(.data[[violinplot_general$y()]]))) %>% filter(Abundance >0)
   
@@ -32,10 +32,9 @@ violin_base <- reactive({
                  fill=.data[[violinplot_general$x()]]
                  )
          ) + 
-    geom_violin() + geom_boxplot(width=0.1)
+    geom_violin(na.rm=TRUE) + geom_boxplot(width=0.1)
 
-}) %>% bindEvent(ps.sub(), 
-                 input$normoptions,
+}) %>% bindEvent(ps.norm(),
                  #ps.norm.melt(),
                  #ps.sub.melt(),
                  #violinplot_general$color(),
@@ -48,7 +47,9 @@ violinplot <- eventReactive(input$go_violin, {
   violin_base() + violinplot_general$facet() + violinplot_pretty() + violinplot_size() 
 }) 
 
-output$violin_plot <- renderPlot({violinplot()})
+observeEvent(input$go_violin, {
+  output$violin_plot <- renderPlot({violinplot()})
+})
 
 observe({
   showModal(modalDialog(

@@ -41,6 +41,7 @@ RUN R -e "devtools::install_version('bslib',version='0.9.0',type='source',repos 
 RUN R -e "devtools::install_version('shiny',version='1.10.0',type='source',repos = 'http://cran.us.r-project.org',dependencies=TRUE)"
 RUN R -e "devtools::install_version('tinytex',version='0.57',type='source',repos = 'http://cran.us.r-project.org',dependencies=TRUE)"
 RUN R -e "tinytex::install_tinytex()"
+RUN R -e "devtools::install_github('ropensci/rfishbase')"
 
 
 # Copy the Shiny app code

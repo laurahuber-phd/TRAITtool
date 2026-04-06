@@ -130,8 +130,11 @@ Anlys_BetaCard <- accordion(
                                                  )
                     ))
                     ),
-                    actionButton("go_ord","Plot"),
-                      withSpinner(plotOutput("ord_plot",click="ord_click"))
+                    layout_columns(col_widths=c(10,-1,1),
+                                   actionButton("go_ord","Plot"),
+                                   downloadButton('ord_plotdwnld', label=NULL)
+                                   ),
+                    withSpinner(plotOutput("ord_plot",click="ord_click"))
                     )
     ),
     accordion_panel("Stress Plots",
@@ -153,15 +156,16 @@ Anlys_hmCard <- tagList(
   h5("This tab will generate a heatmap to show patterns in when a taxa occurs"),
   HTML("<p>Use the <u>'Controls'</u> button to change the taxonomic rank visualized or to alter what variable is used on the x-axis. You can also add up to two 'faceting' variables, which will separate the data into different plots based on which variables you facet by.</p>"),
   HTML("<p>Use the <u>'Aesthetics'</u> button to change aesthetic elements such as the plotting theme, which will influence how the background and gridlines look. Here you can also change the position of the legend, text size, and the direction of text on the x-axis.</p>"),
- HTML("<p>Use the <u>'Plot Size' </u> button to change the aspect ratio of the plot. </p>"),
+  HTML("<p>Use the <u>'Plot Size' </u> button to change the aspect ratio of the plot. </p>"),
   layout_columns(
     plotControlsUI('hm_gen',color=TRUE,x=TRUE,y=FALSE,facet=TRUE
     ),
     plotPrettyUI("hm_pretty"),
     plotSizeUI('hm_size')
   ),
-    actionButton("go_hm","Plot"),
-    downloadButton('hm_plotdwnld', label=NULL),
+  layout_columns(col_widths=c(10,-1,1),
+                 actionButton("go_hm","Plot"),
+                 downloadButton('hm_plotdwnld', label=NULL)),
     withSpinner(plotOutput("hm_plot",click="hm_click")) #add a reaction when the plot is clicked
   
 )
@@ -170,12 +174,8 @@ Anlys_hmCard <- tagList(
 Anlys_ViolinCard <- tagList(
   h5("This tab will generate a violin plot"),
   HTML("<p>Use the <u>'Controls'</u> button to change the taxonomic rank visualized or to alter what variable is used on the x-axis. You can also add up to two 'faceting' variables, which will separate the data into different plots based on which variables you facet by.</p>"),
-  br(),
   HTML("<p>Use the <u>'Aesthetics'</u> button to change aesthetic elements such as the plotting theme, which will influence how the background and gridlines look. Here you can also change the position of the legend, text size, and the direction of text on the x-axis.</p>"),
-  br(),
   HTML("<p>Use the <u>'Plot Size'</u> button to change the aspect ratio of the plot. </p>"),
-  br(),
-  
   layout_columns(
     plotControlsUI('violin_gen',color=FALSE,x=TRUE,y=TRUE,facet=TRUE
     ),
@@ -217,18 +217,26 @@ analysispage <- nav_panel("Analysis",
                 nav_panel(id="taxcomp",title="Taxonomic composition", full_screen=TRUE,
                           Anlys_HistoCard
                           ),
-                nav_panel(id="beta", title="Beta biversity",
+                nav_panel(id="beta", title="Beta diversity",
                           Anlys_BetaCard
                           ),
                 nav_panel(id="hm", title="Heat map",
                           Anlys_hmCard
                           ),
-                nav_panel(id="trophic", title="Trophic composition",
-                          Anlys_TrophCard
-                          ),
-                nav_panel(id="violin", title="Violin",
+                nav_panel(id="violin", title="Trophic composition",
                           Anlys_ViolinCard
-                )
-                )
+                         )
+                ),
+  layout_column_wrap(width=1/2,fill=TRUE,
+                     actionButton("banalysis_prevpage","Previous step"),
+                     actionButton("banalysis_nextpage","Next step")
+  ),
+  tags$footer(style="display: flex;justify-content: space-between;",
+              tags$img(src='smiths_logoLong.png',height='40px',
+                       alt="Smithsonian sun logo"),
+              tags$img(#src='ShinyFooter.png',
+                src='titlefooter.png',
+                height='30px',
+                alt="William H. Donner Foundation and Smithsonian Women's Committee logos"))
 )
 #############################################################################################################

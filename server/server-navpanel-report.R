@@ -8,12 +8,13 @@
 #### checks #### 
 #output$rep_ps <- mkdwnrptfun(ps.sub())
 observe({
-  req(ps.sub())
+  req(ps.norm())
   output$rep_richplot <- renderPlot({richplot()})
   output$rep_percplot <- renderPlot({rankperc_plot()})
   output$rep_ordplot <- renderPlot({ordplot()})
   output$rep_histplot <- renderPlot({histoplot()})
   output$rep_hmplot <- renderPlot({hmplot()})
+  output$rep_vioplot <- renderPlot({violinplot()})
   
   output$rep_pnsamp <- renderText({mkdwnrptfun(input$prune_samples)}) #min sample number
   output$rep_pntax <- renderText({mkdwnrptfun(input$prune_tax)}) #min tax occurrence 
@@ -64,6 +65,7 @@ params <- reactiveValues(blanks=NA, #create list of parameters to read into rmar
                          remsam=NA,
                          histplot=NA,
                          hmplot=NA,
+                         vioplot=NA,
                          samsum=NA,
                          N_seq_total_num_sel=NA,
                          N_seq_assigned_num_sel=NA,
@@ -80,12 +82,13 @@ mkdwnrptfun <- function(x) { #tryCatch will check to see if the 'function' exist
 observeEvent(input$gen_report, {
   report$pdffilepath <- report$htmlfilepath <- NULL
   shinyjs::hide("viewfinalreport")
-  params[["ps"]] <- mkdwnrptfun(ps.sub())
+  params[["ps"]] <- mkdwnrptfun(ps.norm())
   params[["richplot"]] <- mkdwnrptfun(richplot())
   params[["percplot"]] <- mkdwnrptfun(rankperc_plot())
   params[["ordplot"]] <- mkdwnrptfun(ordplot())
   params[["histplot"]] <- mkdwnrptfun(histoplot())
   params[["hmplot"]] <- mkdwnrptfun(hmplot())
+  params[["vioplot"]] <- mkdwnrptfun(violinplot())
   
   params$pnsamp <- mkdwnrptfun(input$prune_samples) #min sample number
   params$pntax <- mkdwnrptfun(input$prune_tax) #min tax occurrence 
@@ -130,7 +133,8 @@ observeEvent(input$gen_report, {
     detail = "This may take a while. This window will disappear when the report is ready.",
     value=0, {
       render('ProjectReport.Rmd',
-             output_format = c('pdf_document','html_document'),#,'word_document'), 
+             output_format = c('html_document'),#,'pdf_document','word_document'), 
+             #output_format = c('pdf_document','html_document'),#,'word_document'), 
              params= paramvals, 
          #switch(input$format,
         #        PDF = pdf_document(),
@@ -186,8 +190,8 @@ output$download_report <- downloadHandler(
   }
 )
 
-#Hide report if ps.sub changes
-observeEvent(ps.sub(),{
+#Hide report if ps.norm changes
+observeEvent(ps.norm(),{
   shinyjs::hide("viewfinalreport")
   shinyjs::hide("dwnldviewreport")
 })
@@ -205,3 +209,42 @@ observeEvent(input$view_report, {
   }) 
   
 })
+
+  output$norm_meltdwnld <- downloadHandler(
+    filename = function() {
+      paste("ShinyeDNA_fullDataset", ".csv", sep="")
+    },
+    content = function(file) {
+      write.csv(ps.norm.melt(),file)
+    }
+  )
+  
+  output$norm_taxdwnld <- downloadHandler(
+    filename = function() {
+      paste("ShinyeDNA_taxdataset", ".csv", sep="")
+    },
+    content = function(file) {
+      write.csv(as.data.frame(as.matrix(tax_table(ps.norm()))),
+                file)
+    }
+  )
+  
+  output$norm_asvdwnld <- downloadHandler(
+    filename = function() {
+      paste("ShinyeDNA_asvdataset", ".csv", sep="")
+    },
+    content = function(file) {
+      write.csv(as.data.frame(as.matrix(otu_table(ps.norm()))),
+                file)
+    }
+  )
+  
+  output$norm_metadwnld <- downloadHandler(
+    filename = function() {
+      paste("ShinyeDNA_metadataset", ".csv", sep="")
+    },
+    content = function(file) {
+      write.csv(as.data.frame(sample_data(ps.norm())),
+                file)
+    }
+  )

@@ -1,15 +1,10 @@
-#psog and pstext can be found on server-navpanel-analysis-ord.R
+#outputs can be found on server-globalvars.R
 
-helppage <- nav_panel(
-  HTML("<h3>There are some requirements that your files must meet to be analyzed properly. Examine the example dataset below, which shows the results of an experiment that examines how the use of different primers and dilution impacts what species are identified in a mock community.</h3>"),
+helppage <- tagList(
+  h3("Settings"),
+  HTML("<p><strong>There are some requirements that your files must meet to be analyzed properly. Examine the example dataset below, which shows the results of an experiment that examines how the use of different primers and dilution impacts what species are identified in a mock community.</p></strong>"),
   br(),
-  "About the original dataset: ",
-       verbatimTextOutput('psog'),
   HTML("<p><i>This is the description of what is analyzed. Your OTU table connects the number of samples in the sequencing dataset with the number of sequences (referred to as taxa). Your sample data refers to the metadata file that was uploaded. It tells you how many samples there are and how many additional columns/variables were in the file. Finally, the tax table refers to how many unique sequences are in the dataset, and how many taxonomic ranks they are divided into. </i></p>"),
-  br(),
-  "About the subset dataset analyzed: ",
-  HTML("<p><i> (This may be the same as the original dataset if you did not choose to remove blanks or unassigned sequences.) </i></p>"),
-  verbatimTextOutput("pstext"),
   br(),
   br(),
   card(
@@ -32,5 +27,12 @@ helppage <- nav_panel(
     tooltip(span(img(src="Example_taxa.png", height="75%", width="75%", align = "center")),
             "Notice how in our example, the first row of the OTU and taxonomy tables are the same.",
             placement="auto")
-  )
+  ),
+  tags$footer(style="display: flex;justify-content: space-between;",
+              tags$img(src='smiths_logoLong.png',height='40px',
+                       alt="Smithsonian sun logo"),
+              tags$img(#src='ShinyFooter.png',
+                src='titlefooter.png',
+                height='30px',
+                alt="William H. Donner Foundation and Smithsonian Women's Committee logos"))
 )

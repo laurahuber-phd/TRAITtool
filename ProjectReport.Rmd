@@ -1,5 +1,6 @@
 ---
-title: "Dynamic Report"
+title: "TRAIT Report"
+subtitle: "Trophic Rapid Assessment and Integration Tool"
 output: 
   pdf_document: default  
   html_document: default   
@@ -10,22 +11,18 @@ params:
   unass: NA
   rembl: NA
   norm: NA
-  ntaxa: NA  
-  numsam: NA
-  numog: NA  
   ps: NA
+  ntaxa: NA
+  numsam: NA
+  numog: NA
   richplot: NA
   percplot: NA
+  histplot: NA
+  hmplot: NA
+  vioplot: NA
+  ordplot: NA
   ordmeth: NA
   ordtype: NA
-  ordplot: NA
-  N_seq_total_num_sel: NA
-  N_seq_assigned_num_sel: NA
-  N_otu_total_num_sel: NA
-  N_otu_assigned_num_sel: NA
-  N_seq_blanks_num_sel: NA
-  N_otu_blanks_num_sel: NA
-  samsum: NA
   nseq: NA
   notu: NA
   richmet: NA
@@ -33,8 +30,13 @@ params:
   pntax: NA
   remtax: NA
   remsam: NA
-  histplot: NA
-  hmplot: NA
+  samsum: NA
+  N_seq_total_num_sel: NA
+  N_seq_assigned_num_sel: NA
+  N_otu_total_num_sel: NA
+  N_otu_assigned_num_sel: NA
+  N_seq_blanks_num_sel: NA
+  N_otu_blanks_num_sel: NA
 ---
 ```{r setup, include=FALSE}
 library(ggplot2)
@@ -293,6 +295,13 @@ params$ordplot
 incProgress(10/11)
 Sys.sleep(2)
 ```
+
+# Trophic index  
+```{r}
+params$vioplot
+```
+
+
 \newpage  
 
 # R Session information  

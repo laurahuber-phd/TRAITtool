@@ -5,194 +5,183 @@ source('functions/module-plotting-general.R',local=TRUE)
 source('server/server-aes-vis.R',local=TRUE) #base theme for ggplot2
 
 
-observe({ #whenever ps.sub() changes 
+observe({ #whenever ps.norm() changes 
+  req(ps.all())
   updatePickerInput(inputId = 'basics_ranks', 
                     label = 'Taxonomic Rank', 
                     choices = c(rnames())
   ) #update picker selection using the rank names of the ps object
-}) %>% bindEvent(ps.sub())   
+}) #%>% bindEvent(ps.norm())   
 
 # ---- # Tab 1 (Sequences per sample) # ----- 
 N_sample_df <- reactive({
-  req(ps.sub())
-  data.frame(Sample=sample_names(ps.sub()),
-             "Sequences"=(sample_sums(ps.sub())),
+  req(ps.norm())
+  data.frame(Sample=sample_names(ps.norm()),
+             "Sequences"=(sample_sums(ps.norm())),
              row.names=NULL
   ) %>% arrange(.,Sample)
-}) %>%  bindEvent(ps.sub())
+}) %>%  bindEvent(ps.norm())
 
 # ---- # Tab 2 (Num of each taxa) # ---- 
 N_taxa_tab <- reactive({
-  req(ps.sub())
-  tibble(Rank = rank_names(ps.sub())) %>% 
+  req(ps.norm())
+  tibble(Rank = rank_names(ps.norm())) %>% 
     rowwise %>%
-    mutate(Unique = length(get_taxa_unique((ps.sub()),Rank)))
-}) %>% bindEvent(ps.sub())
+    mutate(Unique = length(get_taxa_unique((ps.norm()),Rank)))
+}) %>% bindEvent(ps.norm())
 
 # ---- # Tab 3 (Sequence distribution/qualities) # ---- 
-## ---- ## Summary (min/max/avg) ## ---- 
+
+## ---- ## Subset summary ## ---- 
 Summ_seqs_sel <- reactive({
-  req(ps.sub())
-  ps <- ps.sub()
-  df <- data.frame(MinNoReads=min(sample_sums(ps)) %>% round(digits=0),
-                   MaxNoReads=max(sample_sums(ps)) %>% round(digits=0),
-                   AvgNoReads=mean(sample_sums(ps)) %>% round(digits=0),
+  req(ps.norm())
+  ps <- ps.norm()
+  df <- data.frame(MinNoReads=min(sample_sums(ps)) %>% round(digits=0), #what is the minimum number of sequences in a sample
+                   MaxNoReads=max(sample_sums(ps)) %>% round(digits=0), #what is the maximum 
+                   AvgNoReads=mean(sample_sums(ps)) %>% round(digits=0), #what is the average  
                    MedNoReads=median(sample_sums(ps)) %>% round(digits=0)
   )
-  df_pretty <- rename(df,  
+  df_pretty <- rename(df,  #then rename the dataframe 
                       "Minimum number of reads"=MinNoReads,
                       "Maximum number of reads"=MaxNoReads,
                       "Average number of reads"=AvgNoReads,
                       "Median number of reads"=MedNoReads)
   t(df_pretty)
-}) %>% bindEvent(ps.sub())
+}) %>% bindEvent(ps.norm())
 
-## ---- ## Num sequences (in subset) ## ----
+# make empty reactive values variables to hold information about the subsetted dataset
 Num_seq_subset <- reactiveValues(
   N_seq_num = NULL, #total number of sequences
   N_seq_assigned = NULL,  #number of assigned sequences
   N_singleton = NULL, #number of singletons
   N_seq_blanks = NULL #number of seqs in blanks
 ) 
-
-observe({
-  req(ps.sub())
-  ps <- ps.sub()
-  
-  Num_seq_subset$N_seq_num = sum(taxa_sums(ps)) 
-  
-  Num_seq_subset$N_seq_assigned = tryCatch(sum(taxa_sums(subset_taxa(ps, rank_names(ps)[1]!="Not assigned" )
-                                                         )),
-                                           error=function(e){return(0)})
-  
-  #Num_seq_subset$N_singleton = length(taxa_names(prune_taxa(taxa_sums(ps)==1,ps)
-  #                                               )) %>% round(digits=0)
-  
- # Num_seq_subset$N_seq_blanks = if(is.null(input$blank_samples)) {return(0)} else 
- #   sum(taxa_sums(subset_blanks_rem(ps,input$blank_cols,input$blank_samples)))
-  
- # isolate({
-#    Num_seq_subset_list <- reactiveValuesToList(Num_seq_subset)
-#    Num_seq_subset_names <- c("Total number of sequences:","Number of assigned sequences:")#,"Number of sequences in blanks:")
-#    Num_seq_subset_df <- data.frame("Value"=Num_seq_subset_names,"Number"=Num_seq_subset_list)
-#  })
-  
-}) %>% 
-  bindEvent(input$blank_cols,
-            input$blank_samples,
-            ps.sub(), 
-            ignoreNULL=FALSE)
-
-## ---- ## Num ASVs ## ---- 
 Num_otu_subset <- reactiveValues(
-  N_otu_num = NULL, #number of OTUs
-  N_otu_assigned = NULL, #number of assigned OTUs 
-  N_otu_blanks = NULL #number of OTUs in blanks
+  N_otu_num = NULL, #number of ASVs
+  N_otu_assigned = NULL, #number of assigned ASVs 
+  N_otu_blanks = NULL #number of ASVs in blanks
 ) 
 
 observe({
-  req(ps.sub())
-  ps <- ps.sub()
+  req(ps.norm())
+  ps <- ps.norm()
   
-  Num_otu_subset$N_otu_num = ntaxa(ps)
+  Num_seq_subset$N_seq_num = sum(taxa_sums(ps)) #calculate total number of sequences  
+  Num_otu_subset$N_otu_num = ntaxa(ps) #calculate total number of ASVs
   
-  Num_otu_subset$N_otu_assigned = tryCatch(ntaxa(subset_taxa(ps, 
-                                              rank_names(ps)[1]!="Not assigned"
-                                              )),
-                                           error=function(e){return(0)})
-  
-  #Num_otu_subset$N_otu_blanks = if(is.null(input$blank_samples)) {return(0)} else 
-    #ntaxa(subset_blanks_rem(ps,input$blank_cols,input$blank_samples))
-  
-  #isolate({
-  #  Num_otu_subset_list <- reactiveValuesToList(Num_otu_subset)
-  #  Num_otu_subset_names <- c("Total number of ASVs:","Number of assigned ASVs:")#,"Number of ASVs in blanks:")
-  #  Num_otu_subset_df <- data.frame("Value"=Num_otu_subset_names,"Number"=Num_otu_subset_list)
-  #})
-  
-}) %>% 
+  if(isTruthy(taxa_sums(ps)==1)) {
+    Num_seq_subset$N_singleton = ntaxa(prune_taxa(taxa_sums(ps)==1,ps) ) 
+  } else {
+    Num_seq_subset$N_singleton = 0
+  }
+
+  }) %>% 
   bindEvent(input$blank_cols,
             input$blank_samples,
-            ps.sub(), 
-            ignoreNULL=FALSE)
+            ps.norm(), 
+            ignoreNULL=FALSE
+            )
 
-# ---- # Sidebar (Original sequence distribution/qualities) # ----
-## ---- ## Summary ## ----
+observe({
+  req(ps.norm())
+  ps <- ps.og()
+  
+  if(isTruthy(input$rem_blanks)) { #if the user has selected remove blanks, return 'NA' 
+    Num_seq_subset$N_seq_blanks <- NA 
+    Num_otu_subset$N_otu_blanks <- NA
+    } else { 
+    if(!is.null(input$blank_cols) & !is.null(input$blank_samples)) { 
+      if(input$blank_cols == "Sample") { #if the filtering parameter is sample id
+        blasam = sample_names(ps)
+        blarem = input$blank_samples #list of blank samples 
+        blakeep = blasam[blasam %in% blarem] #keep only blank samples
+      } else { #with any other filtering parameter
+        blacolvals = as.data.frame(as.matrix(sample_data(ps))) %>% select(input$blank_cols) #get sample_data of selected variable 
+        blakeep = row.names(blacolvals %>% filter(blacolvals[[1]] %in% input$blank_samples)) #list of sample names selected
+      }
+      if(!is.null(blakeep)) {psbla <- prune_samples(blakeep,ps) %>% prune_taxa(taxa_sums(.)>0,.)} 
+    }
+    
+    Num_seq_subset$N_seq_blanks <- if(!is.null(input$blank_cols) & !is.null(input$blank_samples)) {sum(taxa_sums(psbla))} else {"No blanks selected"}
+    Num_otu_subset$N_otu_blanks <- if(!is.null(input$blank_cols) & !is.null(input$blank_samples)) {ntaxa(psbla)} else {"No blanks selected"}
+    }
+})
+
+## ---- ## Sidebar (Original dataset summary) ## ---- ##
 Summ_seqs <- reactive({
-  req(ps.all())
-  ps <- ps.all()
-  df <- data.frame(MinNoReads=min(sample_sums(ps)) %>% round(digits=0),
-                   MaxNoReads=max(sample_sums(ps)) %>% round(digits=0),
-                   AvgNoReads=mean(sample_sums(ps)) %>% round(digits=0),
+  req(ps.og())
+  ps <- ps.og()
+  df <- data.frame(MinNoReads=min(sample_sums(ps)) %>% round(digits=0), #what is the minimum number of sequences in a sample
+                   MaxNoReads=max(sample_sums(ps)) %>% round(digits=0), #what is the maximum 
+                   AvgNoReads=mean(sample_sums(ps)) %>% round(digits=0), #what is the average  
                    MedNoReads=median(sample_sums(ps)) %>% round(digits=0))
-  df_pretty <- df %>% rename(  
+  df_pretty <- df %>% rename(  #then rename the dataframe 
     "Minimum"=MinNoReads,
     "Maximum"=MaxNoReads,
     "Average"=AvgNoReads,
     "Median"=MedNoReads)
   t(df_pretty)
-}) %>% bindEvent(ps.all())
+}) %>% bindEvent(ps.og())
 
-## ---- ## Num seq ## ----
+# make empty reactive values variables to hold information about the subsetted dataset
 Num_seq_all <- reactiveValues(
   N_seq_num = NULL, #total number of sequences
   N_seq_assigned = NULL, #number of assigned sequences
   N_singleton = NULL, #number of singletons
   N_seq_blanks = NULL #number of seqs in blanks
 ) 
-
-observe({
-  req(ps.all())
-  ps <- ps.all()
-  
-  Num_seq_all$N_seq_num = sum(taxa_sums(ps)) 
-  
-  Num_seq_all$N_seq_assigned = tryCatch(sum(taxa_sums(subset_taxa(ps, 
-                                                      rank_names(ps)[1]!="Not assigned"
-                                                      ))), 
-                                        error=function(e){return(0)}) 
-  
-  #Num_seq_all$N_singleton = length(taxa_names(prune_taxa(taxa_sums(ps)==1, 
-  #                                           ps
-  #                                           ))) %>% round(digits=0)
-  
-  #Num_seq_all$N_seq_blanks = if(is.null(input$blank_samples)) {return(0)} else 
-  #  sum(taxa_sums(subset_blanks_rem(ps,input$blank_cols,input$blank_samples)))
-}) %>% 
-  bindEvent(input$blank_cols,
-            input$blank_samples,
-            ps.all(), 
-            ignoreNULL = FALSE) 
-
-## ---- ## Num ASV ## ---- 
 Num_otu_all <- reactiveValues(
-  N_otu_num = NULL, #number of OTUs
-  N_otu_assigned = NULL,  #number of assigned OTUs
-  N_otu_blanks = NULL #number of OTUs in blanks
+  N_otu_num = NULL, #number of ASVs
+  N_otu_assigned = NULL,  #number of assigned ASVs
+  N_otu_blanks = NULL #number of ASVs in blanks
 ) 
 
 observe({
-  req(ps.all())
-  ps <- ps.all()
+  req(ps.og())
+  ps <- ps.og()
   
-  Num_otu_all$N_otu_num = ntaxa(ps) 
-  
-  Num_otu_all$N_otu_assigned = tryCatch(ntaxa(subset_taxa(ps, 
-                                              rank_names(ps)[1]!="Not assigned")),
-                                        error=function(e){return(0)}) 
-  
-  #Num_otu_all$N_otu_blanks = if(is.null(input$blank_samples)) {return(0)} else 
-  #  ntaxa(subset_blanks_rem(ps,input$blank_cols,input$blank_samples))
-}) %>% 
+  Num_seq_all$N_seq_num = sum(taxa_sums(ps)) #calculate total number of sequences  
+  Num_otu_all$N_otu_num = ntaxa(ps) #calculate total number of ASVs
+
+    if(isTruthy(taxa_sums(ps)==1)) {
+    Num_seq_all$N_singleton = ntaxa(prune_taxa(taxa_sums(ps)==1,ps) ) 
+  } else {
+    Num_seq_all$N_singleton = 0
+  }
+
+  }) %>% 
   bindEvent(input$blank_cols,
             input$blank_samples,
-            ps.all(), 
-            ignoreNULL=FALSE)
+            ps.og(), 
+            ignoreNULL = FALSE) 
+
+
+
+observe({
+  req(ps.og())
+  ps <- ps.og()
+  
+    if(!is.null(input$blank_cols) & !is.null(input$blank_samples)) { 
+      if(input$blank_cols == "Sample") { #if the filtering parameter is sample id
+        blasam = sample_names(ps)
+        blarem = input$blank_samples #list of blank samples 
+        blakeep = blasam[blasam %in% blarem] #keep only blank samples
+      } else { #with any other filtering parameter
+        blacolvals = as.data.frame(as.matrix(sample_data(ps))) %>% select(input$blank_cols) #get sample_data of selected variable 
+        blakeep = row.names(blacolvals %>% filter(blacolvals[[1]] %in% input$blank_samples)) #list of sample names selected
+      }
+      if(!is.null(blakeep)) {psbla <- prune_samples(blakeep,ps) %>% prune_taxa(taxa_sums(.)>0,.)} 
+    }
+    
+    Num_seq_all$N_seq_blanks <- if(!is.null(input$blank_cols) & !is.null(input$blank_samples)) {sum(taxa_sums(psbla))} else {"No blanks selected"}
+    Num_otu_all$N_otu_blanks <- if(!is.null(input$blank_cols) & !is.null(input$blank_samples)) {ntaxa(psbla)} else {"No blanks selected"}
+
+}) 
 
 # ---- Tax Info # ---- 
 rankperc_df <- reactive({
-  req(ps.sub.melt())
-  ps <- ps.sub.melt()
+  req(ps.norm.melt())
+  ps <- ps.norm.melt()
   psplot.df <- ps %>% group_by(.data[[input$basics_ranks]]) %>%
     reframe(Abund=sum(Abundance),
             Total=sum(ps$Abundance),
@@ -219,14 +208,42 @@ rankperc_base <- reactive({
     labs(title="Distribution of taxonomic assignments",
          subtitle="(across the entire dataset)",
          x="Percent")
-}) %>% bindEvent(ps.sub.melt(),
+}) %>% bindEvent(ps.norm.melt(),
                  input$basics_ranks)
 
 rankperc_plot <- eventReactive(input$go_rankperc, {
   rankperc_base() + rankpercplot_pretty() + rankpercplot_size() 
 }) 
 
+
+## --- # Summary # --------  
+output$N_sample_placeholder <- renderDT({
+  data.frame(Sample=c("Sample1",
+                  "Sample2",
+                  "Sample3"),Sequences=c("","Placeholder",""))
+})
+output$N_taxa_placeholder <- renderDT({
+  data.frame(Rank=c("Kingdom","Phylum","Class","Order","Family","Genus","Species"),
+             Unique=c("","","","Placeholder","","",""))
+})
+output$listtaxa_placeholder <- renderDT({
+  data.frame(Kingdom=c("","Placeholder",""),Phylum=c("","Placeholder",""),
+             Class=c("","Placeholder",""),Order=c("","...",""),
+             Family=c("","...",""),Genus=c("","...",""),Species=c("","...",""))
+})
+
+observeEvent(checking$table, {
+  if(checking$table==TRUE)
+  {hide('N_sample_placeholder')
+    hide('N_taxa_placeholder')
+    hide('listtaxa_placeholder')} else {show('N_sample_placeholder')
+      show('N_taxa_placeholder')
+      show('listtaxa_placeholder')}
+})
+
+
 # --- # Returns # --------  
+
 
 ## ---- ## Tab 1 (Sequences per sample) ## ---- 
 output$N_sample <- renderDataTable({
@@ -242,12 +259,11 @@ output$summ_seqs_sel <- renderTable({ Summ_seqs_sel() },
                                     digits=0,rownames=TRUE,colnames=FALSE,striped=TRUE)
 #### ---- #### Num sequences (in subset) #### ----
 output$N_sel_seq_total <- renderText({ paste("Total number of sequences:",Num_seq_subset$N_seq_num) })
-output$N_sel_seq_assigned <- renderText({ paste("Number of assigned sequences:", Num_seq_subset$N_seq_assigned) })
+output$N_sel_seq_assigned <- renderText({ paste("Number of singleton sequences:", Num_seq_subset$N_singleton) })
 output$N_sel_seq_blanks <- renderText({ paste("Number of sequences in blanks:",Num_seq_subset$N_seq_blanks) })
 #### ---- #### Num ASVs (in subset) #### ----
-output$N_sel_otu_total  <- renderText({ paste("Total number of OTUs:",Num_otu_subset$N_otu_num) })
-output$N_sel_otu_assigned <- renderText({ paste("Number of assigned OTUs:",Num_otu_subset$N_otu_assigned) })
-output$N_sel_otu_blanks <- renderText({ paste("Number of OTUs in blanks:",Num_otu_subset$N_otu_blanks) })
+output$N_sel_otu_total  <- renderText({ paste("Total number of ASVs:",Num_otu_subset$N_otu_num) })
+output$N_sel_otu_blanks <- renderText({ paste("Number of ASVs in blanks:",Num_otu_subset$N_otu_blanks) })
 
 ## ---- ## Sidebar ## ----
 #### ---- #### Summary (min/max/avg) #### ----
@@ -255,31 +271,30 @@ output$summ_seqs <- renderTable({ Summ_seqs() },
                                 digits=0,rownames=TRUE,colnames=FALSE,striped=TRUE)
 #### ---- #### Num sequences (in subset) #### ----
 output$N_seq_total <- renderText({ paste("Total number of sequences:",Num_seq_all$N_seq_num) })
-output$N_seq_assigned <- renderText({ paste("Number of assigned sequences:",Num_seq_all$N_seq_assigned) })
+output$N_seq_assigned <- renderText({ paste("Number of singleton sequences:",Num_seq_all$N_singleton) })
 output$N_seq_blanks <- renderText({ paste("Number of sequences in blanks:",Num_seq_all$N_seq_blanks) })
 #### ---- #### Num ASVs (in subset) #### ----
-output$N_otu_total  <- renderText({ paste("Total number of OTUs:",Num_otu_all$N_otu_num) })
-output$N_otu_assigned <- renderText({ paste("Number of assigned OTUs:",Num_otu_all$N_otu_assigned) })
-output$N_otu_blanks <- renderText({ paste("Number of OTUs in blanks:",Num_otu_all$N_otu_blanks) })
-
+output$N_otu_total  <- renderText({ paste("Total number of ASVs:",Num_otu_all$N_otu_num) })
+output$N_otu_blanks <- renderText({ paste("Number of ASVs in blanks:",Num_otu_all$N_otu_blanks) })
 
 ## ---- ## Taxa Info ## ---- 
 
 ### ---- ### List taxa ### ----
 output$basics_listtaxa <- renderDataTable({
-  req(ps.sub())
-  tax_glom(ps.sub(),taxrank = input$basics_ranks, NArm=TRUE) %>% 
+  req(ps.norm())
+  tax_glom(ps.norm(),taxrank = input$basics_ranks, NArm=TRUE) %>% 
     tax_table(.) %>% 
     as.data.frame(.,row.names=FALSE) #throws error because tax_glom %>% tax_table doesn't work and I dont remember the workaround
-  #cbind(tax_table(tax_glom(ps.sub(),taxrank = input$basics_ranks, NArm=TRUE))) #does not fix error
+  #cbind(tax_table(tax_glom(ps.norm(),taxrank = input$basics_ranks, NArm=TRUE))) #does not fix error
 }) %>% bindEvent(input$rem_blanks,
                  input$adjust,
                  input$basics_ranks,
-                 ps.sub())
+                 ps.norm())
 
 ### ---- ### Plot taxa ### ----
+observeEvent(input$go_rankperc, {
 output$rankperc_plot <- renderPlot({rankperc_plot()})
-
+})
 
 observe({
   showModal(modalDialog(

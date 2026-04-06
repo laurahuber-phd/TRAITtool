@@ -32,25 +32,29 @@ reportpage <- nav_panel(
               accordion_panel(title="Figures",
                               accordion(id='fig_accord',open=FALSE,
                                 accordion_panel(title="Percent composition",
-                                                plotOutput("rep_percplot"),
+                                                withSpinner(plotOutput("rep_percplot")),
                                                 actionButton("repaccd_percplot",label="Go back to this page")
                                                 ),
                                 accordion_panel(title="Richness",
-                                                plotOutput("rep_richplot"),
+                                                withSpinner(plotOutput("rep_richplot")),
                                                 actionButton("repaccd_richplot",label="Go back to this page")
                                                 ),
                                 accordion_panel(title="Taxonomic diversity",
-                                                plotOutput("rep_histplot"),
+                                                withSpinner(plotOutput("rep_histplot")),
                                                 actionButton("repaccd_histplot",label="Go back to this page")
                                                 ),
                                 accordion_panel(title="Heatmap",
-                                                plotOutput("rep_hmplot"),
+                                                withSpinner(plotOutput("rep_hmplot")),
                                                 actionButton("repaccd_hmplot",label="Go back to this page")
                                                 ),
                                 accordion_panel(title="Ordination plot",
-                                                plotOutput("rep_ordplot"),
+                                                withSpinner(plotOutput("rep_ordplot")),
                                                 actionButton("repaccd_ordplot",label="Go back to this page")
-                                                )
+                                                ),
+                                accordion_panel(title="Trophic index",
+                                                withSpinner(plotOutput("rep_vioplot")),
+                                                actionButton("repaccd_vioplot",label="Go back to this page")
+                                )
                               ))
               )
   ),
@@ -69,7 +73,7 @@ reportpage <- nav_panel(
                           br(),
                           br(),
                           actionButton(inputId = 'view_report',label="View report")),
-                     card(radioButtons('format', 'Document format', c('PDF', 'HTML'),#, 'Word'),
+                     card(radioButtons('format', 'Document format', c( 'HTML'),#, 'PDF','Word'),
                                        inline = TRUE,width='100%'),
                    downloadButton("download_report", "Download report", 
                                   style = "color: #fff; background-color: #337ab7; border-color: #2e6da4"))
@@ -77,5 +81,20 @@ reportpage <- nav_panel(
                    br(),
                    br(),
                    shinyjs::hidden(wellPanel(id="viewfinalreport",htmlOutput('markdown')))
-                   )
+                   ),
+  h4("Download individual files used in the analysis"),
+  card(card_header("Files generated:"),
+       downloadButton('norm_meltdwnld', label="Full dataset:"),
+       downloadButton('norm_asvdwnld', label="Sequence table:"),
+       downloadButton('norm_metadwnld', label="Metadata table:"),
+       downloadButton('norm_taxdwnld', label="Taxonomy table:")
+       ),
+  actionButton("breport_prevpage","Previous step",width='20%'),
+  tags$footer(style="display: flex;justify-content: space-between;",
+              tags$img(src='smiths_logoLong.png',height='40px',
+                       alt="Smithsonian sun logo"),
+              tags$img(#src='ShinyFooter.png',
+                src='titlefooter.png',
+                height='30px',
+                alt="William H. Donner Foundation and Smithsonian Women's Committee logos"))
 )

@@ -1,0 +1,12 @@
+name: shiny-edna
+title:
+username: lauragivens
+account: lauragivens
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 15276901
+bundleId: 10927080
+url: https://lauragivens.shinyapps.io/shiny-edna/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE

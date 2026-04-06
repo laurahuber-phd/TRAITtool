@@ -4,22 +4,24 @@ source('functions/module-plotting-size.R',local=TRUE)
 library(shinycssloaders)
 
 output$alphametrics_var2 <- output$alphametrics_var1 <- renderUI({
-  req(ps.sub())
-  ps <- ps.sub()
+  req(ps.norm())
+  ps <- ps.norm()
   selectInput('alpha_xvar',
               'Select the explanatory variable',
               sample_variables(ps))
 })
 richplot <- eventReactive(input$go_rich, { #draw alpha div plot when 'plot' button is clicked
-  if (input$normoptions != "none") {ps <- ps.norm()} else {ps <- ps.sub()}
-  runif(input$go_rich)
   withProgress(message="Making richness plot",
-               plot_richness(ps, x=input$alpha_xvar, measures=input$alphametrics) + geom_boxplot()
+               plot_richness(ps.norm(), x=input$alpha_xvar, measures=input$alphametrics) + geom_boxplot()
   )
 })
+
+observeEvent(input$go_rich, {
 output$rich_plot <- renderPlot({ #need separate call to actually render the plot
   richplot()
+  })
 })
+
 observe({
   showModal(modalDialog(
     renderPlot(richplot()),
@@ -37,20 +39,26 @@ output$rich_plotdwnld <- output$rich_plotdwnld_popup <-  downloadHandler(
     )
   }) 
 
+#histoplot_pretty <- reactiveVal(NULL)
+#histoplot_size <- reactiveVal(NULL)
+#histoplot_general <- reactiveValues(color=NULL,x=NULL,y=NULL,facet=NULL)
+
+#observeEvent(ps.norm(), {
 histoplot_pretty  <- plotPrettyServer(id="histo_pretty")
 histoplot_size <- plotSizeServer(id="histo_size") 
 histoplot_general <- plotControlsServer(id="histo_gen",
-                   df=(if (input$normoptions != "none") {ps.norm()} else {ps.sub()}),
-                   var1=rnames(), #color
-                   var2=Meta_vars(), #x
-                   var3=Meta_vars(), #y
-                   var4=Meta_vars() #facet
+                   df=ps.norm,
+                   var1=rnames, #color
+                   var2=Meta_vars, #x
+                   var3=Meta_vars, #y
+                   var4=Meta_vars #facet
                    )
+#})
 
 histo_base <- reactive({
-  req(ps.sub())
+  req(ps.norm())
   req(histoplot_general$color())
-  (if (input$normoptions != "none") {ps <- ps.norm()} else {ps <- ps.sub()})
+  ps <- ps.norm()
   plot_bar(ps,
            x=histoplot_general$x()) + 
     geom_bar(stat='identity',position='stack',aes(color=.data[[histoplot_general$color()]],
@@ -58,7 +66,6 @@ histo_base <- reactive({
     guides(color='none',fill=guide_legend(histoplot_general$color()))
 
 }) %>% bindEvent(ps.norm(),
-                 ps.sub(),
                  histoplot_general$color(),
                  histoplot_general$x()
 )
@@ -67,7 +74,9 @@ histoplot <- eventReactive(input$go_histoplot, {
   histo_base() + histoplot_general$facet() + histoplot_pretty() + histoplot_size() 
 }) 
 
-output$histo_plot <- renderPlot({histoplot()})
+observeEvent(input$go_histoplot,{
+  output$histo_plot <- renderPlot({histoplot()})
+})
 
 observe({
   showModal(modalDialog(
