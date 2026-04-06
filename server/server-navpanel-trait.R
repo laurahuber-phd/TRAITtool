@@ -54,13 +54,20 @@ observeEvent(input$trait_assign, {
   ################## update vars to show what db we're querying  ################## 
   traits_query$choose <- switch(input$trait_select, 
                                 #based on the selected database, get a list of species  
-                             "Both" = c(taxa_df %>% filter(!is.na(Species)) %>% .$Species %>% unique()),
-                             "FishBase" = c(taxa_df %>% filter(!is.na(Species) & str_detect(Phylum,"hord")) %>% .$Species %>% unique()),
-                             "SeaLifeBase" = c(taxa_df %>% filter(!is.na(Species)) %>% .$Species %>% unique())
+                             "Both" = c(taxa_df %>% 
+                                          filter(!is.na(Species)) %>%
+                                          .$Species %>% unique()),
+                             "FishBase" = c(taxa_df %>%
+                                              filter(!is.na(Species) & str_detect(Phylum,"hord")) %>% 
+                                              .$Species %>% unique()),
+                             "SeaLifeBase" = c(taxa_df %>%
+                                                 filter(!is.na(Species) & !str_detect(Class,"ctinop")) %>% 
+                                                 .$Species %>% unique())
   )
   print("Traits: species list gathered")
   
   if(length(traits_query$choose[!is.na(traits_query$choose)]) > 0) { #number of species to query has to be more than 0
+    #make a list of species from the selection (remove NA species)
     traits_query$nona <- traits_query$choose[!is.na(traits_query$choose)] 
     print("Traits: na values removed from species list")
     
@@ -92,7 +99,7 @@ observeEvent(input$trait_assign, {
     traits_query$invalid <- traits_query$nona[!traits_query$nona%in%traits_query$valid] 
     # traits_query$invalid will then be used to print the tax names that were queried and not found in the database
     
-    ################## get trophic info   ################## 
+    ################## get trophic info ################## 
     fish.troph <- rfishbase::estimate(species_list=traits_query$valid,
                                       server="fishbase")
     # remove any taxa that were found in fishbase before querying sealifebase 
@@ -122,9 +129,8 @@ observeEvent(input$trait_assign, {
   } else { 
     print("Traits: only one database selected")
     ################## When a single db is selected  ################## 
-   
     # get the trophic info for those species  
-    traits.df <- rfishbase::estimate(species_list=traits_query$valid,
+    traits.df <- rfishbase::estimate(species_list=traits_query$nona,#species_list=traits_query$valid,
                                       server=traits_query$serv)
     
     # assign to reactiveValues to use later  
