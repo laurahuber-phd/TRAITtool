@@ -35,7 +35,7 @@ Trait_TrophReviewCard <- hidden(card(id="trait_trophreview_card",
     h5("The following species names were not found as-is in the FishBase or SeaLifeBase databases, but synonym names were:"),
     tableOutput("syn.names"),
     br(),
-    h5("The following species were not found in the FishBase or SeaLifeBase database:"),
+    h5("The following species were not found in the selected database:"),
     p("This does not necessarily mean that the species are not in those databases, but they may be under a synonym or spelled incorrectly. We recommend checking these species manually."),
     verbatimTextOutput("not.names"),
     

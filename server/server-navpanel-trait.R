@@ -254,18 +254,19 @@ observeEvent(input$trait_assign, {
       rfishbase::validate_names(server=traits_query$serv) 
     
     # make list of species that did not pass 
-    invalid.fish.names <- traits_query$nona[!traits_query$nona%in%traits_query$valid] 
-    
-    # traits_query$invalid will then be used to print the tax names that were queried and not found in the database
+    invalid.fish.names <- traits_query$nona[!traits_query$nona%in%valid.fish.names] 
     
     # Check for synonyms
     syn.fish.names.tab <- rfishbase::synonyms(invalid.fish.names,
                                               server=traits_query$serv)
     syn.fish.names <- syn.fish.names.tab %>%
-      filter(!is.na(Status))
+      filter(Status=="synonym")
     
     traits_query$syn.names <- syn.fish.names[!is.na(syn.fish.names$Species),]$Species
-    traits_query$syn.tab <- syn.fish.names %>% select(c(Species,synonym)) %>% rename("Valid Name" = "Species", "Queried Name" = "synonym" )
+    traits_query$syn.tab <- syn.fish.names %>%
+      select(c(Species,synonym)) %>%
+      rename("Valid Name" = "Species", 
+             "Queried Name" = "synonym" )
     
     # add synonyms to valid list and remove the queried names from invalid list 
     traits_query$valid <- c(valid.fish.names[!valid.fish.names%in%syn.fish.names$Species], 
@@ -280,10 +281,6 @@ observeEvent(input$trait_assign, {
     # assign to reactiveValues to use later  
     colnames(traits.df) <- str_to_title(colnames(traits.df))
     traits_vals$fish.troph <- (traits.df %>% tibble::rownames_to_column(var="rownames")) #rfishbase::ecology for fish
-    
-    #add the ones that weren't found to traits_query$invalid
-    traits_query$invalid <- c(traits_query$invalid,
-                              traits_query$valid[!traits_query$valid%in%traits.df$Species])
     
     ################## Add other ecosystem data  ################## 
     
