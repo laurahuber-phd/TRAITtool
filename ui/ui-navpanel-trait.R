@@ -49,67 +49,67 @@ Trait_TrophReviewCard <- hidden(card(id="trait_trophreview_card",
               accordion_panel(title="Invalid names",
                               textOutput("trait.invalid")),
               ),
+    br(),
     #DTOutput("trait_review"),
     downloadButton("dwnldtrait1", "Download trophic assignments", 
                    style = "color: #fff; background-color: #337ab7; border-color: #2e6da4"
     ),
     downloadButton("dwnldtraittaxa1", "Download new taxa table", 
                    style = "color: #fff; background-color: #337ab7; border-color: #2e6da4"
-    ),
-    br(),
-    accordion(id="trait_accord",title="Column Names",open=FALSE,
-              #HTML("<p><i> FishBase records True/False data as -1/0 </i></p>"),
-              accordion_panel(title="Trophic Level Information",
-                              #p("Dataset was normalized with: ",textOutput("rep_norm",inline=TRUE))
-                              HTML("<p><i>Trophic level 1:</i> Primary producers and detritus</p>"),
-                              HTML("<p><i>Trophic level 2.0-2.19:</i> Primary consumers and herbivores</p>"),
-                              HTML("<p><i>Trophic level 2.2-2.79:</i> Omnivores</p>"),
-                              HTML("<p><i>Trophic level over 2.8:</i> Carnivores</p>"),
-                              br(),
-                              p("Trophic level information is generated using the estimate() function of rfishbase. Where available, trophic level data is obtained from diet composition studies (DietTroph). If that information is not available, trophic level is determined based on a MonteCarlo estimate of known food items (FoodTroph), then as an estimate based on size and trophic level of closest related taxa (EstTroph). "),
-                              #https://www.fishbase.org/manual/English/FishbaseThe_FOOD_ITEMS_table.htm
-                              #https://github.com/ropensci/rfishbase/issues/199
-                              #https://github.com/ropensci/rfishbase/issues/167
-                              br(),
+    )
+  )
+         ),
+  accordion(id="trait_accord",title="Column Names",open=FALSE,
+            #HTML("<p><i> FishBase records True/False data as -1/0 </i></p>"),
+            accordion_panel(title="Trophic Level Information",
+                            #p("Dataset was normalized with: ",textOutput("rep_norm",inline=TRUE))
+                            HTML("<p><i>Trophic level 1:</i> Primary producers and detritus</p>"),
+                            HTML("<p><i>Trophic level 2.0-2.19:</i> Primary consumers and herbivores</p>"),
+                            HTML("<p><i>Trophic level 2.2-2.79:</i> Omnivores</p>"),
+                            HTML("<p><i>Trophic level over 2.8:</i> Carnivores</p>"),
+                            br(),
+                            p("Trophic level information is generated using the estimate() function of rfishbase. Where available, trophic level data is obtained from diet composition studies (DietTroph). If that information is not available, trophic level is determined based on a MonteCarlo estimate of known food items (FoodTroph), then as an estimate based on size and trophic level of closest related taxa (EstTroph). "),
+                            #https://www.fishbase.org/manual/English/FishbaseThe_FOOD_ITEMS_table.htm
+                            #https://github.com/ropensci/rfishbase/issues/199
+                            #https://github.com/ropensci/rfishbase/issues/167
+                            br(),
                             HTML("<p><u>Troph and SE Troph:</u> Estimated trophic level and associated standard error </p>"),
                             HTML("<p><u>TrophObserved, TrophPredicted and SETrophPredicted:</u> <i>TrophObserved</i> correlates to trophic levels calculated from data such as diet or food item studies. <i>TrophPredicted and SETrophPredicted</i> is the estimate and standard error generated based on species size and the trophic level of closest related species if no direct diet studies exist. </p>"),
                             HTML("<p><u>PredPreyRatioMin and PredPreyRatioMax:</u> predator-prey size ratio, used to model feeding behavior </p>"),
                             #https://www.fishbase.se/manual/fishbasethe_predators_table.htm
                             HTML("<p><u>FeedingPath and FeedingPathLevel:</u> <i>FeedingPath</i> refers to the category of the primary environment in which an organism feeds (e.g., benthic, pelagic, reef-associated, and demersal). <i>FeedingPathLevel</i> refers to the level of taxonomic detail feeding path is known for (e.g., at the species level or higher) </p>")
-              ),
-              accordion_panel(title="Body Stats",
-                              HTML("<p><u>MaxLengthSL:</u> Standard length; measured from the tip of the snout to the end of the vertebra </p>"),
-                              HTML("<p><u>MaxLengthTL:</u> Total length; measured from the tip of the snout to the furthest tip of the tail </p>"),
-                              HTML("<p><u>TLObserved:</u> Maximum total length recorded </p>")
-                              #MaxLengthSL
-                              #MaxLengthTL
-                              #TLObserved
-                              #Length
-              ),
-              accordion_panel(title="Lifestyle/Habitat",
-                              HTML("<p><u>TempPrefMin, TempPrefMax, and TempPrefMean:</u> Range of preferred minimum and maximum temperatures for a species (in Celcius) </p>"),
-                              HTML("<p><u>Depth:</u> (in meters) <i>DepthMin and DepthMax</i> reflect the extreme range of depths recorded for a species, whereas <i>ComDepthMin and ComDepthMax</i> reflect the depth range where ~95% of adults and juveniles occurs </p>"),
-                              HTML("<p><u>Climate:</u> Primary climate occurrence and True/False recordings of species presence in the following climates - Tropical, Subtropical, Temperate, and Polar </p>"),
-                              HTML("<p><u>Salinity:</u> Primary salinity preference and True/False recordings of species occurrence in freshwater, brackish water or marine environments at any stage of development </p>"),
-                              HTML("<p><u>DemersPelag:</u> Preferred habitat - pelagic, benthopelagic, demersal, reef-associated, bathypelagic, bathydemersal </p>"),
-                              HTML("<p><u>Anacat:</u> Anadromous/catadromous </p>")
-                              #DepthMinEstimate
-                              #DepthMaxEstimate
-                              #Salinity
-              ),
-              accordion_panel(title="Human/Socio-economic/Fishing Stats",
-                              HTML("<p><u>FBName:</u> FishBase name; unique English common name suggested by FishBase </p>"),
-                              HTML("<p><u>Vulnerabilty:</u> Index score from 1-100 reflecting stock vulnerability to overfishing/stock depletion or to climate change. High index score indicates high vulnerability. </p>"),
-                              HTML("<p><u>Importance:</u> Importance of the species to capture fisheries. Options include highly commercial; commercial; minor commercial; subsistence fisheries; of potential interest; of no interest. </p>"),
-                              HTML("<p><u>Landing:</u> Average global landings for the species in tons per year. Statistic categories include up to 1,000; from 1,000 to 10,000; from 10,000 to 50,000; from 50,000 to 100,000; from 100,000 to 500,000; and more than 500,000 </p>")
-                              #Vulnerability
-                              #VulnerabiltyClimate
-                              #Importance
-                              #Landings
-                              #LandingStatistics
-              ))
-  )
-         ),
+            ),
+            accordion_panel(title="Body Stats",
+                            HTML("<p><u>MaxLengthSL:</u> Standard length; measured from the tip of the snout to the end of the vertebra </p>"),
+                            HTML("<p><u>MaxLengthTL:</u> Total length; measured from the tip of the snout to the furthest tip of the tail </p>"),
+                            HTML("<p><u>TLObserved:</u> Maximum total length recorded </p>")
+                            #MaxLengthSL
+                            #MaxLengthTL
+                            #TLObserved
+                            #Length
+            ),
+            accordion_panel(title="Lifestyle/Habitat",
+                            HTML("<p><u>TempPrefMin, TempPrefMax, and TempPrefMean:</u> Range of preferred minimum and maximum temperatures for a species (in Celcius) </p>"),
+                            HTML("<p><u>Depth:</u> (in meters) <i>DepthMin and DepthMax</i> reflect the extreme range of depths recorded for a species, whereas <i>ComDepthMin and ComDepthMax</i> reflect the depth range where ~95% of adults and juveniles occurs </p>"),
+                            HTML("<p><u>Climate:</u> Primary climate occurrence and True/False recordings of species presence in the following climates - Tropical, Subtropical, Temperate, and Polar </p>"),
+                            HTML("<p><u>Salinity:</u> Primary salinity preference and True/False recordings of species occurrence in freshwater, brackish water or marine environments at any stage of development </p>"),
+                            HTML("<p><u>DemersPelag:</u> Preferred habitat - pelagic, benthopelagic, demersal, reef-associated, bathypelagic, bathydemersal </p>"),
+                            HTML("<p><u>Anacat:</u> Anadromous/catadromous </p>")
+                            #DepthMinEstimate
+                            #DepthMaxEstimate
+                            #Salinity
+            ),
+            accordion_panel(title="Human/Socio-economic/Fishing Stats",
+                            HTML("<p><u>FBName:</u> FishBase name; unique English common name suggested by FishBase </p>"),
+                            HTML("<p><u>Vulnerabilty:</u> Index score from 1-100 reflecting stock vulnerability to overfishing/stock depletion or to climate change. High index score indicates high vulnerability. </p>"),
+                            HTML("<p><u>Importance:</u> Importance of the species to capture fisheries. Options include highly commercial; commercial; minor commercial; subsistence fisheries; of potential interest; of no interest. </p>"),
+                            HTML("<p><u>Landing:</u> Average global landings for the species in tons per year. Statistic categories include up to 1,000; from 1,000 to 10,000; from 10,000 to 50,000; from 50,000 to 100,000; from 100,000 to 500,000; and more than 500,000 </p>")
+                            #Vulnerability
+                            #VulnerabiltyClimate
+                            #Importance
+                            #Landings
+                            #LandingStatistics
+            )),
   hidden(wellPanel( #trait df 
     id="loading_traits",
     h4("Trait table:"),

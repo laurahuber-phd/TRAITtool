@@ -494,10 +494,16 @@ observeEvent(input$trait_assign, {
 traits_report <- reactive({
   req(!is.null(traits_var$taxa_traits_df))
   
-  tibble("Number of species queried" = n_distinct(traits_var$nona,na.rm=TRUE),
-         "Number of synonyms identified" = n_distinct(traits_var$syn.names,na.rm=TRUE),
-         "Number of valid names found" = n_distinct(traits_var$valid %>% unique(),na.rm=TRUE),
-         "Number of names not found in database" = n_distinct(traits_var$invalid,na.rm=TRUE),
+ data.frame( Data =c("Number of species queried",
+                         "Number of synonyms identified",
+                         "Number of valid names found",
+                         "Number of names not found in database"
+ ),
+             Values = c(n_distinct(traits_var$nona,na.rm=TRUE),
+                        n_distinct(traits_var$syn.names,na.rm=TRUE),
+                        n_distinct(traits_var$valid %>% unique(),na.rm=TRUE),
+                        n_distinct(traits_var$invalid,na.rm=TRUE)
+                        )
          ) 
   
 }) %>% bindEvent(traits_var$taxa_traits_df)
