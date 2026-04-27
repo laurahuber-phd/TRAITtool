@@ -144,7 +144,7 @@ observeEvent(input$trait_assign, {
       rfishbase::validate_names(server="fishbase") 
     
     # make list of species that did not pass 
-    invalid.fish.names <- traits_var$nona[!traits_var$nona%in%valid.fish.names] 
+    invalid.fish.names <- traits_var$nona[!traits_var$nona%in%valid.fish.names & !is.na(traits_var$nona)] 
     
     # Check the species names that were not found in fishbase for synonyms
     syn.fish <- rfishbase::synonyms(invalid.fish.names,
@@ -227,11 +227,12 @@ observeEvent(input$trait_assign, {
     traits_var$syn.sl.tab <- syn.sl.tab
     traits_var$sl.troph <- sl.troph
     
-    traits_var$valid <- c(valid.fish.names,valid.sl.names)
-    traits_var$invalid <- invalid.sl.names #because this value encompasses anything that wasn't found in fishbase, I don't need to include both invalids
+    traits_var$valid <- c(valid.fish.names,valid.sl.names) %>% unique()
+    traits_var$invalid <- unique(invalid.sl.names) #because this value encompasses anything that wasn't found in fishbase, I don't need to include both invalids
     traits_var$syn.tab <- bind_rows(syn.fish.tab, 
                                      syn.sl.tab,
                                      .id="db") #%>% filter(!duplicated(Species)) 
+    traits_var$syn.names <- c(syn.fish.names,syn.sl.names) %>% unique()
     
     traits_var$troph <- (traits.df %>%
                             tibble::rownames_to_column(var="rownames")
@@ -326,7 +327,7 @@ observeEvent(input$trait_assign, {
       rfishbase::validate_names(server=traits_var$serv) 
     
     # make list of species that did not pass 
-    invalid.fish.names <- traits_var$nona[!traits_var$nona%in%valid.fish.names] 
+    invalid.fish.names <- traits_var$nona[!traits_var$nona%in%valid.fish.names & !is.na(traits_var$nona)] 
     
     # Check the species names that were not found in fishbase for synonyms
     syn.fish <- rfishbase::synonyms(invalid.fish.names,server=traits_var$serv) %>% 
@@ -354,14 +355,15 @@ observeEvent(input$trait_assign, {
       mutate(Syn=case_when(Species%in%syn.fish$Status ~ "synonym"))
     
     #### Keep some vars #### 
-    traits_var$valid.fish.names <- valid.fish.names
-    traits_var$invalid.fish.names <- invalid.fish.names
-    traits_var$syn.fish.tab <- syn.fish.tab
+    #traits_var$valid.fish.names <- valid.fish.names
+    #traits_var$invalid.fish.names <- invalid.fish.names
+    #traits_var$syn.fish.tab <- syn.fish.tab
     traits_var$fish.troph <- fish.troph
     
-    traits_var$valid <- valid.fish.names
-    traits_var$invalid <- invalid.fish.names 
+    traits_var$valid <- unique(valid.fish.names)
+    traits_var$invalid <- unique(invalid.fish.names) 
     traits_var$syn.tab <- syn.fish.tab
+    traits_var$syn.names <- unique(syn.fish.names)
     
     traits_var$troph <- (traits.df %>%
                            tibble::rownames_to_column(var="rownames")
@@ -489,6 +491,16 @@ observeEvent(input$trait_assign, {
   # is the size of the combined traits df the same size as the original taxa df?  
 #  nrow(taxa_traits_df)
 #  nrow(taxa_df)
+traits_report <- reactive({
+  req(!is.null(traits_var$taxa_traits_df))
+  
+  tibble("Number of species queried" = n_distinct(traits_var$nona,na.rm=TRUE),
+         "Number of synonyms identified" = n_distinct(traits_var$syn.names,na.rm=TRUE),
+         "Number of valid names found" = n_distinct(traits_var$valid %>% unique(),na.rm=TRUE),
+         "Number of names not found in database" = n_distinct(traits_var$invalid,na.rm=TRUE),
+         ) 
+  
+}) %>% bindEvent(traits_var$taxa_traits_df)
 
  # ~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~ # download trait table # ~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~  
 
@@ -559,6 +571,12 @@ showSpinner("trait_spinner_taxreview", {
   
   output$not.names <- renderPrint(traits_var$invalid)
   output$syn.names <- renderTable(traits_var$syn.tab)
+  output$trait.tab <- renderTable(traits_report())
+  
+  output$trait.nona <- renderText(sort(traits_var$nona),sep = ", ")
+  output$trait.syn.names <- renderText(sort(traits_var$syn.names),sep = ", ")
+  output$trait.valid <- renderText(sort(traits_var$valid),sep = ", ")
+  output$trait.invalid <- renderText(sort(traits_var$invalid),sep = ", ")
 #  valid.nonfish.names
 
 
