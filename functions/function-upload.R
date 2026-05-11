@@ -15,7 +15,8 @@ uploadFunction <- function(file,id,sep=',',header=TRUE,type) {
     confirm <- any(lapply(tmp, class) == "character" | lapply(tmp, class) == "factor")
     textwarn <- "Values are not characters"
   } else if (type=="tax") {
-    confirm <- any(lapply(tmp, class) == "character" | lapply(tmp, class) == "factor") & any(colnames(tmp)=="Kingdom" | colnames(tmp)=="Phylum" | colnames(tmp)=="Species" | colnames(tmp)=="kingdom" | colnames(tmp)=="phylum" | colnames(tmp)=="species")
+    confirm <- TRUE
+    #confirm <- any(lapply(tmp, class) == "character" | lapply(tmp, class) == "factor") & any(colnames(tmp)=="Kingdom" | colnames(tmp)=="Phylum" | colnames(tmp)=="Species" | colnames(tmp)=="kingdom" | colnames(tmp)=="phylum" | colnames(tmp)=="species")
     #confirm <- any(lapply(tmp, class) == "character" | lapply(tmp, class) == "factor")
     textwarn <- "Values do not have traditional taxonomic levels"
   } else if (type=="otu") {
