@@ -347,6 +347,7 @@ print("trait values reset to NULL")
     
     valid.fish.names <- traits_var$nona[!is.na(traits_var$nona)] %>% 
       rfishbase::validate_names(server=traits_var$serv) 
+    print("Names validated with database")
     
     # make list of species that did not pass 
     invalid.fish.names <- traits_var$nona[!traits_var$nona%in%valid.fish.names & !is.na(traits_var$nona)] 
@@ -354,6 +355,7 @@ print("trait values reset to NULL")
     # Check the species names that were not found in fishbase for synonyms
     syn.fish <- rfishbase::synonyms(invalid.fish.names,server=traits_var$serv) %>% 
       filter(Status=="synonym")
+    print("Checked invalidated names for synonyms")
     
     syn.fish.names <- syn.fish[!is.na(syn.fish$Species),]$Species
     
@@ -370,7 +372,8 @@ print("trait values reset to NULL")
     #### get trophic info using valid list ### 
     fish.troph <- rfishbase::estimate(species_list=valid.fish.names,
                                       server=traits_var$serv)
-  
+    print("Trait information gathered")
+    
     colnames(fish.troph) <- str_to_title(colnames(fish.troph))
     traits.df <- fish.troph %>%
       filter(!duplicated(Species)) %>%
@@ -396,10 +399,12 @@ print("trait values reset to NULL")
     # get table of location/ecosystem preferences 
     eco.df <- rfishbase::ecosystem(species_list=valid.fish.names,
                                      server=traits_var$serv) 
+    print("Ecosystem data gathered")
     
     # get species table information
     spp.df <- rfishbase::species(species_list=valid.fish.names,
                                    server=traits_var$serv) 
+    print("Species trait data gathered")
     
     # ecosystem table is large 
     # want to keep unique values for Climate, Salinity, and EcosystemType, AverageDepth, TempSurface
