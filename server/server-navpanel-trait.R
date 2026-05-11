@@ -248,8 +248,8 @@ print("trait values reset to NULL")
                                      .id="db") #%>% filter(!duplicated(Species)) 
     traits_var$syn.names <- c(syn.fish.names,syn.sl.names) %>% unique()
     
-    traits_var$troph <- (traits.df %>%
-                            tibble::rownames_to_column(var="Row.Name")
+    traits_var$troph <- (traits.df #%>%
+                            #tibble::rownames_to_column(var="Row.Name")
                           ) 
     
     ################## Add other ecosystem data  ################## 
@@ -325,10 +325,10 @@ print("trait values reset to NULL")
     print("Ecology and Species data combined into one table")
     
     alltraits.df <- merge((traits.df %>% 
-                             rownames_to_column(.,var="Row.Name") %>% 
+                             #rownames_to_column(.,var="Row.Name") %>% 
                              select(c(#all_of(keep),
                                       db,
-                                      Row.Name, 
+                                      #Row.Name, 
                                       Species,
                                       Maxlengthsl,Maxlengthtl,
                                       Tlobserved,
@@ -390,8 +390,8 @@ print("trait values reset to NULL")
     traits_var$syn.tab <- syn.fish.tab
     traits_var$syn.names <- unique(syn.fish.names)
     
-    traits_var$troph <- (traits.df %>%
-                           tibble::rownames_to_column(var="Row.Name")
+    traits_var$troph <- (traits.df #%>%
+                           #tibble::rownames_to_column(var="Row.Name")
     ) 
     
     ################## Add other ecosystem data  ################## 
@@ -457,9 +457,9 @@ print("trait values reset to NULL")
                   .by=Species,all = TRUE) %>% as.data.frame()
     
     alltraits.df <- merge((traits.df %>% 
-                             rownames_to_column(.,var="Row.Name") %>% 
+                             #rownames_to_column(.,var="Row.Name") %>% 
                              select(c(#all_of(keep),
-                                      Row.Name, 
+                                      #Row.Name, 
                                       Species,
                                       contains("length"),
                                       contains("roph"),
@@ -598,7 +598,7 @@ output$dwnldtrait1 <- output$dwnldtrait2 <- downloadHandler(
       paste("trait_table_only", ".csv", sep="")
     },
     content = function(file) {
-      write.csv(traits_var$x,file)
+      write.csv(traits_var$x,file,row.names=FALSE)
     }
   )
 
@@ -607,7 +607,7 @@ output$dwnldtraittaxa1 <- output$dwnldtraittaxa2 <- downloadHandler(
     paste("trait_taxa_table", ".csv", sep="")
   },
   content = function(file) {
-    write.csv(traits_tab$x,file)
+    write.csv(traits_tab$x,file,row.names=FALSE)
   }
 )
   # ~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~ # outputs # ~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~  
