@@ -14,6 +14,13 @@ observe({
                             type="meta",
                             sep=input$meta_sep,
                             header=input$meta_header)
+  
+  y <- make.names(colnames(metfile), unique=TRUE)
+  colnames(metfile) <- y
+  
+  z <- make.names(metfile[[1]],unique=TRUE)
+  metfile[[1]] <- z
+  
   MetadataTable$x <- metfile
   MetadataTable$og <- metfile
 }) %>% bindEvent(input$Metadata,input$meta_sep,input$meta_header)
@@ -32,6 +39,13 @@ observe({ #upload the OTU file
                             type="otu",
                             sep=input$otu_sep,
                             header=input$otu_header)
+  
+  y <- make.names(colnames(otufile), unique=TRUE)
+  colnames(otufile) <- y
+  
+  z <- make.names(otufile[[1]],unique=TRUE)
+  otufile[[1]] <- z
+    
   OTUTable$x <- otufile
   OTUTable$og <- otufile
 }) %>% bindEvent(input$otutab,input$otu_sep,input$otu_header)
@@ -62,6 +76,12 @@ observe({ #upload the taxonomy file
                             type="tax",
                             sep=input$tax_sep,
                             header=input$tax_header)
+  
+  y <- make.names(colnames(taxfile_upld), unique=TRUE)
+  colnames(taxfile_upld) <- y
+  
+  z <- make.names(taxfile_upld[[1]],unique=TRUE)
+  taxfile_upld[[1]] <- z
   
   taxfile <- taxfile_upld %>% rename_with(str_to_title) #make column names title case
   
