@@ -33,6 +33,7 @@ observeEvent(ps.all(),{
   
   N_sample_df  <- N_taxa_tab <- Summ_seqs_sel <- Num_seq_subset <- Num_otu_subset <- Summ_seqs <- Num_seq_all <- Num_otu_all <- NULL #reset
   rankperc_plot <- ordplot <- histoplot <- violinplot <- hmplot <- NULL #reset plots  
+  print("Reset plots because dataset was remade")
 })
 
 output$prune_bef <- renderText({paste("Number of samples before pruning: ",trackNums$prune_bef)}) #samples before pruning
@@ -66,15 +67,18 @@ observe({
   updateSelectInput(session,
                     "sample_filterby",#for sample selection
                     choices=c(Meta_vars())) 
+  print("Sample and blank selection variables filled")
 }) %>% 
   bindEvent(Meta_vars()) #respond to any changes in the Metadata file that is uploaded
 
 observeEvent(input$tax_switch, { #whenever switch to subset taxa is triggered
+  print("Switch to subset taxa was triggered")
   req(ps.sub())
   updateSelectInput(inputId = 'tax_filterby', 
                     label = 'Taxonomic Rank', 
                     choices = c(as.list(rank_names(ps.sub())))
   ) #update picker selection using the rank names of the ps object
+  print("Taxonomic ranks updated for filtering by taxa")
 }) 
 
 # ---- # Filter by blanks # ---- 
@@ -86,6 +90,7 @@ observe({
   updateCheckboxGroupInput(session,
                            "blank_samples",
                            choices=as.list(blavar))
+  print("List of available values to filter by neg controls updated")
 }) %>% bindEvent(input$blank_cols, #update blank selection if a new column is selected
                  MetadataTable$x#, #update blank selection if a new metadata table is loaded 
                  #input$load_ex #update blank selection if 'load' button is pressed
@@ -94,7 +99,7 @@ observe({
 #  ---- # Filter by samples # ---- 
 observe({
   if(isTruthy(input$sample_switch)) { #if sample_switch==TRUE
-    
+    print("Toggle to select specific samples to view triggered...")
     accordion_panel_open(session, #open the accordion panel to allow selecting samples  
                          id='sample_accord',
                          values=TRUE)
@@ -104,9 +109,9 @@ observe({
     updateCheckboxGroupInput(session,
                              "sample_select",
                              choices=as.list(selvar)) #update the available filtering options
-    
+    print("Samples to view selected")
   } else if (!isTruthy(input$sample_switch)) {
-    
+    print("Toggle to select specific samples to view closed...")
     accordion_panel_close(session, #close the accordion panel to allow selecting samples  
                           id='sample_accord',
                           values=TRUE)
