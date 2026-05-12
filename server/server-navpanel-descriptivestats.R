@@ -81,7 +81,7 @@ observe({
     print("Desc: no singletons")
   }
 
-  }) 
+  }, suspended=TRUE) %>% bindEvent(ps.norm())
 
 observe({
   req(ps.norm())
@@ -112,7 +112,7 @@ observe({
     Num_otu_subset$N_otu_blanks <- if(!is.null(input$blank_cols) & !is.null(input$blank_samples)) {ntaxa(psbla)} else {"No blanks selected"}
     
     }
-},suspended=TRUE) 
+},suspended=TRUE) %>% bindEvent(ps.norm())
 
 ## ---- ## Sidebar (Original dataset summary) ## ---- ##
 Summ_seqs <- reactive({
@@ -162,7 +162,7 @@ print("Desc: original dataframe numbers calculated")
     print("Desc: no singletons in original dataframe")
   }
 
-  }) %>% 
+  }, suspended=TRUE) %>% 
   bindEvent(ps.og(), 
             ignoreNULL = FALSE) 
 
@@ -188,7 +188,7 @@ observe({
     Num_seq_all$N_seq_blanks <- if(!is.null(input$blank_cols) & !is.null(input$blank_samples)) {sum(taxa_sums(psbla))} else {"No blanks selected"}
     Num_otu_all$N_otu_blanks <- if(!is.null(input$blank_cols) & !is.null(input$blank_samples)) {ntaxa(psbla)} else {"No blanks selected"}
 
-}) %>% bindEvent(ps.og(),
+}, suspended=TRUE) %>% bindEvent(ps.og(),
                  input$blank_samples)
 
 # ---- Tax Info # ---- 
