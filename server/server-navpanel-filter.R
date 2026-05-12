@@ -36,7 +36,7 @@ observeEvent(ps.all(),{
   print("Filter: Counting reactiveValues reset to NULL")
   rankperc_plot <- ordplot <- histoplot <- violinplot <- hmplot <- NULL #reset plots  
   print("Filter: Reset plots because dataset was remade")
-})
+}, suspended=TRUE)
 
 output$prune_bef <- renderText({paste("Number of samples before pruning: ",trackNums$prune_bef)}) #samples before pruning
 output$prune_aft <- renderText({paste("Number of samples after pruning: ",trackNums$prune_aft)}) #samples after pruning
@@ -77,14 +77,14 @@ observe({
   bindEvent(Meta_vars()) #respond to any changes in the Metadata file that is uploaded
 
 observeEvent(input$tax_switch, { #whenever switch to subset taxa is triggered
-  print("Filter: witch to subset taxa was triggered")
+  print("Filter: switch to subset taxa was triggered")
   req(ps.sub())
   updateSelectInput(inputId = 'tax_filterby', 
                     label = 'Taxonomic Rank', 
                     choices = c(as.list(rank_names(ps.sub())))
   ) #update picker selection using the rank names of the ps object
   print("Filter: updated taxonomic filter options")
-}) 
+}, suspended=TRUE) 
 
 # ---- # Filter by blanks # ---- 
 observe({ 
@@ -135,7 +135,7 @@ observe({
     shinyjs::hide("befaft_sample")
     print("Filter: before/after sample selection count hidden")
   }
-}) %>% bindEvent(input$sample_switch,
+}, suspended=TRUE) %>% bindEvent(input$sample_switch,
                  input$sample_filterby,
                  MetadataTable$x
                  ) 
@@ -215,12 +215,21 @@ subfunc <- function(ps,x) {
 }
 
 # ---- # Do the filtering # -----
-ps.sub <- reactive({
+observeEvent(c(input$assemble_ps,input$load_ex,input$go_addtroph), {
   req(ps.all())
+  ps <- ps.all()
+
   trackNums$prune_aft <- trackNums$prune_bef <- NULL #reset counts
   trackNums$prunetax_aft <- trackNums$prunetax_bef <- NULL #reset counts
   trackNums$prune_bef <- as.character(nsamples(ps.all()))
   trackNums$prunetax_bef <- as.character(ntaxa(ps.all()))
+  
+}) 
+
+ps.sub <- reactive({
+  req(ps.all())
+  req(input$prune_tax)
+  req(input$prune_samples)
     
   ps <- subfunc(ps.all(),
                 ps.all() %>% 
@@ -231,7 +240,7 @@ ps.sub <- reactive({
   if (!isTruthy(ps)) {
     showModal(
       modalDialog(title="ERROR",
-                  "One or more of your subsetting criteria is too strict",
+                  "One or more of your subsetting criteria is too strict", 
                   size='l',
                   easyClose = FALSE
       )
@@ -246,9 +255,16 @@ ps.sub <- reactive({
   trackNums$prune_aft <- as.character(nsamples(ps))
   trackNums$prunetax_aft <- as.character(ntaxa(ps))
   
-  ############################### BLANKS ############################################
+  return(ps)
+}) #%>% bindEvent(input$prune_tax, input$prune_samples)
+
+############################### BLANKS ############################################
+observe({
   if(isTruthy(input$rem_blanks)) { #if remove blanks is selected
-    print("Remove blanks selected")
+    req(ps.sub())
+    print("Filter: Remove blanks selected")
+    ps <- ps.sub()
+    
     trackNums$remblank_bef <- trackNums$remblank_aft <- NULL #reset counts
     trackNums$remblanktax_bef <- trackNums$remblanktax_aft <- NULL  #reset counts
     trackNums$remblank_bef <- as.character(nsamples(ps))
@@ -256,55 +272,85 @@ ps.sub <- reactive({
     blakeep = NULL #make empty list of samples
     
     if(!is.null(input$blank_samples)) { #if there are blanks selected
-      print("Negative control samples identified")
+      print("Filter: Negative control samples identified")
+      
       if(input$blank_cols == "Sample") { #if the filtering parameter is sample id
         blasam = sample_names(ps)
         blarem = input$blank_samples #list of blank samples 
         blakeep = blasam[!blasam %in% blarem] #remove blanks from sample list 
+        
       } else { #with any other filtering parameter
         blacolvals = as.data.frame(as.matrix(sample_data(ps))) %>% select(input$blank_cols) #get sample_data of selected variable 
         blakeep = row.names(blacolvals %>% filter(!blacolvals[[1]] %in% input$blank_samples)) #list of sample names EXCEPT for those selected
+        
       }
       shinyjs::delay(3000, #delay so it doesn't recalculate immediately when clicking samples
-                     ps <- prune_samples(blakeep,ps) %>% prune_samples(sample_sums(.)>0,.) %>% prune_taxa(taxa_sums(.)>0,.)
-                     )
-      print("Filter: blank samples are pruned")
+                     ps <- subfunc(prune_samples(blakeep,ps) %>% 
+                                     prune_samples(sample_sums(.)>0,.) %>%
+                                     prune_taxa(taxa_sums(.)>0,.)
+                                   )
+      )
       
+      if (!isTruthy(ps)) {
+        showModal(
+          modalDialog(title="ERROR",
+                      "One or more of your subsetting criteria is too strict",
+                      size='l',
+                      easyClose = FALSE
+          )
+        ) 
+        shinyjs::reset("blank_samples") #reset selected blanks
+        shinyjs::reset("rem_blanks") #reset button to initiate blank removal 
+      }
+      
+      req(ps)
       trackNums$remblank_aft <- as.character(nsamples(ps))
       trackNums$remblanktax_aft <- as.character(ntaxa(ps))
+      print("Filter: blank samples are pruned")
     }
     else {
       ps <- ps
+      trackNums$remblank_aft <- NULL
+      trackNums$remblanktax_aft <- NULL
     }
   }
-  ############################### SAMPLES ###########################################   
-  if(isTruthy(input$sample_switch) && input$go_sample) { #if user selects specific samples to vis
-    runif(input$go_sample)
-    print("Filter: Samples to filter by selected")
+  ps.sub <- reactive({ps})
+})
 
-    trackNums$selsamp_aft <- trackNums$selsamp_bef <- NULL #reset counts
-    trackNums$selsamp_bef <- as.character(nsamples(ps))
-    if(!is.null(input$sample_select)) {
-      selkeep = NULL #make empty list of samples 
+############################### SAMPLES ###########################################   
+  observe({
+    if(isTruthy(input$sample_switch) && input$go_sample) { #if user selects specific samples to vis
+      req(ps.sub())
+      ps <- ps.sub()
       
-      if(input$sample_filterby == "Sample") { #if the filtering parameter is sample id
-        selkeep = input$sample_select #list of selected samples 
-      } else {
-        selcolvals = as.data.frame(as.matrix(sample_data(ps))) %>% select(input$sample_filterby) #get sample_data of selected variable 
-        selkeep = row.names(selcolvals %>% filter(selcolvals[[1]] %in% input$sample_select)) #list of sample names selected
-      }
+      runif(input$go_sample)
+      print("Filter: Samples to filter by selected")
       
-      # add a check here to make sure that we can prune samples based on selkeep 
-      # need to take these rownames and check them against the feature table to make sure it doesn't return a blank otu table
-      # then can use to prune the ps object 
+      trackNums$selsamp_aft <- trackNums$selsamp_bef <- NULL #reset counts
+      trackNums$selsamp_bef <- as.character(nsamples(ps))
 
-      ps.pr <- tryCatch(prune_samples(selkeep,ps), 
-                        error=function(e){return(NULL)} #if it returns an error ps.pr will be NULL
-                        )
-      if(isTruthy(ps.pr)) { #if ps.pr is NULL, a modal dialog box will show up that tells you that the subsetting criteria you chose will not work and will reset the filtering selections
-        ps <- ps.pr
-      } else {
-    
+      
+      if(!is.null(input$sample_select)) {
+        selkeep = NULL #make empty list of samples 
+        
+        if(input$sample_filterby == "Sample") { #if the filtering parameter is sample id
+          selkeep = input$sample_select #list of selected samples 
+        } else {
+          selcolvals = as.data.frame(as.matrix(sample_data(ps))) %>% select(input$sample_filterby) #get sample_data of selected variable 
+          selkeep = row.names(selcolvals %>% filter(selcolvals[[1]] %in% input$sample_select)) #list of sample names selected
+        }
+        
+        # add a check here to make sure that we can prune samples based on selkeep 
+        # need to take these rownames and check them against the feature table to make sure it doesn't return a blank otu table
+        # then can use to prune the ps object 
+        
+        ps.pr <- tryCatch(prune_samples(selkeep,ps), 
+                          error=function(e){return(NULL)} #if it returns an error ps.pr will be NULL
+        )
+        if(isTruthy(ps.pr)) { #if ps.pr is NULL, a modal dialog box will show up that tells you that the subsetting criteria you chose will not work and will reset the filtering selections
+          ps <- ps.pr
+        } else {
+          
           showModal(
             modalDialog(title="ERROR",
                         "One or more of your subsetting criteria is too strict",
@@ -314,19 +360,26 @@ ps.sub <- reactive({
           ) 
           shinyjs::reset("sample_filterby")
           shinyjs::reset("sample_select")
+          
+        }
+        req(ps)
         
+      } else {
+        ps <- ps
       }
-      req(ps)
-      
-    } else {
-      ps <- ps
+      trackNums$selsamp_aft <- as.character(nsamples(ps))
     }
-    trackNums$selsamp_aft <- as.character(nsamples(ps))
-  }
+    ps.sub <- reactive({ ps })
+  })
+ 
+  
   ############################### TAXA ############################################
+observe({
   if(input$go_tax && isTruthy(input$tax_switch)) { #if remove selected taxa is selected
     runif(input$go_tax)
-  
+    
+    ps <- ps.sub()
+    
     trackNums$seltax_aft <- trackNums$seltax_bef <- NULL #reset counts
     trackNums$seltax_bef <- as.character(ntaxa(ps))
     
@@ -338,22 +391,22 @@ ps.sub <- reactive({
     selected_taxalist <- input$tax_select 
     selected_taxalist[selected_taxalist=="NA"] <- NA
     selected_taxalist[selected_taxalist==""] <- NA
-      
+    
     taxfilter_list[[input$tax_filterby]] <- list(selected_taxalist) #list(input$tax_select)
-
-      # prune taxa 
+    
+    # prune taxa 
     if(isTruthy(input$tax_keepremove)) {  #if user selects keep taxa
       print("Filter: keep selected taxa")
       if (any(is.na(selected_taxalist))) { #if any of the selected taxa are NA
         
         taxkeep = tryCatch(rownames(filter(taxsamsel, 
                                            taxsamsel[[1]] %in% selected_taxalist | is.na(taxsamsel[[1]])
-                                           )),
-                           error=function(e){return(FALSE)})
+        )),
+        error=function(e){return(FALSE)})
       }
       else { #if NA is not selected
-      taxkeep = tryCatch(rownames(filter(taxsamsel, taxsamsel[[1]] %in% selected_taxalist)), #keep taxa from user list
-                         error=function(e){return(FALSE)}) #return FALSE if filtering cannot happen
+        taxkeep = tryCatch(rownames(filter(taxsamsel, taxsamsel[[1]] %in% selected_taxalist)), #keep taxa from user list
+                           error=function(e){return(FALSE)}) #return FALSE if filtering cannot happen
       }
     }
     if(!isTruthy(input$tax_keepremove)) { #if user selected remove taxa
@@ -366,9 +419,9 @@ ps.sub <- reactive({
         error=function(e){return(FALSE)})
       }
       else { 
-      taxkeep =  tryCatch(rownames(filter(taxsamsel, 
-                                          !taxsamsel[[1]] %in% selected_taxalist)),
-                          error=function(e){return(FALSE)})
+        taxkeep =  tryCatch(rownames(filter(taxsamsel, 
+                                            !taxsamsel[[1]] %in% selected_taxalist)),
+                            error=function(e){return(FALSE)})
       }
     }
     if (isTruthy(taxkeep)) {
@@ -382,32 +435,36 @@ ps.sub <- reactive({
                     "Selected taxa cannot be removed. Reset and try again.",
                     size='l',
                     easyClose = FALSE )
-        ) 
-      }
+      ) 
+    }
     
     trackNums$seltax_aft <- as.character(ntaxa(ps))
   } 
   print("Filter: tax pruning parameters implemented")
- ps <- ps %>% prune_samples(sample_sums(.)>0,.) %>% prune_taxa(taxa_sums(.)>0,.)
-  return(ps)
-}) %>% bindEvent(input$prune_tax,input$prune_samples, #update ps when pruning numbers change
-                 
-                 input$rem_blanks,#update ps when remove blanks is selected
-                 #input$blank_samples, #update ps when selected blank samples change
-                 
-                 input$sample_switch, #update ps when switch to remove samples is toggled
-                 #input$tax_keepremove, #update ps whenever switch from keep/remove taxa
-                 input$tax_switch, #update ps when switch to remove taxa is toggled 
-                 
-                 #input$tax_filterby, #update when rank is selected (this is updated whenever tax_switch is updated too)
-                 #input$tax_select,
-                 input$go_sample, #update ps when 'go' is clicked to subset samples
-                 input$go_tax, #update ps when 'go' is clicked to subset taxa 
-                 
-                 input$assemble_ps, #update ps when assemble is clicked
-                 input$load_ex, #update ps when example data is loaded 
-                 input$go_addtroph #update ps when adding trait data
-                 )
+  ps.sub <- reactive({ps})
+}, suspended=TRUE)
+
+
+# ps <- ps %>% prune_samples(sample_sums(.)>0,.) %>% prune_taxa(taxa_sums(.)>0,.)
+#  return(ps)
+#}) %>% bindEvent(input$prune_tax,input$prune_samples, #update ps when pruning numbers change
+#                 
+#                 input$rem_blanks,#update ps when remove blanks is selected
+#                 #input$blank_samples, #update ps when selected blank samples change
+##                 
+##                 input$sample_switch, #update ps when switch to remove samples is toggled
+#                 #input$tax_keepremove, #update ps whenever switch from keep/remove taxa
+#                 input$tax_switch, #update ps when switch to remove taxa is toggled 
+#                 
+#                 #input$tax_filterby, #update when rank is selected (this is updated whenever tax_switch is updated too)
+#                 #input$tax_select,
+#                 input$go_sample, #update ps when 'go' is clicked to subset samples
+#                 input$go_tax, #update ps when 'go' is clicked to subset taxa 
+#                 
+#                 input$assemble_ps, #update ps when assemble is clicked
+#                 input$load_ex, #update ps when example data is loaded 
+#                 input$go_addtroph #update ps when adding trait data
+#                 )
 
 ps.norm <- reactive({
   req(ps.all())
