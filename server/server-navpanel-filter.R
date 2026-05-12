@@ -88,15 +88,18 @@ observeEvent(input$tax_switch, { #whenever switch to subset taxa is triggered
 
 # ---- # Filter by blanks # ---- 
 observe({ 
+  
   req(ps.sub())
   req(input$blank_cols)
   
+  print("Filter: Getting unique values of selected negative control variable")
   blavar <- as.list(get_variable(ps.sub(),{input$blank_cols})) %>% unique() #unique list of values 
-  print("Filter: listed blank sample options")
+  print("Filter: Unique values of selected negative control variable identified")
   updateCheckboxGroupInput(session,
                            "blank_samples",
                            choices=as.list(blavar))
   print("Filter: List of available values to filter by neg controls updated")
+
 }) %>% bindEvent(input$blank_cols, #update blank selection if a new column is selected
                  MetadataTable$x#, #update blank selection if a new metadata table is loaded 
                  #input$load_ex #update blank selection if 'load' button is pressed
@@ -140,6 +143,8 @@ observe({
 observe({
   req(ps.sub())
   if(isTruthy(input$sample_switch) && input$go_sample && !is.null(input$sample_select)) {
+    print("Subsetting by selected samples")
+    
     shinyjs::show("befaft_sample")
     print("Filter: before/after sample selection count shown")
   } 
@@ -152,8 +157,8 @@ taxfilter_list <- reactiveValues() #make list to record what taxa are used to fi
 
 observe({
   if(isTruthy(input$tax_switch)) { #if tax subset panel is open
-    print("Filter: tax_switch==TRUE")
-    
+    print("Filter: tax_switch==TRUE; Toggle to select specific taxa to view triggered...")
+
     accordion_panel_open(session, #open the accordion panel 
                          id='tax_accord',
                          values=TRUE)
@@ -167,7 +172,7 @@ observe({
                              choices=as.list(taxvar),
                              selected=NULL) #update the available filtering options
     print("Filter: available taxa filtering options updated")
-    
+
   } else if (!isTruthy(input$tax_switch)) { #if tax subset panel is closed 
     print("Filter: tax_switch==FALSE")
     
@@ -197,6 +202,7 @@ observe({
 observe({
   req(ps.sub())
   if(isTruthy(input$tax_switch && input$go_tax && !is.null(input$tax_select))) {
+    print("Subsetting by selected taxa")
     shinyjs::show("befaft_tax")
     print("Filter: before/after tax selection count shown")
   }
@@ -221,7 +227,7 @@ ps.sub <- reactive({
                   prune_taxa(taxa_sums(.)>=input$prune_tax,.) %>% 
                   prune_samples(sample_sums(.)>=input$prune_samples,.)
   )
-  
+  print("Filtered data by minimum sample sequence number and tax occurrence")
   if (!isTruthy(ps)) {
     showModal(
       modalDialog(title="ERROR",
@@ -242,6 +248,7 @@ ps.sub <- reactive({
   
   ############################### BLANKS ############################################
   if(isTruthy(input$rem_blanks)) { #if remove blanks is selected
+    print("Remove blanks selected")
     trackNums$remblank_bef <- trackNums$remblank_aft <- NULL #reset counts
     trackNums$remblanktax_bef <- trackNums$remblanktax_aft <- NULL  #reset counts
     trackNums$remblank_bef <- as.character(nsamples(ps))
@@ -249,6 +256,7 @@ ps.sub <- reactive({
     blakeep = NULL #make empty list of samples
     
     if(!is.null(input$blank_samples)) { #if there are blanks selected
+      print("Negative control samples identified")
       if(input$blank_cols == "Sample") { #if the filtering parameter is sample id
         blasam = sample_names(ps)
         blarem = input$blank_samples #list of blank samples 
@@ -270,8 +278,10 @@ ps.sub <- reactive({
     }
   }
   ############################### SAMPLES ###########################################   
-  if(input$go_sample && isTruthy(input$sample_switch)) { #if user selects specific samples to vis
-    #runif(input$go_sample)
+  if(isTruthy(input$sample_switch) && input$go_sample) { #if user selects specific samples to vis
+    runif(input$go_sample)
+    print("Filter: Samples to filter by selected")
+
     trackNums$selsamp_aft <- trackNums$selsamp_bef <- NULL #reset counts
     trackNums$selsamp_bef <- as.character(nsamples(ps))
     if(!is.null(input$sample_select)) {
