@@ -4,30 +4,57 @@ tableServer(id='tax_table2',
             data=TaxTable 
 ) 
 
-traits_vals <- reactiveValues(x=NULL, #final data frame 
-                              fish.troph=NULL, #rfishbase::ecology for fish
-                              nonfish.troph=NULL, #rfishbase::ecology for non-fish
-                              fishbase.colnames=NULL, #column names of the rfishbase::ecology output
-                              invalid.nonfish.names=NULL, #what species names were not found in either of the data frames?  
-                              taxa_traits_df=NULL, #combined fish/nonfish df
-                              taxa_traits_sub=NULL #final df used for ps
-                              )  
+traits_var <- reactiveValues(x=NULL, #final data frame 
+                             serv=NULL, #database to query 
+                             choose=NULL, #list of species to query 
+                             nona=NULL, #list of species to query without na values 
+                             
+                             syn.fish.tab=NULL, #rfishbase::synonyms() output for fish
+                             syn.sl.tab=NULL, #rfishbase::synonyms() output for non-fish
+                             syn.tab=NULL, #synonym table showing queried values with valid names
+                            
+                             fish.troph=NULL, #rfishbase::ecology output for fish
+                             sl.troph=NULL, #rfishbase::ecology output for non-fish
+                             troph=NULL, # rfishbase::ecology output
+                             
+                             fbdf=NULL, #combined rfishbase::ecosystem() and species() dataframes
+                             traits.df=NULL, #combined ecology, ecosystem, and species dataframe
+                             alltraits.df=NULL, #subsetted ecology, ecosystem, and speciesdataframe
+                             taxa_traits_df=NULL, #combined fish/nonfish df
+                             taxa_traits_sub=NULL, #final df used for ps
+                             
+                             valid.fish.names=NULL, #validated fishbase names
+                             invalid.fish.names=NULL, #invalid fishbase names
+                             sl.check=NULL, #all non-chordate spp names and invalid names for fishbase 
+                             valid.sl.names=NULL, #validated sealifebase names
+                             invalid.sl.names=NULL, #invalid names in sealifebase 
+                             
+                             valid=NULL, #all validated names 
+                             invalid=NULL, #invalid names not queried
+                             syn.names=NULL, #synonym names identified
+                             
+                             fish.eco=NULL, #rfishbase::ecology() output for fishbase
+                             sl.eco=NULL, #rfishbase::ecology() output for sealifebase
+                             eco.df=NULL, #final rfishbase::ecology() output
+                             
+                             fish.spp=NULL, #rfishbase::species() output for fishbase
+                             sl.spp=NULL, #rfishbase::species() output for sealifebase
+                             spp.df=NULL, #final rfishbase::ecology() output 
+                             
+                             eco.sub=NULL, #subsetted ecology df
+                             spp.sub=NULL #subsetted species df 
+)
+
 traits_tab <- reactiveValues(x=NULL)
-traits_query <- reactiveValues(serv=NULL, #database to query 
-                               choose=NULL, #list of species to query 
-                               nona=NULL, #list of species to query without na values 
-                               valid=NULL, #validated names from nona list
-                               invalid=NULL, #invalid names not queried
-                        all=NULL #all species? I think I'm not using this anymore but have not deleted yet
-                             )
 
 observeEvent(input$trait_select, {
   req(TaxTable$x)
-  
+
   shinyjs::hide(id="trait_trophreview_card")
   shinyjs::hide(id="p_fishquery")
+  print("Traits: Hid trophic review cards")
   
-  traits_query$serv <- switch(input$trait_select,
+  traits_var$serv <- switch(input$trait_select,
          "Both" = c("fishbase","sealifebase"),
          "FishBase" = "fishbase",
          "SeaLifeBase" = "sealifebase",
@@ -36,136 +63,465 @@ observeEvent(input$trait_select, {
 })
 
 observeEvent(input$trait_assign, {
+  
+  ################## reset values when assign button is clicked  ################## 
   req(TaxTable$x)
+  taxa_df <- TaxTable$x
+  rownames(taxa_df) <- taxa_df[[1]]
+  keep <- colnames(taxa_df)[1]
+  
  # shinyjs::show(id="viewtrait_panel")
   shinyjs::show(id="trait_trophreview_card")
   shinyjs::show(id="loading_traits")
   
-  
-  ################## reset all reactive values  ################## 
-  traits_vals$x <- traits_vals$fish.troph <- traits_vals$nonfish.troph <- traits_vals$fishbase.colnames <- traits_vals$invalid.nonfish.names <- traits_vals$taxa_traits_df <- traits_vals$taxa_traits_sub <- NULL
+  # reset all values to NULL
+  traits_var$x <- traits_var$choose <- traits_var$nona <- traits_var$syn.fish.tab <- traits_var$syn.sl.tab <- traits_var$syn.tab <- traits_var$fish.troph <- traits_var$sl.troph <- traits_var$troph <- traits_var$fbdf <- traits_var$traits.df <- traits_var$alltraits.df <- traits_var$taxa_traits_df <- traits_var$taxa_traits_sub <- traits_var$valid.fish.names <- traits_var$invalid.fish.names <- traits_var$sl.check <- traits_var$valid.sl.names <- traits_var$invalid.sl.names <- traits_var$valid <- traits_var$invalid <- traits_var$syn.names <- traits_var$fish.eco <- traits_var$sl.eco <- traits_var$eco.df <- traits_var$fish.spp <- traits_var$sl.spp <- traits_var$spp.df <- traits_var$eco.sub <- traits_var$spp.sub <- NULL
   
   traits_tab$x <- NULL
-  
-  traits_query$serv <- traits_query$all <- traits_query$choose <- traits_query$nona <- traits_query$valid <- traits_query$invalid <- NULL
-  
-  taxa_df <- TaxTable$x
-  print("Traits: reactive value variables reset")
-  ################## update vars to show what db we're querying  ################## 
-  traits_query$choose <- switch(input$trait_select, 
-                                #based on the selected database, get a list of species  
+print("Traits: reactive value variables reset to NULL")
+
+  # get a list of species to query based on the selected database 
+  traits_var$choose <- switch(input$trait_select, 
                              "Both" = c(taxa_df %>% 
-                                          filter(!is.na(Species)) %>%
+                                          #filter(!is.na(Species)) %>%
                                           .$Species %>% unique()),
                              "FishBase" = c(taxa_df %>%
-                                              filter(!is.na(Species) & str_detect(Phylum,"hord")) %>% 
+                                              #filter(!is.na(Species) & str_detect(Phylum,"hord")) %>% 
                                               .$Species %>% unique()),
                              "SeaLifeBase" = c(taxa_df %>%
-                                                 filter(!is.na(Species) & !str_detect(Class,"ctinop")) %>% 
+                                                 #filter(!is.na(Species) & !str_detect(Class,"ctinop")) %>% 
                                                  .$Species %>% unique())
   )
-  print("Traits: species list gathered")
+  print("Traits: trait taxa selected")
   
-  if(length(traits_query$choose[!is.na(traits_query$choose)]) > 0) { #number of species to query has to be more than 0
-    #make a list of species from the selection (remove NA species)
-    traits_query$nona <- traits_query$choose[!is.na(traits_query$choose)] 
-    print("Traits: na values removed from species list")
+  # check that the number of species to query is greater than 0
+  # if so, assign the species to a list and remove NA species assignments
+  if(length(traits_var$choose[!is.na(traits_var$choose)]) > 0) { 
+    traits_var$nona <- traits_var$choose[!is.na(traits_var$choose)] 
     
-    shinyjs::show(id="p_fishquery") #report the number of species queried 
-    print("Traits: show panel p_fishquery")
-    
-    output$n_fishquery <-  renderText({paste("Number of species queried: ",length(traits_query$nona))})
-    print("Traits: number of query species calculated")
+    # show the panel listing number of species queried
+    shinyjs::show(id="p_fishquery")
+    output$n_fishquery <-  renderText({paste("Number of species queried: ",length(traits_var$nona))})
     
   } else {
     showModal(modalDialog("No species are assigned in this table. Check you are using the correct dataframe on the review tab."))
     print("Traits: traits_query$choose is 0 or NA")
   }
   
-  # only proceed if traits_query$nona is made 
-  req(traits_query$nona)
+  # only proceed if traits_var$nona is made 
+  req(traits_var$nona)
+  #
+  ##
+  ###
+  ####
+  ##### At this point the species list is queried against one or both of the databases ##### 
+  ##### This is based on user selection with input$trait_select #####
+  ####
+  ###
+  ##
+  #
   print("Traits: traits_query$nona exists")
   
   ################## When both db is selected  ################## 
   if(input$trait_select=="Both") {
-    ### check if tax names are valid/found in the databases ### 
-    # fishbase will validate names with no problems 
-    # sealifebase will crash if I try to validate names 
-    # so that is skipped
+    print("Traits: Both databases selected for trait query")
+    ##### First, check with FishBase ##### 
+    # Compare species list to database and retain only valid names in the database (traits_var$valid.fish.names)
+    # Invalid names are assigned to a new value (traits_var$invalid.fish.names)
+    # Invalid names are then checked for synonym names (var: syn.fish)
+    # Valid synonyms are written to a new variable (var: syn.fish.names)
+    # Valid synonyms are added to the valid names list (traits_var$valid.fish.names) 
+    # Invalid names with valid synonyms are removed from the invalid names list (traits_var$invalid.fish.names)
+    # Table to report synonyms is recorded (traits_var$syn.fish.tab)
+    # Valid names are then queried for trophic information against FishBase (var: fish.troph)
     
-    # remove NA values from species 
-    traits_query$valid <- traits_query$nona[!is.na(traits_query$nona)] 
+    ##### Then, query the invalid names against SeaLifeBase ##### 
+    # Combine invalid names and names without info in FishBase into a single list (traits_var$sl.check)
+    # Compare species list to database and retain only valid names in the database (traits_var$valid.sl.names)
+    # Invalid names are assigned to a new value (traits_var$invalid.sl.names)
+    # Invalid names are then checked for synonym names (var: syn.sl)
+    # Valid synonyms are written to a new variable (var: syn.sl.names)
+    # Valid synonyms are added to the valid names list (traits_var$valid.sl.names)
+    # Invalid names with valid synonyms are removed from the invalid names list (traits_var$invalid.sl.names)
+    # Table to report synonyms is recorded (traits_var$syn.sl.tab)
+    # Valid names are then queried for trophic information against FishBase (traits_var$sl.troph)
+    
+    # All trophic tables are combined (traits_var$troph)
+    
+    # check if tax names are valid/found in the databases and remove NA values from species #
+    valid.fish.names <- traits_var$nona[!is.na(traits_var$nona)] %>% 
+      rfishbase::validate_names(server="fishbase") 
+    valid.fish.names <- valid.fish.names[!is.na(valid.fish.names)]
+    print("Traits: Names validated in FishBase")
+    
     # make list of species that did not pass 
-    traits_query$invalid <- traits_query$nona[!traits_query$nona%in%traits_query$valid] 
-    # traits_query$invalid will then be used to print the tax names that were queried and not found in the database
+    invalid.fish.names <- traits_var$nona[!traits_var$nona%in%valid.fish.names & !is.na(traits_var$nona)] 
     
-    ################## get trophic info ################## 
-    fish.troph <- rfishbase::estimate(species_list=traits_query$valid,
+    # Check the species names that were not found in fishbase for synonyms
+    syn.fish <- rfishbase::synonyms(invalid.fish.names,
+                                    server="fishbase") %>% 
+      filter(Status=="synonym")
+    print("Traits: Synonyms queried from FishBase")
+    
+    # retain synonym names 
+    syn.fish.names <- syn.fish[!is.na(syn.fish$Species),]$Species
+    
+    # make a table showing what synonyms were found and what their original names from the tax dataframe were
+    syn.fish.tab <- syn.fish %>% 
+      select(c(Species,synonym)) %>% 
+      rename("Valid Name" = "Species", 
+             "Queried Name" = "synonym" )
+    
+    # add synonyms to valid list and remove the queried names from invalid list 
+    valid.fish.names <- c(valid.fish.names[!valid.fish.names%in%syn.fish.names], 
+                            syn.fish.names) 
+    invalid.fish.names <- invalid.fish.names[!invalid.fish.names%in%syn.fish$synonym]
+    
+    #### get trophic info using valid list ### 
+    fish.troph <- rfishbase::estimate(species_list=valid.fish.names,
                                       server="fishbase")
-    # remove any taxa that were found in fishbase before querying sealifebase 
-    nonfish.troph <- rfishbase::estimate(species_list=traits_query$valid[!traits_query$valid%in%fish.troph$Species],
-                                      server="sealifebase")
-    print("Traits: both databases; sealifebase queried")
+    print("Traits: trophic information gathered from FishBase")
     
-    # combine the two df
+    ##### SeaLifeBase ##### 
+
+    # check if tax names are valid/found in the databases and remove NA values from species #
+    sl.check <- c(valid.fish.names[!valid.fish.names%in%fish.troph$Species],
+                  invalid.fish.names)
+    
+    valid.sl.names <- sl.check %>% 
+      rfishbase::validate_names(server="sealifebase") 
+    valid.sl.names <- valid.sl.names[!is.na(valid.sl.names)]
+    print("Traits: Names validated in SeaLifeBase")
+    
+    # make list of species that did not pass 
+    invalid.sl.names <- sl.check[!sl.check%in%valid.sl.names]
+    
+    # Check the species names that were not found in fishbase for synonyms
+    syn.sl <- rfishbase::synonyms(invalid.sl.names,
+                                  server="sealifebase") %>% 
+      filter(Status=="synonym")
+    print("Traits: Synonyms queried from SeaLifeBase")
+    
+    syn.sl.names <- syn.sl[!is.na(syn.sl$Species),]$Species
+    syn.sl.tab <- syn.sl %>% 
+      select(c(Species,synonym)) %>% 
+      rename("Valid Name" = "Species", 
+             "Queried Name" = "synonym" )
+    
+    # add synonyms to valid list and remove the queried names from invalid list 
+    valid.sl.names <- c(valid.sl.names[!valid.sl.names%in%syn.sl.names], 
+                            syn.sl.names) 
+    
+    invalid.sl.names <- c(invalid.sl.names,
+                                 invalid.sl.names[!invalid.sl.names%in%syn.sl$synonym])
+    
+    #### get trophic info ### 
+    sl.troph <- rfishbase::estimate(species_list=valid.sl.names,
+                                      server="sealifebase")
+    print("Traits: Trophic information gathered from SeaLifeBase")
+    
+    ################### combine the two df ##################
     # standardize the column names  
     colnames(fish.troph) <- str_to_title(colnames(fish.troph))
-    colnames(nonfish.troph) <- str_to_title(colnames(nonfish.troph))
+    colnames(sl.troph) <- str_to_title(colnames(sl.troph))
     
     # combine the two dataframes with bind_rows, because that will fill any missing values with NA  
     # include 'db' as an ID column so we can tell later what database the results came from  
     traits.df <- bind_rows(fish.troph, 
-                           nonfish.troph,
-                           .id="db") 
-    print("Traits: both databases; trophic database assembled")
+                           sl.troph,
+                           .id="db") %>% 
+      filter(!duplicated(Species)) %>%
+      mutate(Syn=case_when(Species%in%syn.fish$Status ~ "synonym")) %>% as.data.frame()
+    print("Traits: trophic level information combined from both databases")
     
-    traits_vals$fish.troph <- (traits.df %>% tibble::rownames_to_column(var="rownames")) 
+    #### Keep some vars #### 
+    traits_var$valid.fish.names <- valid.fish.names
+    traits_var$invalid.fish.names <- invalid.fish.names
+    traits_var$syn.fish.tab <- syn.fish.tab
+    traits_var$fish.troph <- fish.troph
     
-    #add the ones that weren't found to traits_query$invalid
-    traits_query$invalid <- c(traits_query$invalid,
-                              traits_query$valid[!traits_query$valid%in%traits.df$Species])
-    print("Traits: both databases; species not found added to invalid list")
+    traits_var$valid.sl.names <- valid.sl.names
+    traits_var$invalid.sl.names <- invalid.sl.names 
+    traits_var$syn.sl.tab <- syn.sl.tab
+    traits_var$sl.troph <- sl.troph
     
+    traits_var$valid <- c(valid.fish.names,valid.sl.names) %>% unique()
+    traits_var$invalid <- unique(invalid.sl.names) #because this value encompasses anything that wasn't found in fishbase, I don't need to include both invalids
+    traits_var$syn.tab <- bind_rows(syn.fish.tab, 
+                                     syn.sl.tab,
+                                     .id="db") #%>% filter(!duplicated(Species)) 
+    traits_var$syn.names <- c(syn.fish.names,syn.sl.names) %>% unique()
+    
+    traits_var$troph <- (traits.df #%>%
+                            #tibble::rownames_to_column(var="Row.Name")
+                          ) 
+    
+    ################## Add other ecosystem data  ################## 
+    
+    # get table of location/ecosystem preferences 
+    fish.eco <- rfishbase::ecosystem(species_list=valid.fish.names,
+                                     server="fishbase") 
+    print("Traits: Ecosystem data queried from FishBase")
+    sl.eco <- rfishbase::ecosystem(species_list=valid.sl.names,
+                                   server="sealifebase") 
+    print("Traits: Ecosystem data queried from SeaLifeBase")
+    eco.df <- bind_rows(fish.eco,sl.eco,.id="db") 
+    
+    # get species table information
+    fish.spp <- rfishbase::species(species_list=valid.fish.names,
+                                   server="fishbase") 
+    print("Traits: Species table data queried from FishBase")
+    sl.spp <- rfishbase::species(species_list=valid.sl.names,
+                                 server="sealifebase") 
+    print("Traits: Species table data queried from SeaLifeBase")
+    
+    spp.df <- bind_rows(fish.spp,sl.spp,.id="db")
+    
+    # ecosystem table is large 
+    # want to keep unique values for Climate, Salinity, and EcosystemType, AverageDepth, TempSurface
+    eco.sub <- eco.df %>% 
+      group_by(Species) %>% 
+      select(c(#Status,
+        #EcosystemName,
+        #EcosystemType,
+        Salinity,Climate,
+        Polar,Temperate,Subtropical,Tropical,
+      )) %>% 
+      mutate(across(where(is.character),str_to_sentence)) %>% #change all column names to sentence case
+      mutate(Salinity=paste(sort(unique(Salinity)),collapse=", "),
+             Climate=paste(sort(unique(Climate)),collapse=", ")) %>%
+      mutate(across(where(is.integer),\(x) replace_na(x,0))) %>% #replace all NA values in the binary columns with 0
+      ungroup() %>%
+      group_by(Species,#EcosystemType,
+               Climate,
+               Salinity) %>%
+      summarize(across(c("Polar","Temperate","Subtropical","Tropical"), #we don't need to keep every area that a fish is present in, collate all the values so we can convert back to a binary
+                       sum, na.rm=TRUE)) %>%
+      mutate(across(c("Polar","Temperate","Subtropical","Tropical"), #convert to presence/absence
+                    ~ case_when(. == 0 ~ 0, .default=-1))) %>%
+      unique() %>%
+      #filter(!duplicated(EcosystemType)) %>% 
+      filter(#!is.na(EcosystemType) & 
+        !is.na(Salinity)) %>%
+      relocate(Species) 
+    
+    # subset species table to just include target information 
+    spp.sub <- spp.df %>% 
+      group_by(Species) %>% 
+      select(c(FBname,
+               Fresh,Brack,Saltwater,
+               DemersPelag,
+               AnaCat,
+               Vulnerability,VulnerabilityClimate,
+               Length,
+               Importance,
+               Landings,LandingStatistics #, starts_with("M")
+      )) %>% 
+      mutate(across(where(is.integer),replace_na,0)) %>% #replace all NA values in the binary columns with 0
+      mutate(across(where(is.character),str_to_sentence)) %>% #change all column names to sentence case
+      relocate(Species) 
+    
+    # combine all trait information: trophic level from estimate, ecosystem information from ecosystem, species qualities from species  
+    # fish.troph and fish.eco and fish.spp 
+    fbdf <- merge(eco.sub,
+                  spp.sub,
+                  .by=Species,all = TRUE) %>% as.data.frame()
+    print("Traits: Ecology and Species data combined into one table")
+    
+    alltraits.df <- merge((traits.df %>% 
+                             #rownames_to_column(.,var="Row.Name") %>% 
+                             select(c(#all_of(keep),
+                                      db,
+                                      #Row.Name, 
+                                      Species,
+                                      Maxlengthsl,Maxlengthtl,
+                                      Tlobserved,
+                                      contains("roph"),
+                                      contains("epth"),
+                                      contains("atio"),
+                                      contains("emp"),
+                                      contains("eed"),
+    ))),
+    fbdf,
+    .by=Species,all=TRUE)
+    print("Traits: All trait data merged with taxa table")
   } else { 
     print("Traits: only one database selected")
     ################## When a single db is selected  ################## 
-    # get the trophic info for those species  
-    traits.df <- rfishbase::estimate(species_list=traits_query$nona,#species_list=traits_query$valid,
-                                      server=traits_query$serv)
     
-    # assign to reactiveValues to use later  
-    colnames(traits.df) <- str_to_title(colnames(traits.df))
-    traits_vals$fish.troph <- (traits.df %>% tibble::rownames_to_column(var="rownames")) #rfishbase::ecology for fish
-    print("Traits: database assembled")
+    valid.fish.names <- traits_var$nona[!is.na(traits_var$nona)] %>% 
+      rfishbase::validate_names(server=traits_var$serv) 
+    print("Traits: Names validated with database")
     
-    #add the ones that weren't found to traits_query$invalid
-    traits_query$invalid <- c(traits_query$invalid,
-                              traits_query$valid[!traits_query$valid%in%traits.df$Species])
-    print("Traits: species not found added to invalid list")
+    # make list of species that did not pass 
+    invalid.fish.names <- traits_var$nona[!traits_var$nona%in%valid.fish.names & !is.na(traits_var$nona)] 
+    
+    # Check the species names that were not found in fishbase for synonyms
+    syn.fish <- rfishbase::synonyms(invalid.fish.names,server=traits_var$serv) %>% 
+      filter(Status=="synonym")
+    print("Traits: Checked invalidated names for synonyms")
+    
+    syn.fish.names <- syn.fish[!is.na(syn.fish$Species),]$Species
+    
+    syn.fish.tab <- syn.fish %>% 
+      select(c(Species,synonym)) %>% 
+      rename("Valid Name" = "Species", 
+             "Queried Name" = "synonym" )
+    
+    # add synonyms to valid list and remove the queried names from invalid list 
+    valid.fish.names <- c(valid.fish.names[!valid.fish.names%in%syn.fish.names], 
+                          syn.fish.names) 
+    invalid.fish.names <- invalid.fish.names[!invalid.fish.names%in%syn.fish$synonym]
+    
+    #### get trophic info using valid list ### 
+    fish.troph <- rfishbase::estimate(species_list=valid.fish.names,
+                                      server=traits_var$serv)
+    print("Traits: Trait information gathered")
+    
+    colnames(fish.troph) <- str_to_title(colnames(fish.troph))
+    traits.df <- fish.troph %>%
+      filter(!duplicated(Species)) %>%
+      mutate(Syn=case_when(Species%in%syn.fish$Status ~ "synonym")) %>% as.data.frame()
+    
+    #### Keep some vars #### 
+    #traits_var$valid.fish.names <- valid.fish.names
+    #traits_var$invalid.fish.names <- invalid.fish.names
+    #traits_var$syn.fish.tab <- syn.fish.tab
+    traits_var$fish.troph <- fish.troph
+    
+    traits_var$valid <- unique(valid.fish.names)
+    traits_var$invalid <- unique(invalid.fish.names) 
+    traits_var$syn.tab <- syn.fish.tab
+    traits_var$syn.names <- unique(syn.fish.names)
+    
+    traits_var$troph <- (traits.df #%>%
+                           #tibble::rownames_to_column(var="Row.Name")
+    ) 
+    
+    ################## Add other ecosystem data  ################## 
+    
+    # get table of location/ecosystem preferences 
+    eco.df <- rfishbase::ecosystem(species_list=valid.fish.names,
+                                     server=traits_var$serv) 
+    print("Traits: Ecosystem data gathered")
+    
+    # get species table information
+    spp.df <- rfishbase::species(species_list=valid.fish.names,
+                                   server=traits_var$serv) 
+    print("Traits: Species trait data gathered")
+    
+    # ecosystem table is large 
+    # want to keep unique values for Climate, Salinity, and EcosystemType, AverageDepth, TempSurface
+    eco.sub <- eco.df %>% 
+      group_by(Species) %>% 
+      select(c(#Status,
+        #EcosystemName,
+        #EcosystemType,
+        Salinity,Climate,
+        Polar,Temperate,Subtropical,Tropical,
+      )) %>% 
+      mutate(across(where(is.character),str_to_sentence)) %>% #change all column names to sentence case
+      mutate(Salinity=paste(sort(unique(Salinity)),collapse=", "),
+             Climate=paste(sort(unique(Climate)),collapse=", ")) %>%
+      mutate(across(where(is.integer),\(x) replace_na(x,0))) %>% #replace all NA values in the binary columns with 0
+      ungroup() %>%
+      group_by(Species,#EcosystemType,
+               Climate,
+               Salinity) %>%
+      summarize(across(c("Polar","Temperate","Subtropical","Tropical"), #we don't need to keep every area that a fish is present in, collate all the values so we can convert back to a binary
+                       sum, na.rm=TRUE)) %>%
+      mutate(across(c("Polar","Temperate","Subtropical","Tropical"), #convert to presence/absence
+                    ~ case_when(. == 0 ~ 0, .default=-1))) %>%
+      unique() %>%
+      #filter(!duplicated(EcosystemType)) %>% 
+      filter(#!is.na(EcosystemType) & 
+        !is.na(Salinity)) %>%
+      relocate(Species) 
+    
+    # subset species table to just include target information 
+    spp.sub <- spp.df %>% 
+      group_by(Species) %>% 
+      select(c(FBname,
+               Fresh,Brack,Saltwater,
+               DemersPelag,
+               AnaCat,
+               Vulnerability,VulnerabilityClimate,
+               Length,
+               Importance,
+               Landings,LandingStatistics #, starts_with("M")
+      )) %>% 
+      mutate(across(where(is.integer),replace_na,0)) %>% #replace all NA values in the binary columns with 0
+      mutate(across(where(is.character),str_to_sentence)) %>% #change all column names to sentence case
+      relocate(Species) 
+    
+    # combine all trait information: trophic level from estimate, ecosystem information from ecosystem, species qualities from species  
+    # fish.troph and fish.eco and fish.spp 
+    fbdf <- merge(eco.sub,
+                  spp.sub,
+                  .by=Species,all = TRUE) %>% as.data.frame()
+    
+    alltraits.df <- merge((traits.df %>% 
+                             #rownames_to_column(.,var="Row.Name") %>% 
+                             select(c(#all_of(keep),
+                                      #Row.Name, 
+                                      Species,
+                                      contains("length"),
+                                      contains("roph"),
+                                      contains("epth"),
+                                      contains("atio"),
+                                      contains("emp"),
+                                      contains("eed"),
+                             ))),
+                          fbdf,
+                          .by=Species,all=TRUE)
   }
+ req(!is.null(traits_var$syn.tab))
+ req(alltraits.df)
+ 
+  ################## Add synonym information to tax table  ################## 
+  t.syn.tab <- traits_var$syn.tab %>% rename(Synonym = "Valid Name", #Change the name of the columns so we can combine this table with the alltraits.df table by Species 
+                                  Species = "Queried Name") 
+  print("Traits: Synonym table headers renamed")
+  
+  alltraits.df <- alltraits.df %>% 
+    merge(.,t.syn.tab, all.x=TRUE) %>% 
+    mutate(Synonym= case_when(Species %in% t.syn.tab$Synonym ~ Species, #add the synonym found in the database as an extra column in the trait df 
+                              .default=Synonym)) 
+  print("Traits: Synonym table added to trait df")
+  
+  alltraits.df <- alltraits.df %>% 
+    filter(.,!is.na(Synonym)==TRUE) %>% #temporarily remove the taxa we did not find synonyms for
+    group_by(Synonym) %>% 
+    fill(-Species, .direction="downup") %>% #then we can fill in the values for the original query using values found from the synonym name 
+    bind_rows(alltraits.df %>% filter(is.na(Synonym))) %>% #add the other taxa back in 
+    #filter(rowname %in% rownames(otu.tab))
+    filter(Species != Synonym | is.na(Synonym)) %>% #then remove the synonym rows 
+    as.data.frame() 
+  print("Traits: Synonym data used to fill trait df")
   
   ################## Combine with tax table  ################## 
-  traits_vals$x <- traits_vals$traits.df <- (traits.df %>% 
-                                               tibble::rownames_to_column(var="rownames")) #combined fish/nonfish df
+  traits_var$x <- traits_var$alltraits.df <- (alltraits.df #%>% tibble::rownames_to_column(var="Row.Name")
+                                              ) #combined fish/nonfish df
   
   # merge with the taxa table  
   taxa_traits_df <- merge(taxa_df,
-                          traits.df,
+                          alltraits.df,
                           by="Species",
                           all.x=TRUE)
-  taxa_traits_df <- relocate(taxa_traits_df,
-                             "Species",
-                             .after="Genus") 
-  print("Traits: trophic information added to tax table")
+  
+  #taxa_traits_df <- relocate(taxa_traits_df,
+  #                           "Species",
+  #                           .after="Genus") 
+  print("Traits: trophic information added to tax table") 
   
   #rownames(taxa_traits_df) <- taxa_traits_df[[1]]
   
   # save 
-  traits_tab$x <- traits_vals$taxa_traits_df <- (taxa_traits_df #%>% tibble::rownames_to_column(var="rownames")
+  traits_tab$x <- traits_var$taxa_traits_df <- (taxa_traits_df %>% relocate(all_of(keep))  #%>% tibble::rownames_to_column(var="Row.Name")
                                                  ) #combined fish/nonfish df with taxonomy table 
   
-  taxa_traits_sub <- select(taxa_traits_df, -c(1:14))
-  traits_vals$taxa_traits_sub <- (taxa_traits_sub #%>% tibble::rownames_to_column(var="rownames")
+  taxa_traits_sub <- taxa_traits_df #select(taxa_traits_df, -c(1:14))
+  traits_var$taxa_traits_sub <- (taxa_traits_sub %>% relocate(all_of(keep))  #%>% tibble::rownames_to_column(var="Row.Name")
                                   )  #final data frame used for ps
   
 })
@@ -186,12 +542,28 @@ observeEvent(input$trait_assign, {
   
   # is the size of the combined traits df from fishbase and sealifebase the same size as the two incoming?  
 #  nrow(fish.troph)
-#  nrow(nonfish.troph)
-#  nrow(traits.df)
+#  nrow(traits_var$sl.troph)
+#  nrow(alltraits.df)
   
   # is the size of the combined traits df the same size as the original taxa df?  
 #  nrow(taxa_traits_df)
 #  nrow(taxa_df)
+traits_report <- reactive({
+  req(!is.null(traits_var$taxa_traits_df))
+  
+ data.frame( Data =c("Number of species queried",
+                         "Number of synonyms identified",
+                         "Number of valid names found",
+                         "Number of names not found in database"
+ ),
+             Values = c(n_distinct(traits_var$nona,na.rm=TRUE),
+                        n_distinct(traits_var$syn.names,na.rm=TRUE),
+                        n_distinct(traits_var$valid %>% unique(),na.rm=TRUE),
+                        n_distinct(traits_var$invalid,na.rm=TRUE)
+                        )
+         ) 
+  
+}) %>% bindEvent(traits_var$taxa_traits_df)
 
  # ~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~ # download trait table # ~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~  
 
@@ -208,8 +580,8 @@ observe({
 
 ################## Popup dialog box ################## 
 observe({
-  #if(is.null(traits_vals$x)) {shinyjs::hide(id="viewtrait_panel")}
-  if(!is.null(traits_vals$traits.df)) {
+  #if(is.null(traits_var$x)) {shinyjs::hide(id="viewtrait_panel")}
+  if(!is.null(traits_var$alltraits.df)) {
     shinyjs::delay(5000,
   showModal(
     modalDialog(title="Save data",
@@ -234,7 +606,7 @@ output$dwnldtrait1 <- output$dwnldtrait2 <- downloadHandler(
       paste("trait_table_only", ".csv", sep="")
     },
     content = function(file) {
-      write.csv(traits_vals$x,file)
+      write.csv(traits_var$x,file,row.names=FALSE)
     }
   )
 
@@ -243,7 +615,7 @@ output$dwnldtraittaxa1 <- output$dwnldtraittaxa2 <- downloadHandler(
     paste("trait_taxa_table", ".csv", sep="")
   },
   content = function(file) {
-    write.csv(traits_tab$x,file)
+    write.csv(traits_tab$x,file,row.names=FALSE)
   }
 )
   # ~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~ # outputs # ~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~  
@@ -251,7 +623,7 @@ output$dwnldtraittaxa1 <- output$dwnldtraittaxa2 <- downloadHandler(
 #specifically just look at the trait df  
 showSpinner("trait_spinner_review", {
   tableServer(id='trait_review',
-              data=traits_vals #module was written to auto read the $x value of the table
+              data=traits_var #module was written to auto read the $x value of the table
               )
   })
 
@@ -262,7 +634,14 @@ showSpinner("trait_spinner_taxreview", {
               )
   })
   
-  output$not.names <- renderPrint(traits_query$invalid)
+  output$not.names <- renderPrint(traits_var$invalid)
+  output$syn.names <- renderTable(traits_var$syn.tab)
+  output$trait.tab <- renderTable(traits_report())
+  
+  output$trait.nona <- renderText(sort(traits_var$nona),sep = ", ")
+  output$trait.syn.names <- renderText(sort(traits_var$syn.names),sep = ", ")
+  output$trait.valid <- renderText(sort(traits_var$valid),sep = ", ")
+  output$trait.invalid <- renderText(sort(traits_var$invalid),sep = ", ")
 #  valid.nonfish.names
 
 

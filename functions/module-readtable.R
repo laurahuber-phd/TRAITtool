@@ -110,14 +110,14 @@ tableServer <- function(id,data,editable=FALSE) {
     
     observe({
     output$table <- renderDT(data$x,
-                              editable='all',
+                              editable='all',rownames=FALSE,
                              caption = htmltools::tags$caption(
                                style = 'caption-side: top; text-align: center; color:black; font-size:1.5vw; font-weight:bold;',
                                'Edit your table by double clicking inside a cell, save edits with Control + Enter'))
     print(c(id,"editable table rendered"))
     })
     observe({
-      output$table_noedit <- renderDT(data$x,
+      output$table_noedit <- renderDT(data$x,rownames=FALSE,
                                       caption = htmltools::tags$caption(
                                         style = 'caption-side: top; text-align: center; color:black; font-size:1.5vw; font-weight:bold;',
                                         'Save or expand your table')

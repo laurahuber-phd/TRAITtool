@@ -14,6 +14,13 @@ observe({
                             type="meta",
                             sep=input$meta_sep,
                             header=input$meta_header)
+  
+  y <- make.names(colnames(metfile), unique=TRUE)
+  colnames(metfile) <- y
+  
+  z <- make.names(metfile[[1]],unique=TRUE)
+  metfile[[1]] <- z
+  
   MetadataTable$x <- metfile
   MetadataTable$og <- metfile
   print("Load: loaded metadata")
@@ -33,6 +40,13 @@ observe({ #upload the OTU file
                             type="otu",
                             sep=input$otu_sep,
                             header=input$otu_header)
+  
+  y <- make.names(colnames(otufile), unique=TRUE)
+  colnames(otufile) <- y
+  
+  z <- make.names(otufile[[1]],unique=TRUE)
+  otufile[[1]] <- z
+    
   OTUTable$x <- otufile
   OTUTable$og <- otufile
   print("Load: loaded asv table")
@@ -65,24 +79,36 @@ observe({ #upload the taxonomy file
                             sep=input$tax_sep,
                             header=input$tax_header)
   
+  y <- make.names(colnames(taxfile_upld), unique=TRUE)
+  colnames(taxfile_upld) <- y
+  
+  z <- make.names(taxfile_upld[[1]],unique=TRUE)
+  taxfile_upld[[1]] <- z
+  
   taxfile <- taxfile_upld %>% rename_with(str_to_title) #make column names title case
   
-  check <- taxfile %>% 
-    filter(!is.na(Species)) %>% .[1:10,] %>% .$Species %>% #just look at a subset of the species assignments
-    countSpaces(.) #will return a vector of the number of spaces in each 
-  
-  
-  if(is.na(range(check)[2]) ) { #we then look at the range of values; if the highest number is 0 
-    taxfile <- taxfile
-  } else 
-  if(range(check)[2] < 1) { #we then look at the range of values; if the highest number is 0 
-    taxfile <- taxfile %>% 
-      mutate(Species=case_when(!is.na(Species) ~ paste0(Genus," ",Species), #remake the species column to genus-species
-                                                    .default=NA))
-    print("Load: taxfile species names changed to genus-species")
+  if(any(str_detect(colnames(taxfile),"Species")==TRUE)) {
+    # Do the following if one of the column names is "Species" (title case will be true because of above code)
+    
+    check <- taxfile %>% 
+      filter(!is.na(Species)) %>% .[1:10,] %>% .$Species %>% #just look at a subset of the species assignments
+      countSpaces(.) #will return a vector of the number of spaces in each 
+    
+    if(is.na(range(check)[2]) ) { #we then look at the range of values; if the highest number is 0 
+      taxfile <- taxfile
+    } else 
+      if(range(check)[2] < 1) { #we then look at the range of values; if the highest number is 0 
+        taxfile <- taxfile %>% 
+          mutate(Species=case_when(!is.na(Species) ~ paste0(Genus," ",Species), #remake the species column to genus-species
+                                   .default=NA))
+      } else {
+        taxfile <- taxfile
+      }
   } else {
+    # If no detected species 
     taxfile <- taxfile
   }
+
   
   TaxTable$x <- taxfile
   TaxTable$og <- taxfile_upld
