@@ -3,7 +3,7 @@ library(dplyr)
 Meta_vars <- reactive({ #read the metadata file and identify the variable names 
   #req(input$Metadata)
   req(!is.null(MetadataTable$x))
-  print("Meta_vars() sample variables calculated")
+  print("Globalvars: Meta_vars() sample variables calculated")
   return(names(MetadataTable$x))
 }) %>% bindEvent(input$load_ex, #update meta_vars if the load button is pressed (new dataset)
                  input$assemble_ps
@@ -13,7 +13,7 @@ Meta_vars <- reactive({ #read the metadata file and identify the variable names
 
 rnames <- reactive({ 
   req(ps.norm())
-  print("Rank names calculated")
+  print("Globalvars: Rank names calculated")
   return(rank_names(ps.norm()))
 }) %>% bindEvent(ps.norm(),ps.all() )
 
@@ -21,7 +21,7 @@ ps.norm.melt <- eventReactive(c(input$go_violin,input$go_rankperc,input$norm_mel
   req(ps.norm())
    
   ps <- ps.norm()
-  print("Melted normalized dataframe")
+  print("Globalvars: Melted normalized dataframe")
   #psmelt(ps.norm()) %>% filter(Abundance>0)
   
   otu_df <- otu_table(ps) %>% as.matrix() %>% as.data.frame() 
