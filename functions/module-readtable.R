@@ -70,12 +70,12 @@ tableServer <- function(id,data,editable=FALSE) {
     #    output$goodtable <- FALSE
         values$empty <- TRUE 
         values$table <- FALSE
-        print(c(id," table is null"))
+        print(c("Module: tableServer",id," table is null"))
       } else if (!is.null(data$x)) {
     #    output$goodtable <- TRUE
         values$empty <- FALSE
         values$table <- TRUE
-        print(c(id," table is not null"))
+        print(c("Module: tableServer",id," table is not null"))
       }
     }, ignoreNULL = FALSE)
     
@@ -96,12 +96,12 @@ tableServer <- function(id,data,editable=FALSE) {
 
     observeEvent(values$table, {
       if(values$table==TRUE)  {
-        print(c(id,"table panel shown"))
+        print(c("Module: tableServer",id,"table panel shown"))
         hide('failtable')
         show('table')
         show('table_noedit')
         } else {
-          print(c(id,"table panel hidden"))
+          print(c("Module: tableServer",id,"table panel hidden"))
           show('failtable')
           hide('table')
           hide('table_noedit')
@@ -114,7 +114,7 @@ tableServer <- function(id,data,editable=FALSE) {
                              caption = htmltools::tags$caption(
                                style = 'caption-side: top; text-align: center; color:black; font-size:1.5vw; font-weight:bold;',
                                'Edit your table by double clicking inside a cell, save edits with Control + Enter'))
-    print(c(id,"editable table rendered"))
+    print(c("Module: tableServer",id,"editable table rendered"))
     })
     observe({
       output$table_noedit <- renderDT(data$x,rownames=FALSE,
@@ -122,12 +122,12 @@ tableServer <- function(id,data,editable=FALSE) {
                                         style = 'caption-side: top; text-align: center; color:black; font-size:1.5vw; font-weight:bold;',
                                         'Save or expand your table')
                                       )
-      print(c(id,"non-editable table rendered"))
+      print(c("Module: tableServer",id,"non-editable table rendered"))
     })
 
     proxy=dataTableProxy('table')
     observeEvent(input$table_cell_edit, {
-      print(c(id,"table edited"))
+      print(c("Module: tableServer",id,"table edited"))
       info = input$table_cell_edit
       str(info)
       i=info$row
@@ -145,7 +145,7 @@ tableServer <- function(id,data,editable=FALSE) {
       }
     ) 
     observeEvent(input$reset, {
-      print(c(id,"data reset"))
+      print(c("Module: tableServer",id,"data reset"))
       data$x <- data$og
     })
     
@@ -158,11 +158,11 @@ tableServer <- function(id,data,editable=FALSE) {
                                     editable='all',
                                     #filter='top',
                                     rownames=FALSE)
-        print(c(id,"large editable table rendered"))
+        print(c("Module: tableServer",id,"large editable table rendered"))
       } else {
       output$bigTable <- renderDT(data$x,
                                   rownames=FALSE)
-      print(c(id,"large non-editable table rendered"))
+      print(c("Module: tableServer",id,"large non-editable table rendered"))
       }
     }) 
     # The function to show the popup screen.
