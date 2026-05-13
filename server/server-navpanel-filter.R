@@ -76,15 +76,15 @@ observe({
 }) %>% 
   bindEvent(Meta_vars()) #respond to any changes in the Metadata file that is uploaded
 
-observeEvent(input$tax_switch, { #whenever switch to subset taxa is triggered
-  print("Filter: switch to subset taxa was triggered")
-  req(ps.sub())
-  updateSelectInput(inputId = 'tax_filterby', 
-                    label = 'Taxonomic Rank', 
-                    choices = c(as.list(rank_names(ps.sub())))
-  ) #update picker selection using the rank names of the ps object
-  print("Filter: updated taxonomic filter options")
-}, suspended=TRUE) 
+#observeEvent(input$tax_switch, { #whenever switch to subset taxa is triggered
+#  print("Filter: switch to subset taxa was triggered")
+#  req(ps.sub())
+#  updateSelectInput(inputId = 'tax_filterby', 
+#                    label = 'Taxonomic Rank', 
+#                    choices = c(as.list(rank_names(ps.sub())))
+#  ) #update picker selection using the rank names of the ps object
+#  print("Filter: updated taxonomic filter options")
+#}, suspended=TRUE) 
 
 # ---- # Filter by blanks # ---- 
 observe({ 
@@ -106,7 +106,9 @@ observe({
 ) 
 
 #  ---- # Filter by samples # ---- 
-observe({
+observeEvent(c(input$sample_switch,
+               input$sample_filterby,
+               MetadataTable$x),{
   if(isTruthy(input$sample_switch)) { #if sample_switch==TRUE
     print("Toggle to select specific samples to view triggered...")
     accordion_panel_open(session, #open the accordion panel to allow selecting samples  
@@ -114,13 +116,6 @@ observe({
                          values=TRUE)
     print("Filter: sample selection accordion panel opened")
     
-    req(input$sample_filterby)
-    selvar <- as.list(get_variable(ps.sub(),{input$sample_filterby})) %>% unique() #unique list of values 
-    #selvar <- as.list(MetadataTable$x[[input$sample_filterby]]) %>% unique() #unique list of values 
-    updateCheckboxGroupInput(session,
-                             "sample_select",
-                             choices=as.list(selvar)) #update the available filtering options
-    print("Filter: available sample filtering options updated")
     
   } else if (!isTruthy(input$sample_switch)) {
     print("Filter: sample_switch==FALSE")
@@ -135,34 +130,63 @@ observe({
     shinyjs::hide("befaft_sample")
     print("Filter: before/after sample selection count hidden")
   }
-}, suspended=TRUE) %>% bindEvent(input$sample_switch,
-                 input$sample_filterby,
-                 MetadataTable$x
-                 ) 
+}, suspended=TRUE) #%>% bindEvent(input$sample_switch,
+                 #input$sample_filterby,
+                 #MetadataTable$x
+                 #) 
 
-observe({
+observeEvent(input$sample_filterby, {
+ req(ps.sub())
+  
+  selvar <- get_variable(ps.sub(), {input$sample_filterby}) %>% unique() #unique list of values 
+  print("Filter: sample variables identified")
+  #selvar <- as.list(MetadataTable$x[[input$sample_filterby]]) %>% unique() #unique list of values 
+  updateCheckboxGroupInput(session,
+                           "sample_select",
+                           choices=as.list(selvar)) #update the available filtering options
+  print("Filter: available sample filtering options updated")
+  
+})
+
+observeEvent(input$go_sample, {
   req(ps.sub())
-  if(isTruthy(input$sample_switch) && input$go_sample && !is.null(input$sample_select)) {
-    print("Subsetting by selected samples")
+  
+  if(isTruthy(input$sample_switch) && !is.null(input$sample_select)) {
+    print("Filter: Subsetting by selected samples")
     
     shinyjs::show("befaft_sample")
     print("Filter: before/after sample selection count shown")
-  } 
-}) %>% bindEvent(input$sample_switch,
-                 input$go_sample,
-                 ignoreInit=TRUE)
+    
+  } #else if(!isTruthy(input$sample_switch) && !is.null(input$sample_select)) { } #impossible because you can't click go_sample without the input$sample_switch being TRUE
+  #else if(!isTruthy(input$sample_switch) && is.null(input$sample_select)) { } #impossible because you can't click go_sample without the input$sample_switch being TRUE
+  else if(isTruthy(input$sample_switch) && is.null(input$sample_select)) {
+    print("Filter: No samples selected but button to subset samples clicked")
+  }
+}) #%>% bindEvent(input$sample_switch,
+  #               input$go_sample,
+  #               ignoreInit=TRUE)
 
 # ---- # Filter by taxa # ----  
 taxfilter_list <- reactiveValues() #make list to record what taxa are used to filter and what rank they belong to
 
-observe({
+observeEvent(c(input$tax_switch,
+               input$tax_filterby,
+               ps.sub()),{
   if(isTruthy(input$tax_switch)) { #if tax subset panel is open
-    print("Filter: tax_switch==TRUE; Toggle to select specific taxa to view triggered...")
-
+    print("Filter: switch to subset taxa was triggered")
+    
+    #print("Filter: tax_switch==TRUE; Toggle to select specific taxa to view triggered...")
     accordion_panel_open(session, #open the accordion panel 
                          id='tax_accord',
                          values=TRUE)
     print("Filter: taxa selection accordion panel opened")
+    
+    req(ps.sub())
+    updateSelectInput(inputId = 'tax_filterby', 
+                      label = 'Taxonomic Rank', 
+                      choices = c(as.list(rank_names(ps.sub())))
+    ) #update picker selection using the rank names of the ps object
+    print("Filter: updated taxonomic filter options")
     
     req(input$tax_filterby)
     
@@ -192,12 +216,12 @@ observe({
     taxfilter_list <- NULL #reset the list of taxa used to filter
     print("Filter: list of taxa used to filter cleared")
   }
-}) %>% bindEvent(input$tax_switch,
-                 input$tax_filterby,
-                 ps.sub(),
-                 #input$tax_keepremove,
-                 MetadataTable$x
-                 ) 
+}) #%>% bindEvent(input$tax_switch,
+  #               input$tax_filterby,
+  #               ps.sub(),
+  #               #input$tax_keepremove,
+  #               MetadataTable$x
+  #               ) 
 
 observe({
   req(ps.sub())
