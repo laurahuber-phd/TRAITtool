@@ -524,6 +524,21 @@ print("Traits: reactive value variables reset to NULL")
   traits_var$taxa_traits_sub <- (taxa_traits_sub %>% relocate(all_of(keep))  #%>% tibble::rownames_to_column(var="Row.Name")
                                   )  #final data frame used for ps
   
+  #specifically just look at the trait df  
+  showSpinner("trait_spinner_review", {
+    tableServer(id='trait_review',
+                data=traits_var #module was written to auto read the $x value of the table
+    )
+  })
+  
+  #look at the entire new taxa df ?
+  showSpinner("trait_spinner_taxreview", {
+    tableServer(id='newtax_review',
+                data=traits_tab
+    )
+  })
+  
+  
 })
 
   # ~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~ # make report table # ~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~  
@@ -620,20 +635,7 @@ output$dwnldtraittaxa1 <- output$dwnldtraittaxa2 <- downloadHandler(
 )
   # ~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~ # outputs # ~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~  
   
-#specifically just look at the trait df  
-showSpinner("trait_spinner_review", {
-  tableServer(id='trait_review',
-              data=traits_var #module was written to auto read the $x value of the table
-              )
-  })
 
-#look at the entire new taxa df ?
-showSpinner("trait_spinner_taxreview", {
-  tableServer(id='newtax_review',
-              data=traits_tab
-              )
-  })
-  
   output$not.names <- renderPrint(traits_var$invalid)
   output$syn.names <- renderTable(traits_var$syn.tab)
   output$trait.tab <- renderTable(traits_report())
