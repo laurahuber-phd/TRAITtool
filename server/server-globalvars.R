@@ -25,7 +25,7 @@ rnames <- reactive({
   
 }) %>% bindEvent(ps.norm(),ps.all() )
 
-ps.norm.melt <- eventReactive(c(input$go_violin,input$go_rankperc,input$norm_meltdwnld),{
+ps.norm.melt <- reactive({
   req(ps.norm())
    
   ps <- ps.norm()
@@ -52,4 +52,4 @@ ps.norm.melt <- eventReactive(c(input$go_violin,input$go_rankperc,input$norm_mel
     left_join(sample_df, by = "Sample") %>% 
     filter(Abundance > 0)
   
-}) #%>% bindEvent(ps.norm(),ps.all())
+}) %>% bindEvent(ps.norm(),ps.all())

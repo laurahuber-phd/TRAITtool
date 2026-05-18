@@ -7,11 +7,13 @@ source('server/server-aes-vis.R',local=TRUE) #base theme for ggplot2
 
 observe({ #whenever ps.norm() changes 
   req(ps.all())
+  #req(ps.norm)
   updatePickerInput(inputId = 'basics_ranks', 
                     label = 'Taxonomic Rank', 
                     choices = c(rnames())
   ) #update picker selection using the rank names of the ps object
-}) #%>% bindEvent(ps.norm())   
+  print("Desc: Available rank names updated")
+}) %>% bindEvent(ps.norm())   
 
 # ---- # Tab 1 (Sequences per sample) # ----- 
 N_sample_df <- reactive({
@@ -301,6 +303,7 @@ output$N_otu_blanks <- renderText({ paste("Number of ASVs in blanks:",Num_otu_al
 ### ---- ### List taxa ### ----
 output$basics_listtaxa <- renderDataTable({
   req(ps.norm())
+  req(input$basics_ranks)
   tax_glom(ps.norm(),taxrank = input$basics_ranks, NArm=TRUE) %>% 
     tax_table(.) %>% 
     as.data.frame(.,row.names=FALSE) #throws error because tax_glom %>% tax_table doesn't work and I dont remember the workaround
