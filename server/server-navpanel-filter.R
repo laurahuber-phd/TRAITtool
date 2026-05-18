@@ -1,3 +1,6 @@
+
+
+# ---- # Set variables # -----
 output$psog_filter <- renderPrint({ps.all()})
 output$pstext_filter <- renderPrint({ps.sub()})
 
@@ -69,10 +72,10 @@ observeEvent(c(input$assemble_ps,input$load_ex,input$go_addtroph), {
   req(ps.all())
   ps <- ps.all()
   
-  trackNums$prune_aft <- trackNums$prune_bef <- NULL #reset counts
-  trackNums$prunetax_aft <- trackNums$prunetax_bef <- NULL #reset counts
-  trackNums$prune_bef <- as.character(nsamples(ps.all()))
-  trackNums$prunetax_bef <- as.character(ntaxa(ps.all()))
+  #trackNums$prune_aft <- trackNums$prune_bef <- NULL #reset counts (pruning before/after)
+  #trackNums$prunetax_aft <- trackNums$prunetax_bef <- NULL #reset counts
+  #trackNums$prune_bef <- as.character(nsamples(ps.all()))
+  #trackNums$prunetax_bef <- as.character(ntaxa(ps.all()))
   print(c("nsamples:",nsamples(ps.all())))
   print(c("ntaxa:",ntaxa(ps.all())))
 }) 
@@ -93,49 +96,6 @@ observeEvent(ps.all(),{
   ps.tax <- reactiveValues(b=ps.all(),a=NULL)
 })
 
-observeEvent(c(input$prune_tax,input$prune_samples),{
-  req(ps.sub())
-  
-  if(is.null(ps.prune$a)) { #if ps.prune$a is null (if pruning has not happened)
-    ps.prune$b <- ps.sub()
-  } #else { #if ps.prune$a is NOT null (if pruning has already happened)
-    #ps.prune$b <- 
-  #}
-  
-  ps <- subfunc(ps.sub(),
-                ps.sub() %>% 
-                  prune_taxa(taxa_sums(.)>=input$prune_tax,.) %>% 
-                  prune_samples(sample_sums(.)>=input$prune_samples,.)
-  )
-  print("Filtered data by minimum sample sequence number and tax occurrence")
-  if (!isTruthy(ps)) {
-    showModal(
-      modalDialog(title="ERROR",
-                  "One or more of your subsetting criteria is too strict", 
-                  size='l',
-                  easyClose = FALSE
-      )
-    ) 
-    shinyjs::reset("prune_tax")
-    shinyjs::reset("prune_samples")
-  }
-  
-  req(ps)
-  print("Filter: dataset pruned by min taxa sum and sample sum")
-  print(c("min taxa sum:",input$prune_tax))
-  print(c("min sample sum:",input$prune_samples))
-  tnames <- rank_names(ps)
-  
-  trackNums$prune_aft <- as.character(nsamples(ps))
-  trackNums$prunetax_aft <- as.character(ntaxa(ps))
-  print(c("nsamples in new dataset:",as.character(nsamples(ps))))
-  print(c("ntaxa in new dataset:",as.character(ntaxa(ps))))
-  
-  ps.sub(ps)
-  ps.prune$a <- ps
-  
-})
-
 # ---- # Update picker variable selection # ---- 
 observe({ 
   req(Meta_vars())
@@ -151,16 +111,6 @@ observe({
   
 }) %>% 
   bindEvent(Meta_vars()) #respond to any changes in the Metadata file that is uploaded
-
-#observeEvent(input$tax_switch, { #whenever switch to subset taxa is triggered
-#  print("Filter: switch to subset taxa was triggered")
-#  req(ps.sub())
-#  updateSelectInput(inputId = 'tax_filterby', 
-#                    label = 'Taxonomic Rank', 
-#                    choices = c(as.list(rank_names(ps.sub())))
-#  ) #update picker selection using the rank names of the ps object
-#  print("Filter: updated taxonomic filter options")
-#}, suspended=TRUE) 
 
 # ---- # Update blank variable options # ---- 
 observe({ 
@@ -247,7 +197,6 @@ observeEvent(input$go_sample, {
 #               input$go_sample,
 #               ignoreInit=TRUE)
 
-
 # ---- #  Update taxa filter and accordion # ----  
 taxfilter_list <- reactiveValues() #make list to record what taxa are used to filter and what rank they belong to
 
@@ -321,13 +270,92 @@ observe({
                  input$go_tax,
                  ignoreInit=TRUE)
 
+############################### SAMPLE/TAX MIN NUMBER ############################################
+observe({
+  req(ps.sub())
+  
+  if(is.null(ps.prune$a)) { #if ps.prune$a is null (if pruning has not happened)
+    ps.prune$b <- ps.sub()
+  } #else { #if ps.prune$a is NOT null (if pruning has already happened)
+  #ps.prune$b <- 
+  #}
+  
+  ps <- isolate(ps.sub())
+  print("dataset prior to pruning tax/samples by minimum number")
+  print(ps)
+  #if
+  trackNums$prune_aft <- trackNums$prune_bef <- NULL #reset counts (pruning before/after)
+  trackNums$prunetax_aft <- trackNums$prunetax_bef <- NULL #reset counts
+  trackNums$prune_bef <- as.character(nsamples(ps))
+  trackNums$prunetax_bef <- as.character(ntaxa(ps))
+  
+  ps <- subfunc(ps %>% 
+                  prune_taxa(taxa_sums(.)>=input$prune_tax,.) %>% 
+                  prune_samples(sample_sums(.)>=input$prune_samples,.),
+                ps
+  )
+  if (!isTruthy(ps)) {
+    showModal(
+      modalDialog(title="ERROR",
+                  "One or more of your subsetting criteria is too strict", 
+                  size='l',
+                  easyClose = FALSE
+      )
+    ) 
+    shinyjs::reset("prune_tax")
+    shinyjs::reset("prune_samples")
+  }
+  
+  req(ps)
+  
+  print("Filter: dataset pruned by min taxa sum and sample sum")
+  print(c("min taxa sum:",input$prune_tax))
+  print(c("min sample sum:",input$prune_samples))
+  tnames <- rank_names(ps)
+  
+  trackNums$prune_aft <- as.character(nsamples(ps))
+  trackNums$prunetax_aft <- as.character(ntaxa(ps))
+  print(c("nsamples in new dataset:",as.character(nsamples(ps))))
+  print(c("ntaxa in new dataset:",as.character(ntaxa(ps))))
+  print(ps)
+  
+  ps.sub(ps)
+  ps.prune$a <- ps
+  
+}) %>% bindEvent(input$go_prune)
+
+observe({
+  trackNums$prune_aft <- befaft_prune <- NULL
+  
+  shinyjs::reset("prune_tax")
+  shinyjs::reset("prune_samples")
+  print(c("min taxa sum reset to:",input$prune_tax))
+  print(c("min sample sum reset to:",input$prune_samples))
+  
+  req(ps.sub())
+  
+  if(is.null(ps.prune$a)) { #if ps.prune$a is null (if pruning has not happened)
+    ps.sub(ps.sub())
+  } else if(!is.null(ps.prune$a)) {
+    ps.sub(ps.prune$b)
+  }
+  print(ps.sub())
+  
+  trackNums$prune_aft <- as.character(nsamples(ps.sub()))
+  trackNums$prunetax_aft <- as.character(ntaxa(ps.sub()))
+  
+  print(c("nsamples in new dataset:",as.character(nsamples(ps.sub()))))
+  print(c("ntaxa in new dataset:",as.character(ntaxa(ps.sub()))))
+  
+}) %>% bindEvent(input$reset_prune)
+
 ############################### BLANKS ############################################
 observe({
   req(ps.sub())
   
-  if(is.null(ps.blank$a)) { #if ps.blank$a is null (if pruning has not happened)
+  if(is.null(ps.blank$a)) { #if ps.blank$a is null (if blank removal has not previously happened)
     ps.blank$b <- ps.sub()
-  } #else { #if ps.blank$a is NOT null (if pruning has already happened)
+  } #else { #if ps.blank$a is NOT null (if blank removal has already happened)
   #ps.blank$b <- 
   #}
   
@@ -669,10 +697,4 @@ observe({
     trackNums$norm_aft <- isolate(as.character(ntaxa(ps.norm()) ))
     shinyjs::show("befaft_norm")
   }
-})
-
-##############################################
-ps.norm <- reactive({
-  req(ps.all())
-  return(ps.all())
 })
