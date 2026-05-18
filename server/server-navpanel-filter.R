@@ -227,6 +227,76 @@ observeEvent(input$go_sample, {
 #               ignoreInit=TRUE)
 
 
+# ---- #  Update taxa filter and accordion # ----  
+taxfilter_list <- reactiveValues() #make list to record what taxa are used to filter and what rank they belong to
+
+observe({
+                 if(isTruthy(input$tax_switch)) { #if tax subset panel is open
+                   print("Filter: switch to subset taxa was triggered")
+                   
+                   accordion_panel_open(session, #open the accordion panel 
+                                        id='tax_accord',
+                                        values=TRUE)
+                   print("Filter: taxa selection accordion panel opened")
+                   
+                   req(ps.sub())
+                   updateSelectInput(inputId = 'tax_filterby', 
+                                     label = 'Taxonomic Rank', 
+                                     choices = c(as.list(rank_names(ps.sub())))
+                   ) #update picker selection using the rank names of the ps object
+                   print("Filter: updated taxonomic filter options")
+                  
+                 } else if (!isTruthy(input$tax_switch)) { #if tax subset panel is closed 
+                   print("Filter: tax_switch==FALSE")
+                   
+                   accordion_panel_close(session, #close the accordion panel 
+                                         id='tax_accord',
+                                         values=TRUE)
+                   print("Filter: taxa selection accordion panel closed")
+                   
+                   updateCheckboxGroupInput(session, #clear selectable taxa 
+                                            'tax_select',
+                                            choices=c(""),
+                                            selected=NULL)
+                   updateSelectInput(inputId = 'tax_filterby',
+                                     label = 'Taxonomic Rank',
+                                     choices = c(""))
+                   print("Filter: available tax filtering options removed")
+                   
+                   shinyjs::hide("befaft_tax") #hide counts
+                   print("Filter: before/after tax selection count hidden")
+                   shinyjs::reset("tax_filterby")
+                   taxfilter_list <- NULL #reset the list of taxa used to filter
+                   print("Filter: list of taxa used to filter cleared")
+                 }
+               }) %>% bindEvent(input$tax_switch)
+
+observeEvent(input$tax_filterby, {
+  req(ps.sub())
+  
+  taxvar <- as.list(get_taxa_unique(ps.sub(),input$tax_filterby)) #make list of unique values 
+  print(c("Filter: unique taxa for", input$tax_filterby,"identified"))
+  print(taxvar)
+  
+  updateCheckboxGroupInput(session,
+                           "tax_select",
+                           choices=as.list(taxvar),
+                           selected=NULL) #update the available filtering options
+  
+  print("Filter: available taxa filtering options updated")
+})
+
+# ---- # Show taxa numbers # ----  
+observe({
+  req(ps.sub())
+  if(isTruthy(input$tax_switch && input$go_tax && !is.null(input$tax_select))) {
+    print("Subsetting by selected taxa")
+    shinyjs::show("befaft_tax")
+    print("Filter: before/after tax selection count shown")
+  }
+}) %>% bindEvent(input$tax_switch,
+                 input$go_tax,
+                 ignoreInit=TRUE)
 ##############################################
 ps.norm <- reactive({
   req(ps.all())
