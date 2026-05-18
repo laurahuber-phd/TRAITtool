@@ -12,9 +12,17 @@ Meta_vars <- reactive({ #read the metadata file and identify the variable names
 )
 
 rnames <- reactive({ 
-  req(ps.norm())
-  print("Globalvars: Rank names calculated")
-  return(rank_names(ps.norm()))
+  req(ps.all())
+  
+  if(exists("ps.norm()")==TRUE) {
+    return(rank_names(ps.norm()))
+    print("Globalvars: Rank names calculated from normalized dataset")
+  }
+  else {
+    return(rank_names(ps.all()))
+    print("Globalvars: Rank names calculated from original dataset")
+  }
+  
 }) %>% bindEvent(ps.norm(),ps.all() )
 
 ps.norm.melt <- eventReactive(c(input$go_violin,input$go_rankperc,input$norm_meltdwnld),{
