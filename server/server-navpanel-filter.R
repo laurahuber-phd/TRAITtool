@@ -164,6 +164,69 @@ observe({
                  #input$load_ex #update blank selection if 'load' button is pressed
 ) 
 
+# ---- # Update sample variable filter and accordion # ---- 
+observe({
+                 if(isTruthy(input$sample_switch)) { #if sample_switch==TRUE
+                   print("Toggle to select specific samples to view triggered...")
+                   accordion_panel_open(session, #open the accordion panel to allow selecting samples  
+                                        id='sample_accord',
+                                        values=TRUE)
+                   print("Filter: sample selection accordion panel opened")
+                   
+                 } else if (!isTruthy(input$sample_switch)) {
+                   print("Filter: sample_switch==FALSE")
+                   accordion_panel_close(session, #close the accordion panel to allow selecting samples  
+                                         id='sample_accord',
+                                         values=TRUE)
+                   print("Filter: sample selection accordion panel closed")
+                   updateCheckboxGroupInput(session,
+                                            'sample_select',
+                                            choices=c(""))
+                   print("Filter: available sample filtering options removed")
+                   shinyjs::hide("befaft_sample")
+                   shinyjs::reset("sample_filterby")
+                   print("Filter: before/after sample selection count hidden")
+                 }
+               }) %>% bindEvent(input$sample_switch)#,
+#input$sample_filterby,
+#MetadataTable$x
+#) 
+
+observeEvent(input$sample_filterby, {
+  req(ps.sub())
+  
+  selvar <- get_variable(ps.sub(), {input$sample_filterby}) %>% unique() #unique list of values 
+  
+  print("Filter: sample variables identified")
+  print(selvar)
+  #selvar <- as.list(MetadataTable$x[[input$sample_filterby]]) %>% unique() #unique list of values 
+  updateCheckboxGroupInput(session,
+                           "sample_select",
+                           choices=as.list(selvar)) #update the available filtering options
+  print("Filter: available sample filtering options updated")
+  
+})
+
+# ---- # Show sample numbers # ----  
+observeEvent(input$go_sample, {
+  req(ps.sub())
+  
+  if(isTruthy(input$sample_switch) && !is.null(input$sample_select)) {
+    print("Filter: Subsetting by selected samples")
+    
+    shinyjs::show("befaft_sample")
+    print("Filter: before/after sample selection count shown")
+    
+  } #else if(!isTruthy(input$sample_switch) && !is.null(input$sample_select)) { } #impossible because you can't click go_sample without the input$sample_switch being TRUE
+  #else if(!isTruthy(input$sample_switch) && is.null(input$sample_select)) { } #impossible because you can't click go_sample without the input$sample_switch being TRUE
+  else if(isTruthy(input$sample_switch) && is.null(input$sample_select)) {
+    print("Filter: No samples selected but button to subset samples clicked")
+  }
+}) #%>% bindEvent(input$sample_switch,
+#               input$go_sample,
+#               ignoreInit=TRUE)
+
+
 ##############################################
 ps.norm <- reactive({
   req(ps.all())
