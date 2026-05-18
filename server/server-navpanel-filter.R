@@ -79,12 +79,28 @@ observeEvent(c(input$assemble_ps,input$load_ex,input$go_addtroph), {
 
 ps.sub <- reactiveVal()
 
+ps.prune <- reactiveValues(b=NULL,a=NULL)
+ps.blank <- reactiveValues(b=NULL,a=NULL)
+ps.sample <- reactiveValues(b=NULL,a=NULL)
+ps.taxa <- reactiveValues(b=NULL,a=NULL)
+
 observeEvent(ps.all(),{
   ps.sub(ps.all())
+  
+  ps.prune <- reactiveValues(b=ps.all(),a=NULL)
+  ps.blank <- reactiveValues(b=ps.all(),a=NULL)
+  ps.sample <- reactiveValues(b=ps.all(),a=NULL)
+  ps.taxa <- reactiveValues(b=ps.all(),a=NULL)
 })
 
 observeEvent(c(input$prune_tax,input$prune_samples),{
   req(ps.sub())
+  
+  if(is.null(ps.prune$a)) { #if ps.prune$a is null (if pruning has not happened)
+    ps.prune$b <- ps.sub()
+  } #else { #if ps.prune$a is NOT null (if pruning has already happened)
+    #ps.prune$b <- 
+  #}
   
   ps <- subfunc(ps.sub(),
                 ps.sub() %>% 
@@ -116,6 +132,7 @@ observeEvent(c(input$prune_tax,input$prune_samples),{
   print(c("ntaxa in new dataset:",as.character(ntaxa(ps))))
   
   ps.sub(ps)
+  ps.prune$a <- ps
   
 })
 
@@ -301,10 +318,17 @@ observe({
 ############################### BLANKS ############################################
 observe({
   req(ps.sub())
+  
+  if(is.null(ps.blank$a)) { #if ps.blank$a is null (if pruning has not happened)
+    ps.blank$b <- ps.sub()
+  } #else { #if ps.blank$a is NOT null (if pruning has already happened)
+  #ps.blank$b <- 
+  #}
+  
   ps <- isolate(ps.sub())
-  ps.remblanks <- ps #store original ps object 
+  print("dataset prior to removing blanks")
   print(ps)
-  print(ps.remblanks)
+  
   if(isTruthy(input$rem_blanks)) { #if remove blanks is selected
     print("Filter: Remove blanks selected")
     
@@ -369,6 +393,7 @@ observe({
       trackNums$remblanktax_aft <- as.character(ntaxa(ps.bla))
       
       ps.sub(ps.bla)
+      ps.blank$a <- ps.bla
       
       print("Filter: blank samples are pruned")
     }
@@ -384,14 +409,77 @@ observe({
     shinyjs::reset("blank_samples") 
     shinyjs::reset("blank_cols")
     
-    if(exists("ps.remblanks")) {
-      ps.sub(ps.remblanks)
-      print("ps.remblanks used")}
-    else {ps.sub(ps)}
     print("Filter: reset negative control sample selection")
+    ps.sub(ps.blank$b)
     print(ps.sub())
   }
 }) %>% bindEvent(input$rem_blanks)
+
+############################### SAMPLES ###########################################   
+observe({
+  req(ps.sub())
+  ps <- isolate(ps.sub())
+  
+  if(isTruthy(input$sample_switch) && input$go_sample) { #if user selects specific samples to vis
+   
+    print("Filter: Samples to filter by selected")
+    print(ps)
+    
+    trackNums$selsamp_aft <- trackNums$selsamp_bef <- NULL #reset counts
+    trackNums$selsamp_bef <- as.character(nsamples(ps))
+    print(c("Number of samples prior to filtering",trackNums$selsamp_bef))
+    
+    if(!is.null(input$sample_select)) { #if there are samples selected
+      selkeep = NULL #make empty list of samples 
+      
+      if(input$sample_filterby == "Sample") { #if the filtering parameter is sample id
+        print("Filter: filtering parameter is sample id")
+        selkeep = input$sample_select #list of selected samples 
+        print(c("Samples to keep: ",selkeep))
+      } else {
+        print("Filter: filtering parameter is a sample variable")
+        print(c("Filter: Sample variable to filter by is",input$sample_filterby))
+        selcolvals = as.data.frame(as.matrix(sample_data(ps))) %>% select(input$sample_filterby) #get sample_data of selected variable 
+        selkeep = row.names(selcolvals %>% filter(selcolvals[[1]] %in% input$sample_select)) #list of sample names selected
+      }
+      
+      # add a check here to make sure that we can prune samples based on selkeep 
+      # need to take these rownames and check them against the feature table to make sure it doesn't return a blank otu table
+      # then can use to prune the ps object 
+      
+      ps.pr <- tryCatch(prune_samples(selkeep,ps), 
+                        error=function(e){return(NULL)} #if it returns an error ps.pr will be NULL
+      )
+      if(isTruthy(ps.pr)) { #if ps.pr is NULL, a modal dialog box will show up that tells you that the subsetting criteria you chose will not work and will reset the filtering selections
+        ps <- ps.pr
+      } else {
+        
+        showModal(
+          modalDialog(title="ERROR",
+                      "One or more of your subsetting criteria is too strict",
+                      size='l',
+                      easyClose = FALSE
+          )
+        ) 
+        shinyjs::reset("sample_filterby")
+        shinyjs::reset("sample_select")
+        shinyjs::reset("go_sample")
+      }
+      req(ps)
+      
+    } #else {
+     # ps <- ps
+    #}
+    
+    trackNums$selsamp_aft <- as.character(nsamples(ps))
+    print(c("Number of samples after filtering",trackNums$selsamp_aft))
+  }
+  #if(!isTruthy(input$sample_switch)) {
+   # ps <- 
+  #}
+  ps.sub(ps)
+}) %>% bindEvent(input$go_sample)
+
 
 ##############################################
 ps.norm <- reactive({
