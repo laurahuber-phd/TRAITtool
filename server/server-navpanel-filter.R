@@ -199,10 +199,14 @@ observe({
                    updateCheckboxGroupInput(session,
                                             'sample_select',
                                             choices=c(""))
-                   print("Filter: available sample filtering options removed")
                    shinyjs::hide("befaft_sample")
                    shinyjs::reset("sample_filterby")
+                   shinyjs::reset("sample_select")
+                   print("Filter: available sample filtering options removed")
                    print("Filter: before/after sample selection count hidden")
+                   
+                   ps.sub(ps.sample$b)
+                   print(ps.sub())
                  }
                }) %>% bindEvent(input$sample_switch)#,
 #input$sample_filterby,
@@ -417,14 +421,21 @@ observe({
 
 ############################### SAMPLES ###########################################   
 observe({
-  req(ps.sub())
-  ps <- isolate(ps.sub())
+  if(is.null(ps.sample$a)) { #if ps.sample$a is null (if pruning has not happened)
+    ps.sample$b <- ps.sub()
+  } #else { #if ps.sample$a is NOT null (if pruning has already happened)
+  #ps.sample$b <- 
+  #}
   
-  if(isTruthy(input$sample_switch) && input$go_sample) { #if user selects specific samples to vis
+  ps <- isolate(ps.sub())
+  print("dataset prior to sample selection")
+  print(ps)
+  
+  if(isTruthy(input$sample_switch) #&& input$go_sample
+     ) { #if user selects specific samples to vis
    
     print("Filter: Samples to filter by selected")
-    print(ps)
-    
+
     trackNums$selsamp_aft <- trackNums$selsamp_bef <- NULL #reset counts
     trackNums$selsamp_bef <- as.character(nsamples(ps))
     print(c("Number of samples prior to filtering",trackNums$selsamp_bef))
@@ -467,17 +478,27 @@ observe({
       }
       req(ps)
       
-    } #else {
+    } #else { #if no samples are selected
      # ps <- ps
     #}
     
-    trackNums$selsamp_aft <- as.character(nsamples(ps))
+    #report number of samples after filtering 
+    trackNums$selsamp_aft <- as.character(nsamples(ps)) 
     print(c("Number of samples after filtering",trackNums$selsamp_aft))
+    
+    #reassign ps.sub 
+    ps.sub(ps)
   }
-  #if(!isTruthy(input$sample_switch)) {
-   # ps <- 
-  #}
-  ps.sub(ps)
+  
+  if(!isTruthy(input$sample_switch)) { #if sample switch is closed 
+  shinyjs::reset("blank_samples") 
+  shinyjs::reset("blank_cols")
+  
+  print("Filter: reset negative control sample selection")
+  ps.sub(ps.sample$b)
+  print(ps.sub())
+  }
+  
 }) %>% bindEvent(input$go_sample)
 
 
