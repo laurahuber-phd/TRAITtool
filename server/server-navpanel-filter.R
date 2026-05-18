@@ -60,7 +60,7 @@ output$seltax_aft <- renderText({paste("Number of ASVs after: ",trackNums$seltax
 output$selrank <- renderText({paste0("Ranks chosen: ",names(taxfilter_list))})
 output$seltax <- renderText({paste0("Taxa chosen: ",reactiveValuesToList(taxfilter_list))})
 
-subfunc <- function(ps,x) {
+subfunc <- function(x,ps) {
   tryCatch(x,error=function(e){return(FALSE)})
 }
 
@@ -297,6 +297,102 @@ observe({
 }) %>% bindEvent(input$tax_switch,
                  input$go_tax,
                  ignoreInit=TRUE)
+
+############################### BLANKS ############################################
+observe({
+  req(ps.sub())
+  ps <- isolate(ps.sub())
+  ps.remblanks <- ps #store original ps object 
+  print(ps)
+  print(ps.remblanks)
+  if(isTruthy(input$rem_blanks)) { #if remove blanks is selected
+    print("Filter: Remove blanks selected")
+    
+    #reset counts for sample number and taxa number 
+    trackNums$remblank_bef <- trackNums$remblank_aft <- NULL 
+    trackNums$remblanktax_bef <- trackNums$remblanktax_aft <- NULL
+    trackNums$remblank_bef <- as.character(nsamples(ps))
+    trackNums$remblanktax_bef <- as.character(ntaxa(ps))
+    
+    #make empty list of samples to keep 
+    blakeep = NULL 
+    
+    ##### ##### ##### ##### ##### ##### ##### ##### ##### ##### ##### #####
+    # make list of samples to keep by removing samples identified by user #
+    ##### ##### ##### ##### ##### ##### ##### ##### ##### ##### ##### #####
+    if(!is.null(input$blank_samples)) { #if there are blanks selected
+      print("Filter: Negative control samples identified")
+      
+      if(input$blank_cols == "Sample") { #if the filtering parameter is sample id
+        print("Filter: negative control sample type is sample id")
+        blasam = sample_names(ps)
+        blarem = input$blank_samples #list of blank samples 
+        blakeep = blasam[!blasam %in% blarem] #remove blanks from sample list 
+        print(blarem)
+        
+      } else { #with any other filtering parameter
+        print("Filter: negative control sample type is a sample variable")
+        blacolvals = as.data.frame(as.matrix(sample_data(ps))) %>% select(input$blank_cols) #get sample_data of selected variable 
+        print(c("Negative control sample variable name selected:",input$blank_cols))
+        
+        blakeep = row.names(blacolvals %>% filter(!blacolvals[[1]] %in% input$blank_samples)) #list of sample names EXCEPT for those selected
+        print("List of samples to keep:")
+        print(blakeep)
+      }
+      
+      # use function to return FALSE if the subsetting criteria do not return a valid ps object 
+      # if function returns FALSE, remove all selected blanks and uncheck 'remove blanks' button
+      #shinyjs::delay(3000, #delay so it doesn't recalculate immediately when clicking samples
+      ps.bla <- subfunc(prune_samples(blakeep,ps) %>% 
+                          prune_samples(sample_sums(.)>0,.) %>%
+                          prune_taxa(taxa_sums(.)>0,.)
+      )
+      #)
+      print(ps.bla)
+      
+      if (!isTruthy(ps.bla)) { #if pruning does not work 
+        showModal(
+          modalDialog(title="ERROR",
+                      "One or more of your subsetting criteria is too strict",
+                      size='l',
+                      easyClose = FALSE
+          )
+        ) 
+        shinyjs::reset("blank_samples") #reset selected blanks
+        shinyjs::reset("rem_blanks") #reset button to initiate blank removal 
+      }
+      
+      # only move forward if subsetting is completed successfully
+      req(ps.bla)
+      
+      trackNums$remblank_aft <- as.character(nsamples(ps.bla))
+      trackNums$remblanktax_aft <- as.character(ntaxa(ps.bla))
+      
+      ps.sub(ps.bla)
+      
+      print("Filter: blank samples are pruned")
+    }
+    #else { #if no blanks are selected  
+      #shinyjs::reset("blank_samples") 
+      #shinyjs::reset("blank_cols")
+      #ps.sub(ps)
+      #trackNums$remblank_aft <- NULL
+      #trackNums$remblanktax_aft <- NULL
+    #}
+  } #end of if(isTruthy(input$rem_blanks))
+  else { #if !is.Truthy(input$rem_blanks)
+    shinyjs::reset("blank_samples") 
+    shinyjs::reset("blank_cols")
+    
+    if(exists("ps.remblanks")) {
+      ps.sub(ps.remblanks)
+      print("ps.remblanks used")}
+    else {ps.sub(ps)}
+    print("Filter: reset negative control sample selection")
+    print(ps.sub())
+  }
+}) %>% bindEvent(input$rem_blanks)
+
 ##############################################
 ps.norm <- reactive({
   req(ps.all())
