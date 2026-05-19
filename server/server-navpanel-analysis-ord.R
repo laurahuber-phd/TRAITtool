@@ -1,5 +1,5 @@
 observe({ 
-  req(ps.norm())
+  
   updatePickerInput(session,
                     "choose_ord_color", 
                     choices=c(Meta_vars()),
@@ -10,14 +10,15 @@ observe({
                     choices=c(Meta_vars()),
                     selected=""
                     )
-}) 
+}) %>% bindEvent(ps.norm())
 
 distreact <- eventReactive(input$calc_ord, {
   runif(input$calc_ord)
-
   
   req(input$ord_dist)
+  print(c("Ord: Distance method chosen: ", input$ord_dist))
   req(input$ord_meth)
+  print(c("Ord: Ordination method chosen: ", input$ord_method))
   
   ps <- ps.norm()
   withProgress(
@@ -31,6 +32,7 @@ distreact <- eventReactive(input$calc_ord, {
     ),error=function(e){return("Calculation failed")} 
     )
     )
+  print("Ordination complete")
 })
 
 output$ord_complete <- renderText({
@@ -90,6 +92,7 @@ ordplot <- eventReactive(input$go_ord, { #assign a variable that runs when plot 
   req(distreact())
   runif(input$go_ord)
   
+  print("Ord: making base plot")
   # ells <- input$choose_metavars4
   
   baseplot <- plot_ordination(physeq=ps.norm(),
@@ -127,6 +130,7 @@ ordplot <- eventReactive(input$go_ord, { #assign a variable that runs when plot 
 })
 observeEvent(input$go_ord,{
   output$ord_plot <- renderPlot({ ordplot() })
+  print("Ord: rendering plot")
 })
 
 observe({
@@ -136,6 +140,7 @@ observe({
     size="xl",
     easyClose = TRUE
   ))
+  print("Ord: popup")
 }) %>% bindEvent(input$ord_click)
 output$ord_plotdwnld <- output$ord_plotdwnld_popup <-  downloadHandler(
   filename = "ord_plot.png",
