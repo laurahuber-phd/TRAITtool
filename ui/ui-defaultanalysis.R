@@ -1,4 +1,10 @@
-defaultanalysis <- tagList(h4("Default analysis inputs"),
+defaultanalysis <- tagList(
+                           tags$span(h4("Default analysis inputs"),
+                                     tags$i(tooltip(bs_icon("bar-chart-line-fill"),
+                                                    tagList(p(style='text-align: left',
+                                                              "The default analysis will return each plot generated in this tool with its most basic settings. This will provide a general overview of what figures can be returned, but is unlikely to be useful for natural resource management. This page will report what settings were used as calculations occur, then automatically take you to the report page when all analyses are completed."))
+                                                    )
+                                            )),
                            "After generating these figures, you will automatically be directed to the report page",
                              useShinyjs(),
                              actionButton("defaultgo","Run with default settings?",width='100%',disabled=TRUE),
