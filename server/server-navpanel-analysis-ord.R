@@ -32,7 +32,7 @@ distreact <- eventReactive(input$calc_ord, {
     ),error=function(e){return("Calculation failed")} 
     )
     )
-  print("Ordination complete")
+  #print("Ordination complete")
 })
 
 output$ord_complete <- renderText({
@@ -123,7 +123,9 @@ ordplot <- eventReactive(input$go_ord, { #assign a variable that runs when plot 
   }
 
   
-  finalplot + theme(text = element_text(size=input$ord_plottext),aspect.ratio=(input$ord_plotheight/input$ord_plotwidth)) + 
+  finalplot +
+    theme(text = element_text(size=input$ord_plottext),
+          aspect.ratio=(input$ord_plotheight/input$ord_plotwidth)) + 
     labs(subtitle=paste0("Using ",input$ord_dist," distance matrix"),
          title=paste0(input$ord_meth," Ordination Plot")
     )
