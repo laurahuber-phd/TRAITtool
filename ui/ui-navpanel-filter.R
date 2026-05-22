@@ -42,8 +42,10 @@ SelectPruneCard <- card(
                       ),
               ),
   "Removing sequences with only one occurrence can reduce the likelihood of overestimating diversity. Samples with dramatically fewer sequences can also bias analyses.",
-  numericInput("prune_samples", "Remove samples with less than this many sequences:", value = 100),
-  numericInput("prune_tax","Remove sequences with less than this many occurrences:",value = 1)
+  numericInput("prune_samples", "Keep only samples with more than this many sequences:", value = 0),
+  numericInput("prune_tax","Keep only sequences with more than this many occurrences:",value = 0),
+  actionButton('go_prune',"Go: Prune data by selected criteria"),
+  actionButton('reset_prune',"Reset pruning")
 )
 
 ## ---- select samples ## ---- 

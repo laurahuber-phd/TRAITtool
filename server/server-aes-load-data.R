@@ -50,14 +50,15 @@ observe({ #upload the OTU file
   OTUTable$x <- otufile
   OTUTable$og <- otufile
   print("Load: loaded asv table")
+  
 }) %>% bindEvent(input$otutab,input$otu_sep,input$otu_header)
 
 output$otucomplete <- renderText({
   req(input$otutab)
   if(is.null(OTUTable$x)) { #error message if OTU table isn't uploaded
-    paste("uploaded file is not an otu table")
+    paste("Load: uploaded file is not an otu table")
   } else {
-    paste("table uploaded")
+    paste("Load: otu table uploaded")
   }
 })
 
@@ -118,9 +119,9 @@ observe({ #upload the taxonomy file
 output$taxcomplete <- renderText({
   req(input$taxtab)
   if(is.null(TaxTable$x)) {
-    paste("uploaded file is not an taxonomy table")
+    paste("Load: uploaded file is not an taxonomy table")
   } else {
-    paste("table uploaded")
+    paste("Load: tax table uploaded")
   }
 })
 
@@ -166,12 +167,12 @@ observeEvent(input$load_ex, {
 ## check that all the files are right to make a phyloseq object 
 isgood <- reactive({
   if (is.null(MetadataTable$x)) { 
-    "Metadata are not in correct format or the wrong files are uploaded"
+    "Load: Metadata are not in correct format or the wrong files are uploaded"
   }  else if (is.null(OTUTable$x)) {
-    "OTUs are not in correct format or the wrong files are uploaded"
+    "Load: OTUs are not in correct format or the wrong files are uploaded"
   } else if (is.null(TaxTable$x)) {
-    "Taxonomy are not in correct format or the wrong files are uploaded"
-  } else {"Everything is great"}
+    "Load: Taxonomy are not in correct format or the wrong files are uploaded"
+  } else {"Load: Everything is great"}
 
   }) %>% bindEvent(input$Metadata,input$taxtab,input$otutab,ignoreNULL=FALSE)  
 
@@ -193,7 +194,7 @@ ps.og <- eventReactive(c(input$assemble_ps,input$load_ex),{
   if(isTruthy(all)) {
     all
   } else {
-    return("Dataset not assembled")
+    return("Load: Dataset not assembled")
   }
 })
 
@@ -257,7 +258,7 @@ observeEvent(c(input$assemble_ps,input$load_ex,input$go_addtroph),{
   #ps.sub() <- NULL
   #ps.norm() <- NULL
   #Meta_vars() <- rnames() <- NULL
-  print("Dataset replaced; plots should be removed")
+  print("Load: Dataset replaced; plots should be removed")
   shinyjs::hide("def_prune")
   shinyjs::hide("def_plotrank")
   shinyjs::hide("def_plotrich")

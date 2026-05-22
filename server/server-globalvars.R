@@ -3,7 +3,7 @@ library(dplyr)
 Meta_vars <- reactive({ #read the metadata file and identify the variable names 
   #req(input$Metadata)
   req(!is.null(MetadataTable$x))
-  print("Meta_vars() sample variables calculated")
+  print("Globalvars: Meta_vars() sample variables calculated")
   return(names(MetadataTable$x))
 }) %>% bindEvent(input$load_ex, #update meta_vars if the load button is pressed (new dataset)
                  input$assemble_ps
@@ -12,16 +12,24 @@ Meta_vars <- reactive({ #read the metadata file and identify the variable names
 )
 
 rnames <- reactive({ 
-  req(ps.norm())
-  print("Rank names calculated")
-  return(rank_names(ps.norm()))
+  req(ps.all())
+  
+  if(exists("ps.norm()")==TRUE) {
+    return(rank_names(ps.norm()))
+    print("Globalvars: Rank names calculated from normalized dataset")
+  }
+  else {
+    return(rank_names(ps.all()))
+    print("Globalvars: Rank names calculated from original dataset")
+  }
+  
 }) %>% bindEvent(ps.norm(),ps.all() )
 
-ps.norm.melt <- eventReactive(c(input$go_violin,input$go_rankperc,input$norm_meltdwnld),{
+ps.norm.melt <- reactive({
   req(ps.norm())
    
   ps <- ps.norm()
-  print("Melted normalized dataframe")
+  print("Globalvars: Melted normalized dataframe")
   #psmelt(ps.norm()) %>% filter(Abundance>0)
   
   otu_df <- otu_table(ps) %>% as.matrix() %>% as.data.frame() 
@@ -44,4 +52,4 @@ ps.norm.melt <- eventReactive(c(input$go_violin,input$go_rankperc,input$norm_mel
     left_join(sample_df, by = "Sample") %>% 
     filter(Abundance > 0)
   
-}) #%>% bindEvent(ps.norm(),ps.all())
+}) %>% bindEvent(ps.norm(),ps.all())

@@ -10,23 +10,23 @@ output$taxtab <- renderText({ # report what file is selected
 
 observe({
   shinyjs::show("load_success")
-  print("ps.all object made")
+  print("Upload: ps.all object made")
 }) %>% bindEvent(ps.all())
 
 observeEvent(input$view_infodemux, {
              switch_page("infodemux")
-  print("Button clicked: switch to info demultiplex page; from upload page raw analysis")
+  print("Upload: Button clicked: switch to info demultiplex page; from upload page raw analysis")
              }) 
 observeEvent(input$view_infoseq,{
              switch_page("infoassignseq")
-  print("Button clicked: switch to info feature table assembly page; from upload page raw analysis")
+  print("Upload: Button clicked: switch to info feature table assembly page; from upload page raw analysis")
              }) 
 observeEvent(input$view_infotax, {
              switch_page("infoassigntax")
-  print("Button clicked: switch to info assign taxonomy page; from upload page partial analysis")
+  print("Upload: Button clicked: switch to info assign taxonomy page; from upload page partial analysis")
              }) 
 
 observeEvent(input$view_infotax2, {
   switch_page("infoassigntax")
-  print("Button clicked: switch to info assign taxonomy page; from upload page raw analysis")
+  print("Upload: Button clicked: switch to info assign taxonomy page; from upload page raw analysis")
 }) 
