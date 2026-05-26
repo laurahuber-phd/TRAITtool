@@ -302,8 +302,8 @@ print("Traits: reactive value variables reset to NULL")
       unique() %>%
       #filter(!duplicated(EcosystemType)) %>% 
       filter(#!is.na(EcosystemType) & 
-        !is.na(Salinity)) %>%
-      relocate(Species) 
+        !is.na(Salinity))# %>%
+      #relocate(Species) 
     
     # subset species table to just include target information 
     spp.sub <- spp.df %>% 
@@ -318,8 +318,8 @@ print("Traits: reactive value variables reset to NULL")
                Landings,LandingStatistics #, starts_with("M")
       )) %>% 
       mutate(across(where(is.integer),replace_na,0)) %>% #replace all NA values in the binary columns with 0
-      mutate(across(where(is.character),str_to_sentence)) %>% #change all column names to sentence case
-      relocate(Species) 
+      mutate(across(where(is.character),str_to_sentence))# %>% #change all column names to sentence case
+      #relocate(Species) 
     
     # combine all trait information: trophic level from estimate, ecosystem information from ecosystem, species qualities from species  
     # fish.troph and fish.eco and fish.spp 
@@ -435,8 +435,8 @@ print("Traits: reactive value variables reset to NULL")
       unique() %>%
       #filter(!duplicated(EcosystemType)) %>% 
       filter(#!is.na(EcosystemType) & 
-        !is.na(Salinity)) %>%
-      relocate(Species) 
+        !is.na(Salinity)) #%>%
+      #relocate(Species) 
     
     # subset species table to just include target information 
     spp.sub <- spp.df %>% 
@@ -451,8 +451,8 @@ print("Traits: reactive value variables reset to NULL")
                Landings,LandingStatistics #, starts_with("M")
       )) %>% 
       mutate(across(where(is.integer),replace_na,0)) %>% #replace all NA values in the binary columns with 0
-      mutate(across(where(is.character),str_to_sentence)) %>% #change all column names to sentence case
-      relocate(Species) 
+      mutate(across(where(is.character),str_to_sentence)) #%>% #change all column names to sentence case
+      #relocate(Species) 
     
     # combine all trait information: trophic level from estimate, ecosystem information from ecosystem, species qualities from species  
     # fish.troph and fish.eco and fish.spp 

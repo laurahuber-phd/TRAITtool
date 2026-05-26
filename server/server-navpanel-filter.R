@@ -158,7 +158,7 @@ observe({
                    ps.sub(ps.sample$b)
                    print(ps.sub())
                  }
-               }) %>% bindEvent(input$sample_switch)#,
+               },suspended=TRUE) %>% bindEvent(input$sample_switch)#,
 #input$sample_filterby,
 #MetadataTable$x
 #) 

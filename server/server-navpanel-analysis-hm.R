@@ -46,6 +46,7 @@ observe({
     size="xl",
     easyClose = TRUE
   ))
+  print("Heatmap: popup")
 }) %>% bindEvent(input$hm_click)
 
 

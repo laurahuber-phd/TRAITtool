@@ -61,6 +61,7 @@ observe({
     size="xl",
     easyClose = TRUE
   ))
+  print("Violin: popup")
 }) %>% bindEvent(input$violin_click)
 
 

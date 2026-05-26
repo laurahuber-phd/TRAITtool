@@ -92,6 +92,7 @@ observe({
     size="xl",
     easyClose = TRUE
   ))
+  print("Histogram: popup")
 }) %>% bindEvent(input$histo_click)
 
 
