@@ -170,38 +170,6 @@ Anlys_hmCard <- tagList(
   
 )
 
-############################################# Violin plot #############################################
-Anlys_ViolinCard <- tagList(
-  h5("This tab will generate a violin plot"),
-  HTML("<p>Use the <u>'Controls'</u> button to change the taxonomic rank visualized or to alter what variable is used on the x-axis. You can also add up to two 'faceting' variables, which will separate the data into different plots based on which variables you facet by.</p>"),
-  HTML("<p>Use the <u>'Aesthetics'</u> button to change aesthetic elements such as the plotting theme, which will influence how the background and gridlines look. Here you can also change the position of the legend, text size, and the direction of text on the x-axis.</p>"),
-  HTML("<p>Use the <u>'Plot Size'</u> button to change the aspect ratio of the plot. </p>"),
-  layout_columns(
-    plotControlsUI('violin_gen',color=FALSE,x=TRUE,y=TRUE,facet=TRUE
-    ),
-    plotPrettyUI("violin_pretty"),
-    plotSizeUI('violin_size')
-  ),
-  layout_columns(col_widths=c(10,-1,1),
-                 actionButton("go_violin","Plot"),
-                 downloadButton('violin_plotdwnld', label=NULL)),
-  withSpinner(plotOutput("violin_plot",click="violin_click")) #add a reaction when the plot is clicked
-) 
-
-############################################# Trophic diversity #############################################
-Anlys_TrophCard <- layout_sidebar(
-  sidebar=sidebar(
-    "Select the explanatory variable", #title of sidebar (maintained across all tabs in the panel)
-    uiOutput("alphametrics_var")  #reactive output variable (used to select variables from the metadata for the x axis)
-  )#,
-  #tooltip(bsicons::bs_icon("question-circle"),
-  #        "Short explanatory sentence if user has a question",
-  #        placement="right"),
-  #popover(bsicons::bs_icon("gear", class = "ms-auto"),
-  #        #selection options to graph by
-  #        title="Use the following measure:"),
-)
-
 #############################################################################################################
 analysispage <- nav_panel("Analysis",
   layout_column_wrap(width=1/2,fill=TRUE,
@@ -222,10 +190,10 @@ analysispage <- nav_panel("Analysis",
                           ),
                 nav_panel(id="hm", title="Heat map",
                           Anlys_hmCard
-                          ),
-                nav_panel(id="violin", title="Trophic composition",
-                          Anlys_ViolinCard
-                         )
+                          )#,
+              #  nav_panel(id="violin", title="Trophic composition",
+              #            Anlys_ViolinCard
+              #           )
                 ),
   layout_column_wrap(width=1/2,fill=TRUE,
                      actionButton("banalysis_prevpage","Previous step"),
