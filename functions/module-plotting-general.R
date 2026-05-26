@@ -191,4 +191,4 @@ plotControlsServer <- function(id,df,var1=NULL,var2=NULL,var3=NULL,var4=NULL) {
     
   }
   )
-}} 
+}
