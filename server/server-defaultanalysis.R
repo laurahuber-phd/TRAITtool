@@ -1,6 +1,6 @@
 observeEvent(input$defaultgo, {
   req(ps.all())
-  
+  print("Default: Default analysis selected")
   updateNumericInput(session,"prune_samples",value=100)
   updateNumericInput(session,"prune_tax",value=1)
   updateRadioButtons(session,"normoptions",selected="tax_rel")
@@ -39,6 +39,8 @@ observeEvent(input$defaultgo, {
                    input$basics_ranks,
                    ps.norm())
 
+  shinyjs::delay(4000,switch_page("reporttab"))
+  
   shinyjs::click("go_rankperc") #simulate clicking 'go' for percent ranking plot 
   updatePickerInput(session, 
                     inputId = 'basics_ranks', 
@@ -61,10 +63,7 @@ observeEvent(input$defaultgo, {
   if (isTruthy(ps.norm.melt() %>% select(contains("Troph")) %>% colnames())) {
     shinyjs::click("go_violin")
     shinyjs::show("def_plotvio")
-    
   }
-  
-  shinyjs::delay(4000,switch_page("reporttab"))
   
   
 })

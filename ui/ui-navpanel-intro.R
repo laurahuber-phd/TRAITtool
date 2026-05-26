@@ -23,12 +23,22 @@ titlepage <- tagList(
                       "The goal of this app is to make the use of environmental DNA (eDNA) accessible to users on the ground working in conservation management. No prior experience with bioinformatics is necessary, and minimal prior data manipulation.",
                       br(),
                       br(),
-                      "All you need to use this app is DNA amplicon sequencing output and a metadata file connecting the sequencing data to your samples. ",
+                      HTML("<p>All you need to use this app is <u style='font-weight: bold'>DNA amplicon sequencing output</u> and a metadata file connecting the sequencing data to your samples. </p>"),
                       br(),
                       br(),
                       "With this, you will get information regarding what species are in your samples, how the community composition and diversity differs between samples, and follow patterns in specific taxa."
                       ),
-                 card("Example use cases",
+                 
+                 layout_columns(col_widths=c(12,12),
+                 card(HTML("<h5>The main goal of this tool is to translate and synthesize taxonomic data into ecosystem structure information. </h5>"),
+                      "The number of species in highly diverse ecosystems can complicate our understanding of the health and functioning of a system.",
+                      "By looking at the ecological traits associated with each species in a system, this tool allows the user to infer ecosystem function",
+                      "The final product of biodiversity monitoring is rarely intended to be a list of species, which often are difficult to interpret or do not get at the broader ecological environmental trends that are happening, but instead to get at the functional level.",
+                      br(),
+                      br(),
+                      "By distilling taxonomic information into ecological traits, we are getting to what managers/etc are actually interested in when it comes to conservation: what is happening in the ecosystem, and are interventions having the intended effect?"),
+                 br(),
+                 card(HTML("<h5>Example use cases and returns:</h5>"),
                       #some pretty graphs that you can generate with this app
                       layout_columns(col_widths=c(12,12,12),
                                      tags$figure(tags$img(src="violinplot.png", 
@@ -58,6 +68,8 @@ titlepage <- tagList(
                                                  )
                                      )
                       )
+                 )
+                 
                  ),
   HTML("<p style='text-align:center;margin-bottom:1px'><i>Marine Conservation Lab: Smithsonian Environmental Research Center</i></p>"),
   br(),

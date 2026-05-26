@@ -16,6 +16,7 @@ hmplot_general <- plotControlsServer(id="hm_gen",
 hm_base <- reactive({
   req(ps.norm())
   req(hmplot_general$x())
+  print("Heatmap: making base plot")
   ps <- ps.norm()
   plot_heatmap(ps,
                taxa.label=hmplot_general$color(),
@@ -29,10 +30,12 @@ hm_base <- reactive({
 )
 
 hmplot <- eventReactive(input$go_hm, {
+  print("Heatmap: assembling plot")
   hm_base() + hmplot_general$facet() + hmplot_pretty() + hmplot_size() 
 }) 
 
 observeEvent(input$go_hm, {
+  print("Heatmap: rendering plot")
   output$hm_plot <- renderPlot({hmplot()})
 })
 
@@ -43,6 +46,7 @@ observe({
     size="xl",
     easyClose = TRUE
   ))
+  print("Heatmap: popup")
 }) %>% bindEvent(input$hm_click)
 
 

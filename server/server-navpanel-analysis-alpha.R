@@ -11,12 +11,14 @@ output$alphametrics_var2 <- output$alphametrics_var1 <- renderUI({
               sample_variables(ps))
 })
 richplot <- eventReactive(input$go_rich, { #draw alpha div plot when 'plot' button is clicked
+  print("Alpha diversity: making plot")
   withProgress(message="Making richness plot",
                plot_richness(ps.norm(), x=input$alpha_xvar, measures=input$alphametrics) + geom_boxplot()
   )
 })
 
 observeEvent(input$go_rich, {
+  print("Alpha diversity: rendering plot")
 output$rich_plot <- renderPlot({ #need separate call to actually render the plot
   richplot()
   })
@@ -59,6 +61,7 @@ histo_base <- reactive({
   req(ps.norm())
   req(histoplot_general$color())
   ps <- ps.norm()
+  print("Histogram: making base plot")
   plot_bar(ps,
            x=histoplot_general$x()) + 
     geom_bar(stat='identity',position='stack',aes(color=.data[[histoplot_general$color()]],
@@ -71,10 +74,14 @@ histo_base <- reactive({
 )
 
 histoplot <- eventReactive(input$go_histoplot, {
+  
+  print("Histogram: assembling plot")
+  
   histo_base() + histoplot_general$facet() + histoplot_pretty() + histoplot_size() 
 }) 
 
 observeEvent(input$go_histoplot,{
+  print("Histogram: rendering plot")
   output$histo_plot <- renderPlot({histoplot()})
 })
 
@@ -85,6 +92,7 @@ observe({
     size="xl",
     easyClose = TRUE
   ))
+  print("Histogram: popup")
 }) %>% bindEvent(input$histo_click)
 
 

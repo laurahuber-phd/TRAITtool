@@ -9,26 +9,40 @@
 #output$rep_ps <- mkdwnrptfun(ps.sub())
 observe({
   req(ps.norm())
+  req(input$pages=="reporttab")
+  
   output$rep_richplot <- renderPlot({richplot()})
+  print("Report: richplot rendered")
   output$rep_percplot <- renderPlot({rankperc_plot()})
+  print("Report: rankperc_plot rendered")
   output$rep_ordplot <- renderPlot({ordplot()})
+  print("Report: ordplot rendered")
   output$rep_histplot <- renderPlot({histoplot()})
+  print("Report: histoplot rendered")
   output$rep_hmplot <- renderPlot({hmplot()})
+  print("Report: hmplot rendered")
   output$rep_vioplot <- renderPlot({violinplot()})
+  print("Report: violinplot rendered")
   
   output$rep_pnsamp <- renderText({mkdwnrptfun(input$prune_samples)}) #min sample number
+  print("Report: minimum sample number rendered")
   output$rep_pntax <- renderText({mkdwnrptfun(input$prune_tax)}) #min tax occurrence 
+  print("Report: minimum taxa occurrence rendered")
   output$rep_blanks <- renderText({tryCatch(input$blank_samples, #blanks selected
                                             error=function(e){return("No blanks selected")})})
+  print("Report: blank selection rendered")
   output$rep_rembl <- renderText({mkdwnrptfun(input$rem_blanks)}) #blanks removed?
+  print("Report: blank removal choice recorded")
   
   output$rep_unass <- renderText({if(isTruthy(input$tax_keepremove)) {"The following taxa were kept:"} else if (!isTruthy(input$tax_keepremove) && isTruthy(input$tax_switch)) {"The following taxa were removed:"} else {"No taxa were specifically identified for special analysis"} }) #keep or remove taxa?
+  print("Report: Whether taxa were selected for keep/removal recorded")
   output$rep_remtax <- renderPrint({mkdwnrptfun(reactiveValuesToList(taxfilter_list))}) #list of ranks and names of taxa used to filter  
-  output$rep_remsam <- renderText({mkdwnrptfun(input$sample_select)}) #list of samples removed 
   
+  output$rep_remsam <- renderText({mkdwnrptfun(input$sample_select)}) #list of samples removed 
+  print("Report: list of samples removed recorded")
   output$rep_norm <- renderText({tryCatch(input$normoptions, #normalized? 
                                           error=function(e){return("No normalization performed")})})
-  
+  print("Report: whether normalization happened recorded")
   #output$rep_ordmeth <- mkdwnrptfun(input$ord_meth) #ordination method
   #output$rep_ordtype <- mkdwnrptfun(input$ord_vis) #ordination visualization method
   
@@ -80,6 +94,8 @@ mkdwnrptfun <- function(x) { #tryCatch will check to see if the 'function' exist
 }
 
 observeEvent(input$gen_report, {
+  print("Report: generate report button selected")
+  
   report$pdffilepath <- report$htmlfilepath <- NULL
   shinyjs::hide("viewfinalreport")
   params[["ps"]] <- mkdwnrptfun(ps.norm())
@@ -89,6 +105,7 @@ observeEvent(input$gen_report, {
   params[["histplot"]] <- mkdwnrptfun(histoplot())
   params[["hmplot"]] <- mkdwnrptfun(hmplot())
   params[["vioplot"]] <- mkdwnrptfun(violinplot())
+  print("Report: plots saved to params list")
   
   params$pnsamp <- mkdwnrptfun(input$prune_samples) #min sample number
   params$pntax <- mkdwnrptfun(input$prune_tax) #min tax occurrence 
@@ -126,6 +143,7 @@ observeEvent(input$gen_report, {
   params$richmet <- mkdwnrptfun(input$alphametrics)
   paramvals <- reactiveValuesToList(params) #convert reactive values to list to read into render
   #params[params=="NULL"] <- NA #any NULL values (because input$x does not exist) are replaced with NA because markdown does not like NULL in the YAML header
+  print("Report: variables saved to params list")
   
   library(rmarkdown)
   withProgress(
@@ -192,9 +210,10 @@ output$download_report <- downloadHandler(
 
 #Hide report if ps.norm changes
 observeEvent(ps.norm(),{
+  print("Report: ps.norm changed; final report and download report hidden")
   shinyjs::hide("viewfinalreport")
   shinyjs::hide("dwnldviewreport")
-})
+},ignoreInit = TRUE)
 
 #View report in app
 observeEvent(input$view_report, {
@@ -210,7 +229,20 @@ observeEvent(input$view_report, {
   
 })
 
-  output$norm_meltdwnld <- downloadHandler(
+observeEvent(input$norm_meltdwnld,{
+  print("Download: dataset")
+})
+observeEvent(input$norm_taxdwnld,{
+  print("Download: tax data")
+})
+observeEvent(input$norm_asvdwnld,{
+  print("Download: asv data")
+})
+observeEvent(input$norm_metadwnld,{
+  print("Download: metadata")
+})
+
+output$norm_meltdwnld <- downloadHandler(
     filename = function() {
       paste("ShinyeDNA_fullDataset", ".csv", sep="")
     },

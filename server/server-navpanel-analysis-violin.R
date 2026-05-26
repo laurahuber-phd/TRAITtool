@@ -18,6 +18,7 @@ violinplot_general <- plotControlsServer(id="violin_gen",
 ) 
 
 violin_base <- reactive({
+  print("Violin: building base plot")
   req(ps.norm())
   #req(violinplot_general$x())
   ps <- ps.norm.melt()
@@ -44,10 +45,12 @@ violin_base <- reactive({
 )
 
 violinplot <- eventReactive(input$go_violin, {
+  print("Violin: assembling plot")
   violin_base() + violinplot_general$facet() + violinplot_pretty() + violinplot_size() 
 }) 
 
 observeEvent(input$go_violin, {
+  print("Violin: plotting")
   output$violin_plot <- renderPlot({violinplot()})
 })
 
@@ -58,6 +61,7 @@ observe({
     size="xl",
     easyClose = TRUE
   ))
+  print("Violin: popup")
 }) %>% bindEvent(input$violin_click)
 
 

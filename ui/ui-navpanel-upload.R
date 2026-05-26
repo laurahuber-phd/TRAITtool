@@ -38,57 +38,33 @@ Files_MetadataCard <- card(
   textOutput("metacomplete")
 )
 ############################################# From Scratch #############################################
-Files_RawCard <- tagList(
-  fileInput("FASTQfile",
-            label="Upload sequence data",
-            accept=c(".fastq",".fqz")),
-  fileInput("BarcodeFile",
-            label="Upload barcodes file",
-            accept=c(".csv",".tsv"))
-)
-QFilterCard <- card(
-  card_header(
-    "Select filtering requirements"
-  ),
-  selectInput("Quality", 
-              label="Quality Stringency", 
-              choices=c("Loosest","Medium","Strictest"),
-              selected = "Medium"),
-  selectInput("Location",
-              label="MPA Location",
-              choices=c("Belize","Dominican Republic","Honduras","MAR"),
-              selected = "MAR"),
-  selectInput("HabitatType",
-              label="Habitat Type",
-              choices=c("Coral Reef","Mangrove","Seagrass","Any"),
-              selected = "Any")
-)
-Files_ScratchCard <- tagList(
-  p("Start here if you have raw sequencing data. You will need the files from the sequencing facility, usually in FASTQ or .fqz format, a tabular file that contains the indexing barcode sequences attached to each sample, and a metadata file.",
-  ),
-  br(),
-  layout_column_wrap(
-    width=1/2,
-    fill=FALSE,
-    Files_RawCard,
-    QFilterCard
-  )
-)
 
 ############################################# Analysis-only #############################################
 Card_OTU <- tagList(layout_columns(colwidths=c(8,4),
                                    fileInput("otutab",
-                                             label="Upload sequence table",
+                                             label=tags$span("Upload sequence table",
+                                                             tags$i(tooltip(bs_icon("info-circle"),
+                                                                            tagList(p(style='text-decoration-line:underline; font-weight:bold; text-transform: uppercase;',"What is a sequence table?"),
+                                                                                    p(style='text-align: left', "Also known as an ASV table or OTU table, the feature data table is a table that records the number of times a taxonomic entity (ASV, OTU, ESV, etc) occurs in each sample. Each row of the table represents a unique taxonomic entity, and each column a sample."),
+                                                                                    p(style='font-weight:bold',"See 'Help' tab for an example."))
+                                                                            ))),
                                              accept=c(".csv",".tsv")),
+                                   
                                    layout_columns(
                                      radioButtons("otu_sep","File separator", #select separator in the file
                                                   choices=c("Comma"=",","Semicolon"=";","Tab"="/t"),
                                                   selected=","),
                                      checkboxInput("otu_header","Header",TRUE) #does the file have a header
                                      )))
+
 Card_TAX <- tagList(layout_columns(colwidths=c(8,4),
                                    fileInput("taxtab",
-                                             label="Upload taxonomy table",
+                                             label=tags$span("Upload taxonomy table",
+                                                             tags$i(tooltip(bs_icon("info-circle"),
+                                                                            tagList(p(style='text-decoration-line:underline; font-weight:bold; text-transform: uppercase;',"What is a taxonomy table?"),
+                                                                                    p(style='text-align: left', "The taxonomy table is a table that reflects features associated with each taxonomic entity (ASV, OTU, ESV, etc) found in the dataset. Each row of the table represents a unique taxonomic entity, and each column a feature, often taxonomic rank."),
+                                                                                    p(style='font-weight:bold',"See 'Help' tab for an example."))
+                                                                            ))),
                                              accept=c(".csv",".tsv")),
                                    layout_columns(
                                      radioButtons("tax_sep","File separator", #select separator in the file
@@ -101,27 +77,38 @@ Card_TAX <- tagList(layout_columns(colwidths=c(8,4),
 uploadpage <- nav_panel("Files",
           shinyFeedback::useShinyFeedback(),
           open=TRUE,
-          layout_column_wrap(
+          
+          # page navigation buttons 
+          layout_column_wrap( 
             width=1/2,fill=TRUE,
             actionButton("fileupload_prevpage","Previous page",width='100%'),
             actionButton("fileupload_nextpage_v2","Next step",width='100%')
             ),
           br(),
+          
+          # header and description
           HTML("<h4 style='text-align:center;'>Select the option that fits your data best: </h4> <p>We have provided a few options for you to work through your data, depending on what state the data are currently in. Click the buttons on the left to decide which is best for you.</p> <p><em>To work through a demonstration, click the last button and load the example dataset. </em></p>"),
           br(),
+          
+          # Data processing selection 
           layout_columns(col_widths=c(4,8),
+                         #left side of page; choice selection
                          radioGroupButtons(inputId = "selectupload", 
                                            width='100%', individual=TRUE,
-                                           choiceNames = c(HTML("<p style='margin-bottom:0;font-size:1.5vw;'><i>My data has been completely processed:</i></p> <p style='padding-top:0; margin-bottom: 0;font-size:1.5vw;'>I only need analyses.</p>"),
-                                                           HTML("<p style='margin-bottom:0;font-size:1.5vw;'><i>My data has been partially processed:</i></p> <p style='padding-top:0; margin-bottom: 0;font-size:1.5vw;'>I have an OTU table and I need to identify the species and analyze.</p>"), 
-                                                           HTML("<p style='margin-bottom:0;font-size:1.5vw;'><i>I have raw sequencing data:</i></p> <p style='padding-top:0; margin-bottom: 0;font-size:1.5vw;'>My files are coming directly from the sequencing facility.</p>"), 
-                                                           HTML("<p style='margin-bottom:0;font-size:1.5vw;'><i>Use example data:</i></p> <p style='padding-top:0; margin-bottom: 0;font-size:1.5vw;'>You can use this dataset to explore the feautures of the app prior to using it on your own data.</p>")
+                                           choiceNames = c(HTML("<p style='margin-bottom:0;font-size:1.5vw;'><i><u>My data has been completely processed:</i></p></u> <p style='padding-top:0; margin-bottom: 0;font-size:1.5vw;'>I only need analyses.</p>"),
+                                                           HTML("<p style='margin-bottom:0;font-size:1.5vw;'><i><u>My data has been partially processed:</i></p></u> <p style='padding-top:0; margin-bottom: 0;font-size:1.5vw;'>I have an OTU table and I need to identify the species and analyze.</p>"), 
+                                                           HTML("<p style='margin-bottom:0;font-size:1.5vw;'><i><u>I have raw sequencing data:</i></p></u> <p style='padding-top:0; margin-bottom: 0;font-size:1.5vw;'>My files are coming directly from the sequencing facility.</p>"), 
+                                                           HTML("<p style='margin-bottom:0;font-size:1.5vw;'><i><u>Use example data:</i></p></u> <p style='padding-top:0; margin-bottom: 0;font-size:1.5vw;'>You can use this dataset to explore the feautures of the app prior to using it on your own data.</p>")
                                                            ),
-                                           choiceValues = c("choose_analysis","choose_partial","choose_raw","choose_ex"),
+                                           choiceValues = c("choose_analysis",
+                                                            "choose_partial",
+                                                            "choose_raw",
+                                                            "choose_ex"),
                                            direction = 'vertical',
                                            selected=NULL
                          ),
                          
+                         #right side of page; upload options
                          card(
                            conditionalPanel(condition="input.selectupload == 'choose_raw'",
                                             p("Start here if you have raw sequencing data. You will need the files from the sequencing facility, usually in FASTQ or .fqz format, a tabular file that contains the indexing barcode sequences attached to each sample, and a metadata file.",
@@ -143,8 +130,6 @@ uploadpage <- nav_panel("Files",
                                                        style="stretch",
                                                        color="primary",
                                                        block=TRUE)
-                                            #Files_RawCard
-                                            #Files_ScratchCard #card directing to raw fastq files
                                             ),
                            conditionalPanel(condition="input.selectupload == 'choose_partial'",
                                             p("Use this option if you have distilled your sequence data into a single sequence table, but you still need to assign taxonomy to your sequences. "),
@@ -157,17 +142,12 @@ uploadpage <- nav_panel("Files",
                                                        block=TRUE)
                            ),
                            conditionalPanel(condition="input.selectupload == 'choose_analysis' ",
-                                            #condition="input.selectupload == 'choose_partial' | input.selectupload == 'choose_analysis' ",
                                             Card_OTU
                            ),
-                           #conditionalPanel(condition="input.selectupload == 'choose_raw' | input.selectupload == 'choose_partial' ",
-                           #                 QFilterCard
-                           #),
                            conditionalPanel(condition="input.selectupload == 'choose_analysis' ",
                                             Card_TAX
                            ),
                            conditionalPanel(condition="input.selectupload == 'choose_analysis' ",
-                                            #condition="input.selectupload != 'choose_ex'",
                                             p("Make sure to upload a metadata file before proceeding. At minimum, this should include some way to connect sample names in the sequencing data."),
                                             Files_MetadataCard,
                                             actionBttn("assemble_ps",
@@ -176,23 +156,23 @@ uploadpage <- nav_panel("Files",
                                                        color="success",
                                                        block=TRUE)
                            ),
-                           #conditionalPanel(condition="input.selectupload == 'choose_partial'",
-                          #                  Files_PartialCard #placeholder
-                          #                  ),
-                           #conditionalPanel(condition="input.selectupload == 'choose_analysis'",
-                          #                  Files_CompletedProcessingCard #card directing to otu and tax files
-                          #                  ),
                          conditionalPanel(condition="input.selectupload == 'choose_ex'",
                                           Ex_Card
                                           )
                          )
                          ),
+          
+          # bottom of page; default analysis inputs from ui/ui-defaultanalysis.R
           card(id='default',defaultanalysis),
+          
+          # bottom page navigation buttons
           layout_column_wrap(
             width=1/2,fill=TRUE,
             actionButton("bfileupload_prevpage","Previous page",width='100%'),
             actionButton("bfileupload_nextpage_v2","Next step",width='100%')
           ),
+          
+          # footer
           tags$footer(style="display: flex;justify-content: space-between;",
                       tags$img(src='smiths_logoLong.png',height='40px',
                                alt="Smithsonian sun logo"),
