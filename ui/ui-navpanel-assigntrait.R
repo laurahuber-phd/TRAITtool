@@ -24,41 +24,7 @@ Trait_TrophPullCard <- card(
                 hidden( p(id='p_fishquery',
                          bs_icon("binoculars-fill",size='2em'),
                          textOutput("n_fishquery"))
-                        )
-)
-
-Trait_TrophReviewCard <- hidden(card(id="trait_trophreview_card",
-                              h4("Loading ecological trait assignments gathered from FishBase and SeaLifeBase:"),
-                              p("This uses the species assignments in your taxonomy table to compare against the species in Fishbase, the global database of fishes, and SeaLifeBase, the database for non-fish marine species"),
-  hidden(wellPanel( #base/loading screen
-    id='viewtrait_panel', #preview trait info 
-    h5("The following species names were not found as-is in the FishBase or SeaLifeBase databases, but synonym names were:"),
-    tableOutput("syn.names"),
-    br(),
-    h5("The following species were not found in the selected database:"),
-    p("This does not necessarily mean that the species are not in those databases, but they may be under a synonym or spelled incorrectly. We recommend checking these species manually."),
-    verbatimTextOutput("not.names"),
-    tableOutput("trait.tab"),
-    accordion(id="trait_report",open=FALSE,
-              accordion_panel(title="Species queried",
-                              textOutput("trait.nona")),
-              accordion_panel(title="Synonyms identified",
-                              textOutput("trait.syn.names")),
-              accordion_panel(title="Valid names",
-                              textOutput("trait.valid")),
-              accordion_panel(title="Invalid names",
-                              textOutput("trait.invalid")),
-              ),
-    br(),
-    #DTOutput("trait_review"),
-    downloadButton("dwnldtrait1", "Download trophic assignments", 
-                   style = "color: #fff; background-color: #337ab7; border-color: #2e6da4"
-    ),
-    downloadButton("dwnldtraittaxa1", "Download new taxa table", 
-                   style = "color: #fff; background-color: #337ab7; border-color: #2e6da4"
-    )
-  )
-         ),
+                        ),
   accordion(id="trait_accord",title="Column Names",open=FALSE,
             #HTML("<p><i> FishBase records True/False data as -1/0 </i></p>"),
             accordion_panel(title="Trophic Level Information",
@@ -109,7 +75,41 @@ Trait_TrophReviewCard <- hidden(card(id="trait_trophreview_card",
                             #Importance
                             #Landings
                             #LandingStatistics
-            )),
+            ))
+)
+
+Trait_TrophReviewCard <- hidden(card(id="trait_trophreview_card",
+                              h4("Loading ecological trait assignments gathered from FishBase and SeaLifeBase:"),
+                              p("This uses the species assignments in your taxonomy table to compare against the species in Fishbase, the global database of fishes, and SeaLifeBase, the database for non-fish marine species"),
+  hidden(wellPanel( #base/loading screen
+    id='viewtrait_panel', #preview trait info 
+    h5("The following species names were not found as-is in the FishBase or SeaLifeBase databases, but synonym names were:"),
+    tableOutput("syn.names"),
+    br(),
+    h5("The following species were not found in the selected database:"),
+    p("This does not necessarily mean that the species are not in those databases, but they may be under a synonym or spelled incorrectly. We recommend checking these species manually."),
+    verbatimTextOutput("not.names"),
+    tableOutput("trait.tab"),
+    accordion(id="trait_report",open=FALSE,
+              accordion_panel(title="Species queried",
+                              textOutput("trait.nona")),
+              accordion_panel(title="Synonyms identified",
+                              textOutput("trait.syn.names")),
+              accordion_panel(title="Valid names",
+                              textOutput("trait.valid")),
+              accordion_panel(title="Invalid names",
+                              textOutput("trait.invalid")),
+              ),
+    br(),
+    #DTOutput("trait_review"),
+    downloadButton("dwnldtrait1", "Download trophic assignments", 
+                   style = "color: #fff; background-color: #337ab7; border-color: #2e6da4"
+    ),
+    downloadButton("dwnldtraittaxa1", "Download new taxa table", 
+                   style = "color: #fff; background-color: #337ab7; border-color: #2e6da4"
+    )
+  )
+         ),
   hidden(wellPanel( #trait df 
     id="loading_traits",
     h4("Trait table:"),

@@ -347,7 +347,7 @@ print("Traits: reactive value variables reset to NULL")
     print("Traits: All trait data merged with taxa table")
   } else { 
     print("Traits: only one database selected")
-    ################## When a single db is selected  ################## 
+  ################## When a single db is selected  ################## 
     
     valid.fish.names <- traits_var$nona[!is.na(traits_var$nona)] %>% 
       rfishbase::validate_names(server=traits_var$serv) 
@@ -475,6 +475,7 @@ print("Traits: reactive value variables reset to NULL")
                           fbdf,
                           .by=Species,all=TRUE)
   }
+  ################## After trait assignment is completed  ##################   
  req(!is.null(traits_var$syn.tab))
  req(alltraits.df)
  
@@ -498,6 +499,16 @@ print("Traits: reactive value variables reset to NULL")
     filter(Species != Synonym | is.na(Synonym)) %>% #then remove the synonym rows 
     as.data.frame() 
   print("Traits: Synonym data used to fill trait df")
+  
+  if(!is.null(alltraits.df$Troph)) {
+    alltraits.df <- alltraits.df %>% 
+      mutate(Trophic.Val=case_when(Troph < 2 ~ "Primary producers and detritus",
+                                   Troph >= 2 & Troph < 2.2 ~ "Primary consumers", 
+                                   Troph >= 2.2 & Troph < 2.8 ~ "Omnivores",
+                                   Troph >=2.8 ~ "Carnivores", 
+                                   .default=NA))
+  }
+  print("Traits: Numeric trophic level data converted to descriptive")
   
   ################## Combine with tax table  ################## 
   traits_var$x <- traits_var$alltraits.df <- (alltraits.df #%>% tibble::rownames_to_column(var="Row.Name")

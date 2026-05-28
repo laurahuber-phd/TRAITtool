@@ -23,7 +23,19 @@ Anlys_ViolinCard <- tagList(
                  downloadButton('violin_plotdwnld', label=NULL)),
   withSpinner(plotOutput("violin_plot",click="violin_click")) #add a reaction when the plot is clicked
 ) 
-
+############################################# Bar plot (percentage) #############################################
+Anlys_TrophBarCard <- tagList(
+  h5("This tab will generate a bar plot"),
+  layout_columns(
+    plotControlsUI('trophbar_general',color=FALSE,x=TRUE,y=FALSE,facet=TRUE),
+    plotPrettyUI("trophbar_pretty"),
+    plotSizeUI('trophbar_size')
+  ),
+  layout_columns(col_widths=c(10,-1,1),
+                 actionButton("go_trophbar","Plot"),
+                 downloadButton('trophbar_plotdwnld', label=NULL)),
+  withSpinner(plotOutput("trophbar_plot",click="trophbar_click")) #add a reaction when the plot is clicked
+)
 ############################################# Trophic diversity #############################################
 Anlys_TrophCard <- layout_sidebar(
   sidebar=sidebar(
@@ -56,6 +68,8 @@ traitanalysispage = nav_panel(
   Trait_FiguresCard,
   br(),
   Anlys_ViolinCard,
+  br(),
+  Anlys_TrophBarCard,
   #Anlys_TrophCard,
   
   layout_column_wrap(
