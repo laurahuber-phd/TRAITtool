@@ -24,17 +24,61 @@ Anlys_ViolinCard <- tagList(
   withSpinner(plotOutput("violin_plot",click="violin_click")) #add a reaction when the plot is clicked
 ) 
 ############################################# Bar plot (percentage) #############################################
+#Anlys_TrophBarCard <- tagList(
+#  h5("This tab will generate a bar plot"),
+#  layout_columns(
+#    plotControlsUI('trophbar_general',color=FALSE,x=TRUE,y=FALSE,facet=TRUE),
+#    plotPrettyUI("trophbar_pretty"),
+#    plotSizeUI('trophbar_size')
+#  ),
+#  layout_columns(col_widths=c(10,-1,1),
+#                 actionButton("go_trophbar","Plot"),
+#                 downloadButton('trophbar_plotdwnld', label=NULL)),
+#  withSpinner(plotOutput("trophbar_plot",click="trophbar_click")) #add a reaction when the plot is clicked
+#)
+
 Anlys_TrophBarCard <- tagList(
-  h5("This tab will generate a bar plot"),
-  layout_columns(
-    plotControlsUI('trophbar_general',color=FALSE,x=TRUE,y=FALSE,facet=TRUE),
-    plotPrettyUI("trophbar_pretty"),
-    plotSizeUI('trophbar_size')
-  ),
-  layout_columns(col_widths=c(10,-1,1),
-                 actionButton("go_trophbar","Plot"),
-                 downloadButton('trophbar_plotdwnld', label=NULL)),
-  withSpinner(plotOutput("trophbar_plot",click="trophbar_click")) #add a reaction when the plot is clicked
+  card( full_screen=TRUE,
+  tags$head(tags$style(HTML(".bs-select-all {
+                            display: none; 
+                            }
+                            .bs-deselect-all { 
+                            width: 100%; 
+                            } "))),
+  card_header( layout_columns(col_widths=c(4,4,4),
+                              shinyWidgets::dropdown(inputId="trophbar_plotgrouping",
+                                                     label="Grouping choices",
+                                                     icon=icon("gear"),
+                                                     pickerInput("choose_trophbar_axis",
+                                                                 label="Axis Group",
+                                                                 choices=list(),
+                                                                 multiple = FALSE,
+                                                                 options = pickerOptions(maxOptions = 1,
+                                                                                         container = "body", 
+                                                                                         actionsBox = TRUE,
+                                                                                         deselectAllText = "Clear selection"
+                                                                                         )
+                                                                 ),
+                                                     pickerInput("choose_trophbar_facet",label="Faceting Group",
+                                                                 choices=list(),
+                                                                 multiple = TRUE,
+                                                                 options = pickerOptions(maxOptions = 2,
+                                                                                         container = "body", 
+                                                                                         actionsBox = TRUE,
+                                                                                         deselectAllText = "Clear selection"
+                                                                                         )
+                                                                 )
+                                                     ),
+                              plotPrettyUI("trophbar_pretty"),
+                              plotSizeUI('trophbar_size')
+                              )
+        ),
+        layout_columns(col_widths=c(10,-1,1),
+                       actionButton("go_trophbar","Plot"),
+                       downloadButton('trophbar_plotdwnld', label=NULL)
+        ),
+        withSpinner(plotOutput("trophbar_plot",click="trophbar_click"))
+  )
 )
 ############################################# Trophic diversity #############################################
 Anlys_TrophCard <- layout_sidebar(
