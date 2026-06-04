@@ -32,13 +32,22 @@ ps.norm.melt <- reactive({
   print("Globalvars: Melted normalized dataframe")
   #psmelt(ps.norm()) %>% filter(Abundance>0)
   
+  
+  tax_vars <- function() {
+    c(any_of(c(tax.numcols() )))
+  }
+  
+  met_vars <- function() {
+    c(any_of(c(met.numcols() )))
+  }
+  
   otu_df <- otu_table(ps) %>% as.matrix() %>% as.data.frame() 
   otu_df <- cbind(OTU=rownames(otu_df),otu_df)
   
-  tax_df <- tax_table(ps)  %>% as.matrix() %>% as.data.frame() 
+  tax_df <- tax_table(ps)  %>% as.matrix() %>% as.data.frame() %>% mutate(across(tax_vars(), ~ as.numeric(.x)))
   tax_df <- cbind(OTU=rownames(tax_df),tax_df)
   
-  sample_df <- sample_data(ps) %>% as.matrix() %>% as.data.frame()
+  sample_df <- sample_data(ps) %>% as.matrix() %>% as.data.frame() %>% mutate(across(met_vars(), ~ as.numeric(.x)))
   sample_df <- cbind(Sample=rownames(sample_df),sample_df)
    
   # Melt and merge with joins
