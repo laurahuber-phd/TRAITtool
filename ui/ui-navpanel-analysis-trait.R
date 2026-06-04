@@ -1,17 +1,11 @@
 
-Trait_AnalysisCard <- tagList(layout_columns(col_widths = c()),
-                              h3()
-                              )
-
-Trait_FiguresCard <- tagList()
-
-
 ############################################# Violin plot #############################################
 Anlys_ViolinCard <- tagList(
   h5("This tab will generate a violin plot"),
   HTML("<p>Use the <u>'Controls'</u> button to change the taxonomic rank visualized or to alter what variable is used on the x-axis. You can also add up to two 'faceting' variables, which will separate the data into different plots based on which variables you facet by.</p>"),
   HTML("<p>Use the <u>'Aesthetics'</u> button to change aesthetic elements such as the plotting theme, which will influence how the background and gridlines look. Here you can also change the position of the legend, text size, and the direction of text on the x-axis.</p>"),
   HTML("<p>Use the <u>'Plot Size'</u> button to change the aspect ratio of the plot. </p>"),
+  br(),
   layout_columns(
     plotControlsUI('violin_gen',color=FALSE,x=TRUE,y=TRUE,facet=TRUE
     ),
@@ -23,29 +17,17 @@ Anlys_ViolinCard <- tagList(
                  downloadButton('violin_plotdwnld', label=NULL)),
   withSpinner(plotOutput("violin_plot",click="violin_click")) #add a reaction when the plot is clicked
 ) 
-############################################# Bar plot (percentage) #############################################
-#Anlys_TrophBarCard <- tagList(
-#  h5("This tab will generate a bar plot"),
-#  layout_columns(
-#    plotControlsUI('trophbar_general',color=FALSE,x=TRUE,y=FALSE,facet=TRUE),
-#    plotPrettyUI("trophbar_pretty"),
-#    plotSizeUI('trophbar_size')
-#  ),
-#  layout_columns(col_widths=c(10,-1,1),
-#                 actionButton("go_trophbar","Plot"),
-#                 downloadButton('trophbar_plotdwnld', label=NULL)),
-#  withSpinner(plotOutput("trophbar_plot",click="trophbar_click")) #add a reaction when the plot is clicked
-#)
 
+############################################# Bar plot (percentage) #############################################
 Anlys_TrophBarCard <- tagList(
-  card( full_screen=TRUE,
-  tags$head(tags$style(HTML(".bs-select-all {
-                            display: none; 
-                            }
-                            .bs-deselect-all { 
-                            width: 100%; 
-                            } "))),
-  card_header( layout_columns(col_widths=c(4,4,4),
+  h5("This tab will generate a bar plot with relative abundance composition for each trophic group"),
+  p("Separated into the groups selected for the y-axis"),
+  br(),
+  HTML("<p>Use the <u>'Grouping Choices'</u> button to choose which grouping variable to use on the y-axis. You can also select subgroups to facet by. </p>"),
+  HTML("<p>Use the <u>'Aesthetics'</u> button to change aesthetic elements such as the plotting theme, which will influence how the background and gridlines look. Here you can also change the position of the legend, text size, and the direction of text on the x-axis.</p>"),
+  HTML("<p>Use the <u>'Plot Size'</u> button to change the aspect ratio of the plot.</p>"),
+  br(),
+  layout_columns(col_widths=c(4,4,4),
                               shinyWidgets::dropdown(inputId="trophbar_plotgrouping",
                                                      label="Grouping choices",
                                                      icon=icon("gear"),
@@ -71,28 +53,94 @@ Anlys_TrophBarCard <- tagList(
                                                      ),
                               plotPrettyUI("trophbar_pretty"),
                               plotSizeUI('trophbar_size')
-                              )
-        ),
+                              ),
         layout_columns(col_widths=c(10,-1,1),
                        actionButton("go_trophbar","Plot"),
                        downloadButton('trophbar_plotdwnld', label=NULL)
         ),
         withSpinner(plotOutput("trophbar_plot",click="trophbar_click"))
   )
-)
-############################################# Trophic diversity #############################################
-Anlys_TrophCard <- layout_sidebar(
-  sidebar=sidebar(
-    "Select the explanatory variable", #title of sidebar (maintained across all tabs in the panel)
-    uiOutput("alphametrics_var")  #reactive output variable (used to select variables from the metadata for the x axis)
-  )#,
-  #tooltip(bsicons::bs_icon("question-circle"),
-  #        "Short explanatory sentence if user has a question",
-  #        placement="right"),
-  #popover(bsicons::bs_icon("gear", class = "ms-auto"),
-  #        #selection options to graph by
-  #        title="Use the following measure:"),
-)
+
+############################################# Line plot #############################################
+Anlys_TrophLineCard <- tagList(
+  h5("This tab will generate a line plot comparing trophic level data against abundance."),
+  p("You can "),
+  br(),
+  HTML("<p>Use the <u>'Controls'</u> button to change which measure of trophic information is used on the x-axis. Here you can also update how groups are visualized with different linetype and color grouping. You can also add up to two 'faceting' variables, which will separate the data into different plots based on which variables you facet by.</p>"),
+  HTML("<p>Use the <u>'Aesthetics'</u> button to change aesthetic elements such as the plotting theme, which will influence how the background and gridlines look. Here you can also change the position of the legend, text size, and the direction of text on the x-axis.</p>"),
+  HTML("<p>Use the <u>'Plot Size'</u> button to change the aspect ratio of the plot. </p>"),
+  br(),
+  layout_columns(col_widths=c(4,4,4),
+                 plotControlsUI("tline_gen",color=TRUE,x=TRUE,y=TRUE,facet=TRUE),
+                 plotPrettyUI("tline_pretty"),
+                 plotSizeUI('tline_size')
+  ),
+  layout_columns(col_widths=c(10,-1,1),
+                 actionButton("go_tline","Plot"),
+                 downloadButton('tline_plotdwnld', label=NULL)
+  ),
+  withSpinner(plotOutput("tline_plot",click="tline_click"))
+  )
+
+############################################# Lollipop plot #############################################
+Anlys_TrophLolliCard <- tagList(
+  h5("This tab will generate a plot highlighting specific groups"),
+  p("Description"),
+  br(),
+  HTML("<p>Use the <u>'Grouping Choices'</u> button to change which category is visualized on the y-axis. You also have the option to select specific members of the category to highlight in the plot. Also in this button, you can select a numeric category to plot on the x-axis. You can also add up to two 'faceting' variables, which will separate the data into different plots based on which variables you facet by.</p>"),
+  HTML("<p>Use the <u>'Aesthetics'</u> button to change aesthetic elements such as the plotting theme, which will influence how the background and gridlines look. Here you can also change the position of the legend, text size, and the direction of text on the x-axis.</p>"),
+  HTML("<p>Use the <u>'Plot Size'</u> button to change the aspect ratio of the plot. </p>"),
+  br(),
+  HTML("<p>Note: if one of the members selected does not have any information associated with it on the x-axis, no values will appear on the plot. </p>"),
+        page_sidebar(
+        sidebar=sidebar(
+          position="left",
+          open=TRUE,
+          shinyWidgets::dropdown(inputId="lolli_plotgrouping",
+                                 label="Grouping choices",
+                                 icon=icon("gear"),
+                                 pickerInput("choose_lolli_yaxis",
+                                             label="Y Axis Group",
+                                             choices=list(),
+                                             multiple = FALSE,
+                                             options = pickerOptions(maxOptions = 1,
+                                                                     container = "body", 
+                                                                     actionsBox = TRUE,
+                                                                     deselectAllText = "Clear selection"
+                                                                     )
+                                             ),
+                                 pickerInput("choose_lolli_xaxis",
+                                             label="X Axis Group",
+                                             choices=list(),
+                                             multiple = FALSE,
+                                             options = pickerOptions(maxOptions = 1,
+                                                                     container = "body", 
+                                                                     actionsBox = TRUE,
+                                                                     deselectAllText = "Clear selection"
+                                                                     )
+                                             ),
+                                 pickerInput("choose_lolli_facet",label="Faceting Group",
+                                             choices=list(),
+                                             multiple = TRUE,
+                                             options = pickerOptions(maxOptions = 2,
+                                                                     container = "body", 
+                                                                     actionsBox = TRUE,
+                                                                     deselectAllText = "Clear selection"
+                                                                     )
+                                             )
+                                 ),
+                                    plotPrettyUI("lolli_pretty"),
+                                    plotSizeUI('lolli_size'),
+          checkboxGroupInput("lolli_samples",
+                             label="Check boxes of each group you want to focus on",
+                             list())
+        ),
+        layout_columns(col_widths=c(10,-1,1),
+                       actionButton("go_lolli","Plot"),
+                       downloadButton('lolli_plotdwnld', label=NULL)
+        ),
+        withSpinner(plotOutput("lolli_plot",click="lolli_click"))
+  ))
 
 #############################################################################################################
 traitanalysispage = nav_panel(
@@ -103,19 +151,28 @@ traitanalysispage = nav_panel(
     actionButton("traitanalysis_nextpage","Next step")
   ),
   br(),
-  
   h2("Trait Analysis"),
   h4("In this page, you can view the analysis for trait and ecological information."),
   p("Description of what that means"),
-  Trait_AnalysisCard, 
   br(),
-  Trait_FiguresCard,
+  accordion(
+    open=FALSE, #start with all panels closed
+    multiple=TRUE, #multiple panels can be open at once
+    accordion_panel(title="Violin plot",
+                    Anlys_ViolinCard
+                    ),
+    accordion_panel(title="Bar plot",
+                    Anlys_TrophBarCard
+    ),
+    accordion_panel(title="Line plot",
+                    Anlys_TrophLineCard
+    ),
+    accordion_panel(title="Lollipop plot",
+                    Anlys_TrophLolliCard
+    )
+  ),
   br(),
-  Anlys_ViolinCard,
   br(),
-  Anlys_TrophBarCard,
-  #Anlys_TrophCard,
-  
   layout_column_wrap(
     width=1/2,fill=TRUE,
     actionButton("btraitanalysis_prevpage","Previous step"),

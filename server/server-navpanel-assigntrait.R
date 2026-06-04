@@ -506,7 +506,7 @@ print("Traits: reactive value variables reset to NULL")
                                    Troph >= 2 & Troph < 2.2 ~ "Primary consumers", 
                                    Troph >= 2.2 & Troph < 2.8 ~ "Omnivores",
                                    Troph >=2.8 ~ "Carnivores", 
-                                   .default=NA))
+                                   .default="Not Assigned"))
   }
   print("Traits: Numeric trophic level data converted to descriptive")
   
@@ -519,7 +519,8 @@ print("Traits: reactive value variables reset to NULL")
                           alltraits.df,
                           by="Species",
                           all.x=TRUE)
-  
+  numeric.cols <- taxa_traits_df %>% select(where(is.double) | where(is.numeric)) %>% colnames()
+  tax.numcols(numeric.cols)
   #taxa_traits_df <- relocate(taxa_traits_df,
   #                           "Species",
   #                           .after="Genus") 
