@@ -100,7 +100,7 @@ Anlys_TrophLolliCard <- tagList(
                                  label="Grouping choices",
                                  icon=icon("gear"),
                                  pickerInput("choose_lolli_yaxis",
-                                             label="Y Axis Group",
+                                             label="Category Group",
                                              choices=list(),
                                              multiple = FALSE,
                                              options = pickerOptions(maxOptions = 1,
@@ -110,7 +110,7 @@ Anlys_TrophLolliCard <- tagList(
                                                                      )
                                              ),
                                  pickerInput("choose_lolli_xaxis",
-                                             label="X Axis Group",
+                                             label="Numeric Group",
                                              choices=list(),
                                              multiple = FALSE,
                                              options = pickerOptions(maxOptions = 1,

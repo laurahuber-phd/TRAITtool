@@ -197,26 +197,35 @@ lolliplot <- eventReactive(input$go_lolli, {
   if(!is.null(ps$Trophic.Val)){
     
     my_vars <- function() {
-      c(any_of(c("Trophic.Val", 
-                 #input$choose_lolli_yaxis, 
-                 input$choose_lolli_facet
+      c(any_of(c(#"Trophic.Val",
+                 input$choose_lolli_facet,
+                 input$choose_lolli_yaxis
       )
       ))
     }
     
-    ps.edit <- ps %>% group_by(across(my_vars()) ) %>% arrange() #%>% arrange(Trophic.Val) %>% mutate(x=factor(x,x))  #%>% summarize(RelAbund=Abundance/sum(Abundance)) 
+    ps.edit <- ps %>% group_by(across(my_vars()) ) %>% 
+      #summarize(input$choose_lolli_xaxis=sum(input$choose_lolli_xaxis)) %>% 
+      arrange() #%>% #arrange(Trophic.Val) %>% 
+    #mutate(x=factor(x,x)) %>% 
+    #summarize(RelAbund=Abundance/sum(Abundance)) 
     
-    baseplot <- ggplot(ps.edit, aes(x=.data[[input$choose_lolli_yaxis]], y=.data[[input$choose_lolli_xaxis]])) +
+    baseplot <- ggplot(ps.edit, aes(x=.data[[input$choose_lolli_yaxis]],
+                                    y=.data[[input$choose_lolli_xaxis]])
+                       ) +
       geom_segment(
-        aes(x=ps.edit[[input$choose_lolli_yaxis]], xend=ps.edit[[input$choose_lolli_yaxis]], y=0, yend=.data[[input$choose_lolli_xaxis]]), 
-        color=ifelse(ps.edit[[input$choose_lolli_yaxis]] %in% input$lolli_samples, "orange", "grey"), 
-        size=ifelse(ps.edit[[input$choose_lolli_yaxis]] %in% input$lolli_samples, 1.3, 0.7)
-      ) +
+        aes(x=ps.edit[[input$choose_lolli_yaxis]], xend=ps.edit[[input$choose_lolli_yaxis]], 
+            y=0, yend=.data[[input$choose_lolli_xaxis]],
+            color=ps.edit[[input$choose_lolli_yaxis]] %in% input$lolli_samples#,
+            #size=ps.edit[[input$choose_lolli_yaxis]] %in% input$lolli_samples
+            )) + 
       geom_point(
-        color=ifelse(ps.edit[[input$choose_lolli_yaxis]] %in% input$lolli_samples, "orange", "grey"), 
-        size=ifelse(ps.edit[[input$choose_lolli_yaxis]] %in% input$lolli_samples, 5, 2)
-      ) +
-      coord_flip() 
+        aes(color=ps.edit[[input$choose_lolli_yaxis]] %in% input$lolli_samples,
+            size=ps.edit[[input$choose_lolli_yaxis]] %in% input$lolli_samples
+            )) + 
+      scale_color_manual(values=c("TRUE"="orange","FALSE"="grey"),name=NULL,labels=NULL) + 
+      scale_size_manual(values=c("TRUE"=5,"FALSE"=1),name=NULL,labels=NULL) +
+      coord_flip()
     
     # Add annotation
     #p + annotate("text", x=grep("D", data$x), y=data$y[which(data$x=="D")]*1.2, 
@@ -226,7 +235,6 @@ lolliplot <- eventReactive(input$go_lolli, {
     #  annotate("text", x = grep("A", data$x), y = data$y[which(data$x=="A")]*1.2, 
     #           label = paste("Group A is not too bad\n (val=",data$y[which(data$x=="A")] %>% round(2),")",sep="" ) , 
     #           color="orange", size=4 , angle=0, fontface="bold", hjust=0) 
-    
     
     if(!is.null(input$choose_trophbar_facet) & length(input$choose_trophbar_facet) < 2) {
       finalplot <- baseplot + facet_wrap(~input$choose_trophbar_facet,scales="free") 
