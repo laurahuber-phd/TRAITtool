@@ -4,7 +4,7 @@ Meta_vars <- reactive({ #read the metadata file and identify the variable names
   #req(input$Metadata)
   req(!is.null(MetadataTable$x))
   print("Globalvars: Meta_vars() sample variables calculated")
-  return(names(MetadataTable$x))
+  return(names(MetadataTable$x) %>% sort())
 }) %>% bindEvent(input$load_ex, #update meta_vars if the load button is pressed (new dataset)
                  input$assemble_ps
                  #input$Metadata, #update meta_vars if a new metadata table is uploaded manual
