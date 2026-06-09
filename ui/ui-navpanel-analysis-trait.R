@@ -7,7 +7,10 @@ Anlys_ViolinCard <- tagList(
   HTML("<p>Use the <u>'Plot Size'</u> button to change the aspect ratio of the plot. </p>"),
   br(),
   layout_columns(
-    plotControlsUI('violin_gen',color=FALSE,x=TRUE,y=TRUE,facet=TRUE
+    plotControlsUI('violin_gen',color=FALSE,x=TRUE,y=TRUE,facet=TRUE,
+                   xlabel="Groups to compare",
+                   ylabel="Numeric MTI to plot",
+                   facetlabel="Faceting variable"
     ),
     plotPrettyUI("violin_pretty"),
     plotSizeUI('violin_size')
@@ -32,7 +35,7 @@ Anlys_TrophBarCard <- tagList(
                                                      label="Grouping choices",
                                                      icon=icon("gear"),
                                                      pickerInput("choose_trophbar_axis",
-                                                                 label="Axis Group",
+                                                                 label="Groups to compare",
                                                                  choices=list(),
                                                                  multiple = FALSE,
                                                                  options = pickerOptions(maxOptions = 1,
@@ -71,7 +74,11 @@ Anlys_TrophLineCard <- tagList(
   HTML("<p>Use the <u>'Plot Size'</u> button to change the aspect ratio of the plot. </p>"),
   br(),
   layout_columns(col_widths=c(4,4,4),
-                 plotControlsUI("tline_gen",color=TRUE,x=TRUE,y=TRUE,facet=TRUE),
+                 plotControlsUI("tline_gen",color=TRUE,x=TRUE,y=TRUE,facet=TRUE,
+                                colorlabel="Numeric MTI to plot",
+                                xlabel="Groups to compare by color",
+                                ylabel="Groups to compare by line type",
+                                facetlabel="Faceting variable"),
                  plotPrettyUI("tline_pretty"),
                  plotSizeUI('tline_size')
   ),
@@ -92,7 +99,8 @@ Anlys_TrophLolliCard <- tagList(
   HTML("<p>Use the <u>'Plot Size'</u> button to change the aspect ratio of the plot. </p>"),
   br(),
   HTML("<p>Note: if one of the members selected does not have any information associated with it on the x-axis, no values will appear on the plot. </p>"),
-        page_sidebar(
+  card(height=800,
+        page_sidebar(fillable=FALSE,
         sidebar=sidebar(
           position="left",
           open=TRUE,
@@ -140,7 +148,7 @@ Anlys_TrophLolliCard <- tagList(
                        downloadButton('lolli_plotdwnld', label=NULL)
         ),
         withSpinner(plotOutput("lolli_plot",click="lolli_click"))
-  ))
+  )))
 
 #############################################################################################################
 traitanalysispage = nav_panel(
