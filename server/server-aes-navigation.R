@@ -111,6 +111,9 @@ observeEvent(input$repaccd_ordplot, switch_page("statstab"))
 observeEvent(input$repaccd_histplot, switch_page("statstab"))
 observeEvent(input$repaccd_hmplot,switch_page("statstab"))
 observeEvent(input$repaccd_vioplot,switch_page("traitanalysistab"))
+observeEvent(input$repaccd_tbarplot,switch_page("traitanalysistab"))
+observeEvent(input$repaccd_tlineplot,switch_page("traitanalysistab"))
+observeEvent(input$repaccd_lolliplot,switch_page("traitanalysistab"))
 
 # not using yet
 observeEvent(input$demux_nextpage, switch_page("Assign OTU"))
