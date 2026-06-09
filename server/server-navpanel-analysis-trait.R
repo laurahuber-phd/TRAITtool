@@ -27,12 +27,12 @@ trophbarplot <- eventReactive(input$go_trophbar, { #assign a variable that runs 
   print("Trophic bar plot: building base plot")
   
   ps <- ps.norm.melt() 
-  if(!is.null(ps$Trophic.Val)){
+  if(!is.null(ps$Trophic.val)){
     
-  ps <- ps.norm.melt() %>% filter(Abundance>0) %>% filter(!is.na(Trophic.Val))
+  ps <- ps.norm.melt() %>% filter(Abundance>0) %>% filter(!is.na(Trophic.val))
   
   my_vars <- function() {
-       c(any_of(c("Trophic.Val", 
+       c(any_of(c("Trophic.val", 
                   input$choose_trophbar_axis, 
                   input$choose_trophbar_facet
                   )
@@ -44,7 +44,7 @@ trophbarplot <- eventReactive(input$go_trophbar, { #assign a variable that runs 
   baseplot <- ggplot(ps.edit) + 
     geom_bar(aes(x=.data[[input$choose_trophbar_axis]], #x axis
                  y=Abundance, #y=RelAbund,
-                 fill=Trophic.Val), stat="identity", position = "fill"
+                 fill=Trophic.val), stat="identity", position = "fill"
     ) +  
     scale_y_continuous(labels=function(x) paste0(x * 100, "%")) + 
     labs(y="Relative Abundance",
@@ -52,7 +52,7 @@ trophbarplot <- eventReactive(input$go_trophbar, { #assign a variable that runs 
     coord_flip() 
   
   if(!is.null(input$choose_trophbar_facet) & length(input$choose_trophbar_facet) < 2) {
-    finalplot <- baseplot + facet_wrap(~input$choose_trophbar_facet,scales="free") 
+    finalplot <- baseplot + facet_wrap(~.data[[input$choose_trophbar_facet]],scales="free") 
   } else if(!is.null(input$choose_trophbar_facet) & length(input$choose_trophbar_facet) == 2) {
     finalplot <- baseplot + facet_grid(rows=vars(.data[[input$choose_trophbar_facet[1]]]),
                                        cols= vars(.data[[input$choose_trophbar_facet[2]]]),
@@ -111,7 +111,7 @@ tlineplot <- eventReactive(input$go_tline, { #assign a variable that runs when p
   print("Trophic line plot: building base plot")
   
   ps <- ps.norm.melt() 
-  if(!is.null(ps$Trophic.Val)){
+  if(!is.null(ps$Trophic.val)){
     
     ps <- ps.norm.melt() %>% mutate(TrophicScore = (as.numeric(.data[[tlineplot_general$color()]]))) %>% filter(Abundance>0) 
     
@@ -164,7 +164,7 @@ observe({
   )
   updatePickerInput(session,
                     "choose_lolli_xaxis", 
-                    choices=c(as.list(ps.norm.melt() %>% select(where(is.numeric)) %>% colnames())),
+                    choices=c(as.list(ps.norm.melt() %>% select(where(is.numeric)) %>% colnames() %>% sort())),
                     selected=""
   )
   updatePickerInput(session,
@@ -179,7 +179,7 @@ observe({
   req(input$choose_lolli_yaxis)
   
   ps <- ps.norm.melt()
-  lolvar <- ps[[{input$choose_lolli_yaxis}]] %>% unique()
+  lolvar <- ps[[{input$choose_lolli_yaxis}]] %>% unique() %>% sort()
   updateCheckboxGroupInput(session,
                            "lolli_samples",
                            choices=as.list(lolvar))
@@ -192,12 +192,12 @@ lolliplot_size <- plotSizeServer(id="lolli_size")
 lolliplot <- eventReactive(input$go_lolli, {
   req(ps.norm())
   print("Trophic lolli plot: building base plot")
-  ps <- ps.norm.melt() #filter(Abundance>0) %>% filter(!is.na(Trophic.Val))
+  ps <- ps.norm.melt() #filter(Abundance>0) %>% filter(!is.na(Trophic.val))
   
-  if(!is.null(ps$Trophic.Val)){
+  if(!is.null(ps$Trophic.val)){
     
     my_vars <- function() {
-      c(any_of(c(#"Trophic.Val",
+      c(any_of(c(#"Trophic.val",
                  input$choose_lolli_facet,
                  input$choose_lolli_yaxis
       )
@@ -206,7 +206,7 @@ lolliplot <- eventReactive(input$go_lolli, {
     
     ps.edit <- ps %>% group_by(across(my_vars()) ) %>% 
       #summarize(input$choose_lolli_xaxis=sum(input$choose_lolli_xaxis)) %>% 
-      arrange() #%>% #arrange(Trophic.Val) %>% 
+      arrange() #%>% #arrange(Trophic.val) %>% 
     #mutate(x=factor(x,x)) %>% 
     #summarize(RelAbund=Abundance/sum(Abundance)) 
     
@@ -224,7 +224,7 @@ lolliplot <- eventReactive(input$go_lolli, {
             size=ps.edit[[input$choose_lolli_yaxis]] %in% input$lolli_samples
             )) + 
       scale_color_manual(values=c("TRUE"="orange","FALSE"="grey"),name=NULL,labels=NULL) + 
-      scale_size_manual(values=c("TRUE"=5,"FALSE"=1),name=NULL,labels=NULL) +
+      scale_size_manual(values=c("TRUE"=3,"FALSE"=1),name=NULL,labels=NULL) +
       coord_flip()
     
     # Add annotation
@@ -236,11 +236,11 @@ lolliplot <- eventReactive(input$go_lolli, {
     #           label = paste("Group A is not too bad\n (val=",data$y[which(data$x=="A")] %>% round(2),")",sep="" ) , 
     #           color="orange", size=4 , angle=0, fontface="bold", hjust=0) 
     
-    if(!is.null(input$choose_trophbar_facet) & length(input$choose_trophbar_facet) < 2) {
-      finalplot <- baseplot + facet_wrap(~input$choose_trophbar_facet,scales="free") 
-    } else if(!is.null(input$choose_trophbar_facet) & length(input$choose_trophbar_facet) == 2) {
-      finalplot <- baseplot + facet_grid(rows=vars(.data[[input$choose_trophbar_facet[1]]]),
-                                         cols= vars(.data[[input$choose_trophbar_facet[2]]]),
+    if(!is.null(input$choose_lolli_facet) & length(input$choose_lolli_facet) < 2) {
+      finalplot <- baseplot + facet_wrap(~.data[[input$choose_lolli_facet]],scales="free") 
+    } else if(!is.null(input$choose_lolli_facet) & length(input$choose_lolli_facet) == 2) {
+      finalplot <- baseplot + facet_grid(rows=vars(.data[[input$choose_lolli_facet[1]]]),
+                                         cols= vars(.data[[input$choose_lolli_facet[2]]]),
                                          scales="free") 
     } else {finalplot <- baseplot} 
   
