@@ -33,6 +33,7 @@ navigation <- tagList(
   actionButton("go_trait", "Trait Assignment"),
   actionButton("go_filter", "Filter"),
   actionButton("go_desc", "Analysis Basics"),
+  actionButton("go_ta","Trait Analysis"),
   actionButton("go_stat", "Analysis Figures"),
   actionButton("go_help", "Help Page"),
   actionButton("go_settings", "Settings"),

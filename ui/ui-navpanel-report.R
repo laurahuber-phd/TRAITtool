@@ -31,6 +31,26 @@ reportpage <- nav_panel(
                               ),
               accordion_panel(title="Figures",
                               accordion(id='fig_accord',open=FALSE,
+                                        accordion_panel(title="Trophic index",
+                                                        withSpinner(plotOutput("rep_vioplot")),
+                                                        actionButton("repaccd_vioplot",
+                                                                     label="Go back to this page")
+                                        ),
+                                        accordion_panel(title="Trophic index",
+                                                        withSpinner(plotOutput("rep_tbarplot")),
+                                                        actionButton("repaccd_tbarplot",
+                                                                     label="Go back to this page")
+                                        ),
+                                        accordion_panel(title="Trophic index",
+                                                        withSpinner(plotOutput("rep_tlineplot")),
+                                                        actionButton("repaccd_tlineplot",
+                                                                     label="Go back to this page")
+                                        ),
+                                        accordion_panel(title="Trophic index",
+                                                        withSpinner(plotOutput("rep_lolliplot")),
+                                                        actionButton("repaccd_lolliplot",
+                                                                     label="Go back to this page")
+                                        ),
                                 accordion_panel(title="Percent composition",
                                                 withSpinner(plotOutput("rep_percplot")),
                                                 actionButton("repaccd_percplot",label="Go back to this page")
@@ -50,11 +70,7 @@ reportpage <- nav_panel(
                                 accordion_panel(title="Ordination plot",
                                                 withSpinner(plotOutput("rep_ordplot")),
                                                 actionButton("repaccd_ordplot",label="Go back to this page")
-                                                ),
-                                accordion_panel(title="Trophic index",
-                                                withSpinner(plotOutput("rep_vioplot")),
-                                                actionButton("repaccd_vioplot",label="Go back to this page")
-                                )
+                                                )
                               ))
               )
   ),

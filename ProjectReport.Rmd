@@ -20,6 +20,9 @@ params:
   histplot: NA
   hmplot: NA
   vioplot: NA
+  tbarplot: NA
+  lineplot: NA
+  lolplot: NA
   ordplot: NA
   ordmeth: NA
   ordtype: NA
@@ -217,6 +220,23 @@ incProgress(4/11)
 Sys.sleep(2)
 ```
 
+## Natural history traits  
+```{r}
+params$vioplot
+```
+
+```{r}
+params$lineplot
+```
+
+```{r}
+params$tbarplot
+```
+
+```{r}
+params$lolplot
+```
+
 ## Taxonomy  
 
 ### Unique taxa  
@@ -295,12 +315,6 @@ params$ordplot
 incProgress(10/11)
 Sys.sleep(2)
 ```
-
-# Trophic index  
-```{r}
-params$vioplot
-```
-
 
 \newpage  
 

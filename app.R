@@ -47,9 +47,10 @@ source('ui/ui-navpanel-upload.R')
 source('ui/ui-navpanel-review.R')
 source('ui/ui-navpanel-filter.R')
 source('ui/ui-defaultanalysis.R')
-source('ui/ui-navpanel-trait.R')
+source('ui/ui-navpanel-assigntrait.R')
 source('ui/ui-navpanel-descriptivestats.R')
 source('ui/ui-navpanel-analysis.R')
+source('ui/ui-navpanel-analysis-trait.R')
 source('ui/ui-navpanel-report.R')
 source('ui/ui-navpanel-help.R')
 source('ui/ui-navpanel-settings.R')
@@ -172,6 +173,8 @@ nav_menu("Filter", #filtering options
 nav_menu(title="Analysis",
          nav_panel("At a Glance",value="basicstab",
                    descriptivepage),
+        nav_panel("Trait Analysis",value="traitanalysistab",
+                  traitanalysispage),
          nav_panel("Figures", value='statstab',
                    analysispage)
          ),
@@ -218,24 +221,24 @@ source('server/server-aes-load-data.R',local=TRUE) #loads the functionality to r
 source('server/server-navpanel-upload.R',local=TRUE)
 # --- # Review Page # --------
 source('server/server-navpanel-review.R',local=TRUE)
+# --- # Trait Assignment Page # --------
+source('server/server-navpanel-assigntrait.R',local=TRUE)
 # --- # Filter Page # --------
 source('server/server-navpanel-filter.R',local=TRUE)  
-  source('server/server-defaultanalysis.R',local=TRUE)
-  # --- # Trait Page # --------
-source('server/server-navpanel-trait.R',local=TRUE)
+source('server/server-defaultanalysis.R',local=TRUE)
 # --- # Descriptive Stats Page  # --------  
- source('server/server-navpanel-descriptivestats.R',local=TRUE)
-## --- # Analysis Page # --------  
-
+source('server/server-navpanel-descriptivestats.R',local=TRUE)
+# --- # Trait Analysis Page # --------  
+source('server/server-navpanel-analysis-trait.R',local=TRUE)
+# --- # Figure Page # --------  
 source('server/server-navpanel-analysis-alpha.R',local=TRUE)
 source('server/server-navpanel-analysis-ord.R',local=TRUE)
 source('server/server-navpanel-analysis-hm.R',local=TRUE)
 source('server/server-navpanel-analysis-violin.R',local=TRUE)
-## --- # Report Tab # --------  
+# --- # Report Tab # --------  
 source('server/server-navpanel-report.R',local=TRUE)
-  
-  #
-  #
+#
+#
 }
 #
 #

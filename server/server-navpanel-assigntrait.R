@@ -229,7 +229,7 @@ print("Traits: reactive value variables reset to NULL")
     # include 'db' as an ID column so we can tell later what database the results came from  
     traits.df <- bind_rows(fish.troph, 
                            sl.troph,
-                           .id="db") %>% 
+                           .id="traitdb") %>% 
       filter(!duplicated(Species)) %>%
       mutate(Syn=case_when(Species%in%syn.fish$Status ~ "synonym")) %>% as.data.frame()
     print("Traits: trophic level information combined from both databases")
@@ -249,7 +249,7 @@ print("Traits: reactive value variables reset to NULL")
     traits_var$invalid <- unique(invalid.sl.names) #because this value encompasses anything that wasn't found in fishbase, I don't need to include both invalids
     traits_var$syn.tab <- bind_rows(syn.fish.tab, 
                                      syn.sl.tab,
-                                     .id="db") #%>% filter(!duplicated(Species)) 
+                                     .id="traitdb") #%>% filter(!duplicated(Species)) 
     traits_var$syn.names <- c(syn.fish.names,syn.sl.names) %>% unique()
     
     traits_var$troph <- (traits.df #%>%
@@ -265,7 +265,7 @@ print("Traits: reactive value variables reset to NULL")
     sl.eco <- rfishbase::ecosystem(species_list=valid.sl.names,
                                    server="sealifebase") 
     print("Traits: Ecosystem data queried from SeaLifeBase")
-    eco.df <- bind_rows(fish.eco,sl.eco,.id="db") 
+    eco.df <- bind_rows(fish.eco,sl.eco,.id="traitdb") 
     
     # get species table information
     fish.spp <- rfishbase::species(species_list=valid.fish.names,
@@ -275,7 +275,7 @@ print("Traits: reactive value variables reset to NULL")
                                  server="sealifebase") 
     print("Traits: Species table data queried from SeaLifeBase")
     
-    spp.df <- bind_rows(fish.spp,sl.spp,.id="db")
+    spp.df <- bind_rows(fish.spp,sl.spp,.id="traitdb")
     
     # ecosystem table is large 
     # want to keep unique values for Climate, Salinity, and EcosystemType, AverageDepth, TempSurface
@@ -331,7 +331,7 @@ print("Traits: reactive value variables reset to NULL")
     alltraits.df <- merge((traits.df %>% 
                              #rownames_to_column(.,var="Row.Name") %>% 
                              select(c(#all_of(keep),
-                                      db,
+                                      traitdb,
                                       #Row.Name, 
                                       Species,
                                       Maxlengthsl,Maxlengthtl,
@@ -347,7 +347,7 @@ print("Traits: reactive value variables reset to NULL")
     print("Traits: All trait data merged with taxa table")
   } else { 
     print("Traits: only one database selected")
-    ################## When a single db is selected  ################## 
+  ################## When a single db is selected  ################## 
     
     valid.fish.names <- traits_var$nona[!is.na(traits_var$nona)] %>% 
       rfishbase::validate_names(server=traits_var$serv) 
@@ -475,6 +475,7 @@ print("Traits: reactive value variables reset to NULL")
                           fbdf,
                           .by=Species,all=TRUE)
   }
+  ################## After trait assignment is completed  ##################   
  req(!is.null(traits_var$syn.tab))
  req(alltraits.df)
  
@@ -499,6 +500,16 @@ print("Traits: reactive value variables reset to NULL")
     as.data.frame() 
   print("Traits: Synonym data used to fill trait df")
   
+  if(!is.null(alltraits.df$Troph)) {
+    alltraits.df <- alltraits.df %>% 
+      mutate(Trophic.val=case_when(Troph < 2 ~ "Primary producers and detritus",
+                                   Troph >= 2 & Troph < 2.2 ~ "Primary consumers", 
+                                   Troph >= 2.2 & Troph < 2.8 ~ "Omnivores",
+                                   Troph >=2.8 ~ "Carnivores", 
+                                   .default="Not Assigned"))
+  }
+  print("Traits: Numeric trophic level data converted to descriptive")
+  
   ################## Combine with tax table  ################## 
   traits_var$x <- traits_var$alltraits.df <- (alltraits.df #%>% tibble::rownames_to_column(var="Row.Name")
                                               ) #combined fish/nonfish df
@@ -508,7 +519,8 @@ print("Traits: reactive value variables reset to NULL")
                           alltraits.df,
                           by="Species",
                           all.x=TRUE)
-  
+  numeric.cols <- taxa_traits_df %>% select(where(is.double) | where(is.numeric)) %>% colnames()
+  tax.numcols(numeric.cols)
   #taxa_traits_df <- relocate(taxa_traits_df,
   #                           "Species",
   #                           .after="Genus") 

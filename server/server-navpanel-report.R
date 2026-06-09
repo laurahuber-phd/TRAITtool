@@ -21,8 +21,14 @@ observe({
   print("Report: histoplot rendered")
   output$rep_hmplot <- renderPlot({hmplot()})
   print("Report: hmplot rendered")
+  output$rep_tbarplot <- renderPlot({trophbarplot()})
+  print("Report: trophic bar plot rendered")
+  output$rep_tlineplot <- renderPlot({tlineplot()})
+  print("Report: trophic line plot rendered")
   output$rep_vioplot <- renderPlot({violinplot()})
   print("Report: violinplot rendered")
+  output$rep_lolliplot <- renderPlot({lolliplot()})
+  print("Report: lolliplot rendered")
   
   output$rep_pnsamp <- renderText({mkdwnrptfun(input$prune_samples)}) #min sample number
   print("Report: minimum sample number rendered")
@@ -80,6 +86,9 @@ params <- reactiveValues(blanks=NA, #create list of parameters to read into rmar
                          histplot=NA,
                          hmplot=NA,
                          vioplot=NA,
+                         lolplot=NA,
+                         lineplot=NA,
+                         tbarplot=NA,
                          samsum=NA,
                          N_seq_total_num_sel=NA,
                          N_seq_assigned_num_sel=NA,
@@ -105,6 +114,9 @@ observeEvent(input$gen_report, {
   params[["histplot"]] <- mkdwnrptfun(histoplot())
   params[["hmplot"]] <- mkdwnrptfun(hmplot())
   params[["vioplot"]] <- mkdwnrptfun(violinplot())
+  params[["tbarplot"]] <- mkdwnrptfun(trophbarplot())
+  params[["lineplot"]] <- mkdwnrptfun(tlineplot())
+  params[["lolplot"]] <- mkdwnrptfun(lolliplot())
   print("Report: plots saved to params list")
   
   params$pnsamp <- mkdwnrptfun(input$prune_samples) #min sample number

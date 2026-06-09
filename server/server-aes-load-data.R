@@ -1,5 +1,8 @@
 source("functions/function-buildps.R")
 
+tax.numcols <- reactiveVal()
+met.numcols <- reactiveVal()
+
 ###################### UPLOAD METADATA ######################
 MetadataTable <- reactiveValues(x=NULL,og=NULL) #start with an empty reactiveValues 
 observeEvent(input$Metadata, { #when a file is uploaded
@@ -23,6 +26,10 @@ observe({
   
   MetadataTable$x <- metfile
   MetadataTable$og <- metfile
+  
+  numeric.columns <- metfile %>% select(where(is.double) | where(is.numeric)) %>% colnames()
+  met.numcols(numeric.columns)
+  
   print("Load: loaded metadata")
 }) %>% bindEvent(input$Metadata,input$meta_sep,input$meta_header)
 
@@ -110,9 +117,12 @@ observe({ #upload the taxonomy file
     taxfile <- taxfile
   }
 
-  
   TaxTable$x <- taxfile
   TaxTable$og <- taxfile_upld
+  
+  numeric.columns <- taxfile %>% select(where(is.double) | where(is.numeric)) %>% colnames()
+  tax.numcols(numeric.columns)
+  
   print("Load: loaded tax file")
 }) %>% bindEvent(input$taxtab,input$tax_sep,input$tax_header)
 
@@ -140,6 +150,9 @@ observeEvent(input$load_ex, {
                           na = c("",".","NA","NULL","Unassigned","unassigned")
   )
   MetadataTable$og <- MetadataTable$x <- metfile
+  numeric.columns <- metfile %>% select(where(is.double) | where(is.numeric)) %>% colnames()
+  met.numcols(numeric.columns)
+  
   print("Load: loaded example metadata")
   
   otufile <- vroom::vroom('data/otu_table.csv',delim=',',
@@ -160,6 +173,9 @@ observeEvent(input$load_ex, {
                                .default=NA))
   TaxTable$x <- taxfile
   TaxTable$og <- taxfile_upld
+  numeric.columns <- taxfile %>% select(where(is.double) | where(is.numeric)) %>% colnames()
+  tax.numcols(numeric.columns)
+  
   print("Load: loaded example tax file")
 })
 
