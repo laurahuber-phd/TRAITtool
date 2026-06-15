@@ -8,7 +8,7 @@ Anlys_ViolinCard <- tagList(
   br(),
   layout_columns(
     plotControlsUI('violin_gen',color=FALSE,x=TRUE,y=TRUE,facet=TRUE,
-                   xlabel="Groups to compare",
+                   xlabel="Groups to compare (x-axis)",
                    ylabel="Numeric MTI to plot",
                    facetlabel="Faceting variable"
     ),
@@ -32,7 +32,7 @@ Anlys_TrophBarCard <- tagList(
   br(),
   layout_columns(col_widths=c(4,4,4),
                               shinyWidgets::dropdown(inputId="trophbar_plotgrouping",
-                                                     label="Grouping choices",
+                                                     label="Grouping choices (y-axis)",
                                                      icon=icon("gear"),
                                                      pickerInput("choose_trophbar_axis",
                                                                  label="Groups to compare",
@@ -108,7 +108,7 @@ Anlys_TrophLolliCard <- tagList(
                                  label="Grouping choices",
                                  icon=icon("gear"),
                                  pickerInput("choose_lolli_yaxis",
-                                             label="Category Group",
+                                             label="Category Group (y-axis)",
                                              choices=list(),
                                              multiple = FALSE,
                                              options = pickerOptions(maxOptions = 1,
@@ -118,7 +118,7 @@ Anlys_TrophLolliCard <- tagList(
                                                                      )
                                              ),
                                  pickerInput("choose_lolli_xaxis",
-                                             label="Numeric Group",
+                                             label="Numeric Group (x-axis)",
                                              choices=list(),
                                              multiple = FALSE,
                                              options = pickerOptions(maxOptions = 1,
@@ -159,10 +159,21 @@ traitanalysispage = nav_panel(
     actionButton("traitanalysis_nextpage","Next step")
   ),
   br(),
-  h2("Trait Analysis"),
-  h4("In this page, you can view the analysis for trait and ecological information."),
-  p("Description of what that means"),
+  h2("Mean Trophic Index and Trait analysis"),
+  h4("In this page, you can view plots for trait and ecological information."),
+  p("Trophic level "),
   br(),
+  card(h4("About Trophic Index"),
+       p(),
+       layout_columns(col_widths=c(8,4),
+                          p("Explanation of MTI and trophic level and how this can help inform fisheries management. Example phrasing includes: The marine trophic index measures the change in mean
+trophic level of fisheries landings by region and globally. Trophic level is defined as the
+position of an organism in the food chain, and ranges from a value of 1 for primary
+producers up to a level of 5 for marine mammals and human"),
+                          tags$img(src='MTI.png',height='200px',width='200px',
+                                   alt="Fishing down the food web")
+                          )
+       ),
   accordion(
     open=FALSE, #start with all panels closed
     multiple=TRUE, #multiple panels can be open at once

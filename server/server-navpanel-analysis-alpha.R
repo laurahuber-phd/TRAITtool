@@ -66,7 +66,7 @@ histo_base <- reactive({
            x=histoplot_general$x()) + 
     geom_bar(stat='identity',position='stack',aes(color=.data[[histoplot_general$color()]],
                                                   fill=.data[[histoplot_general$color()]])) + 
-    guides(color='none',fill=guide_legend(histoplot_general$color()))
+    guides(color=guide_legend(histoplot_general$color()),fill=guide_legend(histoplot_general$color()))
 
 }) %>% bindEvent(ps.norm(),
                  histoplot_general$color(),
