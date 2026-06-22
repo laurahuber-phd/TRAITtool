@@ -158,7 +158,8 @@ observe({
                    ps.sub(ps.sample$b)
                    print(ps.sub())
                  }
-               },suspended=TRUE) %>% bindEvent(input$sample_switch)#,
+               }#,suspended=TRUE
+        ) %>% bindEvent(input$sample_switch)#,
 #input$sample_filterby,
 #MetadataTable$x
 #) 
@@ -462,7 +463,7 @@ observe({
   print(ps)
   
   if(isTruthy(input$sample_switch) #&& input$go_sample
-     ) { #if user selects specific samples to vis
+     ) { #if user selects specific samples 
     print("Filter: Samples to filter by selected")
 
     trackNums$selsamp_aft <- trackNums$selsamp_bef <- NULL #reset counts
@@ -472,15 +473,51 @@ observe({
     if(!is.null(input$sample_select)) { #if there are samples selected
       selkeep = NULL #make empty list of samples 
       
-      if(input$sample_filterby == "Sample") { #if the filtering parameter is sample id
-        print("Filter: filtering parameter is sample id")
-        selkeep = input$sample_select #list of selected samples 
-        print(c("Samples to keep: ",selkeep))
-      } else {
-        print("Filter: filtering parameter is a sample variable")
-        print(c("Filter: Sample variable to filter by is",input$sample_filterby))
-        selcolvals = as.data.frame(as.matrix(sample_data(ps))) %>% select(input$sample_filterby) #get sample_data of selected variable 
-        selkeep = row.names(selcolvals %>% filter(selcolvals[[1]] %in% input$sample_select)) #list of sample names selected
+      # prune taxa 
+      if(isTruthy(input$sam_keepremove)) {  #if user selects keep samples
+        print("Filter: keep selected samples")
+        
+        if(input$sample_filterby == "Sample") { #if the filtering parameter is sample id
+          print("Filter: filtering parameter is sample id")
+          selkeep = input$sample_select #list of selected samples 
+          print(c("Samples to keep: ",selkeep))
+        } else {
+          print("Filter: filtering parameter is a sample variable")
+          print(c("Filter: Sample variable to filter by is",input$sample_filterby))
+          selcolvals = as.data.frame(as.matrix(sample_data(ps))) %>% select(input$sample_filterby) #get sample_data of selected variable 
+          selkeep = tryCatch(row.names(selcolvals %>% filter(selcolvals[[1]] %in% input$sample_select)), 
+                             #list of sample names selected
+                             error=function(e){return(FALSE)}
+                             )
+          print(c("Keeping the following: ",selkeep))
+        }
+
+      }
+      if(!isTruthy(input$sam_keepremove)) { #if user selected remove samples
+        print("Filter: remove selected samples")
+        
+        if(input$sample_filterby == "Sample") { #if the filtering parameter is sample id
+          print("Filter: filtering parameter is sample id")
+          selrm = input$sample_select #list of selected samples 
+          print(c("Samples to remove: ",selrm))
+          
+          selsam = sample_names(ps) #get a list of all sample names 
+          selkeep = selsam[!selsam %in% selrm] #only keep sample names that were NOT identified by the user
+          print(c("Samples to keep: ",selkeep))
+          
+        } else {
+          print("Filter: filtering parameter is a sample variable")
+          print(c("Filter: Sample variable to filter by is",input$sample_filterby))
+          selcolvals = as.data.frame(as.matrix(sample_data(ps))) %>% select(input$sample_filterby) #get sample_data of selected variable 
+          selkeep = tryCatch(#row.names(selcolvals %>% filter(selcolvals[[1]] %in% input$sample_select)), 
+                             rownames(filter(selcolvals, 
+                                             !selcolvals[[1]] %in% input$sample_select)),
+                             #list of sample names selected
+                             error=function(e){return(FALSE)}
+          )
+          print(c("Samples to keep: ",selkeep))
+        }
+        
       }
       
       # add a check here to make sure that we can prune samples based on selkeep 

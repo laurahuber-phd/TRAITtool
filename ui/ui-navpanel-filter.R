@@ -66,8 +66,16 @@ SelectSamplesCard <- card(
                                checkboxGroupInput('sample_select', label="Select samples",
                                                   list()
                                )),
-                               verticalLayout(br(),
-                                              actionButton('go_sample',"Go: Use selected samples"))
+                               card("Keep or remove the selected samples?",
+                                    switchInput(inputId='sam_keepremove',
+                                                value=FALSE, width = "100%",
+                                                inline=TRUE,
+                                                onLabel = "Keep",
+                                                offLabel = "Remove"),
+                                    actionButton('go_sample',"Go: prune selected samples",class = 'btn-warning')
+                               )
+                               #verticalLayout(br(),
+                               #               actionButton('go_sample',"Go: Use selected samples"))
                                )
                                ),
   shinyjs::hidden(
