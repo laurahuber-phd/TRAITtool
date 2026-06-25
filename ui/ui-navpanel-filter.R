@@ -88,7 +88,7 @@ SelectTaxaCard <- card(
   card_header("Select which taxa to analyze"),
   "Choose this if you want to specify which taxa to include/exclude. You don't need to do anything here if you are interested in viewing the entire dataset.",
   br(),
-  h5("Click on the toggle to select samples. Clicking it again will reset all selections."),
+  h5("Click on the toggle to select taxa. Clicking it again will reset all selections."),
   materialSwitch(inputId='tax_switch', value=FALSE, label="Subset taxa?"), #toggle to open accordion 
   conditionalPanel(condition="input.tax_switch==true",
                    
