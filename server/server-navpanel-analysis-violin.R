@@ -46,7 +46,7 @@ violin_base <- reactive({
 
 violinplot <- eventReactive(input$go_violin, {
   print("Violin: assembling plot")
-  violin_base() + violinplot_general$facet() + violinplot_pretty() + violinplot_size() 
+  violin_base() + violinplot_general$facet() + violinplot_pretty() + violinplot_size$aspectRatio() 
 }) 
 
 observeEvent(input$go_violin, {
@@ -69,7 +69,9 @@ output$violin_plotdwnld <- output$violin_plotdwnld_popup <-  downloadHandler(
   filename = "violinplot.png",
   contentType = 'image/png',
   content = function(file) {
-    ggsave(file,plot=violinplot()
+    ggsave(file,plot=violinplot(),
+           height=violinplot_size$height(),width=violinplot_size$width(),
+           scale=2
     )
     
   }) 

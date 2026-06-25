@@ -171,6 +171,8 @@ output$ord_plotdwnld <- output$ord_plotdwnld_popup <-  downloadHandler(
   filename = "ord_plot.png",
   contentType = 'image/png',
   content = function(file) {
-    ggsave(file,plot=ordplot()
+    ggsave(file,plot=ordplot(),
+           height=input$ord_plotheight,width=input$ord_plotwidth,
+           scale=2
     )
   }) 

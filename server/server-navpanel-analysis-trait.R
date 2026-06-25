@@ -59,7 +59,7 @@ trophbarplot <- eventReactive(input$go_trophbar, { #assign a variable that runs 
                                        scales="free") 
   } else {finalplot <- baseplot}
   
-  finalplot + trophbarplot_pretty() + trophbarplot_size() 
+  finalplot + trophbarplot_pretty() + trophbarplot_size$aspectRatio() 
   }
   
 })
@@ -83,7 +83,9 @@ output$trophbar_plotdwnld <- output$trophbar_plotdwnld_popup <-  downloadHandler
   filename = "trophbarplot.png",
   contentType = 'image/png',
   content = function(file) {
-    ggsave(file,plot=trophbarplot()
+    ggsave(file,plot=trophbarplot(),
+           height=trophbarplot_size$height(),width=trophbarplot_size$width(),
+           scale=2
     )
     
   }) 
@@ -125,7 +127,7 @@ tlineplot <- eventReactive(input$go_tline, { #assign a variable that runs when p
       geom_line(na.rm=TRUE)  
     
       baseplot + 
-      tlineplot_general$facet() + tlineplot_pretty() + tlineplot_size() 
+      tlineplot_general$facet() + tlineplot_pretty() + tlineplot_size$aspectRatio() 
   }
   
 })
@@ -150,7 +152,9 @@ output$tline_plotdwnld <- output$tline_plotdwnld_popup <-  downloadHandler(
   filename = "tlineplot.png",
   contentType = 'image/png',
   content = function(file) {
-    ggsave(file,plot=tlineplot()
+    ggsave(file,plot=tlineplot(),
+           height=tlineplot_size$height(),width=tlineplot_size$width(),
+           scale=2
     )
     
   }) 
@@ -244,7 +248,7 @@ lolliplot <- eventReactive(input$go_lolli, {
                                          scales="free") 
     } else {finalplot <- baseplot} 
   
-  finalplot + lolliplot_pretty() + lolliplot_size()
+  finalplot + lolliplot_pretty() + lolliplot_size$aspectRatio()
   }
 })
 
@@ -267,7 +271,9 @@ output$lolli_plotdwnld <- output$lolli_plotdwnld_popup <-  downloadHandler(
   filename = "lolliplot.png",
   contentType = 'image/png',
   content = function(file) {
-    ggsave(file,plot=lolliplot()
+    ggsave(file,plot=lolliplot(),
+           height=lolliplot_size$height(),width=lolliplot_size$width(),
+           scale=2
     )
     
   }) 

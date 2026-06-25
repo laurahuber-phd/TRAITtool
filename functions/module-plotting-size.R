@@ -30,7 +30,13 @@ plotSizeServer <- function(id) {
           ) 
         }) %>% bindEvent(input$plot_height,input$plot_width)
 
-return(reactive({aspect_theme()}))
+return(list(
+  aspectRatio=reactive(aspect_theme()),
+  height=reactive(input$plot_height),
+  width=reactive(input$plot_width)
+)
+  
+)
 
     }
   )

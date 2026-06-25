@@ -235,7 +235,7 @@ rankperc_base <- reactive({
 
 rankperc_plot <- eventReactive(input$go_rankperc, {
   print("Desc: assembling tax rank plot")
-  rankperc_base() + rankpercplot_pretty() + rankpercplot_size() 
+  rankperc_base() + rankpercplot_pretty() + rankpercplot_size$aspectRatio() 
 }) 
 
 
@@ -337,6 +337,7 @@ output$rankperc_plotdwnld_popup <- output$rankperc_plotdwnld <- downloadHandler(
   contentType = 'image/png',
   content = function(file) {
     ggsave(file,plot=rankperc_plot(),
-           width=input$rankper_width,height=input$rankper_height
+           width=rankpercplot_size$width(),height=rankpercplot_size$height(),
+           scale=2
     )
   }) 

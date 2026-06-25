@@ -31,7 +31,7 @@ hm_base <- reactive({
 
 hmplot <- eventReactive(input$go_hm, {
   print("Heatmap: assembling plot")
-  hm_base() + hmplot_general$facet() + hmplot_pretty() + hmplot_size() 
+  hm_base() + hmplot_general$facet() + hmplot_pretty() + hmplot_size$aspectRatio() 
 }) 
 
 observeEvent(input$go_hm, {
@@ -54,7 +54,9 @@ output$hm_plotdwnld <- output$hm_plotdwnld_popup <-  downloadHandler(
   filename = "hmplot.png",
   contentType = 'image/png',
   content = function(file) {
-    ggsave(file,plot=hmplot()
+    ggsave(file,plot=hmplot(), 
+           height=hmplot_size$height(),width=hmplot_size$width(),
+           scale=2
     )
     
   }) 

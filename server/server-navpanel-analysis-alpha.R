@@ -37,7 +37,8 @@ output$rich_plotdwnld <- output$rich_plotdwnld_popup <-  downloadHandler(
   filename = "richness_plot.png",
   contentType = 'image/png',
   content = function(file) {
-    ggsave(file,plot=richplot()
+    ggsave(file,plot=richplot(),
+           scale=2
     )
   }) 
 
@@ -77,7 +78,7 @@ histoplot <- eventReactive(input$go_histoplot, {
   
   print("Histogram: assembling plot")
   
-  histo_base() + histoplot_general$facet() + histoplot_pretty() + histoplot_size() 
+  histo_base() + histoplot_general$facet() + histoplot_pretty() + histoplot_size$aspectRatio() 
 }) 
 
 observeEvent(input$go_histoplot,{
@@ -100,7 +101,9 @@ output$histo_plotdwnld <- output$histo_plotdwnld_popup <-  downloadHandler(
   filename = "histoplot.png",
   contentType = 'image/png',
   content = function(file) {
-    ggsave(file,plot=histoplot()
+    ggsave(file,plot=histoplot(),
+           height=histoplot_size$height(),width=histoplot_size$width(),
+           scale=2
     )
 
   }) 
