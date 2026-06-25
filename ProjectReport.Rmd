@@ -48,6 +48,7 @@ library(shiny)
 library(knitr)
 library(kableExtra)
 library(cowplot)
+library(plotly)
 
 knitr::knit_hooks$set(inline = function(x) {   
   if(!is.numeric(x)){ x } else{   
@@ -217,7 +218,7 @@ p_bar <- plot_bar(params$ps,
 
  #+ geom_line(aes(y=100000,color="green")) #add horizontal line at 100,000 to show goal minimum sequencing depth 
 
-p_bar
+ggplotly(p_bar)
 ```
 
 ```{r progressfour}
@@ -247,19 +248,19 @@ Sys.sleep(2)
 
 ## Natural history traits  
 ```{r}
-params$vioplot
+ggplotly(params$vioplot)
 ```
 
 ```{r}
-params$lineplot
+ggplotly(params$lineplot)
 ```
 
 ```{r}
-params$tbarplot
+ggplotly(params$tbarplot)
 ```
 
 ```{r}
-params$lolplot
+ggplotly(params$lolplot)
 ```
 
 ### Percent composition  
@@ -271,7 +272,7 @@ How much of the total did each taxa represent?
 #percnoleg <- params$percplot + theme(legend.position = "none")
 
 #wrap_plots(percnoleg,percleg)
-params$percplot
+ggplotly(params$percplot)
 ```
 
 ```{r}
@@ -282,7 +283,7 @@ Sys.sleep(2)
 # Alpha diversity plot  
 Diversity metric used: `r params$richmet`  
 ```{r}
-params$richplot
+ggplotly(params$richplot)
 ```
 
 ```{r}
@@ -292,7 +293,7 @@ Sys.sleep(2)
 
 # Taxonomic diversity plot  
 ```{r}
-params$histplot
+ggplotly(params$histplot)
 ```
 
 ```{r}
@@ -302,7 +303,7 @@ Sys.sleep(2)
 
 # Heatmap
 ```{r}
-params$hmplot
+ggplotly(params$hmplot)
 ```
 
 ```{r}
@@ -314,7 +315,7 @@ Sys.sleep(2)
 _Ordination method:_ `r params$ordmeth`  
 _Type:_ `r params$ordtype`  
 ```{r}
-params$ordplot
+ggplotly(params$ordplot)
 ```
 
 ```{r}
