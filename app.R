@@ -1,5 +1,10 @@
 options(shiny.maxRequestSize=10*1024^10)
 
+# Set repositories for Bioconductor
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+options(repos = BiocManager::repositories())
+
 library(shiny)
 library(bslib)
 library(bsicons)
@@ -47,6 +52,7 @@ source('ui/ui-navpanel-upload.R')
 source('ui/ui-navpanel-review.R')
 source('ui/ui-navpanel-filter.R')
 source('ui/ui-defaultanalysis.R')
+#source('ui/ui-navpanel-choices.R')
 source('ui/ui-navpanel-assigntrait.R')
 source('ui/ui-navpanel-descriptivestats.R')
 source('ui/ui-navpanel-analysis.R')
@@ -171,6 +177,8 @@ nav_menu("Filter", #filtering options
          #          defaultanalysis)
 ),
 nav_menu(title="Analysis",
+         #nav_panel("Summary Choices",value="choicestab",
+         #          choicepage),
          nav_panel("At a Glance",value="basicstab",
                    descriptivepage),
         nav_panel("Trait Analysis",value="traitanalysistab",
