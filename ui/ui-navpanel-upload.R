@@ -10,20 +10,23 @@ Ex_Card <- card(id="ex_data",
                           "Success!"))
                 )
 ############################################# Metadata #############################################
-Files_MetadataCard <- card(
-  card_header("Add your metadata file here",
-              tooltip(bs_icon("info-circle"),
-                      tagList(p(style='text-decoration-line:underline; font-weight:bold; text-transform: uppercase;',"What is a metadata file?"),
-                              #tags$style(HTML("text-align: left"),
-                               p(style='text-align: left', "The first column of the file should be sequencing sample IDs, with at least one other column.The metadata file is what will bring biological relevance to the sequencing results, and at minimum is used to connect the sequencing sample to field sample."),
-                               p(style='font-weight:bold',"See 'Help' tab for an example.")
-                              )
-                      )
-              ),
+Files_MetadataCard <- tagList(
+  card_header(h5("Add your metadata table here")),
+  HTML("<p style='font-weight: bold'>This is one of the most important components. The information in this table will be used to identify patterns in the organisms that are found in your dataset and associate them with information you care about from the location and timepoint the samples were taken. </p>"),
+  br(),
+    p("Make sure to upload a metadata file before proceeding. At minimum, this should include some way to connect the sample that was sequenced to the sequencing output."),
   layout_columns(
     colwidths=c(4,8),
     fileInput("Metadata",
-              label="",
+              label=tags$span("Upload metadata",
+                              tags$i(tooltip(bs_icon("info-circle"),
+                                             tagList(p(style='text-decoration-line:underline; font-weight:bold; text-transform: uppercase;',"What is a metadata file?"),
+                                                     #tags$style(HTML("text-align: left"),
+                                                     p(style='text-align: left', "The first column of the file should be sequencing sample IDs, with at least one other column.The metadata file is what will bring biological relevance to the sequencing results, and at minimum is used to connect the sequencing sample to field sample."),
+                                                     p(style='font-weight:bold',"See 'Help' tab for an example.")
+                                                     )
+                                             )
+                                     )),
               accept=c(".csv",".tsv") #only accept csv/tsv/text files
     ),
     layout_columns(
@@ -40,7 +43,9 @@ Files_MetadataCard <- card(
 ############################################# From Scratch #############################################
 
 ############################################# Analysis-only #############################################
-Card_OTU <- tagList(layout_columns(colwidths=c(8,4),
+Card_OTU <- tagList(card_header(h5("Sequence table")),
+                 p("Here, we are looking for a table of sequences (often in the form of ASVs, ESVs, or OTUs) and what samples they are found in"),
+                 layout_columns(colwidths=c(8,4),
                                    fileInput("otutab",
                                              label=tags$span("Upload sequence table",
                                                              tags$i(tooltip(bs_icon("info-circle"),
@@ -57,7 +62,9 @@ Card_OTU <- tagList(layout_columns(colwidths=c(8,4),
                                      checkboxInput("otu_header","Header",TRUE) #does the file have a header
                                      )))
 
-Card_TAX <- tagList(layout_columns(colwidths=c(8,4),
+Card_TAX <- tagList(card_header(h5("Taxonomy")),
+                    p("Here, we are looking for information about what species were found in your dataset and what sequences they belong to. This should come in the form of a table with a unique row per sequence and information about that sequence in columns"),
+                    layout_columns(colwidths=c(8,4),
                                    fileInput("taxtab",
                                              label=tags$span("Upload taxonomy table",
                                                              tags$i(tooltip(bs_icon("info-circle"),
@@ -148,7 +155,6 @@ uploadpage <- nav_panel("Files",
                                             Card_TAX
                            ),
                            conditionalPanel(condition="input.selectupload == 'choose_analysis' ",
-                                            p("Make sure to upload a metadata file before proceeding. At minimum, this should include some way to connect sample names in the sequencing data."),
                                             Files_MetadataCard,
                                             actionBttn("assemble_ps",
                                                        label="Build dataset",
