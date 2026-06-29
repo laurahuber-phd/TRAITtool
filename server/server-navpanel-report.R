@@ -180,7 +180,7 @@ observeEvent(c(input$gen_report_s,input$gen_report_i), {
   
   if(input$gen_report_i) {
     withProgress(
-      message = "Gathering data and building static report. \n", 
+      message = "Gathering data and building interactive report. \n", 
       detail = "This may take a while. This window will disappear when the report is ready.",
       value=0, {
         render('ProjectReportPlotly.Rmd',
@@ -297,3 +297,48 @@ output$norm_meltdwnld <- downloadHandler(
                 file)
     }
   )
+  
+  observeEvent(input$download_zip, {
+    
+    figlist <- reactive(list( #list of plots where nonexistent plots return "NA"
+      mkdwnrptfun(richplot()),
+      mkdwnrptfun(rankperc_plot()),
+      mkdwnrptfun(ordplot()),
+      mkdwnrptfun(histoplot()),
+      mkdwnrptfun(hmplot()),
+      mkdwnrptfun(violinplot()),
+      mkdwnrptfun(trophbarplot()),
+      mkdwnrptfun(tlineplot()),
+      mkdwnrptfun(lolliplot()))
+    )
+    
+    myfigs <- reactive( #remove NAs from figlist()
+      lapply(figlist(), function(x) x[!is.na(x)])
+    )
+    
+    nplots <- reactive(length(myfigs()))
+    
+    lapply(1:nplots(), function(i){
+      ggsave(paste0("yplot",i,".png"), 
+             plot(mydata()[[i]]),
+             path=fig_dir(),
+             scale=2)
+    })
+  }, ignoreInit = TRUE)
+  
+  output$download_zip <- downloadHandler(
+    filename = function() {
+      paste0("ShinyeDNA_figures", ".zip", sep="")
+    },
+    content = function(file) {
+      
+      files_to_zip <- list.files(tempdir(), pattern=".png", full.names = TRUE)
+      print(files_to_zip)
+      
+      zip(zipfile = file, 
+          files = files_to_zip, 
+          flags = "-j")
+    },
+    contentType = "application/zip"
+  )
+  
