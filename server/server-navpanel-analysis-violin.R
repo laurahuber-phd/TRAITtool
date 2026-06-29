@@ -36,9 +36,6 @@ violin_base <- reactive({
     geom_violin(na.rm=TRUE) + geom_boxplot(width=0.1)
 
 }) %>% bindEvent(ps.norm(),
-                 #ps.norm.melt(),
-                 #ps.sub.melt(),
-                 #violinplot_general$color(),
                  violinplot_general$x(),
                  violinplot_general$y(),
                  violinplot_general$facet()
@@ -52,6 +49,16 @@ violinplot <- eventReactive(input$go_violin, {
 observeEvent(input$go_violin, {
   print("Violin: plotting")
   output$violin_plot <- renderPlot({violinplot()})
+  
+  tryCatch(
+  ggsave(filename="violinplot.png", 
+         plot=violinplot(),
+         path=tempdir(),
+         height=violinplot_size$height(),width=violinplot_size$width(),
+         scale=2
+         ),
+  error=function(e){return(NA)}
+  )
 })
 
 observe({

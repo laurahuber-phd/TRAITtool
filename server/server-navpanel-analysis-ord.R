@@ -156,6 +156,15 @@ ordplot <- eventReactive(input$go_ord, { #assign a variable that runs when plot 
 observeEvent(input$go_ord,{
   output$ord_plot <- renderPlot({ ordplot() })
   print("Ord: rendering plot")
+  
+  tryCatch(
+  ggsave(filename="ordplot.png", 
+         path=tempdir(),
+         plot=ordplot(),
+         height=input$ord_plotheight,width=input$ord_plotwidth,
+         scale=2),
+  error=function(e){return(NA)}
+  )
 })
 
 observe({

@@ -102,8 +102,11 @@ mkdwnrptfun <- function(x) { #tryCatch will check to see if the 'function' exist
   tryCatch(x,error=function(e){return(as.numeric(NA))}) 
 }
 
-observeEvent(input$gen_report, {
+observeEvent(c(input$gen_report_s,input$gen_report_i), {
   print("Report: generate report button selected")
+  
+  if(is.null(input$gen_report_s) & is.null(input$gen_report_i)) shinyjs::hide("dwnldviewreport")
+  if(!is.null(report$htmlfilepath)) shinyjs::show("dwnldviewreport")
   
   report$pdffilepath <- report$htmlfilepath <- NULL
   shinyjs::hide("viewfinalreport")
@@ -158,41 +161,43 @@ observeEvent(input$gen_report, {
   print("Report: variables saved to params list")
   
   library(rmarkdown)
-  withProgress(
-    message = "Gathering data and building report. \n", 
-    detail = "This may take a while. This window will disappear when the report is ready.",
-    value=0, {
-      render('ProjectReport.Rmd',
-             output_format = c('html_document'),#,'pdf_document','word_document'), 
-             #output_format = c('pdf_document','html_document'),#,'word_document'), 
-             params= paramvals, 
-         #switch(input$format,
-        #        PDF = pdf_document(),
-        #        HTML = html_document(),
-        #        Word = word_document()
-        # ), 
-         output_file = "tmp_file",
-        output_dir = tempdir(),
-         envir = new.env(parent=globalenv()),
-         intermediates_dir = tempdir() #On your own computer, you don't need to set intermediates_dir = tempdir(), but you will need to do this if you want to deploy your app on a shiny server. When rmarkdown renders an Rmd file, it creates several intermediate files in the working directory and then deletes them. you have permission to write to the app's working directory on your own computer, but might not on a shiny server. tempdir() is almost always a safe place to write temporary files to.
-      )}
-        )
   
-  #  render("report/GA_report.Rmd", 
-  #         output_format = "all", 
-  #         output_file = tmp_file,
-  #         params = params, 
-  #         envir = new.env())
+  if(input$gen_report_s) {
+    withProgress(
+      message = "Gathering data and building static report. \n", 
+      detail = "This may take a while. This window will disappear when the report is ready.",
+      value=0, {
+        render('ProjectReport.Rmd',
+               output_format = c('html_document'),#,'pdf_document','word_document'), 
+               params= paramvals, 
+               output_file = "tmp_file",
+               output_dir = tempdir(),
+               envir = new.env(parent=globalenv()),
+               intermediates_dir = tempdir() 
+        )}
+    )
+  }
+  
+  if(input$gen_report_i) {
+    withProgress(
+      message = "Gathering data and building interactive report. \n", 
+      detail = "This may take a while. This window will disappear when the report is ready.",
+      value=0, {
+        render('ProjectReportPlotly.Rmd',
+               output_format = c('html_document'),#,'pdf_document','word_document'), 
+               params= paramvals, 
+               output_file = "tmp_file",
+               output_dir = tempdir(),
+               envir = new.env(parent=globalenv()),
+               intermediates_dir = tempdir() 
+        )}
+    )
+  }
   
   report$pdffilepath <- list.files(tempdir(), pattern="tmp_file.pdf", full.names = TRUE)
   report$htmlfilepath <- list.files(tempdir(), pattern="tmp_file.html", full.names = TRUE)
   #report$docxfilepath <- list.files(tempdir(), pattern="tmp_file.docx", full.names = TRUE) #Assigning in the temp file where the .pdf is located to the reactive file created above
   
-})
-
-observeEvent(input$gen_report, {
-  if(is.null(input$gen_report)) shinyjs::hide("dwnldviewreport")
-  if(!is.null(report$htmlfilepath)) shinyjs::show("dwnldviewreport")
 })
 
 # Hide download button until report is generated
@@ -292,3 +297,48 @@ output$norm_meltdwnld <- downloadHandler(
                 file)
     }
   )
+  
+  observeEvent(input$download_zip, {
+    
+    figlist <- reactive(list( #list of plots where nonexistent plots return "NA"
+      mkdwnrptfun(richplot()),
+      mkdwnrptfun(rankperc_plot()),
+      mkdwnrptfun(ordplot()),
+      mkdwnrptfun(histoplot()),
+      mkdwnrptfun(hmplot()),
+      mkdwnrptfun(violinplot()),
+      mkdwnrptfun(trophbarplot()),
+      mkdwnrptfun(tlineplot()),
+      mkdwnrptfun(lolliplot()))
+    )
+    
+    myfigs <- reactive( #remove NAs from figlist()
+      lapply(figlist(), function(x) x[!is.na(x)])
+    )
+    
+    nplots <- reactive(length(myfigs()))
+    
+    lapply(1:nplots(), function(i){
+      ggsave(paste0("yplot",i,".png"), 
+             plot(mydata()[[i]]),
+             path=fig_dir(),
+             scale=2)
+    })
+  }, ignoreInit = TRUE)
+  
+  output$download_zip <- downloadHandler(
+    filename = function() {
+      paste0("ShinyeDNA_figures", ".zip", sep="")
+    },
+    content = function(file) {
+      
+      files_to_zip <- list.files(tempdir(), pattern=".png", full.names = TRUE)
+      print(files_to_zip)
+      
+      zip(zipfile = file, 
+          files = files_to_zip, 
+          flags = "-j")
+    },
+    contentType = "application/zip"
+  )
+  

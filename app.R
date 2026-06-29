@@ -2,6 +2,7 @@ options(shiny.maxRequestSize=10*1024^10)
 
 library(shiny)
 library(bslib)
+library(plotly)
 library(bsicons)
 library(ggplot2)
 library(phyloseq)
