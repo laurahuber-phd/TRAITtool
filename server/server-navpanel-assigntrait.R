@@ -4,6 +4,16 @@ tableServer(id='tax_table2',
             data=TaxTable 
 ) 
 
+observe({
+  
+  taxcols <- colnames(TaxTable$x)
+  seltax <- taxcols[str_detect(taxcols,"peci") | str_detect(taxcols,"enus") | str_detect(taxcols,"amil")]
+  
+  updateSelectInput(session,
+                    "trait_tax_select",#for blank selection
+                    choices=c(seltax)) 
+}) %>% bindEvent(TaxTable$x)
+
 traits_var <- reactiveValues(x=NULL, #final data frame 
                              serv=NULL, #database to query 
                              choose=NULL, #list of species to query 
@@ -155,7 +165,12 @@ print("Traits: reactive value variables reset to NULL")
     print("Traits: Names validated in FishBase")
     
     # make list of species that did not pass 
-    invalid.fish.names <- traits_var$nona[!traits_var$nona%in%valid.fish.names & !is.na(traits_var$nona)] 
+    invalid.fish.names <- traits_var$nona[!traits_var$nona%in%valid.fish.names & !is.na(traits_var$nona)]
+    
+    if (length(invalid.fish.names)>1) {
+      showModal(modalDialog("These names were not found."),
+                renderText(invalid.fish.names))
+    }
     
     # Check the species names that were not found in fishbase for synonyms
     syn.fish <- rfishbase::synonyms(invalid.fish.names,

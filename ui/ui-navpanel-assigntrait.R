@@ -11,6 +11,9 @@ Trait_TaxReviewCard <- card(#preview table that you are assigning trophic info t
 Trait_TrophPullCard <- card(
   h5("Query information databases to source ecological information about the species in your dataset"),
                  layout_columns(col_widths=c(4,8),
+                                selectInput("trait_tax_select",label="Select what taxonomic level to query:",
+                                            choices=c("Species","Genus","Family"),
+                                            selected="Species"),
                                 selectInput("trait_select",label="Select what database to query:",
                                             choices=c("Both","FishBase","SeaLifeBase"),
                                             selected = "Both" #default selection is all databases
