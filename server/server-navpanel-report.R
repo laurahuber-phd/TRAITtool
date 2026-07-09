@@ -28,7 +28,9 @@ observe({
   output$rep_vioplot <- renderPlot({violinplot()})
   print("Report: violinplot rendered")
   output$rep_lolliplot <- renderPlot({lolliplot()})
-  print("Report: lolliplot rendered")
+  print("Report: Trophic level lolliplot rendered")
+  output$rep_tlolliplot <- renderPlot({tlolliplot()})
+  print("Report: Temperature lolliplot rendered")
   
   output$rep_pnsamp <- renderText({mkdwnrptfun(input$prune_samples)}) #min sample number
   print("Report: minimum sample number rendered")
@@ -87,6 +89,7 @@ params <- reactiveValues(blanks=NA, #create list of parameters to read into rmar
                          hmplot=NA,
                          vioplot=NA,
                          lolplot=NA,
+                         tlolplot=NA,
                          lineplot=NA,
                          tbarplot=NA,
                          samsum=NA,
@@ -120,6 +123,7 @@ observeEvent(c(input$gen_report_s,input$gen_report_i), {
   params[["tbarplot"]] <- mkdwnrptfun(trophbarplot())
   params[["lineplot"]] <- mkdwnrptfun(tlineplot())
   params[["lolplot"]] <- mkdwnrptfun(lolliplot())
+  params[["tlolplot"]] <- mkdwnrptfun(tlolliplot())
   print("Report: plots saved to params list")
   
   params$pnsamp <- mkdwnrptfun(input$prune_samples) #min sample number
@@ -309,7 +313,8 @@ output$norm_meltdwnld <- downloadHandler(
       mkdwnrptfun(violinplot()),
       mkdwnrptfun(trophbarplot()),
       mkdwnrptfun(tlineplot()),
-      mkdwnrptfun(lolliplot()))
+      mkdwnrptfun(lolliplot()),
+      mkdwnrptfun(tlolliplot()))
     )
     
     myfigs <- reactive( #remove NAs from figlist()

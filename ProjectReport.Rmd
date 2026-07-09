@@ -23,6 +23,7 @@ params:
   tbarplot: NA
   lineplot: NA
   lolplot: NA
+  tlolplot: NA
   ordplot: NA
   ordmeth: NA
   ordtype: NA
@@ -260,6 +261,11 @@ Sys.sleep(2)
 
 ```{r}
 (params$lolplot)
+```
+
+## Temperature range  
+```{r}
+(params$tlolplot)
 ```
 
 ### Percent composition  

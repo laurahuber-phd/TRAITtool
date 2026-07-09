@@ -72,16 +72,22 @@ observeEvent(input$bbasics_nextpage, switch_page("traitanalysistab"))
 observeEvent(input$bbasics_prevpage, switch_page("filtertab")) 
 
 # navigation from trait analysis page 
-observeEvent(input$traitanalysis_nextpage,switch_page("statstab"))
+observeEvent(input$traitanalysis_nextpage,switch_page("tempanalysistab"))
 observeEvent(input$traitanalysis_prevpage,switch_page("basicstab"))
-observeEvent(input$btraitanalysis_nextpage,switch_page("statstab"))
+observeEvent(input$btraitanalysis_nextpage,switch_page("tempanalysistab"))
 observeEvent(input$btraitanalysis_prevpage,switch_page("basicstab"))
+
+# navigation from temp analysis page 
+observeEvent(input$tempanalysis_nextpage,switch_page("statstab"))
+observeEvent(input$tempanalysis_prevpage,switch_page("traitanalysistab"))
+observeEvent(input$btempanalysis_nextpage,switch_page("statstab"))
+observeEvent(input$btempanalysis_prevpage,switch_page("traitanalysistab"))
 
 # navigation from stats page
 observeEvent(input$analysis_nextpage, switch_page("reporttab"))
-observeEvent(input$analysis_prevpage, switch_page("traitanalysistab")) 
+observeEvent(input$analysis_prevpage, switch_page("tempanalysistab")) 
 observeEvent(input$banalysis_nextpage, switch_page("reporttab"))
-observeEvent(input$banalysis_prevpage, switch_page("traitanalysistab")) 
+observeEvent(input$banalysis_prevpage, switch_page("tempanalysistab")) 
 
 # navigation from report page
 observeEvent(input$report_prevpage,switch_page("statstab"))
@@ -100,6 +106,7 @@ observeEvent(input$go_desc, switch_page("basicstab"))
 observeEvent(input$go_trait, switch_page("traittab"))
 observeEvent(input$go_stat, switch_page("statstab"))
 observeEvent(input$go_ta, switch_page("traitanalysistab"))
+observeEvent(input$go_tempa, switch_page("tempanalysistab"))
 observeEvent(input$go_help, switch_page("helptab"))
 observeEvent(input$go_settings, switch_page("settingstab"))
 observeEvent(input$go_report, switch_page("reporttab"))
@@ -114,6 +121,7 @@ observeEvent(input$repaccd_vioplot,switch_page("traitanalysistab"))
 observeEvent(input$repaccd_tbarplot,switch_page("traitanalysistab"))
 observeEvent(input$repaccd_tlineplot,switch_page("traitanalysistab"))
 observeEvent(input$repaccd_lolliplot,switch_page("traitanalysistab"))
+observeEvent(input$repaccd_tlolliplot,switch_page("tempanalysistab"))
 
 # not using yet
 observeEvent(input$demux_nextpage, switch_page("Assign OTU"))

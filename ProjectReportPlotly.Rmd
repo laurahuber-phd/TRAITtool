@@ -23,6 +23,7 @@ params:
   tbarplot: NA
   lineplot: NA
   lolplot: NA
+  tlolplot: NA
   ordplot: NA
   ordmeth: NA
   ordtype: NA
@@ -261,6 +262,11 @@ ggplotly(params$tbarplot)
 
 ```{r}
 ggplotly(params$lolplot)
+```
+
+## Temperature range  
+```{r}
+ggplotly(params$tlolplot)
 ```
 
 ### Percent composition  

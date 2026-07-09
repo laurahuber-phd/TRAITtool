@@ -51,6 +51,11 @@ reportpage <- nav_panel(
                                                         actionButton("repaccd_lolliplot",
                                                                      label="Go back to this page")
                                         ),
+                                        accordion_panel(title="Temperature range",
+                                                        withSpinner(plotOutput("rep_tlolliplot")),
+                                                        actionButton("repaccd_tlolliplot",
+                                                                     label="Go back to this page")
+                                        ),
                                 accordion_panel(title="Percent composition",
                                                 withSpinner(plotOutput("rep_percplot")),
                                                 actionButton("repaccd_percplot",label="Go back to this page")

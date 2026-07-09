@@ -136,6 +136,13 @@ tlineplot <- eventReactive(input$go_tline, { #assign a variable that runs when p
     ) + 
       geom_line(na.rm=TRUE)  
     
+    #if (is.numeric(ps[[tlineplot_general$y()]])) {
+    #  baseplot <- baseplot + scale_linetype_binned()
+    #} 
+   # if (is.numeric(ps[[tlineplot_general$x()]])) {
+   #   baseplot <- baseplot + scale_color_binned()
+   # } 
+    
       baseplot + 
       tlineplot_general$facet() + tlineplot_pretty() + tlineplot_size$aspectRatio() 
   }

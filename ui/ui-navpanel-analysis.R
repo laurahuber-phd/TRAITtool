@@ -177,7 +177,7 @@ analysispage <- nav_panel("Analysis",
     actionButton("analysis_nextpage","Next step")
     ),
   br(),
-  HTML("<h2>Generate figures </h2>"),
+  HTML("<h2>Other figures </h2>"),
   navset_card_tab(id="anlys", 
                 nav_panel(id='alpha', title="Species richness",
                           Anlys_AlphaCard
