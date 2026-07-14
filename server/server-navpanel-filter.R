@@ -734,4 +734,4 @@ observe({
     trackNums$norm_aft <- isolate(as.character(ntaxa(ps.norm()) ))
     shinyjs::show("befaft_norm")
   }
-})
+}) %>% bindEvent(ps.norm())
