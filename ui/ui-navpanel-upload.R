@@ -33,7 +33,7 @@ Files_MetadataCard <- tagList(
       colwidths=c(4,8),
       radioButtons("meta_sep", #select separator in the file
                    "File separator",
-                   choices=c("Comma"=",","Semicolon"=";","Tab"="\t"),
+                   choices=c("Comma (.csv)"=",","Semicolon (.csv)"=";","Tab (.tsv)"="\t"),
                    selected=","),
       checkboxInput("meta_header","Header",TRUE)
     )
@@ -57,7 +57,7 @@ Card_OTU <- tagList(card_header(h5("Sequence table")),
                                    
                                    layout_columns(
                                      radioButtons("otu_sep","File separator", #select separator in the file
-                                                  choices=c("Comma"=",","Semicolon"=";","Tab"="/t"),
+                                                  choices=c("Comma (.csv)"=",","Semicolon (.csv)"=";","Tab (.tsv)"="\t"),
                                                   selected=","),
                                      checkboxInput("otu_header","Header",TRUE) #does the file have a header
                                      )))
@@ -75,7 +75,7 @@ Card_TAX <- tagList(card_header(h5("Taxonomy")),
                                              accept=c(".csv",".tsv")),
                                    layout_columns(
                                      radioButtons("tax_sep","File separator", #select separator in the file
-                                                  choices=c("Comma"=",","Semicolon"=";","Tab"="/t"),
+                                                  choices=c("Comma (.csv)"=",","Semicolon (.csv)"=";","Tab (.tsv)"="\t"),
                                                   selected=","),
                                      checkboxInput("tax_header","Header",TRUE) #does the file have a header
                                    )))
