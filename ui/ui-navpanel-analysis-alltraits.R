@@ -57,8 +57,8 @@ allanalysispage = nav_panel(
   useShinyjs(),
   layout_column_wrap(
     width=1/2,fill=TRUE,
-    actionButton("tempanalysis_prevpage","Previous step"),
-    actionButton("tempanalysis_nextpage","Next step")
+    actionButton("traitanalysis_prevpage","Previous step"),
+    actionButton("traitanalysis_nextpage","Next step")
   ),
   h2("Mean Trophic Index and Trait analysis"),
   p("In this page, you can view plots for trait and ecological information."),
@@ -79,7 +79,7 @@ allanalysispage = nav_panel(
   br(),
   layout_column_wrap(
     width=1/2,fill=TRUE,
-    actionButton("btempanalysis_prevpage","Previous step"),
-    actionButton("btempanalysis_nextpage","Next step")
+    actionButton("btraitanalysis_prevpage","Previous step"),
+    actionButton("btraitanalysis_nextpage","Next step")
   )
 )

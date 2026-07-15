@@ -210,7 +210,7 @@ nav_menu("Info",
          nav_panel("About",value="intoabt",
                    aboutpanel
                    ),
-         nav_panel("ReadMe",value="inform",
+         nav_panel("ReadMe",value="informtab",
                    rmpanel
          )
          ),

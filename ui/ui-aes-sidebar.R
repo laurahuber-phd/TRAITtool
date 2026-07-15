@@ -30,13 +30,14 @@ navigation <- tagList(
   actionButton("go_home", "Home"),
   actionButton("go_upload", "Upload"),
   actionButton("go_review", "Review"),
-  actionButton("go_trait", "Trait Assignment"),
   actionButton("go_filter", "Filter"),
-  actionButton("go_desc", "Analysis Basics"),
+  actionButton("go_trait", "Trait Assignment"),
   actionButton("go_ta","Trait Analysis"),
-  actionButton("go_tempa","Temperature Analysis"),
-  actionButton("go_stat", "Analysis Figures"),
+  #actionButton("go_tempa","Temperature Analysis"),
+  #actionButton("go_stat", "Analysis Figures"),
+  actionButton("go_desc", "Detailed Analysis"),
   actionButton("go_help", "Help Page"),
   actionButton("go_settings", "Settings"),
+  actionButton("go_rm", "ReadMe Page"),
   actionButton("go_report", "Report Page")
 )
