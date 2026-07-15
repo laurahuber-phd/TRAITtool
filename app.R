@@ -57,6 +57,7 @@ source('ui/ui-defaultanalysis.R')
 source('ui/ui-navpanel-assigntrait.R')
 source('ui/ui-navpanel-descriptivestats.R')
 source('ui/ui-navpanel-analysis.R')
+source('ui/ui-navpanel-analysis-alltraits.R')
 source('ui/ui-navpanel-analysis-trait.R')
 source('ui/ui-navpanel-analysis-temp.R')
 source('ui/ui-navpanel-report.R')
@@ -163,30 +164,40 @@ nav_menu("Files",
          nav_panel("Upload",value="uploadtab",
                    uploadpage),
          nav_panel("Review",value="reviewtab",
-                   reviewpage)
+                   reviewpage),
+         nav_panel("Filter",value='filtertab',
+                   #defaultanalysis,
+                   filterpage)
          ),
 ## Group 3 # Trait assignment  --------  
-nav_menu("Trait Data", 
+nav_menu("Assign Traits", 
   nav_panel("Assign ecological data",value='traittab',
             traitpage)
 ),
 ## Group 4 # Analysis --------  
-nav_menu("Filter", #filtering options 
-         nav_panel("Filter",value='filtertab',
-                   #defaultanalysis,
-                   filterpage)#,
-         #nav_panel("Default",value='defaulttab',
-         #          defaultanalysis)
-),
+#nav_menu("Filter", #filtering options 
+#         nav_panel("Filter",value='filtertab',
+#                   #defaultanalysis,
+#                   filterpage)#,
+#         #nav_panel("Default",value='defaulttab',
+#         #          defaultanalysis)
+#),
 nav_menu(title="Analysis",
+<<<<<<< HEAD
          #nav_panel("Summary Choices",value="choicestab",
          #          choicepage),
+=======
+         nav_panel("Analysis Figures",value="analysistab",
+                   allanalysispage)
+        #nav_panel("Trait Analysis",value="traitanalysistab",
+        #          traitanalysispage),
+        #nav_panel("Temperature Analysis",value="tempanalysistab",
+        #          tempanalysispage)
+         ),
+nav_menu(title="For more detail",
+>>>>>>> origin/rearrange
          nav_panel("At a Glance",value="basicstab",
                    descriptivepage),
-        nav_panel("Trait Analysis",value="traitanalysistab",
-                  traitanalysispage),
-        nav_panel("Temperature Analysis",value="tempanalysistab",
-                  tempanalysispage),
          nav_panel("Figures", value='statstab',
                    analysispage)
          ),
@@ -209,7 +220,10 @@ nav_menu("Info",
          ),
          nav_panel("About",value="intoabt",
                    aboutpanel
-                   )
+                   ),
+         nav_panel("ReadMe",value="informtab",
+                   rmpanel
+         )
          ),
 nav_panel(title=bs_icon("printer-fill",size="2em"), value='reporttab',
           reportpage),
