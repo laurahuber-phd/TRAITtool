@@ -102,12 +102,14 @@ uploadpage <- nav_panel("Files",
                          #left side of page; choice selection
                          radioGroupButtons(inputId = "selectupload", 
                                            width='100%', individual=TRUE,
-                                           choiceNames = c(HTML("<p style='margin-bottom:0;font-size:1.5vw;'><i><u>My data has been completely processed:</i></p></u> <p style='padding-top:0; margin-bottom: 0;font-size:1.5vw;'>I only need analyses.</p>"),
-                                                           HTML("<p style='margin-bottom:0;font-size:1.5vw;'><i><u>My data has been partially processed:</i></p></u> <p style='padding-top:0; margin-bottom: 0;font-size:1.5vw;'>I have an OTU table and I need to identify the species and analyze.</p>"), 
+                                           choiceNames = c(HTML("<p style='margin-bottom:0;font-size:1.5vw;'><i><u>My data have been completely processed:</i></p></u> <p style='padding-top:0; margin-bottom: 0;font-size:1.5vw;'>I only need analyses.</p>"),
+                                                           HTML("<p style='margin-bottom:0;font-size:1.5vw;'><i><u>I have already used this tool to assign traits and have my trait table:</i></p></u> <p style='padding-top:0; margin-bottom: 0;font-size:1.5vw;'>I only need analyses.</p>"),
+                                                           HTML("<p style='margin-bottom:0;font-size:1.5vw;'><i><u>My data have been partially processed:</i></p></u> <p style='padding-top:0; margin-bottom: 0;font-size:1.5vw;'>I have an OTU table and I need to identify the species and analyze.</p>"), 
                                                            HTML("<p style='margin-bottom:0;font-size:1.5vw;'><i><u>I have raw sequencing data:</i></p></u> <p style='padding-top:0; margin-bottom: 0;font-size:1.5vw;'>My files are coming directly from the sequencing facility.</p>"), 
                                                            HTML("<p style='margin-bottom:0;font-size:1.5vw;'><i><u>Use example data:</i></p></u> <p style='padding-top:0; margin-bottom: 0;font-size:1.5vw;'>You can use this dataset to explore the feautures of the app prior to using it on your own data.</p>")
                                                            ),
                                            choiceValues = c("choose_analysis",
+                                                            "choose_return",
                                                             "choose_partial",
                                                             "choose_raw",
                                                             "choose_ex"),
@@ -148,14 +150,10 @@ uploadpage <- nav_panel("Files",
                                                        color="primary",
                                                        block=TRUE)
                            ),
-                           conditionalPanel(condition="input.selectupload == 'choose_analysis' ",
-                                            Card_OTU
-                           ),
-                           conditionalPanel(condition="input.selectupload == 'choose_analysis' ",
-                                            Card_TAX
-                           ),
-                           conditionalPanel(condition="input.selectupload == 'choose_analysis' ",
+                           conditionalPanel(condition="input.selectupload == 'choose_analysis' | input.selectupload == 'choose_return' ",
                                             Files_MetadataCard,
+                                            Card_OTU,
+                                            Card_TAX,
                                             actionBttn("assemble_ps",
                                                        label="Build dataset",
                                                        style="unite",
@@ -176,15 +174,6 @@ uploadpage <- nav_panel("Files",
             width=1/2,fill=TRUE,
             actionButton("bfileupload_prevpage","Previous page",width='100%'),
             actionButton("bfileupload_nextpage_v2","Next step",width='100%')
-          ),
-          
-          # footer
-          tags$footer(style="display: flex;justify-content: space-between;",
-                      tags$img(src='smiths_logoLong.png',height='40px',
-                               alt="Smithsonian sun logo"),
-                      tags$img(#src='ShinyFooter.png',
-                        src='titlefooter.png',
-                        height='30px',
-                        alt="William H. Donner Foundation and Smithsonian Women's Committee logos"))
+          )
 )
 ##########################################################################################
