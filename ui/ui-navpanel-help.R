@@ -1,7 +1,7 @@
 #outputs can be found on server-globalvars.R
 
 helppage <- tagList(
-  h3("Settings"),
+  h3("Help"),
   HTML("<p><strong>There are some requirements that your files must meet to be analyzed properly. Examine the example dataset below, which shows the results of an experiment that examines how the use of different primers and dilution impacts what species are identified in a mock community.</p></strong>"),
   br(),
   HTML("<p><i>This is the description of what is analyzed. Your OTU table connects the number of samples in the sequencing dataset with the number of sequences (referred to as taxa). Your sample data refers to the metadata file that was uploaded. It tells you how many samples there are and how many additional columns/variables were in the file. Finally, the tax table refers to how many unique sequences are in the dataset, and how many taxonomic ranks they are divided into. </i></p>"),

@@ -14,8 +14,20 @@ aboutpanel <- tagList(
   br(),
   h3("About our funders"),
   p("The development of this application was funded in part by the William H. Donner Foundation, OceanDNA, and the Smithsonian Women's Committee"),
-  #h5("The development of this application was funded in part by the William H. Donner Foundation"),
-  #p(),
-  #h5("The development of this application was funded in part by the Smithsonian Women's Committee"),
+  br(),
+  br(),
+  HTML("<p>For questions, comments, or feature requests, reach out to <i>xyz@si.edu</i> </p>"),
   br()
+)
+
+rmpanel <- tagList(
+  h3("Definitions, Caveats, and Assumptions"),
+  HTML("<p><u>Definitions:</u> Define phrases used in the tool </p>"),
+  HTML("<p><u>Caveats:</u> What DOESN'T the tool do </p>"),
+  HTML("<p><u>Assumptions:</u> What assumptions are made in the development and use of the tool, to make figures, etc </p>"),
+  h3("References"),
+  p("This tool was developed in RStudio using RShiny v.x.y.z"),
+  p("IUCN data were made available with permission under the Red List Terms and Conditions of Use for non-commercial use"),
+  h5("Packages"),
+  HTML("<p>Special thanks to the curators of xyz packages, which were used in the development of this tool</p>")
 )
