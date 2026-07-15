@@ -1,7 +1,7 @@
 
 ####################################### Trophic Level ################################################
 Anlys_TraitIntroCard <- tagList(
-                           h3("Trophic level analysis."),
+                           h3("Trophic level analysis"),
                            p("Here you can view plots regarding patterns in mean trophic index of your data."),
                            br(),
                            card(h4("About Trophic Index"),
@@ -65,16 +65,35 @@ allanalysispage = nav_panel(
   br(),
   br(),
   
+  # radar diagram 
+  
   # trophic level
+  card(
   Anlys_TraitIntroCard, 
-  Anlys_TraitCard, 
+  Anlys_TraitCard), 
   br(),
   
   # temperature 
-  Anlys_TempCard,
+  card(Anlys_TempCard),
   br(),
   
   # body size
+  
+  # Alpha diversity 
+  #card(
+    h5("Diversity"),
+    HTML("<p>Here you can look at different ways of measuring biodiversity as a whole</p>"),
+    navset_bar(fillable=TRUE,#full_screen=FALSE,
+               fluid=TRUE,
+      sidebar=sidebar(title="Original dataset overview",
+                      position="right",
+                      open="closed"
+                      ), 
+      nav_panel(id="testb",
+                title="Sample Summary Table",
+                Anlys_AlphaCard)
+   #   )
+    ), 
   
   br(),
   layout_column_wrap(

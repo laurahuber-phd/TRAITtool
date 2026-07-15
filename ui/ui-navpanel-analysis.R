@@ -179,9 +179,9 @@ analysispage <- nav_panel("Analysis",
   br(),
   HTML("<h2>Other figures </h2>"),
   navset_card_tab(id="anlys", 
-                nav_panel(id='alpha', title="Species richness",
-                          Anlys_AlphaCard
-                          ),
+                #nav_panel(id='alpha', title="Species richness",
+                 #         Anlys_AlphaCard
+                 #         ),
                 nav_panel(id="taxcomp",title="Taxonomic composition", full_screen=TRUE,
                           Anlys_HistoCard
                           ),

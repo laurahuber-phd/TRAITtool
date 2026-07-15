@@ -18,18 +18,6 @@ titlepage <- tagList(
   ),
   br(),
   layout_columns(col_widths=c(4,8),
-                 card(HTML("<h3>Welcome!</h3>"),
-                      HTML("<h5>What does this app do?</h5>"),
-                      "The goal of this app is to make the use of environmental DNA (eDNA) accessible to users on the ground working in conservation management. No prior experience with bioinformatics is necessary, and minimal prior data manipulation.",
-                      br(),
-                      br(),
-                      HTML("<p>All you need to use this app is <u style='font-weight: bold'>DNA amplicon sequencing output</u> and a metadata file connecting the sequencing data to your samples. </p>"),
-                      br(),
-                      br(),
-                      "With this, you will get information regarding what species are in your samples, how the community composition and diversity differs between samples, and follow patterns in specific taxa."
-                      ),
-                 
-                 layout_columns(col_widths=c(12,12),
                  card(HTML("<h5>The main goal of this tool is to translate and synthesize taxonomic data into ecosystem structure information. </h5>"),
                       "The number of species in highly diverse ecosystems can complicate our understanding of the health and functioning of a system.",
                       "By looking at the ecological traits associated with each species in a system, this tool allows the user to infer ecosystem function",
@@ -37,6 +25,18 @@ titlepage <- tagList(
                       br(),
                       br(),
                       "By distilling taxonomic information into ecological traits, we are getting to what managers/etc are actually interested in when it comes to conservation: what is happening in the ecosystem, and are interventions having the intended effect?"),
+              
+                 layout_columns(col_widths=c(12,12),
+                 card(HTML("<h3>Welcome!</h3>"),
+                      HTML("<h5>What does this app do?</h5>"),
+                      p("The goal of this app is to make the use of environmental DNA (eDNA) accessible to users on the ground working in conservation management. No prior experience with bioinformatics is necessary, and minimal prior data manipulation."),
+                      br(),
+                      HTML("<p>All you need to use this app is <u style='font-weight: bold'>DNA amplicon sequencing output</u> and a metadata file connecting the sequencing data to your samples. </p>"),
+                      br(),
+                      p("With this, you will get information regarding what species are in your samples, how the community composition and diversity differs between samples, and follow patterns in specific taxa."),
+                      HTML("<h5>What does this app <u>NOT</u> do?</h5>"),
+                      p("This app will not ... .")
+                 ),
                  br(),
                  card(HTML("<h5>Example use cases and returns:</h5>"),
                       #some pretty graphs that you can generate with this app
