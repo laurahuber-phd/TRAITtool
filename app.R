@@ -183,10 +183,6 @@ nav_menu("Assign Traits",
 #         #          defaultanalysis)
 #),
 nav_menu(title="Analysis",
-<<<<<<< HEAD
-         #nav_panel("Summary Choices",value="choicestab",
-         #          choicepage),
-=======
          nav_panel("Analysis Figures",value="analysistab",
                    allanalysispage)
         #nav_panel("Trait Analysis",value="traitanalysistab",
@@ -195,7 +191,6 @@ nav_menu(title="Analysis",
         #          tempanalysispage)
          ),
 nav_menu(title="For more detail",
->>>>>>> origin/rearrange
          nav_panel("At a Glance",value="basicstab",
                    descriptivepage),
          nav_panel("Figures", value='statstab',
