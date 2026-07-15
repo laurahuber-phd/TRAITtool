@@ -3,6 +3,97 @@ source('functions/module-plotting-pretty.R',local=TRUE)
 source('functions/module-plotting-size.R',local=TRUE)
 library(shinycssloaders)
 
+############## Violin plot ##############  
+
+tviolinplot_pretty  <- plotPrettyServer(id="tviolin_pretty")
+tviolinplot_size <- plotSizeServer(id="tviolin_size") 
+tviolinplot_general <- plotControlsServer(id="tviolin_general",
+                                         df=ps.norm.melt,
+                                         #var1=rnames, #color
+                                         var2=Meta_vars, #x
+                                         #var3=Meta_vars(), #y
+                                         var4=Meta_vars, #facet
+                                         #var1=Meta_vars(), #color
+                                         #var2=Meta_vars(), #x
+                                         var3=reactive(ps.norm.melt() %>% select(contains("emp")) %>% colnames() )#, #y
+                                         #var4=Meta_vars() #facet
+) 
+
+tviolinplot_base <- reactive({
+  print("Violin: building base plot")
+  req(ps.norm())
+  #req(tviolinplot_general$x())
+  ps <- ps.norm.melt()
+
+  my_vars <- function() {
+    any_of(c(tviolinplot_general$x(),
+               tviolinplot_general$facet()
+               )
+             )
+      
+  }
+  
+  ps.edit <- ps #%>% group_by(across(unlist(my_vars())) ) %>% 
+    #summarize(Tempprefmean=mean(Tempprefmean),
+    #          Tempprefmin=min(Tempprefmin),
+    #          Tempprefmax=max(Tempprefmax)) %>%
+    #arrange()
+  
+  baseplot <- ggplot(ps.edit,
+                     aes(x=.data[[tviolinplot_general$x()]], #x axis
+                         y=.data[[tviolinplot_general$y()]], #y axis #Tempprefmean,
+                         fill=.data[[tviolinplot_general$x()]]
+                     )
+  ) + 
+    geom_violin(na.rm=TRUE) + geom_boxplot(width=0.1)
+  
+}) %>% bindEvent(ps.norm(),
+                 tviolinplot_general$x(),
+                 tviolinplot_general$y(),
+                 tviolinplot_general$facet()
+)
+
+tviolinplot <- eventReactive(input$go_tviolin, {
+  print("Violin: assembling plot")
+  tviolinplot_base() + tviolinplot_general$facet() + tviolinplot_pretty() + tviolinplot_size$aspectRatio() 
+}) 
+
+observeEvent(input$go_tviolin, {
+  print("Violin: plotting")
+  output$tviolin_plot <- renderPlot({tviolinplot()})
+  
+  tryCatch(
+    ggsave(filename="tviolinplot.png", 
+           plot=tviolinplot(),
+           path=tempdir(),
+           height=tviolin_size$height(),width=tviolin_size$width(),
+           scale=2
+    ),
+    error=function(e){return(NA)}
+  )
+})
+
+observe({
+  showModal(modalDialog(
+    renderPlot(tviolinplot()),
+    footer = downloadButton('download_tviolinplot_popup', 'Download'),
+    size="xl",
+    easyClose = TRUE
+  ))
+  print("Violin: popup")
+}) %>% bindEvent(input$tviolin_click)
+
+
+output$tviolin_plotdwnld <- output$tviolin_plotdwnld_popup <-  downloadHandler(
+  filename = "tviolinplot.png",
+  contentType = 'image/png',
+  content = function(file) {
+    ggsave(file,plot=tviolinplot(),
+           height=tviolinplot_size$height(),width=tviolinplot_size$width(),
+           scale=2
+    )
+    
+  }) 
 
 ############## Lollipop plot ############## 
 observe({ 

@@ -1,3 +1,28 @@
+############################################# Violin plot #############################################
+Anlys_TempViolinCard <- tagList(
+  h5("This tab will generate a violin plot"),
+  HTML("<p>Use the <u>'Controls'</u> button to change the taxonomic rank visualized or to alter what variable is used on the x-axis. You can also add up to two 'faceting' variables, which will separate the data into different plots based on which variables you facet by.</p>"),
+  HTML("<p>Use the <u>'Aesthetics'</u> button to change aesthetic elements such as the plotting theme, which will influence how the background and gridlines look. Here you can also change the position of the legend, text size, and the direction of text on the x-axis.</p>"),
+  HTML("<p>Use the <u>'Plot Size'</u> button to change the aspect ratio of the plot. </p>"),
+  br(),
+  layout_columns(
+    plotControlsUI('tviolin_general',color=FALSE,
+                   x=TRUE,y=TRUE,
+                   facet=TRUE,
+                   xlabel="Groups to compare (x-axis)",
+                   #ylabel="Numeric MTI to plot",
+                   facetlabel="Faceting variable"
+    ),
+    plotPrettyUI("tviolin_pretty"),
+    plotSizeUI('tviolin_size')
+  ),
+  layout_columns(col_widths=c(10,-1,1),
+                 actionButton("go_tviolin","Plot"),
+                 downloadButton('tviolin_plotdwnld', label=NULL)),
+  withSpinner(plotOutput("tviolin_plot",click="tviolin_click")) #add a reaction when the plot is clicked
+) 
+
+############################################# Lollipop plot #############################################
 Anlys_TempLolliCard <- tagList(
   h5("This tab will generate a plot highlighting specific groups"),
   p("Description"),
@@ -82,9 +107,9 @@ tempanalysispage = nav_panel(
   accordion(
     open=FALSE, #start with all panels closed
     multiple=TRUE, #multiple panels can be open at once
-    #accordion_panel(title="Violin plot",
-    #                Anlys_TempViolinCard
-    #),
+    accordion_panel(title="Violin plot",
+                    Anlys_TempViolinCard
+    ),
     #accordion_panel(title="Bar plot",
     #                Anlys_TempBarCard
     #),
