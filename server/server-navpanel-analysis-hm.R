@@ -37,6 +37,16 @@ hmplot <- eventReactive(input$go_hm, {
 observeEvent(input$go_hm, {
   print("Heatmap: rendering plot")
   output$hm_plot <- renderPlot({hmplot()})
+  
+  tryCatch(
+  ggsave(filename="hm.png", 
+         plot=hmplot(),
+         path=tempdir(),
+         height=hmplot_size$height(),width=hmplot_size$width(),
+         scale=2
+         ),
+  error=function(e){return(NA)}
+  )
 })
 
 observe({

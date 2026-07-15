@@ -67,6 +67,16 @@ trophbarplot <- eventReactive(input$go_trophbar, { #assign a variable that runs 
 observeEvent(input$go_trophbar, {
   print("Trophic bar plot: plotting")
   output$trophbar_plot <- renderPlot({trophbarplot()})
+  
+  tryCatch(
+  ggsave(filename="trophbarplot.png", 
+         path=tempdir(),
+         plot=trophbarplot(),
+         height=trophbarplot_size$height(),width=trophbarplot_size$width(),
+         scale=2
+         ),
+  error=function(e){return(NA)}
+)
 })
 
 observe({
@@ -126,6 +136,13 @@ tlineplot <- eventReactive(input$go_tline, { #assign a variable that runs when p
     ) + 
       geom_line(na.rm=TRUE)  
     
+    #if (is.numeric(ps[[tlineplot_general$y()]])) {
+    #  baseplot <- baseplot + scale_linetype_binned()
+    #} 
+   # if (is.numeric(ps[[tlineplot_general$x()]])) {
+   #   baseplot <- baseplot + scale_color_binned()
+   # } 
+    
       baseplot + 
       tlineplot_general$facet() + tlineplot_pretty() + tlineplot_size$aspectRatio() 
   }
@@ -135,6 +152,16 @@ tlineplot <- eventReactive(input$go_tline, { #assign a variable that runs when p
 observeEvent(input$go_tline, {
   print("Line diagram: plotting")
   output$tline_plot <- renderPlot({tlineplot()})
+  
+  tryCatch(
+  ggsave(filename="tlineplot.png", 
+         path=tempdir(),
+         plot=tlineplot(),
+         height=tlineplot_size$height(),width=tlineplot_size$width(),
+         scale=2
+  ),
+  error=function(e){return(NA)}
+  )
 })
 
 observe({
@@ -255,6 +282,16 @@ lolliplot <- eventReactive(input$go_lolli, {
 observeEvent(input$go_lolli, {
   print("Trophic lolli plot: plotting")
   output$lolli_plot <- renderPlot({lolliplot()})
+  
+  tryCatch(
+  ggsave(filename="lolliplot.png", 
+         path=tempdir(),
+         plot=lolliplot(),
+         height=lolliplot_size$height(),width=lolliplot_size$width(),
+         scale=2
+  ),
+  error=function(e){return(NA)}
+  )
 })
 
 observe({

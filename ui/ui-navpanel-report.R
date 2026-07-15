@@ -51,6 +51,11 @@ reportpage <- nav_panel(
                                                         actionButton("repaccd_lolliplot",
                                                                      label="Go back to this page")
                                         ),
+                                        accordion_panel(title="Temperature range",
+                                                        withSpinner(plotOutput("rep_tlolliplot")),
+                                                        actionButton("repaccd_tlolliplot",
+                                                                     label="Go back to this page")
+                                        ),
                                 accordion_panel(title="Percent composition",
                                                 withSpinner(plotOutput("rep_percplot")),
                                                 actionButton("repaccd_percplot",label="Go back to this page")
@@ -77,7 +82,10 @@ reportpage <- nav_panel(
   br(),
   HTML("<h2>Download report </h2>"),
   "Click on the button to gather all the analyses together and generate the report. This will likely take awhile.",
-  actionButton('gen_report', 'Generate report'),
+  layout_columns(
+    col_widths=c(6,6),
+  actionButton('gen_report_s', 'Generate report (static)'),
+  actionButton('gen_report_i', 'Generate report (interactive)')),
   br(),
   br(),
   br(),
@@ -100,17 +108,11 @@ reportpage <- nav_panel(
                    ),
   h4("Download individual files used in the analysis"),
   card(card_header("Files generated:"),
+       downloadButton("download_zip", label="All figures (.zip)"),
        downloadButton('norm_meltdwnld', label="Full dataset:"),
        downloadButton('norm_asvdwnld', label="Sequence table:"),
        downloadButton('norm_metadwnld', label="Metadata table:"),
        downloadButton('norm_taxdwnld', label="Taxonomy table:")
        ),
-  actionButton("breport_prevpage","Previous step",width='20%'),
-  tags$footer(style="display: flex;justify-content: space-between;",
-              tags$img(src='smiths_logoLong.png',height='40px',
-                       alt="Smithsonian sun logo"),
-              tags$img(#src='ShinyFooter.png',
-                src='titlefooter.png',
-                height='30px',
-                alt="William H. Donner Foundation and Smithsonian Women's Committee logos"))
+  actionButton("breport_prevpage","Previous step",width='20%')
 )

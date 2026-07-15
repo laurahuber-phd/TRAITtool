@@ -321,6 +321,16 @@ output$basics_listtaxa <- renderDataTable({
 observeEvent(input$go_rankperc, {
 output$rankperc_plot <- renderPlot({rankperc_plot()})
 print("Desc: taxonomic rank relative percentage plot rendered")
+
+tryCatch(
+ggsave(filename="pct_comp_plot.png", 
+       path=tempdir(),
+       plot=rankperc_plot(),
+       width=rankpercplot_size$width(),height=rankpercplot_size$height(),
+       scale=2
+       ),
+error=function(e){return(NA)}
+)
 })
 
 observe({

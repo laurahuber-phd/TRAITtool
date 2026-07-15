@@ -189,8 +189,22 @@ isgood <- reactive({
   } else if (is.null(TaxTable$x)) {
     "Load: Taxonomy are not in correct format or the wrong files are uploaded"
   } else {"Load: Everything is great"}
-
+  
   }) %>% bindEvent(input$Metadata,input$taxtab,input$otutab,ignoreNULL=FALSE)  
+
+observe({
+  shinyjs::disable(id = "assemble_ps")
+  if (is.null(MetadataTable$x)) { 
+    shinyjs::disable(id = "assemble_ps")
+  }  else if (is.null(OTUTable$x)) {
+    shinyjs::disable(id = "assemble_ps")
+  } else if (is.null(TaxTable$x)) {
+    shinyjs::disable(id = "assemble_ps")
+  } else {
+    "Load: Everything is great; all files uploaded"
+    shinyjs::enable(id = "assemble_ps")
+  }
+}) %>% bindEvent(input$Metadata,input$taxtab,input$otutab,ignoreNULL=FALSE)  
 
 ps.og <- eventReactive(c(input$assemble_ps,input$load_ex),{
   

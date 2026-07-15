@@ -177,7 +177,7 @@ analysispage <- nav_panel("Analysis",
     actionButton("analysis_nextpage","Next step")
     ),
   br(),
-  HTML("<h2>Generate figures </h2>"),
+  HTML("<h2>Other figures </h2>"),
   navset_card_tab(id="anlys", 
                 nav_panel(id='alpha', title="Species richness",
                           Anlys_AlphaCard
@@ -198,13 +198,6 @@ analysispage <- nav_panel("Analysis",
   layout_column_wrap(width=1/2,fill=TRUE,
                      actionButton("banalysis_prevpage","Previous step"),
                      actionButton("banalysis_nextpage","Next step")
-  ),
-  tags$footer(style="display: flex;justify-content: space-between;",
-              tags$img(src='smiths_logoLong.png',height='40px',
-                       alt="Smithsonian sun logo"),
-              tags$img(#src='ShinyFooter.png',
-                src='titlefooter.png',
-                height='30px',
-                alt="William H. Donner Foundation and Smithsonian Women's Committee logos"))
+  )
 )
 #############################################################################################################

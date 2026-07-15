@@ -10,27 +10,30 @@ Ex_Card <- card(id="ex_data",
                           "Success!"))
                 )
 ############################################# Metadata #############################################
-Files_MetadataCard <- card(
-  card_header("Add your metadata file here",
-              tooltip(bs_icon("info-circle"),
-                      tagList(p(style='text-decoration-line:underline; font-weight:bold; text-transform: uppercase;',"What is a metadata file?"),
-                              #tags$style(HTML("text-align: left"),
-                               p(style='text-align: left', "The first column of the file should be sequencing sample IDs, with at least one other column.The metadata file is what will bring biological relevance to the sequencing results, and at minimum is used to connect the sequencing sample to field sample."),
-                               p(style='font-weight:bold',"See 'Help' tab for an example.")
-                              )
-                      )
-              ),
+Files_MetadataCard <- tagList(
+  card_header(h5("Add your metadata table here")),
+  HTML("<p style='font-weight: bold'>This is one of the most important components. The information in this table will be used to identify patterns in the organisms that are found in your dataset and associate them with information you care about from the location and timepoint the samples were taken. </p>"),
+  br(),
+    p("Make sure to upload a metadata file before proceeding. At minimum, this should include some way to connect the sample that was sequenced to the sequencing output."),
   layout_columns(
     colwidths=c(4,8),
     fileInput("Metadata",
-              label="",
+              label=tags$span("Upload metadata",
+                              tags$i(tooltip(bs_icon("info-circle"),
+                                             tagList(p(style='text-decoration-line:underline; font-weight:bold; text-transform: uppercase;',"What is a metadata file?"),
+                                                     #tags$style(HTML("text-align: left"),
+                                                     p(style='text-align: left', "The first column of the file should be sequencing sample IDs, with at least one other column.The metadata file is what will bring biological relevance to the sequencing results, and at minimum is used to connect the sequencing sample to field sample."),
+                                                     p(style='font-weight:bold',"See 'Help' tab for an example.")
+                                                     )
+                                             )
+                                     )),
               accept=c(".csv",".tsv") #only accept csv/tsv/text files
     ),
     layout_columns(
       colwidths=c(4,8),
       radioButtons("meta_sep", #select separator in the file
                    "File separator",
-                   choices=c("Comma"=",","Semicolon"=";","Tab"="\t"),
+                   choices=c("Comma (.csv)"=",","Semicolon (.csv)"=";","Tab (.tsv)"="\t"),
                    selected=","),
       checkboxInput("meta_header","Header",TRUE)
     )
@@ -40,7 +43,9 @@ Files_MetadataCard <- card(
 ############################################# From Scratch #############################################
 
 ############################################# Analysis-only #############################################
-Card_OTU <- tagList(layout_columns(colwidths=c(8,4),
+Card_OTU <- tagList(card_header(h5("Sequence table")),
+                 p("Here, we are looking for a table of sequences (often in the form of ASVs, ESVs, or OTUs) and what samples they are found in"),
+                 layout_columns(colwidths=c(8,4),
                                    fileInput("otutab",
                                              label=tags$span("Upload sequence table",
                                                              tags$i(tooltip(bs_icon("info-circle"),
@@ -52,12 +57,14 @@ Card_OTU <- tagList(layout_columns(colwidths=c(8,4),
                                    
                                    layout_columns(
                                      radioButtons("otu_sep","File separator", #select separator in the file
-                                                  choices=c("Comma"=",","Semicolon"=";","Tab"="/t"),
+                                                  choices=c("Comma (.csv)"=",","Semicolon (.csv)"=";","Tab (.tsv)"="\t"),
                                                   selected=","),
                                      checkboxInput("otu_header","Header",TRUE) #does the file have a header
                                      )))
 
-Card_TAX <- tagList(layout_columns(colwidths=c(8,4),
+Card_TAX <- tagList(card_header(h5("Taxonomy")),
+                    p("Here, we are looking for information about what species were found in your dataset and what sequences they belong to. This should come in the form of a table with a unique row per sequence and information about that sequence in columns"),
+                    layout_columns(colwidths=c(8,4),
                                    fileInput("taxtab",
                                              label=tags$span("Upload taxonomy table",
                                                              tags$i(tooltip(bs_icon("info-circle"),
@@ -68,7 +75,7 @@ Card_TAX <- tagList(layout_columns(colwidths=c(8,4),
                                              accept=c(".csv",".tsv")),
                                    layout_columns(
                                      radioButtons("tax_sep","File separator", #select separator in the file
-                                                  choices=c("Comma"=",","Semicolon"=";","Tab"="/t"),
+                                                  choices=c("Comma (.csv)"=",","Semicolon (.csv)"=";","Tab (.tsv)"="\t"),
                                                   selected=","),
                                      checkboxInput("tax_header","Header",TRUE) #does the file have a header
                                    )))
@@ -95,12 +102,14 @@ uploadpage <- nav_panel("Files",
                          #left side of page; choice selection
                          radioGroupButtons(inputId = "selectupload", 
                                            width='100%', individual=TRUE,
-                                           choiceNames = c(HTML("<p style='margin-bottom:0;font-size:1.5vw;'><i><u>My data has been completely processed:</i></p></u> <p style='padding-top:0; margin-bottom: 0;font-size:1.5vw;'>I only need analyses.</p>"),
-                                                           HTML("<p style='margin-bottom:0;font-size:1.5vw;'><i><u>My data has been partially processed:</i></p></u> <p style='padding-top:0; margin-bottom: 0;font-size:1.5vw;'>I have an OTU table and I need to identify the species and analyze.</p>"), 
+                                           choiceNames = c(HTML("<p style='margin-bottom:0;font-size:1.5vw;'><i><u>My data have been completely processed:</i></p></u> <p style='padding-top:0; margin-bottom: 0;font-size:1.5vw;'>I only need analyses.</p>"),
+                                                           HTML("<p style='margin-bottom:0;font-size:1.5vw;'><i><u>I have already used this tool to assign traits and have my trait table:</i></p></u> <p style='padding-top:0; margin-bottom: 0;font-size:1.5vw;'>I only need analyses.</p>"),
+                                                           HTML("<p style='margin-bottom:0;font-size:1.5vw;'><i><u>My data have been partially processed:</i></p></u> <p style='padding-top:0; margin-bottom: 0;font-size:1.5vw;'>I have an OTU table and I need to identify the species and analyze.</p>"), 
                                                            HTML("<p style='margin-bottom:0;font-size:1.5vw;'><i><u>I have raw sequencing data:</i></p></u> <p style='padding-top:0; margin-bottom: 0;font-size:1.5vw;'>My files are coming directly from the sequencing facility.</p>"), 
                                                            HTML("<p style='margin-bottom:0;font-size:1.5vw;'><i><u>Use example data:</i></p></u> <p style='padding-top:0; margin-bottom: 0;font-size:1.5vw;'>You can use this dataset to explore the feautures of the app prior to using it on your own data.</p>")
                                                            ),
                                            choiceValues = c("choose_analysis",
+                                                            "choose_return",
                                                             "choose_partial",
                                                             "choose_raw",
                                                             "choose_ex"),
@@ -141,15 +150,10 @@ uploadpage <- nav_panel("Files",
                                                        color="primary",
                                                        block=TRUE)
                            ),
-                           conditionalPanel(condition="input.selectupload == 'choose_analysis' ",
-                                            Card_OTU
-                           ),
-                           conditionalPanel(condition="input.selectupload == 'choose_analysis' ",
-                                            Card_TAX
-                           ),
-                           conditionalPanel(condition="input.selectupload == 'choose_analysis' ",
-                                            p("Make sure to upload a metadata file before proceeding. At minimum, this should include some way to connect sample names in the sequencing data."),
+                           conditionalPanel(condition="input.selectupload == 'choose_analysis' | input.selectupload == 'choose_return' ",
                                             Files_MetadataCard,
+                                            Card_OTU,
+                                            Card_TAX,
                                             actionBttn("assemble_ps",
                                                        label="Build dataset",
                                                        style="unite",
@@ -170,15 +174,6 @@ uploadpage <- nav_panel("Files",
             width=1/2,fill=TRUE,
             actionButton("bfileupload_prevpage","Previous page",width='100%'),
             actionButton("bfileupload_nextpage_v2","Next step",width='100%')
-          ),
-          
-          # footer
-          tags$footer(style="display: flex;justify-content: space-between;",
-                      tags$img(src='smiths_logoLong.png',height='40px',
-                               alt="Smithsonian sun logo"),
-                      tags$img(#src='ShinyFooter.png',
-                        src='titlefooter.png',
-                        height='30px',
-                        alt="William H. Donner Foundation and Smithsonian Women's Committee logos"))
+          )
 )
 ##########################################################################################

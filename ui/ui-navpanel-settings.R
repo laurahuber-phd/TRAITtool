@@ -38,14 +38,7 @@ settingspage <- tagList(
   
   h4("If something here doesn't look right, go back to that section and check what was entered as input."),
   br(),
-  br(),
-  tags$footer(style="display: flex;justify-content: space-between;",
-              tags$img(src='smiths_logoLong.png',height='40px',
-                       alt="Smithsonian sun logo"),
-              tags$img(#src='ShinyFooter.png',
-                src='titlefooter.png',
-                height='30px',
-                alt="William H. Donner Foundation and Smithsonian Women's Committee logos")) 
+  br() 
                         )
 #display.brewer.all(colorblindFriendly = TRUE)
 ## View a single RColorBrewer palette by specifying its name

@@ -7,6 +7,7 @@ options(repos = BiocManager::repositories())
 
 library(shiny)
 library(bslib)
+library(plotly)
 library(bsicons)
 library(ggplot2)
 library(phyloseq)
@@ -57,6 +58,7 @@ source('ui/ui-navpanel-assigntrait.R')
 source('ui/ui-navpanel-descriptivestats.R')
 source('ui/ui-navpanel-analysis.R')
 source('ui/ui-navpanel-analysis-trait.R')
+source('ui/ui-navpanel-analysis-temp.R')
 source('ui/ui-navpanel-report.R')
 source('ui/ui-navpanel-help.R')
 source('ui/ui-navpanel-settings.R')
@@ -163,7 +165,7 @@ nav_menu("Files",
          nav_panel("Review",value="reviewtab",
                    reviewpage)
          ),
-## Group 3 # Process from raw  --------  
+## Group 3 # Trait assignment  --------  
 nav_menu("Trait Data", 
   nav_panel("Assign ecological data",value='traittab',
             traitpage)
@@ -183,6 +185,8 @@ nav_menu(title="Analysis",
                    descriptivepage),
         nav_panel("Trait Analysis",value="traitanalysistab",
                   traitanalysispage),
+        nav_panel("Temperature Analysis",value="tempanalysistab",
+                  tempanalysispage),
          nav_panel("Figures", value='statstab',
                    analysispage)
          ),
@@ -208,7 +212,14 @@ nav_menu("Info",
                    )
          ),
 nav_panel(title=bs_icon("printer-fill",size="2em"), value='reporttab',
-          reportpage)
+          reportpage),
+tags$footer(style="display: flex;justify-content: space-between;",
+            tags$img(src='smiths_logoLong.png',height='40px',
+                     alt="Smithsonian sun logo"),
+            tags$img(src='ShinyFooter.png',
+              #src='titlefooter.png',
+              height='30px',
+              alt="William H. Donner Foundation, MarineGEO, and Smithsonian Women's Committee logos"))
 )
 # define server logic -----
 server <- function(input,output,session) {
@@ -238,6 +249,7 @@ source('server/server-defaultanalysis.R',local=TRUE)
 source('server/server-navpanel-descriptivestats.R',local=TRUE)
 # --- # Trait Analysis Page # --------  
 source('server/server-navpanel-analysis-trait.R',local=TRUE)
+  source('server/server-navpanel-analysis-temp.R',local=TRUE)
 # --- # Figure Page # --------  
 source('server/server-navpanel-analysis-alpha.R',local=TRUE)
 source('server/server-navpanel-analysis-ord.R',local=TRUE)

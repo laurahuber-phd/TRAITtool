@@ -196,13 +196,6 @@ producers up to a level of 5 for marine mammals and human"),
     width=1/2,fill=TRUE,
     actionButton("btraitanalysis_prevpage","Previous step"),
     actionButton("btraitanalysis_nextpage","Next step")
-  ),
-  tags$footer(style="display: flex;justify-content: space-between;",
-              tags$img(src='smiths_logoLong.png',height='40px',
-                       alt="Smithsonian sun logo"),
-              tags$img(#src='ShinyFooter.png',
-                src='titlefooter.png',
-                height='30px',
-                alt="William H. Donner Foundation and Smithsonian Women's Committee logos"))
+  )
 )
 #############################################################################################################

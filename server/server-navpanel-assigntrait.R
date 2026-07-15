@@ -4,6 +4,7 @@ tableServer(id='tax_table2',
             data=TaxTable 
 ) 
 
+################## set initial reactive values  ################## 
 traits_var <- reactiveValues(x=NULL, #final data frame 
                              serv=NULL, #database to query 
                              choose=NULL, #list of species to query 
@@ -47,6 +48,27 @@ traits_var <- reactiveValues(x=NULL, #final data frame
 
 traits_tab <- reactiveValues(x=NULL)
 
+################## ID taxa to query  ################## 
+# use the taxa table to check what taxonomic levels can be used to query trophic information
+# provide option to query trophic information based on higher taxa levels
+
+observe({
+  taxcols <- colnames(TaxTable$x) #get column names of the tax table 
+  seltax <- taxcols[str_detect(taxcols,"peci") | str_detect(taxcols,"enus") | str_detect(taxcols,"amil")] #look for genus, family, and species 
+  
+  # then update the selection box accordingly  
+  updateSelectInput(session,
+                    "trait_tax_select",#for blank selection
+                    choices=c(rev(seltax))) 
+  
+  print(c("Trait: Query options include:",seltax))
+}) %>% bindEvent(TaxTable$x)
+
+observeEvent(input$trait_tax_select, {
+  print(c("Trait: Query selection is",input$trait_tax_select))
+})
+
+# when the user selections fishbase/sealifebase/both, hide previous queries and update database string for query 
 observeEvent(input$trait_select, {
   req(TaxTable$x)
 
@@ -62,9 +84,10 @@ observeEvent(input$trait_select, {
   print("Traits: traits_query$serv updated")
 })
 
+################## when assign button is clicked  ################## 
 observeEvent(input$trait_assign, {
   
-  ################## reset values when assign button is clicked  ################## 
+### reset the following values when assign button is clicked
   req(TaxTable$x)
   taxa_df <- TaxTable$x
   rownames(taxa_df) <- taxa_df[[1]]
@@ -78,8 +101,43 @@ observeEvent(input$trait_assign, {
   traits_var$x <- traits_var$choose <- traits_var$nona <- traits_var$syn.fish.tab <- traits_var$syn.sl.tab <- traits_var$syn.tab <- traits_var$fish.troph <- traits_var$sl.troph <- traits_var$troph <- traits_var$fbdf <- traits_var$traits.df <- traits_var$alltraits.df <- traits_var$taxa_traits_df <- traits_var$taxa_traits_sub <- traits_var$valid.fish.names <- traits_var$invalid.fish.names <- traits_var$sl.check <- traits_var$valid.sl.names <- traits_var$invalid.sl.names <- traits_var$valid <- traits_var$invalid <- traits_var$syn.names <- traits_var$fish.eco <- traits_var$sl.eco <- traits_var$eco.df <- traits_var$fish.spp <- traits_var$sl.spp <- traits_var$spp.df <- traits_var$eco.sub <- traits_var$spp.sub <- NULL
   
   traits_tab$x <- NULL
+  traits_var_spplist <- c()
 print("Traits: reactive value variables reset to NULL")
 
+################## Get taxa list to query  ################## 
+
+##### Using levels higher than species  ##### 
+if(input$trait_tax_select != "Species") {
+  print(c("Trait: Querying the following",input$trait_tax_select))
+  
+  traits_var_taxlist <- taxa_df %>% 
+    select(all_of(input$trait_tax_select)) %>% 
+    unlist() %>%
+    #as.list() %>%
+    unique() 
+  
+  #spptbls <- fb_tbl("species")
+  #famtbls <- fb_tbl("families")
+  allspptbl <- load_taxa()
+  
+  req(!is.null(traits_var_taxlist))
+  for (i in 1:length(traits_var_taxlist)) {
+    #querylist <- species_list(input$trait_tax_select = traits_var_taxlist[i])
+    querylist <- allspptbl %>% 
+      filter(.data[[input$trait_tax_select]] == traits_var_taxlist[i]) %>% 
+      .$Species %>% 
+      unique()
+    
+    traits_var_spplist <- c(traits_var_spplist,querylist)
+  }
+  
+  traits_var$choose <- traits_var_spplist
+  print(c("Number of",input$trait_tax_select,"queried:",length(traits_var_taxlist)))
+  print(c("Resulting in",length(traits_var_spplist),"species queried"))
+  print(traits_var_spplist)
+} else {
+  
+  ##### Using species level ##### 
   # get a list of species to query based on the selected database 
   traits_var$choose <- switch(input$trait_select, 
                              "Both" = c(taxa_df %>% 
@@ -93,12 +151,13 @@ print("Traits: reactive value variables reset to NULL")
                                                  .$Species %>% unique())
   )
   print("Traits: trait taxa selected")
+  }
   
   # check that the number of species to query is greater than 0
   # if so, assign the species to a list and remove NA species assignments
   if(length(traits_var$choose[!is.na(traits_var$choose)]) > 0) { 
     traits_var$nona <- traits_var$choose[!is.na(traits_var$choose)] 
-    
+    print(c("Number of species queried: ",length(traits_var$nona)))
     # show the panel listing number of species queried
     shinyjs::show(id="p_fishquery")
     output$n_fishquery <-  renderText({paste("Number of species queried: ",length(traits_var$nona))})
@@ -110,19 +169,11 @@ print("Traits: reactive value variables reset to NULL")
   
   # only proceed if traits_var$nona is made 
   req(traits_var$nona)
-  #
-  ##
-  ###
-  ####
-  ##### At this point the species list is queried against one or both of the databases ##### 
-  ##### This is based on user selection with input$trait_select #####
-  ####
-  ###
-  ##
-  #
   print("Traits: traits_query$nona exists")
   
-  ################## When both db is selected  ################## 
+################## Query list against one or both of the databases ##################    
+
+  ###### When both db is selected  ##### 
   if(input$trait_select=="Both") {
     print("Traits: Both databases selected for trait query")
     ##### First, check with FishBase ##### 
@@ -149,13 +200,18 @@ print("Traits: reactive value variables reset to NULL")
     # All trophic tables are combined (traits_var$troph)
     
     # check if tax names are valid/found in the databases and remove NA values from species #
-    valid.fish.names <- traits_var$nona[!is.na(traits_var$nona)] %>% 
+    valid.fish.names <- traits_var$nona %>% 
       rfishbase::validate_names(server="fishbase") 
     valid.fish.names <- valid.fish.names[!is.na(valid.fish.names)]
     print("Traits: Names validated in FishBase")
     
     # make list of species that did not pass 
-    invalid.fish.names <- traits_var$nona[!traits_var$nona%in%valid.fish.names & !is.na(traits_var$nona)] 
+    invalid.fish.names <- traits_var$nona[!traits_var$nona%in%valid.fish.names]
+    
+    #if (length(invalid.fish.names)>1) {
+    #  showModal(modalDialog("These names were not found."),
+    #            renderText(invalid.fish.names))
+    #}
     
     # Check the species names that were not found in fishbase for synonyms
     syn.fish <- rfishbase::synonyms(invalid.fish.names,
@@ -256,8 +312,26 @@ print("Traits: reactive value variables reset to NULL")
                             #tibble::rownames_to_column(var="Row.Name")
                           ) 
     
-    ################## Add other ecosystem data  ################## 
+################## Add other ecosystem data  ################## 
     
+    # only check for other ecosystem data when we're querying the species level
+    if(input$trait_tax_select != "Species"){ 
+      #alltraits.df <- traits.df 
+      alltraits.df <- merge(traits.df, 
+                            (allspptbl %>% 
+                              filter(Species %in% traits_var_spplist) %>% 
+                              select(c(Species,
+                                       .data[[input$trait_tax_select]]
+                                       ))),
+                            .by="Species"
+                            )
+    print("Traits: higher taxa level queried; no further natural history information queried beyond MTI")
+    print(c("colnames of old table:",colnames(traits.df)))
+    print(c("colnames of new table:",colnames(alltraits.df)))
+    print(c("nrows of old table:",nrow(traits.df)))
+    print(c("nrows of new table:",nrow(alltraits.df)))
+        
+      } else {
     # get table of location/ecosystem preferences 
     fish.eco <- rfishbase::ecosystem(species_list=valid.fish.names,
                                      server="fishbase") 
@@ -343,18 +417,20 @@ print("Traits: reactive value variables reset to NULL")
                                       contains("eed"),
     ))),
     fbdf,
-    .by=Species,all=TRUE)
+    .by=Species,all=TRUE)}
     print("Traits: All trait data merged with taxa table")
-  } else { 
+  
+    } else { 
     print("Traits: only one database selected")
+    
   ################## When a single db is selected  ################## 
     
-    valid.fish.names <- traits_var$nona[!is.na(traits_var$nona)] %>% 
+    valid.fish.names <- traits_var$nona %>% 
       rfishbase::validate_names(server=traits_var$serv) 
     print("Traits: Names validated with database")
     
     # make list of species that did not pass 
-    invalid.fish.names <- traits_var$nona[!traits_var$nona%in%valid.fish.names & !is.na(traits_var$nona)] 
+    invalid.fish.names <- traits_var$nona[!traits_var$nona%in%valid.fish.names] 
     
     # Check the species names that were not found in fishbase for synonyms
     syn.fish <- rfishbase::synonyms(invalid.fish.names,server=traits_var$serv) %>% 
@@ -399,7 +475,12 @@ print("Traits: reactive value variables reset to NULL")
     ) 
     
     ################## Add other ecosystem data  ################## 
-    
+    if (input$trait_tax_select != "Species") { 
+      
+      alltraits.df <- traits.df 
+      print("Traits: higher taxa level queried; no further natural history information queried beyond MTI")
+      
+      } else {
     # get table of location/ecosystem preferences 
     eco.df <- rfishbase::ecosystem(species_list=valid.fish.names,
                                      server=traits_var$serv) 
@@ -474,12 +555,30 @@ print("Traits: reactive value variables reset to NULL")
                              ))),
                           fbdf,
                           .by=Species,all=TRUE)
+    }
   }
   ################## After trait assignment is completed  ##################   
  req(!is.null(traits_var$syn.tab))
  req(alltraits.df)
  
+ ################## Average MTI for higher taxa level and combine with tax df ##################   
+if (input$trait_tax_select != "Species") { 
+  alltraits.df <- alltraits.df %>% ungroup() %>%
+   group_by(.data[[input$trait_tax_select]]) %>% 
+   summarize("Troph" = mean(Troph),
+             "Setroph" = mean(Setroph),
+             "Trophobserved" = mean(Trophobserved),
+             "Trophpredicted" = mean(Trophpredicted),
+             "Setrophpredicted" = mean(Setrophpredicted),
+             "MeanCalc" = "MTI calculated as mean of all MTI from taxonomic level identified")
+  
+  print(c("colnames of new table:",colnames(alltraits.df)))
+  print(c("nrows of new table:",nrow(alltraits.df)))
+  # check if there's a way to do this without specifying the column names to make it a bit more robust
+  }
+ 
   ################## Add synonym information to tax table  ################## 
+ if (input$trait_tax_select=="Species"){
   t.syn.tab <- traits_var$syn.tab %>% rename(Synonym = "Valid Name", #Change the name of the columns so we can combine this table with the alltraits.df table by Species 
                                   Species = "Queried Name") 
   print("Traits: Synonym table headers renamed")
@@ -499,7 +598,8 @@ print("Traits: reactive value variables reset to NULL")
     filter(Species != Synonym | is.na(Synonym)) %>% #then remove the synonym rows 
     as.data.frame() 
   print("Traits: Synonym data used to fill trait df")
-  
+ }
+ 
   if(!is.null(alltraits.df$Troph)) {
     alltraits.df <- alltraits.df %>% 
       mutate(Trophic.val=case_when(Troph < 2 ~ "Primary producers and detritus",
@@ -511,6 +611,36 @@ print("Traits: reactive value variables reset to NULL")
   print("Traits: Numeric trophic level data converted to descriptive")
   
   ################## Combine with tax table  ################## 
+  if(input$trait_tax_select != "Species") {
+    #need to take average of everything in the Genus/Family
+    #then add back into tax table based on tax level queried
+  traits_var$x <- traits_var$alltraits.df <- (alltraits.df #%>% tibble::rownames_to_column(var="Row.Name")
+                                              ) #combined fish/nonfish df
+  
+  # merge with the taxa table  
+  taxa_traits_df <- merge(taxa_df,
+                          alltraits.df,
+                          by = input$trait_tax_select,
+                          #by=.data[[input$trait_tax_select]],
+                          all.x=TRUE)
+  
+  print(c("colnames of old table:",colnames(alltraits.df)))
+  print(c("colnames of new table:",colnames(taxa_traits_df)))
+  print(c("nrows of old table:",nrow(alltraits.df)))
+  print(c("nrows of new table:",nrow(taxa_traits_df)))
+  
+  numeric.cols <- taxa_traits_df %>% select(where(is.double) | where(is.numeric)) %>% colnames()
+  tax.numcols(numeric.cols)
+  print("Traits: trophic information added to tax table") 
+  traits_tab$x <- traits_var$taxa_traits_df <- (taxa_traits_df %>% relocate(all_of(keep))  #%>% tibble::rownames_to_column(var="Row.Name")
+  ) #combined fish/nonfish df with taxonomy table 
+  
+  taxa_traits_sub <- taxa_traits_df #select(taxa_traits_df, -c(1:14))
+  traits_var$taxa_traits_sub <- (taxa_traits_sub %>% relocate(all_of(keep))  #%>% tibble::rownames_to_column(var="Row.Name")
+  )  #final data frame used for ps
+  
+  }
+  else {
   traits_var$x <- traits_var$alltraits.df <- (alltraits.df #%>% tibble::rownames_to_column(var="Row.Name")
                                               ) #combined fish/nonfish df
   
@@ -535,7 +665,7 @@ print("Traits: reactive value variables reset to NULL")
   taxa_traits_sub <- taxa_traits_df #select(taxa_traits_df, -c(1:14))
   traits_var$taxa_traits_sub <- (taxa_traits_sub %>% relocate(all_of(keep))  #%>% tibble::rownames_to_column(var="Row.Name")
                                   )  #final data frame used for ps
-  
+  }
   #specifically just look at the trait df  
   showSpinner("trait_spinner_review", {
     tableServer(id='trait_review',

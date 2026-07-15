@@ -11,13 +11,18 @@ Trait_TaxReviewCard <- card(#preview table that you are assigning trophic info t
 Trait_TrophPullCard <- card(
   h5("Query information databases to source ecological information about the species in your dataset"),
                  layout_columns(col_widths=c(4,8),
-                                selectInput("trait_select",label="Select what database to query:",
+                                selectInput("trait_tax_select",label="Select what taxonomic level to query:",
+                                            choices=c("Species","Genus","Family"),
+                                            selected="Species"),
+                                selectInput("trait_select",
+                                            label=tags$span("Select what database to query:",
+                                                            tags$i(tooltip(bs_icon("info-circle"),
+                                                                           tagList(HTML("<p><u>FishBase</u> gathers information on the fishes of the world, including estimated trophic level, known habitat and distribution, and uses.</p>"),br(), HTML("<p><u>SeaLifeBase</u> gathers information on non-fish marine species, including estimated trophic level, known habitat and distribution, and uses.</p>"),br(), HTML("<p>Default query option is <u>Both</u>, which will query your taxa against both databases.</p>")))) ),
                                             choices=c("Both","FishBase","SeaLifeBase"),
                                             selected = "Both" #default selection is all databases
+                                )
                                 ),
-                                HTML("<p><u>FishBase</u> collects and gathers information on the fishes of the world, including estimated trophic level, known habitat and distribution, and uses.</p> <p><u>SeaLifeBase</u> was developed as a similar database for non-fish marine species.</p> <p>Default query option is <u>Both</u>, which will query your species against both databases.</p>")
-                                ),
-                 actionButton("trait_assign","Assign trophic level data"),
+                 actionButton("trait_assign","Assign trait data"),
                  #withSpinner(id="trait_spinner",
                 #             ui_output=DTOutput("trait_summary")
                 #             )
@@ -148,7 +153,7 @@ traitpage = nav_panel(
     actionButton("trait_nextpage","Next step")
   ),
   br(),
-  h2("Trophic Assignment"),
+  h2("Trait Assignment"),
   h4("This page is used to pull trait information from FishBase and SeaLifeBase."),
   p("Description of what that means"),
   br(),

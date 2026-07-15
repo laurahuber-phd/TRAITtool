@@ -22,6 +22,16 @@ observeEvent(input$go_rich, {
 output$rich_plot <- renderPlot({ #need separate call to actually render the plot
   richplot()
   })
+
+tryCatch(
+ggsave(filename="richplot.png", 
+       plot=richplot(),
+       path=tempdir(),
+       scale=2
+       ),
+error=function(e){return(NA)}
+)
+
 })
 
 observe({
@@ -84,6 +94,16 @@ histoplot <- eventReactive(input$go_histoplot, {
 observeEvent(input$go_histoplot,{
   print("Histogram: rendering plot")
   output$histo_plot <- renderPlot({histoplot()})
+  
+  tryCatch(
+  ggsave(filename="histoplot.png", 
+         plot=histoplot(),
+         path=tempdir(),
+         height=histoplot_size$height(),width=histoplot_size$width(),
+         scale=2
+         ),
+  error=function(e){return(NA)}
+  )
 })
 
 observe({
