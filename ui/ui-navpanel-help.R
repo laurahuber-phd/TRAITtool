@@ -27,12 +27,5 @@ helppage <- tagList(
     tooltip(span(img(src="Example_taxa.png", height="75%", width="75%", align = "center")),
             "Notice how in our example, the first row of the OTU and taxonomy tables are the same.",
             placement="auto")
-  ),
-  tags$footer(style="display: flex;justify-content: space-between;",
-              tags$img(src='smiths_logoLong.png',height='40px',
-                       alt="Smithsonian sun logo"),
-              tags$img(#src='ShinyFooter.png',
-                src='titlefooter.png',
-                height='30px',
-                alt="William H. Donner Foundation and Smithsonian Women's Committee logos"))
+  )
 )

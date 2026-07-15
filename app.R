@@ -204,7 +204,14 @@ nav_menu("Info",
                    )
          ),
 nav_panel(title=bs_icon("printer-fill",size="2em"), value='reporttab',
-          reportpage)
+          reportpage),
+tags$footer(style="display: flex;justify-content: space-between;",
+            tags$img(src='smiths_logoLong.png',height='40px',
+                     alt="Smithsonian sun logo"),
+            tags$img(src='ShinyFooter.png',
+              #src='titlefooter.png',
+              height='30px',
+              alt="William H. Donner Foundation, MarineGEO, and Smithsonian Women's Committee logos"))
 )
 # define server logic -----
 server <- function(input,output,session) {

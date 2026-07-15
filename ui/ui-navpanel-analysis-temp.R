@@ -101,13 +101,6 @@ tempanalysispage = nav_panel(
     width=1/2,fill=TRUE,
     actionButton("btempanalysis_prevpage","Previous step"),
     actionButton("btempanalysis_nextpage","Next step")
-  ),
-  tags$footer(style="display: flex;justify-content: space-between;",
-              tags$img(src='smiths_logoLong.png',height='40px',
-                       alt="Smithsonian sun logo"),
-              tags$img(#src='ShinyFooter.png',
-                src='titlefooter.png',
-                height='30px',
-                alt="William H. Donner Foundation and Smithsonian Women's Committee logos"))
+  )
 )
 #############################################################################################################
