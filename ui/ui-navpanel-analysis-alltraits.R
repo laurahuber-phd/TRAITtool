@@ -43,9 +43,9 @@ Anlys_TempCard <- tagList(
   accordion(
     open=FALSE, #start with all panels closed
     multiple=TRUE, #multiple panels can be open at once
-    #accordion_panel(title="Violin plot",
-    #                Anlys_TempViolinCard
-    #),
+    accordion_panel(title="Violin plot",
+                    Anlys_TempViolinCard
+    ),
     accordion_panel(title="Lollipop plot",
                     Anlys_TempLolliCard
     )
@@ -74,7 +74,7 @@ allanalysispage = nav_panel(
   br(),
   
   # temperature 
-  card(Anlys_TempCard),
+  Anlys_TempCard,
   br(),
   
   # body size
