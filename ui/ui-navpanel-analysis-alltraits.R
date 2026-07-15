@@ -62,6 +62,8 @@ allanalysispage = nav_panel(
   ),
   h2("Mean Trophic Index and Trait analysis"),
   p("In this page, you can view plots for trait and ecological information."),
+  p("We highlight mean trophic index, known temperature range, body size composition, and diversity as main components to look at"),
+  p("For further plots and to dive deeper, see the Details page"),
   br(),
   br(),
   
