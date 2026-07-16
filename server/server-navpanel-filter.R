@@ -17,7 +17,10 @@ trackNums <- reactiveValues(remblank_bef=NULL,
                             selsamp_bef=NULL,
                             selsamp_aft=NULL,
                             seltax_bef=NULL,
-                            seltax_aft=NULL)
+                            seltax_aft=NULL,
+                            aggGroupmem_aft=NULL,
+                            aggMem_aft=NULL,
+                            aggGroup_aft=NULL)
 observeEvent(ps.all(),{
   trackNums$remblank_bef=NULL
   trackNums$remblank_aft=NULL
@@ -33,6 +36,9 @@ observeEvent(ps.all(),{
   trackNums$selsamp_aft=NULL
   trackNums$seltax_bef=NULL
   trackNums$seltax_aft=NULL
+  aggGroupmem_aft=NULL
+  aggMem_aft=NULL
+  aggGroup_aft=NULL
   print("Filter: ps.all changed; trackNums reactiveValues reset to NULL")
   
   N_sample_df  <- N_taxa_tab <- Summ_seqs_sel <- Num_seq_subset <- Num_otu_subset <- Summ_seqs <- Num_seq_all <- Num_otu_all <- NULL #reset
@@ -82,23 +88,115 @@ observeEvent(c(input$assemble_ps,input$load_ex,input$go_addtroph), {
 
 ps.sub <- reactiveVal()
 
+ps.select <- reactiveValues(b=NULL,a=NULL)
 ps.prune <- reactiveValues(b=NULL,a=NULL)
 ps.blank <- reactiveValues(b=NULL,a=NULL)
 ps.sample <- reactiveValues(b=NULL,a=NULL)
 ps.tax <- reactiveValues(b=NULL,a=NULL)
 
-observeEvent(ps.all(),{
-  ps.sub(ps.all())
+observeEvent(ps.all(),{ #every time ps.all is made
+  ps.sub(ps.all()) #we start with ps.sub being assigned the same as ps.all
   
+  ps.select <- reactiveValues(b=ps.all(),a=NULL) #then the b value for all the pruning options is assigned to ps.all
   ps.prune <- reactiveValues(b=ps.all(),a=NULL)
   ps.blank <- reactiveValues(b=ps.all(),a=NULL)
   ps.sample <- reactiveValues(b=ps.all(),a=NULL)
   ps.tax <- reactiveValues(b=ps.all(),a=NULL)
+  
+  #as each pruning/subsampling option is selected
+  #the tool will check to see if the 'a' option is NULL
+  #if it is NULL, ps.sub is assigned to the 'b' option 
+  #then the b option is used to perform the pruning
+  #then the newly pruned object is assigned to ps.sub and to the 'a' option 
+  #if a reset is triggered 
+  #the 'b' option is used to reset the ps.sub object to what it was before that pruning option 
+  #the 'a' option is reset to NULL 
 })
+
+# ---- # Aggregate data object # -----
+observeEvent(input$aggregate_var,{
+  req(ps.all())
+  
+  trackNums$aggMem_aft <- get_variable(ps.all(),{input$aggregate_var}) %>% unique()
+  trackNums$aggGroup_aft <- length(get_variable(ps.all(),{input$aggregate_var}) %>% unique())
+  
+  output$aggregate_groupmem <- renderUI({
+    HTML("<p><u>Group members: </u>",unlist(trackNums$aggMem_aft),"</p>")
+  })
+  output$aggregate_ngroup <- renderUI({
+    HTML("<p><u>Number of groups: </u>",trackNums$aggGroup_aft,"</p>")
+  })
+  #output$aggregate_ngroupmem <- renderText({paste0("Number of group members: ",trackNums$aggGroupmem_aft)})
+})
+
+observe({
+  req(ps.all())
+  
+  if(input$aggregate_go=="Go"){
+    print("Aggregation started")
+    
+    if(is.null(ps.select$a)) { #if ps.select$a is null (if pruning has not happened)
+      ps.select$b <- ps.sub()
+    } 
+    
+    ps <- isolate(ps.sub())
+    print("dataset before: ")
+    print(ps)
+  
+  sd <- sample_data(ps) %>% 
+    as.data.frame() %>% 
+    group_by(.data[[input$aggregate_var]]) %>% 
+         summarize(
+           across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+           across(where(is.character), ~ paste(unique(.x), collapse = ", "))) %>% 
+    filter(!is.na(.data[[input$aggregate_var]]))
+  
+  print(c("new rownames will be:",sd[[input$aggregate_var]]))
+  
+  sd <- as.data.frame(sd)
+  rownames(sd) <- sd[[input$aggregate_var]]
+  print(c("new rownames:",rownames(sd)))
+  print("Aggregated sample data")
+  
+  ps.agg <- ps %>% merge_samples(input$aggregate_var)
+  print("Aggregated dataset")
+  print(ps.agg)
+  sample_data(ps.agg) <- sample_data(as.data.frame(as.matrix(sd)))
+  print("Sample data reassigned")
+  
+  ps.sub(ps.agg)
+  ps.select$a <- ps.agg
+  
+  #output$aggregate_bef <- renderUI({
+  #  HTML("<p><u>Dataset before:</u>",ps.select$b,"</p>")
+  #})
+  #output$aggregate_aft <- renderUI({
+  #  HTML("<p><u>Dataset after:</u>",ps.agg,"</p>")
+  #})
+  output$agg_nsamples_bef <- renderUI({
+    HTML("<p><u>Number of samples before:</u>",as.character(nsamples(ps)),"</p>")
+  })
+  output$agg_nsamples_aft <- renderUI({
+    HTML("<p><u>Number of samples after:</u>",as.character(nsamples(ps.agg)),"</p>")
+  })
+  }
+  
+  if(input$aggregate_go=="Reset") { #if user resets aggregation 
+    print("Filter: reset aggregate selection")
+    ps.sub(ps.sample$b) 
+    ps.select$a <- NULL
+  }
+}) %>% bindEvent(input$aggregate_go)
 
 # ---- # Update picker variable selection # ---- 
 observe({ 
   req(Meta_vars())
+  updateSelectInput(session, 
+                    'aggregate_var',
+                    choices=c("",Meta_vars()),
+                    selected=NULL)
+  print("Filter: updated aggregate variable options")
+  
   updateSelectInput(session,
                     "blank_cols",#for blank selection
                     choices=c(Meta_vars())) 
@@ -156,6 +254,7 @@ observe({
                    print("Filter: before/after sample selection count hidden")
                    
                    ps.sub(ps.sample$b)
+                   ps.sample$a <- NULL
                    print(ps.sub())
                  }
                }#,suspended=TRUE
@@ -239,6 +338,7 @@ observe({
                    print("Filter: before/after tax selection count hidden")
                    
                    ps.sub(ps.tax$b)
+                   ps.tax$a <- NULL
                    print(ps.sub())
                    
                  }
@@ -446,6 +546,7 @@ observe({
     
     print("Filter: reset negative control sample selection")
     ps.sub(ps.blank$b)
+    ps.blank$a <- NULL
     print(ps.sub())
   }
 }) %>% bindEvent(input$rem_blanks)
@@ -554,6 +655,7 @@ observe({
     
     #reassign ps.sub 
     ps.sub(ps)
+    ps.sample$a <- ps
   }
   
   if(!isTruthy(input$sample_switch)) { #if sample switch is closed 
@@ -562,6 +664,7 @@ observe({
   
   print("Filter: reset negative control sample selection")
   ps.sub(ps.sample$b)
+  ps.sample$a <- NULL
   print(ps.sub())
   }
   

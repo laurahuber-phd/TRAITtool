@@ -167,7 +167,9 @@ nav_menu("Files",
                    reviewpage),
          nav_panel("Filter",value='filtertab',
                    #defaultanalysis,
-                   filterpage)
+                   #filterpage
+                   filterpageDEFAULT
+                   )
          ),
 ## Group 3 # Trait assignment  --------  
 nav_menu("Assign Traits", 
@@ -191,6 +193,8 @@ nav_menu(title="Analysis",
         #          tempanalysispage)
          ),
 nav_menu(title="For more detail",
+         nav_panel("Additional Filters",value="filterdetailstab",
+                   filterpageDETAIL),
          nav_panel("At a Glance",value="basicstab",
                    descriptivepage),
          nav_panel("Figures", value='statstab',

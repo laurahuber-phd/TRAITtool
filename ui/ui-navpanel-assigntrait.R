@@ -10,7 +10,7 @@ Trait_TaxReviewCard <- card(#preview table that you are assigning trophic info t
 
 Trait_TrophPullCard <- card(
   h5("Query information databases to source ecological information about the species in your dataset"),
-                 layout_columns(col_widths=c(4,8),
+                 layout_columns(col_widths=c(6,6),
                                 selectInput("trait_tax_select",
                                             label=tags$span("Select what taxonomic level to query:",
                                                             tags$i(tooltip(bs_icon("info-circle"),
