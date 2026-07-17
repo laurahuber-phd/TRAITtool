@@ -33,7 +33,7 @@ violin_base <- reactive({
                  fill=.data[[violinplot_general$x()]]
                  )
          ) + 
-    geom_violin(na.rm=TRUE) + geom_boxplot(width=0.1)
+    geom_violin(na.rm=TRUE,alpha=0.2) + geom_boxplot(width=0.1) 
 
 }) %>% bindEvent(ps.norm(),
                  violinplot_general$x(),
