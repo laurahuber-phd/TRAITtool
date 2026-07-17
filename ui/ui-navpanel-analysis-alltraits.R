@@ -72,7 +72,9 @@ allanalysispage = nav_panel(
   # trophic level
   card(
   Anlys_TraitIntroCard, 
-  Anlys_TraitCard), 
+  Anlys_ViolinCard
+  #Anlys_TraitCard
+  ), 
   br(),
   
   # temperature 
@@ -80,6 +82,16 @@ allanalysispage = nav_panel(
   br(),
   
   # body size
+  
+  # Feeding guild 
+  Anlys_TrophBarCard, 
+  br(),
+  
+  # Age at maturity 
+  
+  # IUCN status 
+  
+  # Fisheries species 
   
   # Alpha diversity 
   #card(
