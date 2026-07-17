@@ -25,6 +25,17 @@ violin_base <- reactive({
   
   ps.edit <- ps %>% mutate(Trophic.Level = (as.numeric(.data[[violinplot_general$y()]]))) %>% filter(Abundance >0)
   
+  get_box_stats <- function(y, upper_limit = max(ps.edit$Trophic.Level) * 1.15) {
+    return(data.frame(
+      y = 0.95 * upper_limit,
+      label = paste(
+        "Count =", length(y), "\n",
+        "Mean =", round(mean(y), 2), "\n",
+        "Median =", round(median(y), 2), "\n"
+      )
+    ))
+  }
+  
   ggplot(ps.edit, #x=.data[[violinplot_general$x()]], #x axis
             #          y=.data[[violinplot_general$y()]], #must be numeric
             #          fill=.data[[violinplot_general$x()]]
@@ -33,7 +44,18 @@ violin_base <- reactive({
                  fill=.data[[violinplot_general$x()]]
                  )
          ) + 
-    geom_violin(na.rm=TRUE,alpha=0.2) + geom_boxplot(width=0.1) 
+    geom_violin(na.rm=TRUE,alpha=0.2) + 
+    geom_boxplot(width=0.25,alpha=0.8) + 
+    stat_summary(fun="median",
+                 #fun=get_box_stats,
+                 geom="label",
+                 #geom="text",
+                 #hjust = 0.5, 
+                 vjust = -1,
+                 font_face="bold",
+                 fill="white",
+                 aes(label = after_stat(round(y, 2)))
+                 )
 
 }) %>% bindEvent(ps.norm(),
                  violinplot_general$x(),
