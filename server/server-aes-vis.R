@@ -4,10 +4,10 @@ globalcolorpick <- reactive({
   if(is.null(input$gblcol)) {"D"} else {input$gblcol}
 }) %>% bindEvent(input$gblcol,ignoreNULL=FALSE)
 
-scale_color_continuous <- function(...) {viridis::scale_color_viridis(option=globalcolorpick())}
-scale_fill_continuous <- function(...) {viridis::scale_fill_viridis(option=globalcolorpick())}
-scale_color_discrete <- function(...) {viridis::scale_colour_viridis(option=globalcolorpick(),discrete=TRUE)}
-scale_fill_discrete <- function(...) {viridis::scale_fill_viridis(option=globalcolorpick(),discrete=TRUE)}
+scale_color_continuous <- function(...) {viridis::scale_color_viridis(option=globalcolorpick(),begin=0.15,end=0.95)}
+scale_fill_continuous <- function(...) {viridis::scale_fill_viridis(option=globalcolorpick(),begin=0.15,end=0.95)}
+scale_color_discrete <- function(...) {viridis::scale_colour_viridis(option=globalcolorpick(),begin=0.15,end=0.95,discrete=TRUE)}
+scale_fill_discrete <- function(...) {viridis::scale_fill_viridis(option=globalcolorpick(),begin=0.15,end=0.95,discrete=TRUE)}
 
 options(
   ggplot2.continuous.colour = scale_color_continuous,
