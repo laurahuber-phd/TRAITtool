@@ -20,7 +20,9 @@ trackNums <- reactiveValues(remblank_bef=NULL,
                             seltax_aft=NULL,
                             aggGroupmem_aft=NULL,
                             aggMem_aft=NULL,
-                            aggGroup_aft=NULL)
+                            aggGroup_aft=NULL,
+                            aggSam_bef=NULL,
+                            aggSam_aft=NULL)
 observeEvent(ps.all(),{
   trackNums$remblank_bef=NULL
   trackNums$remblank_aft=NULL
@@ -39,6 +41,8 @@ observeEvent(ps.all(),{
   aggGroupmem_aft=NULL
   aggMem_aft=NULL
   aggGroup_aft=NULL
+  aggSam_bef=NULL
+  aggSam_aft=NULL
   print("Filter: ps.all changed; trackNums reactiveValues reset to NULL")
   
   N_sample_df  <- N_taxa_tab <- Summ_seqs_sel <- Num_seq_subset <- Num_otu_subset <- Summ_seqs <- Num_seq_all <- Num_otu_all <- NULL #reset
@@ -106,7 +110,7 @@ observeEvent(ps.all(),{ #every time ps.all is made
   #as each pruning/subsampling option is selected
   #the tool will check to see if the 'a' option is NULL
   #if it is NULL, ps.sub is assigned to the 'b' option 
-  #then the b option is used to perform the pruning
+  #then the b option or ps.sub is used to perform the pruning
   #then the newly pruned object is assigned to ps.sub and to the 'a' option 
   #if a reset is triggered 
   #the 'b' option is used to reset the ps.sub object to what it was before that pruning option 
@@ -116,6 +120,7 @@ observeEvent(ps.all(),{ #every time ps.all is made
 # ---- # Aggregate data object # -----
 observeEvent(input$aggregate_var,{
   req(ps.all())
+  trackNums$aggMem_aft <- trackNums$aggGroup_aft <- trackNums$aggSam_aft <- trackNums$aggSam_bef <- NULL
   
   trackNums$aggMem_aft <- get_variable(ps.all(),{input$aggregate_var}) %>% unique()
   trackNums$aggGroup_aft <- length(get_variable(ps.all(),{input$aggregate_var}) %>% unique())
@@ -131,15 +136,13 @@ observeEvent(input$aggregate_var,{
 
 observe({
   req(ps.all())
-  
-  if(input$aggregate_go=="Go"){
     print("Aggregation started")
     
     if(is.null(ps.select$a)) { #if ps.select$a is null (if pruning has not happened)
       ps.select$b <- ps.sub()
     } 
     
-    ps <- isolate(ps.sub())
+    ps <- ps.sub()
     print("dataset before: ")
     print(ps)
   
@@ -173,20 +176,36 @@ observe({
   #output$aggregate_aft <- renderUI({
   #  HTML("<p><u>Dataset after:</u>",ps.agg,"</p>")
   #})
+  trackNums$aggSam_bef <- nsamples(ps)
+  trackNums$aggSam_aft <- nsamples(ps.agg)
+  
   output$agg_nsamples_bef <- renderUI({
-    HTML("<p><u>Number of samples before:</u>",as.character(nsamples(ps)),"</p>")
+    HTML("<p><u>Number of samples before:</u>",as.character(trackNums$aggSam_bef),"</p>")
   })
   output$agg_nsamples_aft <- renderUI({
-    HTML("<p><u>Number of samples after:</u>",as.character(nsamples(ps.agg)),"</p>")
+    HTML("<p><u>Number of samples after:</u>",as.character( trackNums$aggSam_aft),"</p>")
   })
-  }
+}) %>% bindEvent(input$go_aggregate)
+
+observe({
+  req(ps.all())
   
-  if(input$aggregate_go=="Reset") { #if user resets aggregation 
-    print("Filter: reset aggregate selection")
-    ps.sub(ps.sample$b) 
+  output$agg_nsamples_bef <- renderUI({
+    HTML("<p><u>Number of samples before:</u>",trackNums$aggSam_aft,"</p>")
+  })
+  
+    ps.sub(ps.select$b) 
     ps.select$a <- NULL
-  }
-}) %>% bindEvent(input$aggregate_go)
+    
+    print("Filter: reset aggregate selection")
+    print(ps.sub())
+    
+    
+    output$agg_nsamples_aft <- renderUI({
+      HTML("<p><u>Number of samples after:</u>",as.character(nsamples(ps.sub())),"</p>")
+    })
+    
+}) %>% bindEvent(input$reset_aggregate)
 
 # ---- # Update picker variable selection # ---- 
 observe({ 

@@ -157,11 +157,11 @@ SelectAggregateCard <- tagList(
   htmlOutput("aggregate_ngroup"), #number of groups
   htmlOutput("aggregate_ngroupmem"), #number of members in each group
   
-  radioButtons(
-    inputId = "aggregate_go",
-    label = "Choices", 
-    choices = c("Go", "Reset")
-  ),
+  layout_columns(col_widths=c(6,6),
+                 actionButton("go_aggregate","Go"),
+                 actionButton("reset_aggregate","Reset")
+                 ),
+  
   htmlOutput("aggregate_bef"), #dataset before
   htmlOutput("aggregate_aft"), #dataset after
   htmlOutput("agg_nsamples_bef"), #number of samples before
