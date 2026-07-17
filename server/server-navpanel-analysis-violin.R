@@ -50,8 +50,7 @@ violin_base <- reactive({
                  #fun=get_box_stats,
                  geom="label",
                  #geom="text",
-                 aes(label = after_stat(round(y, 2)),
-                     y=max(Trophic.Level,na.rm=TRUE)
+                 aes(label = after_stat(round(y, 2))
                  ),
                  #hjust = 0.5, 
                  #vjust = -1,
