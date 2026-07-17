@@ -45,7 +45,8 @@ tviolinplot_base <- reactive({
                          fill=.data[[tviolinplot_general$x()]]
                      )
   ) + 
-    geom_violin(na.rm=TRUE) + geom_boxplot(width=0.1) + 
+    geom_violin(na.rm=TRUE,alpha=0.2) + 
+    geom_boxplot(width=0.25,alpha=0.8) + 
     stat_summary(fun="median",
                  #fun=get_box_stats,
                  geom="label",

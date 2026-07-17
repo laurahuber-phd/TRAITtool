@@ -39,17 +39,30 @@ trophbarplot <- eventReactive(input$go_trophbar, { #assign a variable that runs 
                 ))
      }
   
-  ps.edit <- ps %>% group_by(across(my_vars()) ) #%>% summarize(RelAbund=Abundance/sum(Abundance)) 
+  ps.edit <- ps %>% 
+    group_by(across(my_vars()) ) %>% 
+    summarize(Abundance=sum(Abundance)) %>% 
+    arrange(input$choose_trophbar_axis)
+  #summarize(RelAbund=Abundance/sum(Abundance)) 
   
-  baseplot <- ggplot(ps.edit) + 
-    geom_bar(aes(x=.data[[input$choose_trophbar_axis]], #x axis
-                 y=Abundance, #y=RelAbund,
-                 fill=Trophic.val), stat="identity", position = "fill"
-    ) +  
-    scale_y_continuous(labels=function(x) paste0(x * 100, "%")) + 
+  baseplot <- ggplot(ps.edit, 
+                     aes(x="",#x=.data[[input$choose_trophbar_axis]], #x axis
+                         y=Abundance, #y=RelAbund,
+                         fill=Trophic.val,
+                         color=Trophic.val
+                     )
+                     ) + 
+    geom_bar( stat="identity", position = "fill") +  
+    #scale_y_continuous(labels=function(x) paste0(x * 100, "%")) + 
     labs(y="Relative Abundance",
          title="Relative abundance of each trophic group") +
-    coord_flip() 
+    #coord_flip() 
+    coord_polar("y",start=0) + 
+    theme_void() #+ # remove background, grid, numeric labels
+    #geom_text(aes(label = Trophic.val #round(value,2)
+    #              ),
+    #          color="black",
+    #          position = position_stack(vjust = 0.5))
   
   if(!is.null(input$choose_trophbar_facet) & length(input$choose_trophbar_facet) < 2) {
     finalplot <- baseplot + facet_wrap(~.data[[input$choose_trophbar_facet]],scales="free") 
@@ -59,7 +72,9 @@ trophbarplot <- eventReactive(input$go_trophbar, { #assign a variable that runs 
                                        scales="free") 
   } else {finalplot <- baseplot}
   
-  finalplot + trophbarplot_pretty() + trophbarplot_size$aspectRatio() 
+  finalplot +
+    #trophbarplot_pretty() + 
+    trophbarplot_size$aspectRatio() 
   }
   
 })
@@ -95,6 +110,127 @@ output$trophbar_plotdwnld <- output$trophbar_plotdwnld_popup <-  downloadHandler
   content = function(file) {
     ggsave(file,plot=trophbarplot(),
            height=trophbarplot_size$height(),width=trophbarplot_size$width(),
+           scale=2
+    )
+    
+  }) 
+
+
+############## Bar Plot Body Size ############## 
+observe({ 
+  updatePickerInput(session,
+                    "choose_sizebar_axis", 
+                    choices=c(ps.norm.melt() %>% select(contains("ength")) %>% colnames()),
+                    selected=Meta_vars()[[1]]
+  )
+  updatePickerInput(session,
+                    "choose_sizebar_facet",
+                    choices=c(Meta_vars()),
+                    selected=""
+  )
+}) %>% bindEvent(ps.norm())
+
+sizebarplot_pretty  <- plotPrettyServer(id="sizebar_pretty")
+sizebarplot_size <- plotSizeServer(id="sizebar_size") 
+
+
+sizebarplot <- eventReactive(input$go_sizebar, { #assign a variable that runs when plot button is pushed
+  runif(input$go_sizebar)
+  req(ps.norm())
+  print("Size bar plot: building base plot")
+  
+  ps <- ps.norm.melt() 
+  #if(!is.null(ps$Trophic.val)){
+    
+    ps <- ps.norm.melt() %>% 
+      filter(Abundance>0) %>%
+      mutate(BodySize=case_when(.data[[input$choose_sizebar_axis]] > 100 ~ "Giant (>100 cm)",
+                                .data[[input$choose_sizebar_axis]] >= 20 ~ "Large (>20 cm)",
+                                .data[[input$choose_sizebar_axis]] < 20 & .data[[input$choose_sizebar_axis]] >= 10 ~ " Medium (10-19 cm)",
+                                .data[[input$choose_sizebar_axis]] < 10 & .data[[input$choose_sizebar_axis]] >= 5 ~ " Small (5-10 cm)",
+                                .data[[input$choose_sizebar_axis]] <5 ~ "Very small (<5 cm)",
+                                .default="Not Assigned"))
+      #mutate(case_when(is.na(.data[[input$choose_sizebar_axis]]) ~ "Not assigned" ,.default=.data[[input$choose_sizebar_axis]]))
+    
+    my_vars <- function() {
+      c(any_of(c("BodySize",
+                 input$choose_sizebar_axis, 
+                 input$choose_sizebar_facet
+      )
+      ))
+    }
+    
+    ps.edit <- ps %>% 
+      group_by(across(my_vars()) ) %>% 
+      summarize(Abundance=sum(Abundance)) %>% 
+      arrange(input$choose_sizebar_axis)
+    #summarize(RelAbund=Abundance/sum(Abundance)) 
+    
+    baseplot <- ggplot(ps.edit, 
+                       aes(x="",#x=.data[[input$choose_sizebar_axis]], #x axis
+                           y=Abundance, #y=RelAbund,
+                           fill=BodySize,
+                           color=BodySize
+                       )
+    ) + 
+      geom_bar( stat="identity", position = "fill") +  
+      #scale_y_continuous(labels=function(x) paste0(x * 100, "%")) + 
+      labs(y="Relative Abundance",
+           title="Relative abundance of each trophic group") +
+      #coord_flip() 
+      coord_polar("y",start=0) + 
+      theme_void() #+ # remove background, grid, numeric labels
+    #geom_text(aes(label = Trophic.val #round(value,2)
+    #              ),
+    #          color="black",
+    #          position = position_stack(vjust = 0.5))
+    
+    if(!is.null(input$choose_sizebar_facet) & length(input$choose_sizebar_facet) < 2) {
+      finalplot <- baseplot + facet_wrap(~.data[[input$choose_sizebar_facet]],scales="free") 
+    } else if(!is.null(input$choose_sizebar_facet) & length(input$choose_sizebar_facet) == 2) {
+      finalplot <- baseplot + facet_grid(rows=vars(.data[[input$choose_sizebar_facet[1]]]),
+                                         cols= vars(.data[[input$choose_sizebar_facet[2]]]),
+                                         scales="free") 
+    } else {finalplot <- baseplot}
+    
+    finalplot +
+      #sizebarplot_pretty() + 
+      sizebarplot_size$aspectRatio() 
+ # }
+  
+})
+
+observeEvent(input$go_sizebar, {
+  print("Size bar plot: plotting")
+  output$sizebar_plot <- renderPlot({sizebarplot()})
+  
+  tryCatch(
+    ggsave(filename="sizebarplot.png", 
+           path=tempdir(),
+           plot=sizebarplot(),
+           height=sizebarplot_size$height(),width=sizebarplot_size$width(),
+           scale=2
+    ),
+    error=function(e){return(NA)}
+  )
+})
+
+observe({
+  showModal(modalDialog(
+    renderPlot(sizebarplot()),
+    footer = downloadButton('download_sizebarplot_popup', 'Download'),
+    size="xl",
+    easyClose = TRUE
+  ))
+  print("Trophic bar plot: popup")
+}) %>% bindEvent(input$sizebar_click)
+
+output$sizebar_plotdwnld <- output$sizebar_plotdwnld_popup <-  downloadHandler(
+  filename = "sizebarplot.png",
+  contentType = 'image/png',
+  content = function(file) {
+    ggsave(file,plot=sizebarplot(),
+           height=sizebarplot_size$height(),width=sizebarplot_size$width(),
            scale=2
     )
     

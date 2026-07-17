@@ -39,7 +39,7 @@ Anlys_TraitCard <- tagList(
 ####################################### Temperature ################################################
 Anlys_TempCard <- tagList(
   h3("Temperature range analysis"),
-  p("Here you can view plots regarding species temperature preference."),
+  p("Here you can view plots regarding species' temperature preference."),
   accordion(
     open=FALSE, #start with all panels closed
     multiple=TRUE, #multiple panels can be open at once
@@ -50,6 +50,44 @@ Anlys_TempCard <- tagList(
                     Anlys_TempLolliCard
     )
   )
+)
+
+####################################### Size ################################################
+Anlys_SizeCard <- tagList(
+  h3("Body charactieristic analysis"),
+  p("Here you can view plots regarding species' body size and time to maturity."),
+  layout_columns(col_widths=c(4,4,4),
+                 shinyWidgets::dropdown(inputId="sizebar_plotgrouping",
+                                        label="Grouping choices (y-axis)",
+                                        icon=icon("gear"),
+                                        pickerInput("choose_sizebar_axis",
+                                                    label="Groups to compare",
+                                                    choices=list(),
+                                                    multiple = FALSE,
+                                                    options = pickerOptions(maxOptions = 1,
+                                                                            container = "body", 
+                                                                            actionsBox = TRUE,
+                                                                            deselectAllText = "Clear selection"
+                                                    )
+                                        ),
+                                        pickerInput("choose_sizebar_facet",label="Faceting Group",
+                                                    choices=list(),
+                                                    multiple = TRUE,
+                                                    options = pickerOptions(maxOptions = 2,
+                                                                            container = "body", 
+                                                                            actionsBox = TRUE,
+                                                                            deselectAllText = "Clear selection"
+                                                    )
+                                        )
+                 ),
+                 plotPrettyUI("sizebar_pretty"),
+                 plotSizeUI('sizebar_size')
+  ),
+  layout_columns(col_widths=c(10,-1,1),
+                 actionButton("go_sizebar","Plot"),
+                 downloadButton('sizebar_plotdwnld', label=NULL)
+  ),
+  withSpinner(plotOutput("sizebar_plot",click="sizebar_click"))
 )
 
 ###############################################################################################
@@ -82,6 +120,8 @@ allanalysispage = nav_panel(
   br(),
   
   # body size
+  Anlys_SizeCard,
+  br(),
   
   # Feeding guild 
   Anlys_TrophBarCard, 
