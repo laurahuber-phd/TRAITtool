@@ -1,15 +1,35 @@
 library(dplyr)
 
-Meta_vars <- reactive({ #read the metadata file and identify the variable names 
-  #req(input$Metadata)
+Meta_vars <- reactiveVal()
+
+observe({
   req(!is.null(MetadataTable$x))
   print("Globalvars: Meta_vars() sample variables calculated")
-  return(names(MetadataTable$x) %>% sort())
+  
+  varlist <- names(MetadataTable$x) %>% sort()
+  
+  Meta_vars(varlist)
 }) %>% bindEvent(input$load_ex, #update meta_vars if the load button is pressed (new dataset)
                  input$assemble_ps
                  #input$Metadata, #update meta_vars if a new metadata table is uploaded manual
                  #MetadataTable$x
 )
+
+observe({
+  req(ps.all())
+  req(!is.null(Meta_vars))
+  print("Globalvars: Meta_vars() sample variables re-calculated")
+  
+  oldlist <- names(MetadataTable$x) %>% sort()
+  newfront <- isolate(input$aggregate_var)
+  
+  varlist <- c(oldlist[oldlist%in%newfront],
+               oldlist[!oldlist%in%newfront]
+               )
+    
+    Meta_vars(varlist)
+},priority=1) %>% bindEvent(input$aggregate_var)
+
 
 rnames <- reactive({ 
   req(ps.all())
