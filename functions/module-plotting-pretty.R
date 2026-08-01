@@ -25,7 +25,7 @@ plotPrettyUI <- function(id) {
                                                "bottom","top",
                                                "right", "left",
                                                "none"
-                                             ), selected="right"),
+                                             ), selected="none"),
                                  
                                  numericInput(NS(id,"textsize"),
                                               label="Text size",
