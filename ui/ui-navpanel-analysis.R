@@ -4,7 +4,10 @@ source('functions/module-plotting-size.R',local=TRUE)
 
 ############################################# Alpha diversity #############################################
 Anlys_AlphaCard <- tagList(
-  layout_columns(uiOutput("alphametrics_var1"),  #reactive output variable (used to select variables from the metadata for the x axis)
+  layout_columns(#uiOutput("alphametrics_var1"),  #reactive output variable (used to select variables from the metadata for the x axis)
+                             selectInput('alpha_xvar',
+                                         label='Select the explanatory variable',
+                                         choices=""),
                  selectInput("alphametrics",
                              "Which alpha diversity measures?",
                              c(
