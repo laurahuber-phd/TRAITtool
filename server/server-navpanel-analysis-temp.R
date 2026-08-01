@@ -71,7 +71,7 @@ tviolinplot <- eventReactive(input$go_tviolin, {
 
 observeEvent(input$go_tviolin, {
   print("Violin: plotting")
-  output$tviolin_plot <- renderPlot({tviolinplot()})
+  output$tviolin_s_plot <- output$tviolin_plot <- renderPlot({tviolinplot()})
   
   tryCatch(
     ggsave(filename="tviolinplot.png", 
@@ -110,8 +110,8 @@ output$tviolin_plotdwnld <- output$tviolin_plotdwnld_popup <-  downloadHandler(
 observe({ 
   updatePickerInput(session,
                     "choose_tlolli_yaxis", 
-                    choices=c(rnames()),
-                    selected=""
+                    choices=c(rnames())#,
+                    #selected=""
   )
   #updatePickerInput(session,
   #                  "choose_tlolli_xaxis", 
@@ -177,15 +177,15 @@ tlolliplot <- eventReactive(input$go_tlolli, {
     
      baseplot <- baseplot +
       geom_segment(
-        aes(x=ps.edit[[input$choose_tlolli_yaxis]], xend=ps.edit[[input$choose_tlolli_yaxis]], 
+        aes(x=.data[[input$choose_tlolli_yaxis]], xend=.data[[input$choose_tlolli_yaxis]], 
             y=Tempprefmin, yend=Tempprefmax,
-            color=ps.edit[[input$choose_tlolli_yaxis]] %in% input$tlolli_samples#,
-            #size=ps.edit[[input$choose_tlolli_yaxis]] %in% input$tlolli_samples
+            color=.data[[input$choose_tlolli_yaxis]] %in% input$tlolli_samples#,
+            #size=.data[[input$choose_tlolli_yaxis]] %in% input$tlolli_samples
         )) + 
       geom_point(
-        aes(x=ps.edit[[input$choose_tlolli_yaxis]], y=Tempprefmean,
-            color=ps.edit[[input$choose_tlolli_yaxis]] %in% input$tlolli_samples,
-            size=ps.edit[[input$choose_tlolli_yaxis]] %in% input$tlolli_samples
+        aes(x=.data[[input$choose_tlolli_yaxis]], y=Tempprefmean,
+            color=.data[[input$choose_tlolli_yaxis]] %in% input$tlolli_samples,
+            size=.data[[input$choose_tlolli_yaxis]] %in% input$tlolli_samples
         )) + 
       scale_color_manual(values=c("TRUE"="orange","FALSE"="grey"),name=NULL,labels=NULL) + 
       scale_size_manual(values=c("TRUE"=3,"FALSE"=1),name=NULL,labels=NULL) +
@@ -205,7 +205,7 @@ tlolliplot <- eventReactive(input$go_tlolli, {
 
 observeEvent(input$go_tlolli, {
   print("Temperature lolli plot: plotting")
-  output$tlolli_plot <- renderPlot({tlolliplot()})
+  output$tlolli_s_plot <- output$tlolli_plot <- renderPlot({tlolliplot()})
   
   tryCatch(
     ggsave(filename="tlolliplot.png", 

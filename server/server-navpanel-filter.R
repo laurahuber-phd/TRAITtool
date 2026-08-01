@@ -118,7 +118,7 @@ observeEvent(ps.all(),{ #every time ps.all is made
 })
 
 # ---- # Aggregate data object # -----
-observeEvent(input$aggregate_var,{
+observe({
   req(ps.all())
   trackNums$aggMem_aft <- trackNums$aggGroup_aft <- trackNums$aggSam_aft <- trackNums$aggSam_bef <- NULL
   
@@ -132,7 +132,7 @@ observeEvent(input$aggregate_var,{
     HTML("<p><u>Number of groups: </u>",trackNums$aggGroup_aft,"</p>")
   })
   #output$aggregate_ngroupmem <- renderText({paste0("Number of group members: ",trackNums$aggGroupmem_aft)})
-})
+}) %>% bindEvent(input$aggregate_var)
 
 observe({
   req(ps.all())

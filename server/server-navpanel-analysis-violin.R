@@ -7,7 +7,7 @@ violinplot_pretty  <- plotPrettyServer(id="violin_pretty")
 violinplot_size <- plotSizeServer(id="violin_size") 
 violinplot_general <- plotControlsServer(id="violin_gen",
                                         df=ps.norm.melt,
-                                        var1=rnames, #color
+                                        #var1=rnames, #color
                                         var2=Meta_vars, #x
                                         #var3=Meta_vars(), #y
                                         var4=Meta_vars, #facet
@@ -18,7 +18,7 @@ violinplot_general <- plotControlsServer(id="violin_gen",
 ) 
 
 violin_base <- reactive({
-  print("Violin: building base plot")
+  #print("Violin: building base plot")
   req(ps.norm())
   #req(violinplot_general$x())
   ps <- ps.norm.melt()
@@ -57,10 +57,10 @@ violin_base <- reactive({
                  fill="white"
                  )
 
-}) %>% bindEvent(ps.norm(),
-                 violinplot_general$x(),
+}) %>% bindEvent(violinplot_general$x(),
                  violinplot_general$y(),
-                 violinplot_general$facet()
+                 violinplot_general$facet(),
+                 ps.norm(),Meta_vars()
 )
 
 violinplot <- eventReactive(input$go_violin, {
@@ -68,9 +68,9 @@ violinplot <- eventReactive(input$go_violin, {
   violin_base() + violinplot_general$facet() + violinplot_pretty() + violinplot_size$aspectRatio() 
 }) 
 
-observeEvent(input$go_violin, {
+observe({
   print("Violin: plotting")
-  output$violin_plot <- renderPlot({violinplot()})
+  output$violin_s_plot <- output$violin_plot <- renderPlot({violinplot()})
   
   tryCatch(
   ggsave(filename="violinplot.png", 
@@ -81,7 +81,7 @@ observeEvent(input$go_violin, {
          ),
   error=function(e){return(NA)}
   )
-})
+}) %>% bindEvent(input$go_violin)
 
 observe({
   showModal(modalDialog(

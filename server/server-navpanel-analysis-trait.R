@@ -81,7 +81,7 @@ trophbarplot <- eventReactive(input$go_trophbar, { #assign a variable that runs 
 
 observeEvent(input$go_trophbar, {
   print("Trophic bar plot: plotting")
-  output$trophbar_plot <- renderPlot({trophbarplot()})
+  output$trophbar_s_plot <- output$trophbar_plot <- renderPlot({trophbarplot()})
   
   tryCatch(
   ggsave(filename="trophbarplot.png", 
@@ -120,8 +120,8 @@ output$trophbar_plotdwnld <- output$trophbar_plotdwnld_popup <-  downloadHandler
 observe({ 
   updatePickerInput(session,
                     "choose_sizebar_axis", 
-                    choices=c(ps.norm.melt() %>% select(contains("ength")) %>% colnames()),
-                    selected=Meta_vars()[[1]]
+                    choices=c(ps.norm.melt() %>% select(contains("ength")) %>% colnames())#,
+                    #selected=""
   )
   updatePickerInput(session,
                     "choose_sizebar_facet",
@@ -149,7 +149,14 @@ sizebarplot <- eventReactive(input$go_sizebar, { #assign a variable that runs wh
                                 .data[[input$choose_sizebar_axis]] < 20 & .data[[input$choose_sizebar_axis]] >= 10 ~ " Medium (10-19 cm)",
                                 .data[[input$choose_sizebar_axis]] < 10 & .data[[input$choose_sizebar_axis]] >= 5 ~ " Small (5-10 cm)",
                                 .data[[input$choose_sizebar_axis]] <5 ~ "Very small (<5 cm)",
-                                .default="Not Assigned"))
+                                .default="Not assigned")) #%>% 
+      #mutate(BodySize=factor(BodySize,levels=c("Giant (>100 cm)",
+       #                                        "Large (>20 cm)",
+        #                                       "Medium (10-19 cm)",
+       #                                        "Small (5-10 cm)",
+        #                                       "Very small (<5 cm)",
+        #                                       "Not assigned")
+         #                    ))
       #mutate(case_when(is.na(.data[[input$choose_sizebar_axis]]) ~ "Not assigned" ,.default=.data[[input$choose_sizebar_axis]]))
     
     my_vars <- function() {
@@ -175,8 +182,8 @@ sizebarplot <- eventReactive(input$go_sizebar, { #assign a variable that runs wh
     ) + 
       geom_bar( stat="identity", position = "fill") +  
       #scale_y_continuous(labels=function(x) paste0(x * 100, "%")) + 
-      labs(y="Relative Abundance",
-           title="Relative abundance of each trophic group") +
+      #labs(y="Relative Abundance",
+      #     title="Relative abundance of each trophic group") +
       #coord_flip() 
       coord_polar("y",start=0) + 
       theme_void() #+ # remove background, grid, numeric labels
@@ -202,7 +209,7 @@ sizebarplot <- eventReactive(input$go_sizebar, { #assign a variable that runs wh
 
 observeEvent(input$go_sizebar, {
   print("Size bar plot: plotting")
-  output$sizebar_plot <- renderPlot({sizebarplot()})
+  output$sizebar_s_plot <- output$sizebar_plot <- renderPlot({sizebarplot()})
   
   tryCatch(
     ggsave(filename="sizebarplot.png", 

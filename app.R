@@ -238,6 +238,7 @@ tags$footer(style="display: flex;justify-content: space-between;",
 server <- function(input,output,session) {
   source('server/server-globalvars.R',local=TRUE)
   source('server/server-navpanel-settings.R',local=TRUE)
+  source('server/server-navpanel-analysis-alltraits.R',local=TRUE)
   #source('server/server-navpanel-preprocessing.R',local=TRUE)
 # --- # Overall themes # --------
 #observe(session$setCurrentTheme(

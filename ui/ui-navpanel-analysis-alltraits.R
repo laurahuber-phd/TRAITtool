@@ -1,3 +1,4 @@
+source("ui/ui-navpanel-analysis-temp.R",local=TRUE)
 
 ####################################### Trophic Level ################################################
 Anlys_TraitIntroCard <- tagList(
@@ -53,9 +54,7 @@ Anlys_TempCard <- tagList(
 )
 
 ####################################### Size ################################################
-Anlys_SizeCard <- tagList(
-  h3("Body charactieristic analysis"),
-  p("Here you can view plots regarding species' body size and time to maturity."),
+Anlys_SizePlot <- tagList(
   layout_columns(col_widths=c(4,4,4),
                  shinyWidgets::dropdown(inputId="sizebar_plotgrouping",
                                         label="Grouping choices (y-axis)",
@@ -90,6 +89,17 @@ Anlys_SizeCard <- tagList(
   withSpinner(plotOutput("sizebar_plot",click="sizebar_click"))
 )
 
+Anlys_SizeCard <- tagList(
+  h3("Body characteristic analysis"),
+  p("Here you can view plots regarding species' body size and time to maturity."),
+  accordion(
+    open=FALSE, #start with all panels closed
+    multiple=TRUE, #multiple panels can be open at once
+    accordion_panel(title="Figures",
+                    Anlys_SizePlot)
+  )
+)
+
 ###############################################################################################
 allanalysispage = nav_panel(
   useShinyjs(),
@@ -105,12 +115,37 @@ allanalysispage = nav_panel(
   br(),
   br(),
   
+  # Figure overview  
+  card(h3("Figures"),
+       layout_columns(col_widths=c(6,6),
+                      row_heights=c(1,1,1),
+                          withProgress(plotOutput("violin_s_plot")),
+                          withProgress(plotOutput("trophbar_s_plot")),
+                      
+                      withProgress(plotOutput("tviolin_s_plot")),
+                      withProgress(plotOutput("tlolli_s_plot")),
+                          
+                      withProgress(plotOutput("sizebar_s_plot")),
+                      withProgress(plotOutput("rich_s_plot"))
+                          )
+       ),
+  br(),
   # radar diagram 
   
   # trophic level
   card(
   Anlys_TraitIntroCard, 
-  Anlys_ViolinCard
+  accordion(
+    open=FALSE, #start with all panels closed
+    multiple=TRUE, #multiple panels can be open at once
+    accordion_panel(title="Violin plot",
+                    Anlys_ViolinCard
+                    ),
+    accordion_panel(title="Feeding guild",
+                    Anlys_TrophBarCard
+                    )
+    ),
+  #Anlys_ViolinCard
   #Anlys_TraitCard
   ), 
   br(),
@@ -124,8 +159,8 @@ allanalysispage = nav_panel(
   br(),
   
   # Feeding guild 
-  Anlys_TrophBarCard, 
-  br(),
+  #Anlys_TrophBarCard, 
+  #br(),
   
   # Age at maturity 
   
@@ -135,19 +170,16 @@ allanalysispage = nav_panel(
   
   # Alpha diversity 
   #card(
-    h5("Diversity"),
-    HTML("<p>Here you can look at different ways of measuring biodiversity as a whole</p>"),
-    navset_bar(fillable=TRUE,#full_screen=FALSE,
-               fluid=TRUE,
-      sidebar=sidebar(title="Original dataset overview",
-                      position="right",
-                      open="closed"
-                      ), 
-      nav_panel(id="testb",
-                title="Sample Summary Table",
-                Anlys_AlphaCard)
-   #   )
-    ), 
+  h3("Diversity"),
+  HTML("<p>Here you can look at different ways of measuring biodiversity as a whole</p>"),
+  accordion(
+    open=FALSE,
+    multiple=TRUE,
+    accordion_panel(title="Alpha diversity",
+                    Anlys_AlphaCard
+    )
+  ), 
+  
   
   br(),
   layout_column_wrap(
