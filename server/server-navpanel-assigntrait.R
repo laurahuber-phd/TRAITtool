@@ -64,9 +64,9 @@ observe({
   print(c("Trait: Query options include:",seltax))
 }) %>% bindEvent(TaxTable$x)
 
-observeEvent(input$trait_tax_select, {
+observe({
   print(c("Trait: Query selection is",input$trait_tax_select))
-})
+}) %>% bindEvent(input$trait_tax_select, ignoreInit=TRUE)
 
 # when the user selections fishbase/sealifebase/both, hide previous queries and update database string for query 
 observeEvent(input$trait_select, {
