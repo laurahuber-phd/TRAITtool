@@ -8,7 +8,7 @@ titlepage <- tagList(
       #align = "center",
       #style='max-height:300px;width:auto;'
       ),
-      tags$figcaption(HTML("<p style='text-align:right'><small><i>Image of mangrove caye by Dr. Hannah Morrissette, 2024. Logo by ____ </i></small></p>"))),
+      tags$figcaption(HTML("<p style='text-align:right'><small><i>Image of mangrove caye by Dr. Hannah Morrissette, 2024 </i></small></p>"))),
   actionBttn(
     inputId = "titlepg_start",
     label = "Get started!", 
