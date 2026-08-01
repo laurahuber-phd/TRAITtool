@@ -3,25 +3,31 @@ source('functions/module-plotting-pretty.R',local=TRUE)
 source('functions/module-plotting-size.R',local=TRUE)
 library(shinycssloaders)
 
-output$alphametrics_var2 <- output$alphametrics_var1 <- renderUI({
-  req(ps.norm())
-  ps <- ps.norm()
-  selectInput('alpha_xvar',
-              'Select the explanatory variable',
-              sample_variables(ps))
-})
-richplot <- eventReactive(input$go_rich, { #draw alpha div plot when 'plot' button is clicked
+#output$alphametrics_var2 <- output$alphametrics_var1 <- renderUI({
+#  req(ps.norm())
+#  ps <- ps.norm()
+#  selectInput('alpha_xvar',
+#              'Select the explanatory variable',
+#              Meta_vars())
+#})
+
+observe({
+  updateSelectInput(session,'alpha_xvar',
+                    'Select the explanatory variable',
+                    Meta_vars())
+}) %>% 
+  bindEvent(Meta_vars()) #respond to any changes in the Metadata file that is uploaded
+
+richplot <- reactive({ #draw alpha div plot when 'plot' button is clicked
   print("Alpha diversity: making plot")
   withProgress(message="Making richness plot",
                plot_richness(ps.norm(), x=input$alpha_xvar, measures=input$alphametrics) + geom_boxplot()
   )
-})
+})%>% bindEvent(input$go_rich)
 
-observeEvent(input$go_rich, {
+observe({
   print("Alpha diversity: rendering plot")
-output$rich_plot <- renderPlot({ #need separate call to actually render the plot
-  richplot()
-  })
+  output$rich_s_plot <- output$rich_plot <- renderPlot({  richplot() })
 
 tryCatch(
 ggsave(filename="richplot.png", 
@@ -32,7 +38,7 @@ ggsave(filename="richplot.png",
 error=function(e){return(NA)}
 )
 
-})
+}) %>% bindEvent(input$go_rich)
 
 observe({
   showModal(modalDialog(
