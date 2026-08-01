@@ -105,7 +105,7 @@ mkdwnrptfun <- function(x) { #tryCatch will check to see if the 'function' exist
   tryCatch(x,error=function(e){return(as.numeric(NA))}) 
 }
 
-observeEvent(c(input$gen_report_s,input$gen_report_i), {
+observe({
   print("Report: generate report button selected")
   
   if(is.null(input$gen_report_s) & is.null(input$gen_report_i)) shinyjs::hide("dwnldviewreport")
@@ -202,7 +202,9 @@ observeEvent(c(input$gen_report_s,input$gen_report_i), {
   report$htmlfilepath <- list.files(tempdir(), pattern="tmp_file.html", full.names = TRUE)
   #report$docxfilepath <- list.files(tempdir(), pattern="tmp_file.docx", full.names = TRUE) #Assigning in the temp file where the .pdf is located to the reactive file created above
   
-})
+}) %>% bindEvent(input$gen_report_s,
+                 input$gen_report_i,
+                 ignoreInit=TRUE)
 
 # Hide download button until report is generated
 #output$reportbuilt <- reactive({
