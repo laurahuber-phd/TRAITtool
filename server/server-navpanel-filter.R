@@ -125,6 +125,9 @@ observe({
   trackNums$aggMem_aft <- get_variable(ps.all(),{input$aggregate_var}) %>% unique()
   trackNums$aggGroup_aft <- length(get_variable(ps.all(),{input$aggregate_var}) %>% unique())
   
+  shinyjs::show("aggregate_groupmem")
+  shinyjs::show("aggregate_ngroup")
+  
   output$aggregate_groupmem <- renderUI({
     HTML("<p><u>Group members: </u>",unlist(trackNums$aggMem_aft),"</p>")
   })
@@ -136,39 +139,40 @@ observe({
 
 observe({
   req(ps.all())
-    print("Aggregation started")
+  switch_page("analysistab")
+  #  print("Aggregation started")
     
-    if(is.null(ps.select$a)) { #if ps.select$a is null (if pruning has not happened)
-      ps.select$b <- ps.sub()
-    } 
+  #  if(is.null(ps.select$a)) { #if ps.select$a is null (if pruning has not happened)
+  #    ps.select$b <- ps.sub()
+  #  } 
     
-    ps <- ps.sub()
-    print("dataset before: ")
-    print(ps)
+  #  ps <- ps.sub()
+  #  print("dataset before: ")
+  #  print(ps)
   
-  sd <- sample_data(ps) %>% 
-    as.data.frame() %>% 
-    group_by(.data[[input$aggregate_var]]) %>% 
-         summarize(
-           across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
-           across(where(is.character), ~ paste(unique(.x), collapse = ", "))) %>% 
-    filter(!is.na(.data[[input$aggregate_var]]))
+  # sd <- sample_data(ps) %>% 
+  #  as.data.frame() %>% 
+  #  group_by(.data[[input$aggregate_var]]) %>% 
+  #       summarize(
+  #         across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+  #         across(where(is.character), ~ paste(unique(.x), collapse = ", "))) %>% 
+  #  filter(!is.na(.data[[input$aggregate_var]]))
   
-  print(c("new rownames will be:",sd[[input$aggregate_var]]))
+ # print(c("new rownames will be:",sd[[input$aggregate_var]]))
   
-  sd <- as.data.frame(sd)
-  rownames(sd) <- sd[[input$aggregate_var]]
-  print(c("new rownames:",rownames(sd)))
-  print("Aggregated sample data")
+ # sd <- as.data.frame(sd)
+ # rownames(sd) <- sd[[input$aggregate_var]]
+ # print(c("new rownames:",rownames(sd)))
+ # print("Aggregated sample data")
   
-  ps.agg <- ps %>% merge_samples(input$aggregate_var)
-  print("Aggregated dataset")
-  print(ps.agg)
-  sample_data(ps.agg) <- sample_data(as.data.frame(as.matrix(sd)))
-  print("Sample data reassigned")
+ # ps.agg <- ps %>% merge_samples(input$aggregate_var)
+ # print("Aggregated dataset")
+ # print(ps.agg)
+ #  sample_data(ps.agg) <- sample_data(as.data.frame(as.matrix(sd)))
+ # print("Sample data reassigned")
   
-  ps.sub(ps.agg)
-  ps.select$a <- ps.agg
+ # ps.sub(ps.agg)
+ # ps.select$a <- ps.agg
   
   #output$aggregate_bef <- renderUI({
   #  HTML("<p><u>Dataset before:</u>",ps.select$b,"</p>")
@@ -176,45 +180,50 @@ observe({
   #output$aggregate_aft <- renderUI({
   #  HTML("<p><u>Dataset after:</u>",ps.agg,"</p>")
   #})
-  trackNums$aggSam_bef <- nsamples(ps)
-  trackNums$aggSam_aft <- nsamples(ps.agg)
+ # trackNums$aggSam_bef <- nsamples(ps)
+ # trackNums$aggSam_aft <- nsamples(ps.agg)
   
-  output$agg_nsamples_bef <- renderUI({
-    HTML("<p><u>Number of samples before:</u>",as.character(trackNums$aggSam_bef),"</p>")
-  })
-  output$agg_nsamples_aft <- renderUI({
-    HTML("<p><u>Number of samples after:</u>",as.character( trackNums$aggSam_aft),"</p>")
-  })
+ # output$agg_nsamples_bef <- renderUI({
+ #   HTML("<p><u>Number of samples before:</u>",as.character(trackNums$aggSam_bef),"</p>")
+ # })
+ # output$agg_nsamples_aft <- renderUI({
+ #   HTML("<p><u>Number of samples after:</u>",as.character( trackNums$aggSam_aft),"</p>")
+ # })
 }) %>% bindEvent(input$go_aggregate)
 
 observe({
   req(ps.all())
+  shinyjs::hide("aggregate_groupmem")
+  shinyjs::hide("aggregate_ngroup")
   
-  output$agg_nsamples_bef <- renderUI({
-    HTML("<p><u>Number of samples before:</u>",trackNums$aggSam_aft,"</p>")
-  })
+  updateSelectInput(session, 
+                    'aggregate_var',
+                    selected="")
+#  output$agg_nsamples_bef <- renderUI({
+#    HTML("<p><u>Number of samples before:</u>",trackNums$aggSam_aft,"</p>")
+#  })
   
-    ps.sub(ps.select$b) 
-    ps.select$a <- NULL
+#    ps.sub(ps.select$b) 
+#    ps.select$a <- NULL
     
-    print("Filter: reset aggregate selection")
-    print(ps.sub())
+#    print("Filter: reset aggregate selection")
+#    print(ps.sub())
     
     
-    output$agg_nsamples_aft <- renderUI({
-      HTML("<p><u>Number of samples after:</u>",as.character(nsamples(ps.sub())),"</p>")
-    })
+#    output$agg_nsamples_aft <- renderUI({
+#      HTML("<p><u>Number of samples after:</u>",as.character(nsamples(ps.sub())),"</p>")
+#    })
     
 }) %>% bindEvent(input$reset_aggregate)
 
 # ---- # Update picker variable selection # ---- 
 observe({ 
-  req(Meta_vars())
-  updateSelectInput(session, 
-                    'aggregate_var',
-                    choices=c("",Meta_vars()),
-                    selected=NULL)
-  print("Filter: updated aggregate variable options")
+  #req(Meta_vars())
+  #updateSelectInput(session, 
+  #                  'aggregate_var',
+  #                  choices=c("",Meta_vars()),
+  #                  selected=NULL)
+  #print("Filter: updated aggregate variable options")
   
   updateSelectInput(session,
                     "blank_cols",#for blank selection
@@ -228,6 +237,15 @@ observe({
   
 }) %>% 
   bindEvent(Meta_vars()) #respond to any changes in the Metadata file that is uploaded
+
+observe({
+  req(Meta_vars())
+  updateSelectInput(session, 
+                    'aggregate_var',
+                    choices=c("",Meta_vars()),
+                    selected=NULL)
+  print("Filter: updated aggregate variable options")
+}) %>% bindEvent(Meta_vars(),once=TRUE)
 
 # ---- # Update blank variable options # ---- 
 observe({ 

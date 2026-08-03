@@ -25,6 +25,12 @@ observe({
   ## to update the aggregate variable
   #updateSelectInput(session,"choose_sizebar_facet",
   #                  choices=isolate(input$aggregate_var))
+  updatePickerInput(session,
+                    "choose_trophbar_facet",
+                    #choices=c(Meta_vars()),
+                    selected=isolate(input$aggregate_var)
+  )
+  print(c("trophbar facet picker variable updated to",isolate(input$aggregate_var)))
   
   # update temperature plots  
   ## violin plot  
@@ -41,7 +47,14 @@ observe({
  #                   choices=isolate(input$aggregate_var)) #make aggregate variable the y-axis for temperature lollipop plot
   
   # update body size plots 
-  ## na
+  ## pie chart 
+  ### needs facet variable (choose_sizebar_facet)
+  updatePickerInput(session,
+                    "choose_sizebar_facet",
+                    choices=c(Meta_vars()),
+                    selected=isolate(input$aggregate_var))
+  
+  print(c("sizebar facet picker variable updated to",isolate(input$aggregate_var)))
   
   # update richness plots  
   ## needs x-axis variable (alpha_xvar)
@@ -82,4 +95,4 @@ shinyjs::click("go_rich") #simulate clicking 'go' for richness plot
 #
 #}
 
-},priority=1) %>% bindEvent(input$aggregate_var,input$pages)
+},priority=10) %>% bindEvent(input$aggregate_var,input$pages,input$go_aggregate)

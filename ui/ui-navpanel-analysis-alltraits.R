@@ -1,4 +1,5 @@
 source("ui/ui-navpanel-analysis-temp.R",local=TRUE)
+source("ui/ui-navpanel-analysis-trait.R",local=TRUE)
 
 ####################################### Trophic Level ################################################
 Anlys_TraitIntroCard <- tagList(
@@ -60,7 +61,8 @@ Anlys_SizePlot <- tagList(
                                         label="Grouping choices (y-axis)",
                                         icon=icon("gear"),
                                         pickerInput("choose_sizebar_axis",
-                                                    label="Groups to compare",
+                                                    label="Body size data",
+                                        #            label="Groups to compare",
                                                     choices=list(),
                                                     multiple = FALSE,
                                                     options = pickerOptions(maxOptions = 1,
@@ -69,7 +71,9 @@ Anlys_SizePlot <- tagList(
                                                                             deselectAllText = "Clear selection"
                                                     )
                                         ),
-                                        pickerInput("choose_sizebar_facet",label="Faceting Group",
+                                        pickerInput("choose_sizebar_facet",
+                                                    label="Groups to compare",
+                                                    #label="Faceting Group",
                                                     choices=list(),
                                                     multiple = TRUE,
                                                     options = pickerOptions(maxOptions = 2,
@@ -119,14 +123,14 @@ allanalysispage = nav_panel(
   card(h3("Figures"),
        layout_columns(col_widths=c(6,6),
                       row_heights=c(1,1,1),
-                          withProgress(plotOutput("violin_s_plot")),
-                          withProgress(plotOutput("trophbar_s_plot")),
+                          withSpinner(plotOutput("violin_s_plot")),
+                          withSpinner(plotOutput("trophbar_s_plot")),
                       
-                      withProgress(plotOutput("tviolin_s_plot")),
-                      withProgress(plotOutput("tlolli_s_plot")),
+                      withSpinner(plotOutput("tviolin_s_plot")),
+                      withSpinner(plotOutput("tlolli_s_plot")),
                           
-                      withProgress(plotOutput("sizebar_s_plot")),
-                      withProgress(plotOutput("rich_s_plot"))
+                      withSpinner(plotOutput("sizebar_s_plot")),
+                      withSpinner(plotOutput("rich_s_plot"))
                           )
        ),
   br(),
