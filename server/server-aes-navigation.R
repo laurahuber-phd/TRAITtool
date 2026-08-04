@@ -1,31 +1,4 @@
 # --- # Page Navigation # --------
-# modal dialog boxes to walk user through steps
-observe({
-  req(input$FASTQFile) #if the FASTQ and barcode files are both uploaded, take the user to the demux page
-  req(input$BarcodeFile)
-  showModal(modalDialog(title="Move on to process your data",
-                        size='m',
-                        actionButton("rawupload_nextpage","Next step",width='100%'),
-                        easyClose = TRUE,
-                        footer=NULL
-  )
-  )
-}) %>% bindEvent(input$FASTQFile,input$BarcodeFile,input$Metadata)
-observe({
-  req(MetadataTable$x) #if the otu table and taxonomy table are both uploaded, take the user to the review page
-  req(OTUTable$x)
-  req(TaxTable$x)
-  showModal(modalDialog(title="Data uploaded. Move on to review your files",
-                        size='l',
-                        layout_columns(col_widths = c(6,6),
-                          actionButton("fileupload_nextpage","Go to review files"),
-                          actionButton('fileupload_nextpage_v4',"Go to filter page")),
-                        actionButton("fileupload_nextpage_v3","Go directly to trait assignment",width='100%'),
-                        easyClose = TRUE,
-                        footer=NULL
-  )
-  )
-}) %>% bindEvent(input$assemble_ps)
 
 # page switch actions
 switch_page <- function(i) {
@@ -144,6 +117,39 @@ observeEvent(input$asv_prevpage, switch_page("Demultiplex and Quality Control"))
 observeEvent(input$tax_nextpage, switch_page("reviewtab")) 
 observeEvent(input$tax_prevpage, switch_page("Assign OTU")) 
 
+# --- # Navigation checks # --------
+
+# (not using)
+# if the FASTQ and barcode files are both uploaded, take the user to the demux page
+observe({
+  req(input$FASTQFile) 
+  req(input$BarcodeFile)
+  showModal(modalDialog(title="Move on to process your data",
+                        size='m',
+                        actionButton("rawupload_nextpage","Next step",width='100%'),
+                        easyClose = TRUE,
+                        footer=NULL
+  )
+  )
+}) %>% bindEvent(input$FASTQFile,input$BarcodeFile,input$Metadata)
+
+# After assembing dataset, quick options to change pages
+observe({
+  req(MetadataTable$x) 
+  req(OTUTable$x)
+  req(TaxTable$x)
+  showModal(modalDialog(title="Data uploaded. Move on to review your files",
+                        size='l',
+                        layout_columns(col_widths = c(6,6),
+                                       actionButton("fileupload_nextpage","Go to review files"),
+                                       actionButton('fileupload_nextpage_v4',"Go to filter page")),
+                        actionButton("fileupload_nextpage_v3","Go directly to trait assignment",width='100%'),
+                        easyClose = TRUE,
+                        footer=NULL
+  )
+  )
+}) %>% bindEvent(input$assemble_ps)
+
 # remove modal dialog boxes
 observe({
   removeModal() #remove the modal dialog when the user selects something in one of the dialog boxes
@@ -167,6 +173,8 @@ observe({
   }
 }) %>% bindEvent(input$assemble_ps)
 
+# if user clicks build dataset and it fails
+
 # if all files are uploaded but user did not assemble the dataset 
 observe({
     if (isTruthy(MetadataTable$x) && isTruthy(OTUTable$x) && isTruthy(TaxTable$x) && !exists("ps.all()")){
@@ -188,6 +196,53 @@ observe({
 observe({
   removeModal()
   }) %>% bindEvent(input$donotcontinue,ignoreInit=TRUE)
+
+# if user selects that they have their trait table already (already used this tool)
+observe({
+  req(input$selectupload=="choose_return")
+  req(!is.null(TaxTable$x))
+  
+  taxCheck <- TaxTable$x
+  print(colnames(taxCheck))
+  if (any(str_detect(colnames(taxCheck), #if the string pattern "troph" does appear in any of the column names
+                     regex("troph", ignore_case = TRUE) )==TRUE)) {
+    removeModal()
+  } else if(any(str_detect(colnames(taxCheck), #if the string pattern "troph" doesn't appera in any of the column names
+                    regex("troph", ignore_case = TRUE)
+                    )==FALSE)) {
+    showModal(
+      modalDialog(title="No trophic level data detected in column names.",
+                  paste("Are you sure this table contains both taxonomy information and trait data from previous use of this tool? If so, check column names of the table."),
+                  size="l",
+                  easyClose=TRUE,
+                  actionButton("traitTableCheckNo",
+                               label="No, I need to use a different table"),
+                  footer=actionButton("traitTableCheckYes",
+                               label="Yes, this table is correct and I want to use it"))
+      )
+  }
+    
+}) %>% bindEvent(TaxTable$x)
+
+#if user clicks that they need to replace the taxa table in the popup modal dialog 
+observe({ 
+  req(input$selectupload=="choose_return")
+  req(!is.null(TaxTable$x))
+  
+  removeModal() #close the dialog box
+  runjs("$('#taxtab').click();") #mimic clicking the "browse" button so the file search box pops up
+  
+}) %>% bindEvent(input$traitTableCheckNo) 
+
+#if user clicks that they want to keep the taxa table in the popup modal dialog 
+observe({ 
+  req(input$selectupload=="choose_return")
+  req(!is.null(TaxTable$x))
+  
+  removeModal() #close the dialog box
+  
+}) %>% bindEvent(input$traitTableCheckYes)
+
 # --- # Sidebar # --------
 observe({
   sidebar_toggle(
