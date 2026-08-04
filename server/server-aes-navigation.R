@@ -97,15 +97,17 @@ observeEvent(input$go_report, switch_page("reporttab"))
 
 # report accordion
 observeEvent(input$repaccd_percplot,switch_page("basicstab"))
-observeEvent(input$repaccd_richplot, switch_page("statstab"))
 observeEvent(input$repaccd_ordplot, switch_page("statstab"))
 observeEvent(input$repaccd_histplot, switch_page("statstab"))
 observeEvent(input$repaccd_hmplot,switch_page("statstab"))
 observeEvent(input$repaccd_vioplot,switch_page("analysistab"))
 observeEvent(input$repaccd_tbarplot,switch_page("analysistab"))
-observeEvent(input$repaccd_tlineplot,switch_page("analysistab"))
-observeEvent(input$repaccd_lolliplot,switch_page("analysistab"))
+observeEvent(input$repaccd_sizebarplot,switch_page("analysistab"))
 observeEvent(input$repaccd_tlolliplot,switch_page("analysistab"))
+observeEvent(input$repaccd_tviolinplot,switch_page("analysistab"))
+observeEvent(input$repaccd_richplot, switch_page("analysistab"))
+observeEvent(input$repaccd_tlineplot,switch_page("filterdetailstab"))
+observeEvent(input$repaccd_lolliplot,switch_page("filterdetailstab"))
 
 # not using yet
 observeEvent(input$demux_nextpage, switch_page("Assign OTU"))

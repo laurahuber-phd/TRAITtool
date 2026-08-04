@@ -1,0 +1,210 @@
+---
+title: "One Page Summary Report"
+subtitle: "Trophic Rapid Assessment and Integration Tool"
+output: 
+  pdf_document: default  
+  html_document: default   
+  word_document: default  
+  always_allow_html: true
+params: 
+  blanks: NA
+  unass: NA
+  rembl: NA
+  norm: NA
+  ps: NA
+  ntaxa: NA
+  numsam: NA
+  numog: NA
+  vioplot: NA
+  tbarplot: NA
+  tvioplot: NA
+  tlolplot: NA
+  sizebarplot: NA
+  richplot: NA
+  percplot: NA
+  histplot: NA
+  hmplot: NA
+  lineplot: NA
+  lolplot: NA
+  ordplot: NA
+  ordmeth: NA
+  ordtype: NA
+  nseq: NA
+  notu: NA
+  richmet: NA
+  pnsamp: NA
+  pntax: NA
+  sampleselect: NA
+  remtax: NA
+  remsam: NA
+  samsum: NA
+  N_seq_total_num_sel: NA
+  N_seq_assigned_num_sel: NA
+  N_otu_total_num_sel: NA
+  N_otu_assigned_num_sel: NA
+  N_seq_blanks_num_sel: NA
+  N_otu_blanks_num_sel: NA
+---
+```{r setup, include=FALSE}
+library(ggplot2)
+#library(phyloseq)
+library(shiny)
+library(knitr)
+library(kableExtra)
+library(cowplot)
+
+knitr::knit_hooks$set(inline = function(x) {   
+  if(!is.numeric(x)){ x } else{   
+  format(x,digits=3, big.mark=",")  
+    } })
+#knitr::opts_chunk$set(tidy.opts=list(width.cutofF =60),tidy=TRUE)
+knitr::opts_chunk$set(digits=3,scipen=10,error=TRUE)
+knitr::opts_chunk$set(message = FALSE,warning = FALSE,echo = FALSE, error=TRUE,
+                      #fig.asp = 0.6,
+                      out.width="100%",out.height="85%",
+                      dev = "png", dpi = 300,fig_caption=TRUE)
+```
+
+```{r titlegraphic, out.width='100%',fig.align='center', fig.pos='b'}
+knitr::include_graphics("www/Placeholder_Artwork_long.png")
+```
+
+# About this app  
+The goal of this app is to make the use of environmental DNA (eDNA) accessible to users on the ground working in conservation management. This report is a distillation of the analyses ran within the app. If anything is missing, feel free to go back into the app to perform those analyses and then rerun this report.   
+
+This was developed with support from the Marine Conservation Lab at the Smithsonian Environmental Research Center.  
+
+```{r logographic, out.width='25%',fig.align='right', fig.pos='b', include=FALSE}
+knitr::include_graphics("www/MCL_SERC.png")
+```
+\newpage
+
+# Dataset overview
+This section will go over the characteristics of the dataset that you analyzed and any data manipulations that were performed. These are important to keep track of in case you want to compare between datasets later on, or to repeat this analysis.      
+
+## About the data manipulation choices:   
+_Samples with less than `r params$pnsamp` sequences were removed from the dataset._   
+_ASVs occurring less than `r params$pntax` times in the dataset were removed._  
+_Normalization method:_ `r params$norm`  
+
+_The following blank/negative control samples were sequenced:_ `r params$blanks` 
+_Were blanks removed from the dataset prior to analysis?_ `r params$rembl`  
+
+#### 4. Specific sample and taxa choices  
+You had the option to specify specific samples to analyze instead of the entire dataset. Similarly, you could have selected specific taxa to include or exclude. 
+
+`r if(!is.na(params$sampleselect)) (paste0("You chose to ",params$sampleselect," the following samples:", params$remsam)) else "You kept all samples for analysis"`   
+
+`r if(!is.na(params$unass)) (paste0("You chose to ",params$unass," the following taxa:", params$remtax)) else "You kept all taxa for analysis"`  
+
+```{r progressone}
+incProgress(1/11)
+Sys.sleep(2)
+```
+
+## Natural history traits  
+```{r violinplot, eval=!is.na(params$vioplot)}
+(params$vioplot)
+```
+
+```{r progresstwo}
+incProgress(2/11)
+Sys.sleep(2)
+```
+
+```{r feedingguild, eval=!is.na(params$tbarplot)}
+(params$tbarplot)
+```
+
+```{r progressthree}
+incProgress(3/11)
+Sys.sleep(2)
+```
+
+## Temperature range  
+```{r tempdensityplot, eval=!is.na(params$tvioplot)}
+(params$tvioplot)
+```
+
+```{r templolliplot, eval=!is.na(params$tlolplot)}
+(params$tlolplot)
+```
+
+```{r progressfour}
+incProgress(4/11)
+Sys.sleep(2)
+```
+
+## Body size  
+```{r bodysize, eval=!is.na(params$sizebarplot)}
+(params$sizebarplot)
+```
+
+```{r progressfive}
+incProgress(5/11)
+Sys.sleep(2)
+```
+
+## Alpha diversity plot  
+Diversity metric used: `r params$richmet`  
+```{r richness, eval=!is.na(params$richplot)}
+(params$richplot)
+```
+
+```{r progresssix}
+incProgress(6/11)
+Sys.sleep(2)
+```
+
+## Other plots  
+```{r rankpercentage, eval=!is.na(params$percplot)}
+#percleg <- get_legend(params$percplot)
+#percnoleg <- params$percplot + theme(legend.position = "none")
+
+#wrap_plots(percnoleg,percleg)
+(params$percplot)
+```
+
+```{r progressseven}
+incProgress(7/11)
+Sys.sleep(2)
+```
+
+```{r histogram, eval=!is.na(params$histplot)}
+(params$histplot)
+```
+
+```{r progresseight}
+incProgress(8/11)
+Sys.sleep(2)
+```
+
+```{r heatmap, eval=!is.na(params$hmplot)}
+(params$hmplot)
+```
+
+```{r progressnine}
+incProgress(9/11)
+Sys.sleep(2)
+```
+
+```{r ordination, eval=!is.na(params$ordplot)}
+params$ordmeth
+params$ordtype
+
+(params$ordplot)
+```
+
+```{r progressten}
+incProgress(10/11)
+Sys.sleep(2)
+```
+
+\newpage  
+
+# R Session information  
+R packages used to generate the information in this report  
+```{r sessioninfo}
+sessionInfo()
+```
+

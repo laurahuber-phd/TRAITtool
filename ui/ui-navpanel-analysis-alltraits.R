@@ -12,7 +12,7 @@ Anlys_TraitIntroCard <- tagList(
                                                p("Explanation of MTI and trophic level and how this can help inform fisheries management. Example phrasing includes: The marine trophic index measures the change in mean
 trophic level of fisheries landings by region and globally. Trophic level is defined as the
 position of an organism in the food chain, and ranges from a value of 1 for primary
-producers up to a level of 5 for marine mammals and human"),
+producers up to a level of 5 for marine mammals and human."),
                                                tags$img(src='MTI.png',height='200px',width='200px',
                                                         alt="Fishing down the food web")
                                 )
@@ -112,26 +112,33 @@ allanalysispage = nav_panel(
     actionButton("traitanalysis_prevpage","Previous step"),
     actionButton("traitanalysis_nextpage","Next step")
   ),
-  h2("Mean Trophic Index and Trait analysis"),
+  h2("Trait analysis"),
   p("In this page, you can view plots for trait and ecological information."),
-  p("We highlight mean trophic index, known temperature range, body size composition, and diversity as main components to look at"),
-  p("For further plots and to dive deeper, see the Details page"),
+  p("We highlight mean trophic index, known temperature range, body size composition, and diversity as main components to look at."),
   br(),
+  h5("For further plots and to dive deeper, see the Details page"),
+  br(),
+  p("To make any changes to these plots, scroll down to the appropriate section and use the controls to adjust."),
   br(),
   
   # Figure overview  
-  card(h3("Figures"),
+  card(h3("Trophic Composition"),
        layout_columns(col_widths=c(6,6),
-                      row_heights=c(1,1,1),
-                          withSpinner(plotOutput("violin_s_plot")),
-                          withSpinner(plotOutput("trophbar_s_plot")),
-                      
+                      withSpinner(plotOutput("violin_s_plot")),
+                      withSpinner(plotOutput("trophbar_s_plot"))
+                      )
+       ),
+  card(h3("Temperature Preference"),
+       layout_columns(col_widths=c(6,6),
                       withSpinner(plotOutput("tviolin_s_plot")),
-                      withSpinner(plotOutput("tlolli_s_plot")),
-                          
+                      withSpinner(plotOutput("tlolli_s_plot"))
+                      )
+       ),
+  card(h3("Body Size and Overall richness"),
+       layout_columns(col_widths=c(6,6),
                       withSpinner(plotOutput("sizebar_s_plot")),
                       withSpinner(plotOutput("rich_s_plot"))
-                          )
+                      )
        ),
   br(),
   # radar diagram 
@@ -174,8 +181,8 @@ allanalysispage = nav_panel(
   
   # Alpha diversity 
   #card(
-  h3("Diversity"),
-  HTML("<p>Here you can look at different ways of measuring biodiversity as a whole</p>"),
+  h3("Community Diversity"),
+  HTML("<p>Here you can look at different ways of measuring biodiversity as a whole.</p>"),
   accordion(
     open=FALSE,
     multiple=TRUE,
