@@ -39,8 +39,17 @@ observeEvent(input$titlepg_start, switch_page("uploadtab"))
 observeEvent(input$fileupload_prevpage, switch_page("introtab")) #top button
 observeEvent(input$bfileupload_prevpage, switch_page("introtab")) #bottom button
 
-observeEvent(input$fileupload_nextpage_v2, switch_page("reviewtab")) 
-observeEvent(input$bfileupload_nextpage_v2, switch_page("reviewtab")) 
+observe({
+  if(!isTruthy(MetadataTable$x) || !isTruthy(OTUTable$x) || !isTruthy(TaxTable$x)) { switch_page("reviewtab") }
+  if(exists("ps.all()")) { switch_page("reviewtab") }
+  }) %>% 
+  bindEvent(input$fileupload_nextpage_v2,
+            input$bfileupload_nextpage_v2,ignoreInit=TRUE)
+
+observe({
+  req(input$continue)
+  switch_page("reviewtab")
+  }) %>% bindEvent(input$continue,ignoreInit=TRUE)
 
 # navigation from modal dialog box after file upload
 observeEvent(input$fileupload_nextpage, switch_page("reviewtab")) #modal dialog box from file upload page takes you to review page
@@ -145,6 +154,7 @@ observe({
                  input$fileupload_nextpage_v4
 )
 
+# if user clicks build dataset but does not have all materials 
 observe({
   if (!isTruthy(MetadataTable$x) || !isTruthy(OTUTable$x) || !isTruthy(TaxTable$x)) {
     showModal(
@@ -157,6 +167,27 @@ observe({
   }
 }) %>% bindEvent(input$assemble_ps)
 
+# if all files are uploaded but user did not assemble the dataset 
+observe({
+    if (isTruthy(MetadataTable$x) && isTruthy(OTUTable$x) && isTruthy(TaxTable$x) && !exists("ps.all()")){
+      
+      showModal(
+      modalDialog(title="You did not assemble the dataset!",
+                  paste("Are you sure you want to continue? Click the `Build dataset` button to finish uploading your data"),
+                  size='l',
+                  easyClose = TRUE,
+                  #layout_columns(col_widths=c(6,6),
+                                 #actionButton("donotcontinue",label="No, close box"),
+                                 actionButton("continue",label="Yes, continue to next page")
+                                 #)
+      )
+    ) 
+  }
+}) %>% bindEvent(input$bfileupload_nextpage_v2,input$fileupload_nextpage_v2)
+
+observe({
+  removeModal()
+  }) %>% bindEvent(input$donotcontinue,ignoreInit=TRUE)
 # --- # Sidebar # --------
 observe({
   sidebar_toggle(
