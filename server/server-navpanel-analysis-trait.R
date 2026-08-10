@@ -91,7 +91,7 @@ observeEvent(input$go_trophbar, {
   tryCatch(
   ggsave(filename="trophbarplot.png", 
          path=tempdir(),
-         plot=trophbarplot(),
+         plot=trophbarplot_base(),
          height=trophbarplot_size$height(),width=trophbarplot_size$width(),
          scale=2
          ),
@@ -101,7 +101,7 @@ observeEvent(input$go_trophbar, {
 
 observe({
   showModal(modalDialog(
-    renderPlot(trophbarplot()),
+    renderPlot(trophbarplot_base()),
     footer = downloadButton('download_trophbarplot_popup', 'Download'),
     size="xl",
     easyClose = TRUE
@@ -113,13 +113,12 @@ output$trophbar_plotdwnld <- output$trophbar_plotdwnld_popup <-  downloadHandler
   filename = "trophbarplot.png",
   contentType = 'image/png',
   content = function(file) {
-    ggsave(file,plot=trophbarplot(),
+    ggsave(file,plot=trophbarplot_base(),
            height=trophbarplot_size$height(),width=trophbarplot_size$width(),
            scale=2
     )
     
   }) 
-
 
 ############## Bar Plot Body Size ############## 
 observe({ 
@@ -208,7 +207,7 @@ observe({
   tryCatch(
     ggsave(filename="sizebarplot.png", 
            path=tempdir(),
-           plot=sizebarplot(),
+           plot=sizebarplot_base(),
            height=sizebarplot_size$height(),width=sizebarplot_size$width(),
            scale=2
     ),
@@ -219,7 +218,7 @@ observe({
 
 observe({
   showModal(modalDialog(
-    renderPlot(sizebarplot()),
+    renderPlot(sizebarplot_base()),
     footer = downloadButton('download_sizebarplot_popup', 'Download'),
     size="xl",
     easyClose = TRUE
@@ -231,8 +230,124 @@ output$sizebar_plotdwnld <- output$sizebar_plotdwnld_popup <-  downloadHandler(
   filename = "sizebarplot.png",
   contentType = 'image/png',
   content = function(file) {
-    ggsave(file,plot=sizebarplot(),
+    ggsave(file,plot=sizebarplot_base(),
            height=sizebarplot_size$height(),width=sizebarplot_size$width(),
+           scale=2
+    )
+    
+  }) 
+
+############## Bar Plot IUCN status ############## 
+observe({ 
+  #updatePickerInput(session,
+  #                  "choose_iucnbar_axis", 
+  #                  choices=c(ps.norm.melt() %>% select(contains("IUCN", ignore.case = TRUE)) %>% colnames())#,
+  #                  #selected=""
+  #)
+  updatePickerInput(session,
+                    "choose_iucnbar_facet",
+                    choices=c(Meta_vars())#,
+                    #selected=""
+  )
+}) %>% bindEvent(ps.norm(),Meta_vars())
+
+iucnbarplot_pretty  <- plotPrettyServer(id="iucnbar_pretty")
+iucnbarplot_size <- plotSizeServer(id="iucnbar_size") 
+
+iucnbarplot_base <- reactive({
+  req(ps.norm())
+  print("IUCN bar plot: building base plot")
+  
+  ps <- ps.norm.melt() %>% 
+    mutate(IUCN_Status = case_when(is.na(Iucn_category) ~ "Not Found in Red List",
+                                   .default=Iucn_category)) 
+  print(colnames(ps))
+  
+  my_vars <- c("IUCN_Status",
+               "IUCN_Category",
+               "Iucn_Category",
+               "Iucn_category",
+               #input$choose_iucnbar_axis, 
+               input$choose_iucnbar_facet
+  )
+  print(c("arrange dataset by",my_vars))
+  
+  ps.edit <- ps %>% 
+    group_by(across(any_of(my_vars)) ) %>% 
+    summarize(Abundance=sum(Abundance),.groups="keep") %>% 
+    arrange(input$choose_iucnbar_axis)
+  
+  baseplot <- ggplot(ps.edit, 
+                     aes(x="",#x=.data[[input$choose_iucnbar_axis]], #x axis
+                         y=Abundance,
+                         fill=IUCN_Status,#Iucn_category,
+                         color=IUCN_Status#Iucn_category
+                     )
+  ) + 
+    geom_bar( stat="identity", position = "fill") +  
+    #scale_y_continuous(labels=function(x) paste0(x * 100, "%")) + 
+    #labs(y="Relative Abundance",
+    #     title="Relative abundance of each trophic group") +
+    #coord_flip() 
+    coord_polar("y",start=0) + 
+    theme_void() #+ # remove background, grid, numeric labels
+  #geom_text(aes(label = Trophic.val #round(value,2)
+  #              ),
+  #          color="black",
+  #          position = position_stack(vjust = 0.5))
+  
+  if(!is.null(input$choose_iucnbar_facet) & length(input$choose_iucnbar_facet) < 2) {
+    print("one faceting group selected")
+    finalplot <- baseplot + facet_wrap(~.data[[input$choose_iucnbar_facet]],scales="free") 
+  } else if(!is.null(input$choose_iucnbar_facet) & length(input$choose_iucnbar_facet) == 2) {
+    print("two faceting groups selected")
+    finalplot <- baseplot + facet_grid(rows=vars(.data[[input$choose_iucnbar_facet[1]]]),
+                                       cols= vars(.data[[input$choose_iucnbar_facet[2]]]),
+                                       scales="free") 
+  } else {
+    print("no faceting groups selected")
+    finalplot <- baseplot
+  }
+  
+  finalplot
+  
+}) %>% bindEvent(#ps.norm(),Meta_vars(),
+  #input$choose_iucnbar_axis,
+  input$choose_iucnbar_facet
+)
+
+observe({
+  print("IUCN bar plot: plotting")
+  output$iucnbar_s_plot <- output$iucnbar_plot <- renderPlot({iucnbarplot_base()+iucnbarplot_size$aspectRatio()})
+  
+  tryCatch(
+    ggsave(filename="iucnbarplot.png", 
+           path=tempdir(),
+           plot=iucnbarplot_base(),
+           height=iucnbarplot_size$height(),width=iucnbarplot_size$width(),
+           scale=2
+    ),
+    error=function(e){return(NA)}
+  )
+}) %>% bindEvent(input$go_iucnbar)
+
+
+observe({
+  showModal(modalDialog(
+    renderPlot(iucnbarplot_base()),
+    footer = downloadButton('download_iucnbarplot_popup', 'Download'),
+    size="xl",
+    easyClose = TRUE
+  ))
+  print("Trophic bar plot: popup")
+}) %>% bindEvent(input$iucnbar_click)
+
+output$iucnbar_plotdwnld <- output$iucnbar_plotdwnld_popup <-  downloadHandler(
+  filename = "iucnbarplot.png",
+  contentType = 'image/png',
+  content = function(file) {
+    ggsave(file,plot=iucnbarplot_base(),
+           height=iucnbarplot_size$height(),width=iucnbarplot_size$width(),
            scale=2
     )
     

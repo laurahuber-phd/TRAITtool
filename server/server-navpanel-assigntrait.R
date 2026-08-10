@@ -332,6 +332,40 @@ if(input$trait_tax_select != "Species") {
     print(c("nrows of new table:",nrow(alltraits.df)))
         
       } else {
+        # get iucn status from saved 
+        iucnfile <- vroom::vroom('data/rredlist.kingdom.animalia.06Aug2026.csv',delim=',',
+                                show_col_types = FALSE,
+                                trim_ws=TRUE,
+                                na = c("",".","NA","NULL","Unassigned","unassigned")
+        )
+        print("IUCN Red List category data loaded") 
+        
+        iucn.spp <- intersect(c(valid.fish.names,valid.sl.names),
+                              iucnfile$assessments.taxon_scientific_name) 
+        print("Taxa from dataset in IUCN Red List identified")
+        print(c("Number of species in Red List:",length(iucn.spp)))
+        
+        iucn.status <- iucnfile %>%
+          filter(assessments.taxon_scientific_name %in% iucn.spp) %>% 
+          filter(assessments.latest==TRUE) %>% 
+          select(c(assessments.taxon_scientific_name,
+                   assessments.red_list_category_code)) %>% 
+          rename(Species = "assessments.taxon_scientific_name",
+                 IUCN_Category_Code = "assessments.red_list_category_code") %>% 
+          mutate(IUCN_Category = factor(case_when(IUCN_Category_Code == "DD" ~ "Data Deficient",
+                                           IUCN_Category_Code == "LC" ~ "Least Concern",
+                                           IUCN_Category_Code == "NT" ~ "Near Threatened",
+                                           IUCN_Category_Code == "VU" ~ "Vulnerable",
+                                           IUCN_Category_Code == "EN" ~ "Endangered",
+                                           IUCN_Category_Code == "CR" ~ "Critically Endangered",
+                                           IUCN_Category_Code == "EW" ~ "Extinct in the Wild",
+                                           IUCN_Category_Code == "EX" ~ "Extinct",
+                                           IUCN_Category_Code == "NE" ~ "Not Evaluated",
+                                           .default=IUCN_Category_Code))) %>% 
+          group_by(Species) %>% 
+          summarize(across(everything(), ~paste(sort(unique(.)), collapse="| "))) %>% 
+          distinct()
+        
     # get table of location/ecosystem preferences 
     fish.eco <- rfishbase::ecosystem(species_list=valid.fish.names,
                                      server="fishbase") 
@@ -397,10 +431,15 @@ if(input$trait_tax_select != "Species") {
     
     # combine all trait information: trophic level from estimate, ecosystem information from ecosystem, species qualities from species  
     # fish.troph and fish.eco and fish.spp 
-    fbdf <- merge(eco.sub,
+    fbdfa <- merge(eco.sub,
                   spp.sub,
                   .by=Species,all = TRUE) %>% as.data.frame()
     print("Traits: Ecology and Species data combined into one table")
+    
+    fbdf <- merge(fbdfa,
+                      iucn.status,
+                      .by=Species,all=TRUE) %>% as.data.frame()
+    print("Traits: Trait data and IUCN data combined into one table")
     
     alltraits.df <- merge((traits.df %>% 
                              #rownames_to_column(.,var="Row.Name") %>% 
@@ -416,7 +455,7 @@ if(input$trait_tax_select != "Species") {
                                       contains("emp"),
                                       contains("eed"),
     ))),
-    fbdf,
+    fbdf, 
     .by=Species,all=TRUE)}
     print("Traits: All trait data merged with taxa table")
   
@@ -481,6 +520,40 @@ if(input$trait_tax_select != "Species") {
       print("Traits: higher taxa level queried; no further natural history information queried beyond MTI")
       
       } else {
+    # get iucn status      
+        iucnfile <- vroom::vroom('data/rredlist.kingdom.animalia.06Aug2026.csv',delim=',',
+                                 show_col_types = FALSE,
+                                 trim_ws=TRUE,
+                                 na = c("",".","NA","NULL","Unassigned","unassigned")
+        )
+        print("IUCN Red List category data loaded") 
+        
+        iucn.spp <- intersect(c(valid.fish.names,valid.sl.names),
+                              iucnfile$assessments.taxon_scientific_name) 
+        print("Taxa from dataset in IUCN Red List identified")
+        print(c("Number of species in Red List:",length(iucn.spp)))
+        
+        iucn.status <- iucnfile %>%
+          filter(assessments.taxon_scientific_name %in% iucn.spp) %>% 
+          filter(assessments.latest==TRUE) %>% 
+          select(c(assessments.taxon_scientific_name,
+                   assessments.red_list_category_code)) %>% 
+          rename(Species = "assessments.taxon_scientific_name",
+                 IUCN_Category_Code = "assessments.red_list_category_code") %>% 
+          mutate(IUCN_Category = factor(case_when(IUCN_Category_Code == "DD" ~ "Data Deficient",
+                                                  IUCN_Category_Code == "LC" ~ "Least Concern",
+                                                  IUCN_Category_Code == "NT" ~ "Near Threatened",
+                                                  IUCN_Category_Code == "VU" ~ "Vulnerable",
+                                                  IUCN_Category_Code == "EN" ~ "Endangered",
+                                                  IUCN_Category_Code == "CR" ~ "Critically Endangered",
+                                                  IUCN_Category_Code == "EW" ~ "Extinct in the Wild",
+                                                  IUCN_Category_Code == "EX" ~ "Extinct",
+                                                  IUCN_Category_Code == "NE" ~ "Not Evaluated",
+                                                  .default=IUCN_Category_Code))) %>% 
+          group_by(Species) %>% 
+          summarize(across(everything(), ~paste(sort(unique(.)), collapse="| "))) %>% 
+          distinct()
+        
     # get table of location/ecosystem preferences 
     eco.df <- rfishbase::ecosystem(species_list=valid.fish.names,
                                      server=traits_var$serv) 
@@ -537,9 +610,14 @@ if(input$trait_tax_select != "Species") {
     
     # combine all trait information: trophic level from estimate, ecosystem information from ecosystem, species qualities from species  
     # fish.troph and fish.eco and fish.spp 
-    fbdf <- merge(eco.sub,
+    fbdfa <- merge(eco.sub,
                   spp.sub,
                   .by=Species,all = TRUE) %>% as.data.frame()
+    
+    fbdf <- merge(fbdfa,
+                  iucn.status,
+                  .by=Species,all=TRUE) %>% as.data.frame()
+    print("Traits: Trait data and IUCN data combined into one table")
     
     alltraits.df <- merge((traits.df %>% 
                              #rownames_to_column(.,var="Row.Name") %>% 
@@ -554,6 +632,7 @@ if(input$trait_tax_select != "Species") {
                                       contains("eed"),
                              ))),
                           fbdf,
+                          iucn.status,
                           .by=Species,all=TRUE)
     }
   }

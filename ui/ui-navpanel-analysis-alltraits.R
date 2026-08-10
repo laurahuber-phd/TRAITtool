@@ -104,6 +104,56 @@ Anlys_SizeCard <- tagList(
   )
 )
 
+####################################### IUCN ################################################
+Anlys_IUCNPlot <- tagList(
+  layout_columns(col_widths=c(4,4,4),
+                 shinyWidgets::dropdown(inputId="iucnbar_plotgrouping",
+                                        label="Grouping choices",
+                                        icon=icon("gear"),
+                                        #pickerInput("choose_iucnbar_axis",
+                                        #            label="IUCN data",
+                                        #            #            label="Groups to compare",
+                                        #            choices=list(),
+                                        #            multiple = FALSE,
+                                         #           options = pickerOptions(maxOptions = 1,
+                                        #                                    container = "body", 
+                                        #                                    actionsBox = TRUE,
+                                        #                                    deselectAllText = "Clear selection"
+                                        #            )
+                                        #),
+                                        pickerInput("choose_iucnbar_facet",
+                                                    label="Groups to compare",
+                                                    #label="Faceting Group",
+                                                    choices=list(),
+                                                    multiple = TRUE,
+                                                    options = pickerOptions(maxOptions = 2,
+                                                                            container = "body", 
+                                                                            actionsBox = TRUE,
+                                                                            deselectAllText = "Clear selection"
+                                                    )
+                                        )
+                 ),
+                 plotPrettyUI("iucnbar_pretty"),
+                 plotSizeUI('iucnbar_size')
+  ),
+  layout_columns(col_widths=c(10,-1,1),
+                 actionButton("go_iucnbar","Plot"),
+                 downloadButton('iucnbar_plotdwnld', label=NULL)
+  ),
+  withSpinner(plotOutput("iucnbar_plot",click="iucnbar_click"))
+)
+
+Anlys_IUCNCard <- tagList(
+  h3("IUCN Status"),
+  p("Here you can view plots regarding IUCN Red List status of species in your dataset."),
+  accordion(
+    open=FALSE, #start with all panels closed
+    multiple=TRUE, #multiple panels can be open at once
+    accordion_panel(title="Figures",
+                    Anlys_IUCNPlot)
+  )
+)
+
 ###############################################################################################
 allanalysispage = nav_panel(
   useShinyjs(),
@@ -137,7 +187,8 @@ allanalysispage = nav_panel(
   card(h3("Body Size and Overall richness"),
        layout_columns(col_widths=c(6,6),
                       withSpinner(plotOutput("sizebar_s_plot")),
-                      withSpinner(plotOutput("rich_s_plot"))
+                      withSpinner(plotOutput("rich_s_plot")),
+                      withSpinner(plotOutput("size_s_plot"))
                       )
        ),
   br(),
@@ -176,7 +227,7 @@ allanalysispage = nav_panel(
   # Age at maturity 
   
   # IUCN status 
-  
+  Anlys_IUCNCard,
   # Fisheries species 
   
   # Alpha diversity 

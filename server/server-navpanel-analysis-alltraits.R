@@ -61,6 +61,13 @@ observe({
   #updateSelectInput(session,"alpha_xvar",
   #                  choices=isolate(input$aggregate_var)) #make aggregate variable the x-axis for alpha diversity plot
   
+  # update iucn status plot  
+  updatePickerInput(session,
+                    "choose_iucnbar_facet",
+                    choices=c(Meta_vars()),
+                    selected=isolate(input$aggregate_var))
+  
+  print(c("iucnbar facet picker variable updated to",isolate(input$aggregate_var)))
   
   
 #"violin_s_plot"
@@ -90,6 +97,7 @@ shinyjs::click("go_tlolli")
 
 shinyjs::click("go_sizebar") #simulate clicking 'go' for size plot
 shinyjs::click("go_rich") #simulate clicking 'go' for richness plot
+shinyjs::click("go_iucnbar")
 
 #if (isTruthy(ps.norm.melt() %>% select(contains("Troph")) %>% colnames())) {
 #
