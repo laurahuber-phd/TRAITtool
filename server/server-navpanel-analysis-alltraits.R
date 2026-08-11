@@ -45,6 +45,11 @@ observe({
   ### needs y-axis variable (choose_tlolli_yaxis)
   #updatePickerInput(session,"choose_tlolli_yaxis",
  #                   choices=isolate(input$aggregate_var)) #make aggregate variable the y-axis for temperature lollipop plot
+  updatePickerInput(session,
+                    "choose_tlolli_facet",
+                      selected=isolate(input$aggregate_var)
+  )
+  print(c("temperature lolli plot facet picker variable updated to",isolate(input$aggregate_var)))
   
   # update body size plots 
   ## pie chart 
@@ -88,7 +93,7 @@ observe({
 #updateNumericInput(session,"prune_samples",value=100)
 #updateNumericInput(session,"prune_tax",value=1)
 #updateRadioButtons(session,"normoptions",selected="tax_rel")
-
+  
 shinyjs::click("go_violin") #simulate clicking 'go' for trophic plots
 shinyjs::click("go_trophbar")
 

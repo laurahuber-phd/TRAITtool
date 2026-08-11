@@ -188,7 +188,7 @@ allanalysispage = nav_panel(
        layout_columns(col_widths=c(6,6),
                       withSpinner(plotOutput("sizebar_s_plot")),
                       withSpinner(plotOutput("rich_s_plot")),
-                      withSpinner(plotOutput("size_s_plot"))
+                      withSpinner(plotOutput("iucnbar_s_plot"))
                       )
        ),
   br(),

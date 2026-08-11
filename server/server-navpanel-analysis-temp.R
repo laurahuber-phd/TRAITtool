@@ -33,7 +33,12 @@ tviolinplot_base <- reactive({
       
   }
   
-  ps.edit <- ps #%>% group_by(across(unlist(my_vars())) ) %>% 
+  ps.edit <- ps %>% 
+    group_by(.data[[tviolinplot_general$x()]]) %>% 
+    #group_by(across(unlist(my_vars())) ) %>% 
+    mutate(TempRange=max(Tempprefmax,na.rm=TRUE)-min(Tempprefmin,na.rm=TRUE)) %>%
+    rowwise() %>% 
+    mutate(TempIndex=Tempprefmean/TempRange) 
     #summarize(Tempprefmean=mean(Tempprefmean),
     #          Tempprefmin=min(Tempprefmin),
     #          Tempprefmax=max(Tempprefmax)) %>%
@@ -41,7 +46,7 @@ tviolinplot_base <- reactive({
   
   baseplot <- ggplot(ps.edit,
                      aes(x=.data[[tviolinplot_general$x()]], #x axis
-                         y=.data[[tviolinplot_general$y()]], #y axis #Tempprefmean,
+                         y=TempIndex, #y axis #Tempprefmean,
                          fill=.data[[tviolinplot_general$x()]]
                      )
   ) + 
@@ -140,7 +145,8 @@ observe({
 
 tlolliplot_pretty  <- plotPrettyServer(id="tlolli_pretty")
 tlolliplot_size <- plotSizeServer(id="tlolli_size") 
-tlolliplot <- eventReactive(input$go_tlolli, {
+
+tlolliplot <- reactive({
   req(ps.norm())
   print("Temperature lolli plot: building base plot")
   ps <- ps.norm.melt() #filter(Abundance>0) %>% filter(!is.na(Trophic.val))
@@ -201,7 +207,7 @@ tlolliplot <- eventReactive(input$go_tlolli, {
     
     finalplot + tlolliplot_pretty() + tlolliplot_size$aspectRatio()
   }
-})
+}) %>% bindEvent(input$choose_iucnbar_facet)
 
 observeEvent(input$go_tlolli, {
   print("Temperature lolli plot: plotting")
