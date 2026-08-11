@@ -19,8 +19,26 @@ Anlys_TempViolinCard <- tagList(
   layout_columns(col_widths=c(10,-1,1),
                  actionButton("go_tviolin","Plot"),
                  downloadButton('tviolin_plotdwnld', label=NULL)),
-  withSpinner(plotOutput("tviolin_plot",click="tviolin_click")) #add a reaction when the plot is clicked
+  withSpinner(plotOutput("tviolin_plot",click="tviolin_click")), #add a reaction when the plot is clicked
 ) 
+
+Anlys_TempChoiceViolinCard <- tagList(
+  layout_columns(
+    plotControlsUI('tviolinmean_general',color=FALSE,
+                   x=TRUE,y=TRUE,
+                   facet=TRUE,
+                   xlabel="Groups to compare (x-axis)",
+                   #ylabel="Numeric MTI to plot",
+                   facetlabel="Faceting variable"
+    ),
+    plotPrettyUI("tviolinmean_pretty"),
+    plotSizeUI('tviolinmean_size')
+  ),
+  layout_columns(col_widths=c(10,-1,1),
+                 actionButton("go_tviolinmean","Plot"),
+                 downloadButton('tviolinmean_plotdwnld', label=NULL)),
+  withSpinner(plotOutput("tviolinmean_plot",click="tviolinmean_click")) #add a reaction when the plot is clicked
+)
 
 ############################################# Lollipop plot #############################################
 Anlys_TempLolliCard <- tagList(

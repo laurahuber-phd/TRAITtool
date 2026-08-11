@@ -45,8 +45,11 @@ Anlys_TempCard <- tagList(
   accordion(
     open=FALSE, #start with all panels closed
     multiple=TRUE, #multiple panels can be open at once
-    accordion_panel(title="Violin plot",
+    accordion_panel(title="Temperature index plot",
                     Anlys_TempViolinCard
+    ),
+    accordion_panel(title="Temperature plot",
+                    Anlys_TempChoiceViolinCard 
     ),
     accordion_panel(title="Lollipop plot",
                     Anlys_TempLolliCard
@@ -157,6 +160,7 @@ Anlys_IUCNCard <- tagList(
 ###############################################################################################
 allanalysispage = nav_panel(
   useShinyjs(),
+  tags$style(HTML(".card2 {border: 10px solid black; border-radius: 1.5rem;}")), # creating class style
   layout_column_wrap(
     width=1/2,fill=TRUE,
     actionButton("traitanalysis_prevpage","Previous step"),
@@ -176,20 +180,24 @@ allanalysispage = nav_panel(
        layout_columns(col_widths=c(6,6),
                       withSpinner(plotOutput("violin_s_plot")),
                       withSpinner(plotOutput("trophbar_s_plot"))
-                      )
+                      ),
+       class="card2"       # <<<----- applying the new class
        ),
   card(h3("Temperature Preference"),
        layout_columns(col_widths=c(6,6),
                       withSpinner(plotOutput("tviolin_s_plot")),
+                      withSpinner(plotOutput("tviolinmean_s_plot")),
                       withSpinner(plotOutput("tlolli_s_plot"))
-                      )
+                      ),
+       class="card2"       # <<<----- applying the new class
        ),
   card(h3("Body Size and Overall richness"),
        layout_columns(col_widths=c(6,6),
                       withSpinner(plotOutput("sizebar_s_plot")),
                       withSpinner(plotOutput("rich_s_plot")),
                       withSpinner(plotOutput("iucnbar_s_plot"))
-                      )
+                      ),
+       class="card2"       # <<<----- applying the new class
        ),
   br(),
   # radar diagram 
@@ -200,7 +208,7 @@ allanalysispage = nav_panel(
   accordion(
     open=FALSE, #start with all panels closed
     multiple=TRUE, #multiple panels can be open at once
-    accordion_panel(title="Violin plot",
+    accordion_panel(title="Mean trophic index",
                     Anlys_ViolinCard
                     ),
     accordion_panel(title="Feeding guild",
@@ -228,6 +236,7 @@ allanalysispage = nav_panel(
   
   # IUCN status 
   Anlys_IUCNCard,
+  br(),
   # Fisheries species 
   
   # Alpha diversity 

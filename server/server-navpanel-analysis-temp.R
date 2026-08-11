@@ -111,6 +111,116 @@ output$tviolin_plotdwnld <- output$tviolin_plotdwnld_popup <-  downloadHandler(
     
   }) 
 
+
+
+
+
+# test plot  
+
+tviolinmeanplot_pretty  <- plotPrettyServer(id="tviolinmean_pretty")
+tviolinmeanplot_size <- plotSizeServer(id="tviolinmean_size") 
+tviolinmeanplot_general <- plotControlsServer(id="tviolinmean_general",
+                                          df=ps.norm.melt,
+                                          #var1=rnames, #color
+                                          var2=Meta_vars, #x
+                                          #var3=Meta_vars(), #y
+                                          var4=Meta_vars, #facet
+                                          #var1=Meta_vars(), #color
+                                          #var2=Meta_vars(), #x
+                                          var3=reactive(ps.norm.melt() %>% select(contains("emp")) %>% colnames() )#, #y
+                                          #var4=Meta_vars() #facet
+) 
+
+tviolinmeanplot_base <- reactive({
+  print("Violin: building base plot")
+  req(ps.norm())
+  #req(tviolinmeanplot_general$x())
+  ps <- ps.norm.melt()
+  
+  my_vars <- function() {
+    any_of(c(tviolinmeanplot_general$x(),
+             tviolinmeanplot_general$facet()
+    )
+    )
+    
+  }
+  
+  ps.edit <- ps #%>% 
+    #group_by(across(unlist(my_vars())) ) %>% 
+  #summarize(Tempprefmean=mean(Tempprefmean),
+  #          Tempprefmin=min(Tempprefmin),
+  #          Tempprefmax=max(Tempprefmax)) %>%
+  #arrange()
+  
+  baseplot <- ggplot(ps.edit,
+                     aes(x=.data[[tviolinmeanplot_general$x()]], #x axis
+                         y=.data[[tviolinmeanplot_general$y()]], #y axis #Tempprefmean,
+                         fill=.data[[tviolinmeanplot_general$x()]]
+                     )
+  ) + 
+    geom_violin(na.rm=TRUE,alpha=0.2) + 
+    geom_boxplot(width=0.25,alpha=0.8) + 
+    stat_summary(fun="median",
+                 #fun=get_box_stats,
+                 geom="label",
+                 #geom="text",
+                 aes(label = after_stat(round(y, 2))
+                 ),
+                 #hjust = 0.5, 
+                 #vjust = -1,
+                 fill="white"
+    )
+  
+}) %>% bindEvent(ps.norm(),
+                 tviolinmeanplot_general$x(),
+                 tviolinmeanplot_general$y(),
+                 tviolinmeanplot_general$facet()
+)
+
+tviolinmeanplot <- eventReactive(input$go_tviolinmean, {
+  print("Violin: assembling plot")
+  tviolinmeanplot_base() + tviolinmeanplot_general$facet() + tviolinmeanplot_pretty() + tviolinmeanplot_size$aspectRatio() 
+}) 
+
+observeEvent(input$go_tviolinmean, {
+  print("Violin: plotting")
+  output$tviolinmean_s_plot <- output$tviolinmean_plot <- renderPlot({tviolinmeanplot()})
+  
+  tryCatch(
+    ggsave(filename="tviolinmeanplot.png", 
+           plot=tviolinmeanplot(),
+           path=tempdir(),
+           height=tviolinmean_size$height(),width=tviolinmean_size$width(),
+           scale=2
+    ),
+    error=function(e){return(NA)}
+  )
+})
+
+observe({
+  showModal(modalDialog(
+    renderPlot(tviolinmeanplot()),
+    footer = downloadButton('download_tviolinmeanplot_popup', 'Download'),
+    size="xl",
+    easyClose = TRUE
+  ))
+  print("Violin: popup")
+}) %>% bindEvent(input$tviolinmean_click)
+
+
+output$tviolinmean_plotdwnld <- output$tviolinmean_plotdwnld_popup <-  downloadHandler(
+  filename = "tviolinmeanplot.png",
+  contentType = 'image/png',
+  content = function(file) {
+    ggsave(file,plot=tviolinmeanplot(),
+           height=tviolinmeanplot_size$height(),width=tviolinmeanplot_size$width(),
+           scale=2
+    )
+    
+  }) 
+
+
+
 ############## Lollipop plot ############## 
 observe({ 
   updatePickerInput(session,

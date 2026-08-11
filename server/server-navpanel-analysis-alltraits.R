@@ -98,6 +98,7 @@ shinyjs::click("go_violin") #simulate clicking 'go' for trophic plots
 shinyjs::click("go_trophbar")
 
 shinyjs::click("go_tviolin") #simulate clicking 'go' for temperature plots
+shinyjs::click("go_tviolinmean")
 shinyjs::click("go_tlolli")
 
 shinyjs::click("go_sizebar") #simulate clicking 'go' for size plot
