@@ -115,7 +115,7 @@ output$tviolin_plotdwnld <- output$tviolin_plotdwnld_popup <-  downloadHandler(
 
 
 
-# test plot  
+# plot to choose what temperature value    
 
 tviolinmeanplot_pretty  <- plotPrettyServer(id="tviolinmean_pretty")
 tviolinmeanplot_size <- plotSizeServer(id="tviolinmean_size") 

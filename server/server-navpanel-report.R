@@ -16,7 +16,10 @@ observe({
   print("Report: Feeding guild pie chart rendered")
   #
   output$rep_tviolinplot <- renderPlot({tviolinplot()})
-  print("Report: temperature violin plot rendered")
+  print("Report: temperature index violin plot rendered")
+  #
+  output$rep_tviolinmeanplot <- renderPlot({tviolinmeanplot()})
+  print("Report: temperature choice violin plot rendered")
   #
   output$rep_sizebarplot <- renderPlot({sizebarplot_base()+sizebarplot_size$aspectRatio()})
   print("Report: Body size pie chart rendered")
@@ -102,6 +105,7 @@ params <- reactiveValues(blanks=NA, #create list of parameters to read into rmar
                          tbarplot=NA,
                          tlolplot=NA,
                          tvioplot=NA,
+                         tviomeanplot=NA,
                          richplot=NA,
                          histplot=NA,
                          hmplot=NA,
@@ -130,6 +134,7 @@ observe({
   params[["vioplot"]] <- mkdwnrptfun(violinplot())
   params[["tbarplot"]] <- mkdwnrptfun(trophbarplot())
   params[["tvioplot"]] <- mkdwnrptfun(tviolinplot())
+  params[["tviomeanplot"]] <- mkdwnrptfun(tviolinmeanplot())
   params[["tlolplot"]] <- mkdwnrptfun(tlolliplot())
   params[["sizebarplot"]] <- mkdwnrptfun(sizebarplot_base()+sizebarplot_size$aspectRatio())
   params[["richplot"]] <- mkdwnrptfun(richplot())
@@ -366,6 +371,7 @@ output$norm_meltdwnld <- downloadHandler(
       mkdwnrptfun(trophbarplot()),
       mkdwnrptfun(violinplot()),
       mkdwnrptfun(tviolinplot()),
+      mkdwnrptfun(tviolinmeanplot()),
       mkdwnrptfun(tlolliplot())),
       mkdwnrptfun(sizebarplot_base()+sizebarplot_size$aspectRatio()),
       

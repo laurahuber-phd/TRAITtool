@@ -18,6 +18,7 @@ params:
   vioplot: NA
   tbarplot: NA
   tvioplot: NA
+  tviomeanplot: NA
   tlolplot: NA
   sizebarplot: NA
   richplot: NA
@@ -124,6 +125,10 @@ Sys.sleep(2)
 ## Temperature range  
 ```{r tempdensityplot, eval=!is.na(params$tvioplot)}
 (params$tvioplot)
+```
+
+```{r tempdensityplot2, eval=!is.na(params$tviomeanplot)}
+(params$tviomeanplot)
 ```
 
 ```{r templolliplot, eval=!is.na(params$tlolplot)}

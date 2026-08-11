@@ -15,15 +15,18 @@ params:
   ntaxa: NA
   numsam: NA
   numog: NA
+  vioplot: NA
+  tbarplot: NA
+  tvioplot: NA
+  tviomeanplot: NA
+  tlolplot: NA
+  sizebarplot: NA
   richplot: NA
   percplot: NA
   histplot: NA
   hmplot: NA
-  vioplot: NA
-  tbarplot: NA
   lineplot: NA
   lolplot: NA
-  tlolplot: NA
   ordplot: NA
   ordmeth: NA
   ordtype: NA
@@ -32,6 +35,7 @@ params:
   richmet: NA
   pnsamp: NA
   pntax: NA
+  sampleselect: NA
   remtax: NA
   remsam: NA
   samsum: NA

@@ -161,6 +161,7 @@ Anlys_IUCNCard <- tagList(
 allanalysispage = nav_panel(
   useShinyjs(),
   tags$style(HTML(".card2 {border: 10px solid black; border-radius: 1.5rem;}")), # creating class style
+  tags$style(HTML(".card3 {border: 2px solid grey; border-radius: 15px 50px; border-style: dotted;}")), # creating class style
   layout_column_wrap(
     width=1/2,fill=TRUE,
     actionButton("traitanalysis_prevpage","Previous step"),
@@ -178,8 +179,12 @@ allanalysispage = nav_panel(
   # Figure overview  
   card(h3("Trophic Composition"),
        layout_columns(col_widths=c(6,6),
-                      withSpinner(plotOutput("violin_s_plot")),
-                      withSpinner(plotOutput("trophbar_s_plot"))
+                      card(h5("Mean Trophic Index"),
+                           withSpinner(plotOutput("violin_s_plot")),
+                           class="card3"),
+                      card(h5("Proportion of feeding guilds"),
+                           withSpinner(plotOutput("trophbar_s_plot")),
+                           class="card3")
                       ),
        class="card2"       # <<<----- applying the new class
        ),
