@@ -1,6 +1,6 @@
-source("server/server-navpanel-analysis-temp.R",local=TRUE)
+#source("server/server-navpanel-analysis-temp.R",local=TRUE)
 source("server/server-navpanel-analysis-trait.R",local=TRUE)
-source("server/server-navpanel-analysis-violin.R",local=TRUE)
+#source("server/server-navpanel-analysis-violin.R",local=TRUE)
 
 observe({
   req(ps.all())
@@ -18,7 +18,10 @@ observe({
   #### (currently selects the first value in this list: Meta_vars())
   
   ### update title  
-  updateTextInput(session, "violin_pretty-plottitle", value = "Mean Trophic Index")
+  updateTextInput(session, 
+                  "violin_pretty-plottitle", 
+                  value = "Mean Trophic Index")
+  
   print("MTI plot title updated")
   
   ## pie chart

@@ -263,12 +263,12 @@ source('server/server-defaultanalysis.R',local=TRUE)
 source('server/server-navpanel-descriptivestats.R',local=TRUE)
 # --- # Trait Analysis Page # --------  
 source('server/server-navpanel-analysis-trait.R',local=TRUE)
-  source('server/server-navpanel-analysis-temp.R',local=TRUE)
+  #source('server/server-navpanel-analysis-temp.R',local=TRUE)
 # --- # Figure Page # --------  
 source('server/server-navpanel-analysis-alpha.R',local=TRUE)
 source('server/server-navpanel-analysis-ord.R',local=TRUE)
 source('server/server-navpanel-analysis-hm.R',local=TRUE)
-source('server/server-navpanel-analysis-violin.R',local=TRUE)
+#source('server/server-navpanel-analysis-violin.R',local=TRUE)
 # --- # Report Tab # --------  
 source('server/server-navpanel-report.R',local=TRUE)
 #
