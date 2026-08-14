@@ -182,7 +182,7 @@ allanalysispage = nav_panel(
                       card(h5("Mean Trophic Index"),
                            withSpinner(plotOutput("violin_s_plot")),
                            class="card3"),
-                      card(h5("Proportion of feeding guilds"),
+                      card(h5("Feeding guilds"),
                            withSpinner(plotOutput("trophbar_s_plot")),
                            class="card3")
                       ),
@@ -190,20 +190,30 @@ allanalysispage = nav_panel(
        ),
   card(h3("Temperature Preference"),
        layout_columns(col_widths=c(6,6),
-                      withSpinner(plotOutput("tviolin_s_plot")),
-                      withSpinner(plotOutput("tviolinmean_s_plot")),
-                      withSpinner(plotOutput("tlolli_s_plot"))
+                      card(withSpinner(plotOutput("tviolin_s_plot")),
+                           class="card3"),
+                      card(withSpinner(plotOutput("tviolinmean_s_plot")),
+                           class="card3")#,
+                      #withSpinner(plotOutput("tlolli_s_plot"))
                       ),
        class="card2"       # <<<----- applying the new class
        ),
-  card(h3("Body Size and Overall richness"),
+  card(h3("Body Size and IUCN status"),
        layout_columns(col_widths=c(6,6),
-                      withSpinner(plotOutput("sizebar_s_plot")),
-                      withSpinner(plotOutput("rich_s_plot")),
-                      withSpinner(plotOutput("iucnbar_s_plot"))
+                      card(h5("Adult Body Size"),
+                           withSpinner(plotOutput("sizebar_s_plot")),
+                           class="card3"),
+                      card(h5("IUCN Red List Status"),
+                           withSpinner(plotOutput("iucnbar_s_plot")),
+                           class="card3")
                       ),
        class="card2"       # <<<----- applying the new class
        ),
+  card(h3("Overall richness"),
+       card(withSpinner(plotOutput("rich_s_plot")),
+            class="card3"),
+       class="card2"       # <<<----- applying the new class
+  ),
   br(),
   # radar diagram 
   
