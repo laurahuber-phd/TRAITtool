@@ -9,22 +9,20 @@ observe({
   
   print("Default: Default analysis selected")
   #aggvar <- input$aggregate_var
-  # update trophic level plots  
+  # ---------------------  trophic level plots --------------------- #
   ## violin plot 
   ### needs trophic level to plot (violinplot_general$y) 
   #### (currently selects the first value in this list: ps.norm.melt() %>% select(contains("roph")) %>% colnames())
-  #
+  
   ### needs x-axis variable (violinplot_general$x)
   #### (currently selects the first value in this list: Meta_vars())
-  #
   
-  ## feeding guild  
-  ### needs size selection to plot (input$choose_sizebar_axis)
-  #### currently selects the first value in this list: ps.norm.melt() %>% select(contains("ength")) %>% colnames()
-  #
-  ## to update the aggregate variable
-  #updateSelectInput(session,"choose_sizebar_facet",
-  #                  choices=isolate(input$aggregate_var))
+  ### update title  
+  updateTextInput(session, "violin_pretty-plottitle", value = "Mean Trophic Index")
+  print("MTI plot title updated")
+  
+  ## pie chart
+  ### update the aggregate variable
   updatePickerInput(session,
                     "choose_trophbar_facet",
                     #choices=c(Meta_vars()),
@@ -32,27 +30,52 @@ observe({
   )
   print(c("trophbar facet picker variable updated to",isolate(input$aggregate_var)))
   
-  # update temperature plots  
-  ## violin plot  
-  ### needs x-axis variable (tviolinplot_general$x)
+  # ---------------------  temperature plots --------------------- #  
+  ## index violin plot  
+  ### needs grouping/x-axis variable (tviolinplot_general$x)
+  #### (currently selects the first value in this list: Meta_vars())
   #
-  ### needs y-axis variable (tviolinplot_general$y)
+  ### needs temperature/y-axis variable (tviolinplot_general$y)
+  #### currently uses an index generated within the plotting reactive 
+  #
+  ### update title
+  updateTextInput(session, "tviolin_pretty-plottitle", 
+                  value = "Temperature Index")
+  updateTextInput(session, "tviolin_pretty-plotcaption", 
+                  value = "Index was calculated by dividing the median preferred temperature for each species by the difference in temperature range of the community group, identified by the grouping variable.")
+  
+  ## raw temp violin plot  
+  ### needs grouping/x-axis variable (tviolinplot_general$x)
+  #### (currently selects the first value in this list: Meta_vars())
+  #
+  ### needs temperature/y-axis variable (tviolinplot_general$y)
   #### currently selects the first value in this list: ps.norm.melt() %>% select(contains("emp")) %>% colnames()
-  # 
- # tviolinplot_general$x <- reactive(aggvar)
-
+  #
+  ### update title  
+  updateTextInput(session, "tviolinmean_pretty-plottitle", 
+                  value = "Temperature Preference")
+  tvio_sub <- switch(tviolinmeanplot_general$y(), 
+                     contains("min") = "Minimum",
+                     contains("max") = "Maximum",
+                     contains("median") = "Median",
+                     contains("mean") = "Mean")
+  updateTextInput(session, "tviolinmean_pretty-plotsubtitle",value = tvio_sub )
+  
   ## lollipop plot  
   ### needs y-axis variable (choose_tlolli_yaxis)
   #updatePickerInput(session,"choose_tlolli_yaxis",
- #                   choices=isolate(input$aggregate_var)) #make aggregate variable the y-axis for temperature lollipop plot
+  #                   choices=isolate(input$aggregate_var)) #make aggregate variable the y-axis for temperature lollipop plot
   updatePickerInput(session,
                     "choose_tlolli_facet",
-                      selected=isolate(input$aggregate_var)
+                    selected=isolate(input$aggregate_var)
   )
   print(c("temperature lolli plot facet picker variable updated to",isolate(input$aggregate_var)))
   
-  # update body size plots 
+  # ---------------------  body size plots --------------------- #  
   ## pie chart 
+  ### needs size selection to plot (input$choose_sizebar_axis)
+  #### currently selects the first value in this list: ps.norm.melt() %>% select(contains("ength")) %>% colnames()
+  #
   ### needs facet variable (choose_sizebar_facet)
   updatePickerInput(session,
                     "choose_sizebar_facet",
@@ -60,12 +83,12 @@ observe({
                     selected=isolate(input$aggregate_var))
   
   print(c("sizebar facet picker variable updated to",isolate(input$aggregate_var)))
+  #
+  ### update title  
+  updateTextInput(session, "sizebar_pretty-plottitle", 
+                  value = input$choose_sizebar_axis)
   
-  # update richness plots  
-  ## needs x-axis variable (alpha_xvar)
-  #updateSelectInput(session,"alpha_xvar",
-  #                  choices=isolate(input$aggregate_var)) #make aggregate variable the x-axis for alpha diversity plot
-  
+  # ---------------------  IUCN status plots --------------------- #   
   # update iucn status plot  
   updatePickerInput(session,
                     "choose_iucnbar_facet",
@@ -73,23 +96,16 @@ observe({
                     selected=isolate(input$aggregate_var))
   
   print(c("iucnbar facet picker variable updated to",isolate(input$aggregate_var)))
+  #
+  ### update title  
+  updateTextInput(session, "iucnbar_pretty-plottitle", 
+                  value = "IUCN Red List Status")
   
+  # ---------------------  Richness plots --------------------- #   
+  ## needs x-axis variable (alpha_xvar)
+  #updateSelectInput(session,"alpha_xvar",
+  #                  choices=isolate(input$aggregate_var)) #make aggregate variable the x-axis for alpha diversity plot
   
-#"violin_s_plot"
-#"violin_s_click"
-#"trophbar_s_plot"
-#"trophbar_s_click"
-
-#"tviolin_s_plot"
-#"tviolin_s_click"
-#"tlolli_s_plot"
-#"tlolli_s_click"
-
-#"sizebar_s_plot"
-#"sizebar_s_click"
-#"rich_s_plot"
-#"rich_s_click"
-
 #updateNumericInput(session,"prune_samples",value=100)
 #updateNumericInput(session,"prune_tax",value=1)
 #updateRadioButtons(session,"normoptions",selected="tax_rel")
