@@ -54,12 +54,12 @@ observe({
   ### update title  
   updateTextInput(session, "tviolinmean_pretty-plottitle", 
                   value = "Temperature Preference")
-  tvio_sub <- switch(tviolinmeanplot_general$y(), 
-                     contains("min") = "Minimum",
-                     contains("max") = "Maximum",
-                     contains("median") = "Median",
-                     contains("mean") = "Mean")
-  updateTextInput(session, "tviolinmean_pretty-plotsubtitle",value = tvio_sub )
+  #tvio_sub <- switch(tviolinmeanplot_general$y(), 
+  #                   contains("min") = "Minimum",
+  #                   contains("max") = "Maximum",
+  #                   contains("median") = "Median",
+  #                   contains("mean") = "Mean")
+  #updateTextInput(session, "tviolinmean_pretty-plotsubtitle",value = tvio_sub )
   
   ## lollipop plot  
   ### needs y-axis variable (choose_tlolli_yaxis)
