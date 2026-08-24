@@ -21,7 +21,7 @@ observe({
   output$rep_tviolinmeanplot <- renderPlot({tviolinmeanplot()})
   print("Report: temperature choice violin plot rendered")
   #
-  output$rep_sizebarplot <- renderPlot({sizebarplot_base()+sizebarplot_size$aspectRatio()})
+  output$rep_sizebarplot <- renderPlot({sizebarplot()})
   print("Report: Body size pie chart rendered")
   #
   output$rep_vioplot <- renderPlot({violinplot()})
@@ -136,7 +136,7 @@ observe({
   params[["tvioplot"]] <- mkdwnrptfun(tviolinplot())
   params[["tviomeanplot"]] <- mkdwnrptfun(tviolinmeanplot())
   params[["tlolplot"]] <- mkdwnrptfun(tlolliplot())
-  params[["sizebarplot"]] <- mkdwnrptfun(sizebarplot_base()+sizebarplot_size$aspectRatio())
+  params[["sizebarplot"]] <- mkdwnrptfun(sizebarplot())
   params[["richplot"]] <- mkdwnrptfun(richplot())
   
   params[["percplot"]] <- mkdwnrptfun(rankperc_plot())
@@ -368,14 +368,18 @@ output$norm_meltdwnld <- downloadHandler(
     
     figlist <- reactive(list( #list of plots where nonexistent plots return "NA"
       
-      mkdwnrptfun(trophbarplot()),
       mkdwnrptfun(violinplot()),
-      mkdwnrptfun(tviolinplot()),
+      mkdwnrptfun(trophbarplot()),
+      
       mkdwnrptfun(tviolinmeanplot()),
-      mkdwnrptfun(tlolliplot())),
-      mkdwnrptfun(sizebarplot_base()+sizebarplot_size$aspectRatio()),
+      mkdwnrptfun(tviolinplot()),
+      
+      mkdwnrptfun(sizebarplot()),
+      mkdwnrptfun(iucnbarplot()),
       
       mkdwnrptfun(richplot()),
+      
+      mkdwnrptfun(tlolliplot())),
       mkdwnrptfun(rankperc_plot()),
       mkdwnrptfun(ordplot()),
       mkdwnrptfun(histoplot()),
@@ -389,9 +393,9 @@ output$norm_meltdwnld <- downloadHandler(
     nplots <- reactive(length(myfigs()))
     
     lapply(1:nplots(), function(i){
-      ggsave(paste0("yplot",i,".png"), 
-             plot(mydata()[[i]]),
-             path=fig_dir(),
+      ggsave(paste0("Shinyplot",i,".png"), 
+             plot(myfigs()[[i]]),
+             path=tempdir(),
              scale=2)
     })
   }, ignoreInit = TRUE)
