@@ -710,15 +710,19 @@ iucnbarplot_base <- reactive({
   req(ps.norm())
   print("IUCN bar plot: building base plot")
   
+  names <- ps.norm.melt() %>%
+    select(contains(regex("IUCN_category",ignore_case = TRUE))) %>%
+    colnames()
+  
   ps <- ps.norm.melt() %>% 
-    mutate(IUCN_Status = case_when(is.na(Iucn_category) ~ "Not Found in Red List",
-                                   .default=Iucn_category)) 
+    rename(IUCN_Category_Status = names[[1]]) %>% 
+    mutate(IUCN_Category_Status = str_to_upper(IUCN_Category_Status)) %>%
+    mutate(IUCN_Status = case_when(is.na(IUCN_Category_Status) ~ "Not Found in Red List",
+                                   .default=IUCN_Category_Status)) 
   print(colnames(ps))
   
   my_vars <- c("IUCN_Status",
-               "IUCN_Category",
-               "Iucn_Category",
-               "Iucn_category",
+               "IUCN_Category_Status",
                #input$choose_iucnbar_axis, 
                input$choose_iucnbar_facet
   )

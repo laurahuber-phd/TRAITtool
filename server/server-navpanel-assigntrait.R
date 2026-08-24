@@ -361,10 +361,23 @@ if(input$trait_tax_select != "Species") {
                                            IUCN_Category_Code == "EW" ~ "Extinct in the Wild",
                                            IUCN_Category_Code == "EX" ~ "Extinct",
                                            IUCN_Category_Code == "NE" ~ "Not Evaluated",
-                                           .default=IUCN_Category_Code))) %>% 
+                                           .default=IUCN_Category_Code)))  %>% 
+          mutate(IUCN_CatNum=case_when(IUCN_Category_Code=="EX" ~ 1,
+                                       IUCN_Category_Code=="EW" ~ 2,
+                                       IUCN_Category_Code=="CR" ~ 3,
+                                       IUCN_Category_Code=="EN" ~ 4,
+                                       IUCN_Category_Code=="VU" ~ 5,
+                                       IUCN_Category_Code=="NT" ~ 6,
+                                       IUCN_Category_Code=="LC" ~ 7,
+                                       IUCN_Category_Code=="DD" ~ 8,
+                                       IUCN_Category_Code=="NE" ~ 9,
+                                       .default=0
+          )) %>%
           group_by(Species) %>% 
-          summarize(across(everything(), ~paste(sort(unique(.)), collapse="| "))) %>% 
-          distinct()
+          arrange(IUCN_CatNum) %>%
+          mutate(final_code = ifelse(n() > 1, as.character(first(IUCN_Category_Code)), as.character(IUCN_Category_Code))) %>%
+          slice(1) %>%
+          summarize(across(everything(), ~paste(sort(unique(.)), collapse="|")))
         
     # get table of location/ecosystem preferences 
     fish.eco <- rfishbase::ecosystem(species_list=valid.fish.names,
@@ -549,10 +562,23 @@ if(input$trait_tax_select != "Species") {
                                                   IUCN_Category_Code == "EW" ~ "Extinct in the Wild",
                                                   IUCN_Category_Code == "EX" ~ "Extinct",
                                                   IUCN_Category_Code == "NE" ~ "Not Evaluated",
-                                                  .default=IUCN_Category_Code))) %>% 
+                                                  .default=IUCN_Category_Code)))  %>% 
+          mutate(IUCN_CatNum=case_when(IUCN_Category_Code=="EX" ~ 1,
+                                       IUCN_Category_Code=="EW" ~ 2,
+                                       IUCN_Category_Code=="CR" ~ 3,
+                                       IUCN_Category_Code=="EN" ~ 4,
+                                       IUCN_Category_Code=="VU" ~ 5,
+                                       IUCN_Category_Code=="NT" ~ 6,
+                                       IUCN_Category_Code=="LC" ~ 7,
+                                       IUCN_Category_Code=="DD" ~ 8,
+                                       IUCN_Category_Code=="NE" ~ 9,
+                                       .default=0
+          )) %>%
           group_by(Species) %>% 
-          summarize(across(everything(), ~paste(sort(unique(.)), collapse="| "))) %>% 
-          distinct()
+          arrange(IUCN_CatNum) %>%
+          mutate(final_code = ifelse(n() > 1, as.character(first(IUCN_Category_Code)), as.character(IUCN_Category_Code))) %>%
+          slice(1) %>%
+          summarize(across(everything(), ~paste(sort(unique(.)), collapse="|")))
         
     # get table of location/ecosystem preferences 
     eco.df <- rfishbase::ecosystem(species_list=valid.fish.names,

@@ -24,6 +24,8 @@ observe({
   z <- make.names(metfile[[1]],unique=TRUE)
   metfile[[1]] <- z
   
+  metfile <- metfile %>% rename_with(str_to_title) #make column names title case
+  
   MetadataTable$x <- metfile
   MetadataTable$og <- metfile
   
@@ -51,9 +53,11 @@ observe({ #upload the OTU file
   y <- make.names(colnames(otufile), unique=TRUE)
   colnames(otufile) <- y
   
-  z <- make.names(otufile[[1]],unique=TRUE)
-  otufile[[1]] <- z
-    
+  #z <- make.names(otufile[[1]],unique=TRUE)
+  #otufile[[1]] <- z
+  #otufile <- otufile %>% 
+  #  mutate(across(where(is.character), str_to_sentence))
+  
   OTUTable$x <- otufile
   OTUTable$og <- otufile
   print("Load: loaded asv table")
@@ -90,10 +94,12 @@ observe({ #upload the taxonomy file
   y <- make.names(colnames(taxfile_upld), unique=TRUE)
   colnames(taxfile_upld) <- y
   
-  z <- make.names(taxfile_upld[[1]],unique=TRUE)
-  taxfile_upld[[1]] <- z
+ # z <- make.names(taxfile_upld[[1]],unique=TRUE)
+ # taxfile_upld[[1]] <- z
   
-  taxfile <- taxfile_upld %>% rename_with(str_to_title) #make column names title case
+  taxfile <- taxfile_upld %>% 
+    rename_with(str_to_title) %>% #make column names title case
+    mutate(across(where(is.character), str_to_sentence))
   
   if(any(str_detect(colnames(taxfile),"Species")==TRUE)) {
     # Do the following if one of the column names is "Species" (title case will be true because of above code)
@@ -102,18 +108,20 @@ observe({ #upload the taxonomy file
       filter(!is.na(Species)) %>% .[1:10,] %>% .$Species %>% #just look at a subset of the species assignments
       countSpaces(.) #will return a vector of the number of spaces in each 
     
-    if(is.na(range(check)[2]) ) { #we then look at the range of values; if the highest number is 0 
+    if(is.na(range(check)[2]) ) { #we then look at the range of values; if there are NA values in the range 
       taxfile <- taxfile
     } else 
       if(range(check)[2] < 1) { #we then look at the range of values; if the highest number is 0 
+        
+        if(any(str_detect(colnames(taxfile),"Genus")==TRUE)) {
         taxfile <- taxfile %>% 
           mutate(Species=case_when(!is.na(Species) ~ paste0(Genus," ",Species), #remake the species column to genus-species
                                    .default=NA))
-      } else {
+        }
+      } else { #if there is only one space, that's already in genus/species format; or if there are more than 1 space, then we can't change it here anyway
         taxfile <- taxfile
       }
-  } else {
-    # If no detected species 
+  } else { #if no detected species 
     taxfile <- taxfile
   }
 
