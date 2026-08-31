@@ -746,7 +746,8 @@ if (input$trait_tax_select != "Species") {
   
   }
   else {
-  traits_var$x <- traits_var$alltraits.df <- (alltraits.df #%>% tibble::rownames_to_column(var="Row.Name")
+  traits_var$x <- traits_var$alltraits.df <- (alltraits.df 
+                                              #%>% tibble::rownames_to_column(var="Row.Name")
                                               ) #combined fish/nonfish df
   
   # merge with the taxa table  
@@ -764,17 +765,20 @@ if (input$trait_tax_select != "Species") {
   #rownames(taxa_traits_df) <- taxa_traits_df[[1]]
   
   # save 
-  traits_tab$x <- traits_var$taxa_traits_df <- (taxa_traits_df %>% relocate(all_of(keep))  #%>% tibble::rownames_to_column(var="Row.Name")
+  traits_tab$x <- traits_var$taxa_traits_df <- (taxa_traits_df %>% relocate(all_of(keep))  
+                                                #%>% tibble::rownames_to_column(var="Row.Name")
                                                  ) #combined fish/nonfish df with taxonomy table 
   
   taxa_traits_sub <- taxa_traits_df #select(taxa_traits_df, -c(1:14))
-  traits_var$taxa_traits_sub <- (taxa_traits_sub %>% relocate(all_of(keep))  #%>% tibble::rownames_to_column(var="Row.Name")
+  traits_var$taxa_traits_sub <- (taxa_traits_sub %>% relocate(all_of(keep))  
+                                 #%>% tibble::rownames_to_column(var="Row.Name")
                                   )  #final data frame used for ps
   }
   #specifically just look at the trait df  
   showSpinner("trait_spinner_review", {
     tableServer(id='trait_review',
-                data=traits_var #module was written to auto read the $x value of the table
+                data=traits_var 
+                #module was written to auto read the $x value of the table
     )
   })
   
@@ -858,7 +862,7 @@ observe({
   )
 )
     shinyjs::show(id="add_ps_trait")
-    #shinyjs::show(id="viewtrait_panel")
+    shinyjs::show(id="viewtrait_panel")
     }
 }) %>% bindEvent(input$trait_assign,ignoreNULL=FALSE)
 
