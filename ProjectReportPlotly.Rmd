@@ -20,7 +20,10 @@ params:
   histplot: NA
   hmplot: NA
   vioplot: NA
+  tvioplot: NA
+  tviomeanplot: NA
   tbarplot: NA
+  sizebarplot: NA
   lineplot: NA
   lolplot: NA
   tlolplot: NA
@@ -35,6 +38,7 @@ params:
   remtax: NA
   remsam: NA
   samsum: NA
+  sampleselect: NA
   N_seq_total_num_sel: NA
   N_seq_assigned_num_sel: NA
   N_otu_total_num_sel: NA
@@ -117,7 +121,7 @@ _Were blanks removed?_ `r params$rembl`
 #### 4. Specific sample and taxa choices  
 You had the option to specify specific samples to analyze instead of the entire dataset. Similarly, you could have selected specific taxa to include or exclude. 
 
-_Specific samples removed:_ `r params$remsam`
+`r if(!is.na(params$sampleselect)) (paste0("You chose to ",params$sampleselect," the following samples:", params$remsam)) else "You kept all samples for analysis"`   
 
 `r if(!is.na(params$unass)) (paste0("You chose to ",params$unass," the following taxa:")) else "You kept all taxa for analysis"`  
 ```{r listtaxa}
@@ -248,32 +252,46 @@ Sys.sleep(2)
 ```
 
 ## Natural history traits  
-```{r}
+
+```{r violinplot, eval=!is.na(params$vioplot)}
 ggplotly(params$vioplot)
 ```
 
-```{r}
-ggplotly(params$lineplot)
-```
-
-```{r}
+```{r feedingguild, eval=!is.na(params$tbarplot)}
 ggplotly(params$tbarplot)
 ```
 
-```{r}
+```{r lineplot, eval=!is.na(params$lineplot)}
+ggplotly(params$lineplot)
+```
+
+```{r lolliplot, eval=!is.na(params$lolplot)}
 ggplotly(params$lolplot)
 ```
 
 ## Temperature range  
-```{r}
+```{r tempdensityplot, eval=!is.na(params$tvioplot)}
+ggplotly(params$tvioplot)
+```
+
+```{r tempdensityplot2, eval=!is.na(params$tviomeanplot)}
+ggplotly(params$tviomeanplot)
+```
+
+```{r templolliplot, eval=!is.na(params$tlolplot)}
 ggplotly(params$tlolplot)
+```
+
+## Body size  
+```{r bodysize, eval=!is.na(params$sizebarplot)}
+ggplotly(params$sizebarplot)
 ```
 
 ### Percent composition  
 Visualize proportionally how much each taxa appears in the dataset. What taxa are most common? Do you have rare taxa?  
 
 How much of the total did each taxa represent?  
-```{r}
+```{r, eval=!is.na(params$percplot)}
 #percleg <- get_legend(params$percplot)
 #percnoleg <- params$percplot + theme(legend.position = "none")
 
@@ -288,7 +306,7 @@ Sys.sleep(2)
 
 # Alpha diversity plot  
 Diversity metric used: `r params$richmet`  
-```{r}
+```{r, eval=!is.na(params$richplot)}
 ggplotly(params$richplot)
 ```
 
@@ -298,7 +316,7 @@ Sys.sleep(2)
 ```
 
 # Taxonomic diversity plot  
-```{r}
+```{r, eval=!is.na(params$histplot)}
 ggplotly(params$histplot)
 ```
 
@@ -308,7 +326,7 @@ Sys.sleep(2)
 ```
 
 # Heatmap
-```{r}
+```{r, eval=!is.na(params$hmplot)}
 ggplotly(params$hmplot)
 ```
 
@@ -320,7 +338,7 @@ Sys.sleep(2)
 # Ordination plot  
 _Ordination method:_ `r params$ordmeth`  
 _Type:_ `r params$ordtype`  
-```{r}
+```{r, eval=!is.na(params$ordplot)}
 ggplotly(params$ordplot)
 ```
 

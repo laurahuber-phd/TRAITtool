@@ -251,24 +251,32 @@ Sys.sleep(2)
 ```
 
 ## Natural history traits  
-```{r}
+```{r violinplot, eval=!is.na(params$vioplot)}
 (params$vioplot)
 ```
 
-```{r}
+```{r lineplot, eval=!is.na(params$lineplot)}
 (params$lineplot)
 ```
 
-```{r}
+```{r feedingguild, eval=!is.na(params$tbarplot)}
 (params$tbarplot)
 ```
 
-```{r}
+```{r lolliplot, eval=!is.na(params$lolplot)}
 (params$lolplot)
 ```
 
 ## Temperature range  
-```{r}
+```{r tempdensityplot, eval=!is.na(params$tvioplot)}
+(params$tvioplot)
+```
+
+```{r tempdensityplot2, eval=!is.na(params$tviomeanplot)}
+(params$tviomeanplot)
+```
+
+```{r templolliplot, eval=!is.na(params$tlolplot)}
 (params$tlolplot)
 ```
 
