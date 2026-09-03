@@ -64,21 +64,21 @@ ps.norm.melt <- reactive({
   otu_df <- otu_table(ps) %>% as.matrix() %>% as.data.frame() 
   otu_df <- cbind(OTU=rownames(otu_df),otu_df)
   
-  tax_df <- tax_table(ps)  %>% as.matrix() %>% as.data.frame() %>% mutate(across(tax_vars(), ~ as.numeric(.x)))
+  tax_df <- tax_table(ps)  %>% as.matrix() %>% as.data.frame() %>% mutate(across(any_of(tax_vars()), ~ as.numeric(.x)))
   tax_df <- cbind(OTU=rownames(tax_df),tax_df)
   
-  sample_df <- sample_data(ps) %>% as.matrix() %>% as.data.frame() %>% mutate(across(met_vars(), ~ as.numeric(.x)))
-  sample_df <- cbind(Sample=rownames(sample_df),sample_df)
+  sample_df <- sample_data(ps) %>% as.matrix() %>% as.data.frame() %>% mutate(across(any_of(met_vars()), ~ as.numeric(.x)))
+  sample_df <- cbind(TRAITsample=rownames(sample_df),sample_df)
    
   # Melt and merge with joins
   melted_physeq_tidy <- otu_df %>%
     pivot_longer(
       cols = -OTU,
-      names_to = "Sample",
+      names_to = "TRAITsample",
       values_to = "Abundance"
     ) %>%
     left_join(tax_df, by = "OTU") %>%
-    left_join(sample_df, by = "Sample") %>% 
+    left_join(sample_df, by = "TRAITsample") %>% 
     filter(Abundance > 0)
   
 }) %>% bindEvent(ps.norm(),ps.all())
