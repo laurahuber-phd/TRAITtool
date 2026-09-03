@@ -15,14 +15,32 @@ observe({
   updateSelectInput(session,'alpha_xvar',
                     'Select the explanatory variable',
                     Meta_vars())
+  updateSelectInput(session,"alpha_facet",
+                    'Select the faceting variable',
+                    Meta_vars())
 }) %>% 
   bindEvent(Meta_vars()) #respond to any changes in the Metadata file that is uploaded
 
 richplot <- reactive({ #draw alpha div plot when 'plot' button is clicked
   print("Alpha diversity: making plot")
-  withProgress(message="Making richness plot",
-               plot_richness(ps.norm(), x=input$alpha_xvar, measures=input$alphametrics) + geom_boxplot()
-  )
+  
+  baseplot <- plot_richness(ps.norm(), 
+                            x=input$alpha_xvar, 
+                            measures=input$alphametrics) + geom_jitter(width=0.15)
+  
+    if(isTruthy(input$alpha_box)) {
+      baseplot <- baseplot+geom_boxplot()
+    } 
+ 
+  if(!is.null(input$alpha_facet) & length(input$alpha_facet) < 2) {
+    finalplot <- baseplot + facet_wrap(~.data[[input$alpha_facet]],scales="free") 
+  } else if(!is.null(input$alpha_facet) & length(input$alpha_facet) == 2) {
+    finalplot <- baseplot + facet_grid(rows=vars(.data[[input$alpha_facet[1]]]),
+                                       cols= vars(.data[[input$alpha_facet[2]]]),
+                                       scales="free") 
+  } else {finalplot <- baseplot}
+  
+  finalplot
 })%>% bindEvent(input$go_rich)
 
 observe({
