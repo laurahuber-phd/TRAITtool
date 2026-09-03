@@ -186,9 +186,9 @@ producers up to a level of 5 for marine mammals and human"),
     accordion_panel(title="Bar plot",
                     Anlys_TrophBarCard
     ),
-    accordion_panel(title="Line plot",
-                    Anlys_TrophLineCard
-    ),
+    #accordion_panel(title="Line plot",
+    #                Anlys_TrophLineCard
+    #),
     accordion_panel(title="Lollipop plot",
                     Anlys_TrophLolliCard
     )
