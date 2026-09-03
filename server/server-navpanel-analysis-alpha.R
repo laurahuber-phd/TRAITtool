@@ -16,8 +16,8 @@ observe({
                     'Select the explanatory variable',
                     Meta_vars())
   updateSelectInput(session,"alpha_facet",
-                    'Select the faceting variable',
-                    Meta_vars())
+                    'Select the faceting variable - backspace to erase',
+                    c("",Meta_vars()))
 }) %>% 
   bindEvent(Meta_vars()) #respond to any changes in the Metadata file that is uploaded
 
@@ -29,10 +29,12 @@ richplot <- reactive({ #draw alpha div plot when 'plot' button is clicked
                             measures=input$alphametrics) + geom_jitter(width=0.15)
   
     if(isTruthy(input$alpha_box)) {
-      baseplot <- baseplot+geom_boxplot()
+      baseplot <- baseplot+geom_boxplot(alpha=0.75)
     } 
  
-  if(!is.null(input$alpha_facet) & length(input$alpha_facet) < 2) {
+  if( input$alpha_facet=="") {
+    finalplot <- baseplot
+  } else if(!is.null(input$alpha_facet) & length(input$alpha_facet) == 1) {
     finalplot <- baseplot + facet_wrap(~.data[[input$alpha_facet]],scales="free") 
   } else if(!is.null(input$alpha_facet) & length(input$alpha_facet) == 2) {
     finalplot <- baseplot + facet_grid(rows=vars(.data[[input$alpha_facet[1]]]),
