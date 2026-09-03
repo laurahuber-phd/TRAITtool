@@ -366,6 +366,23 @@ output$norm_meltdwnld <- downloadHandler(
   
   observeEvent(input$download_zip, {
     
+    if(is.na(mkdwnrptfun(violinplot()))) {print("MTI violin plot not generated")}
+    if(is.na(mkdwnrptfun(trophbarplot()))){print("Feeding guild pie chart not generated")}
+    
+    if(is.na(mkdwnrptfun(tviolinmeanplot()))) {print("Temperature index violin plot not generated")}
+    if(is.na(mkdwnrptfun(tviolinplot()))) {print("Temperature range violin plot not generated")}
+    
+    if(is.na(mkdwnrptfun(sizebarplot()))) {print("Body size pie chart not generated")}
+    if(is.na(mkdwnrptfun(iucnbarplot()))) {print("IUCN status pie chart not generated")}
+    
+    if(is.na(mkdwnrptfun(richplot()))) {print("Richness plot not generated")}
+    
+    if(is.na(mkdwnrptfun(tlolliplot()))) {print("Temperature range lollipop plot not generated")}
+    if(is.na(mkdwnrptfun(rankperc_plot()))) {print("Rank percentage plot not generated")}
+    if(is.na(mkdwnrptfun(ordplot()))) {print("Ordination plot not generated")}
+    if(is.na(mkdwnrptfun(histoplot()))) {print("Histogram not generated")}
+    if(is.na(mkdwnrptfun(hmplot()))) {print("Heat map not generated")}
+    
     figlist <- reactive(list( #list of plots where nonexistent plots return "NA"
       
       mkdwnrptfun(violinplot()),
