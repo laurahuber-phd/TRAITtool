@@ -113,17 +113,16 @@ Anlys_IUCNPlot <- tagList(
                  shinyWidgets::dropdown(inputId="iucnbar_plotgrouping",
                                         label="Grouping choices",
                                         icon=icon("gear"),
-                                        #pickerInput("choose_iucnbar_axis",
-                                        #            label="IUCN data",
-                                        #            #            label="Groups to compare",
-                                        #            choices=list(),
-                                        #            multiple = FALSE,
-                                         #           options = pickerOptions(maxOptions = 1,
-                                        #                                    container = "body", 
-                                        #                                    actionsBox = TRUE,
-                                        #                                    deselectAllText = "Clear selection"
-                                        #            )
-                                        #),
+                                        pickerInput("choose_iucnbar_axis",
+                                                    label="IUCN data",
+                                                    choices=list(),
+                                                    multiple = FALSE,
+                                                    options = pickerOptions(maxOptions = 1,
+                                                                            container = "body", 
+                                                                            actionsBox = TRUE,
+                                                                            deselectAllText = "Clear selection"
+                                                    )
+                                        ),
                                         pickerInput("choose_iucnbar_facet",
                                                     label="Groups to compare",
                                                     #label="Faceting Group",

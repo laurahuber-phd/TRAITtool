@@ -691,11 +691,11 @@ output$sizebar_plotdwnld <- output$sizebar_plotdwnld_popup <-  downloadHandler(
 
 ############## Bar Plot IUCN status ############## 
 observe({ 
-  #updatePickerInput(session,
-  #                  "choose_iucnbar_axis", 
-  #                  choices=c(ps.norm.melt() %>% select(contains("IUCN", ignore.case = TRUE)) %>% colnames())#,
-  #                  #selected=""
-  #)
+  updatePickerInput(session,
+                    "choose_iucnbar_axis", 
+                    choices=c(ps.norm.melt() %>% select(contains("IUCN", ignore.case = TRUE)) %>% colnames())#,
+                    #selected=""
+  )
   updatePickerInput(session,
                     "choose_iucnbar_facet",
                     choices=c(Meta_vars())#,
@@ -715,7 +715,7 @@ iucnbarplot_base <- reactive({
     colnames()
   
   ps <- ps.norm.melt() %>% 
-    rename(IUCN_Category_Status = names[[1]]) %>% 
+    rename(IUCN_Category_Status = input$choose_iucnbar_axis) %>% 
     mutate(IUCN_Category_Status = str_to_upper(IUCN_Category_Status)) %>%
     mutate(IUCN_Status = case_when(is.na(IUCN_Category_Status) ~ "Not Found in Red List",
                                    .default=IUCN_Category_Status)) 
@@ -777,6 +777,8 @@ iucnbarplot <- reactive({iucnbarplot_base()+iucnbarplot_size$aspectRatio()})
 observe({
   print("IUCN bar plot: plotting")
   output$iucnbar_s_plot <- output$iucnbar_plot <- renderPlot({iucnbarplot()})
+  req(iucnbarplot())
+  print("IUCN bar plot: saving")
   
   tryCatch(
     ggsave(filename="iucnbarplot.png", 
@@ -787,8 +789,7 @@ observe({
     ),
     error=function(e){return(NA)}
   )
-}) %>% bindEvent(input$go_iucnbar)
-
+})
 
 observe({
   showModal(modalDialog(
