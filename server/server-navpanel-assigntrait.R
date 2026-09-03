@@ -475,7 +475,7 @@ if(input$trait_tax_select != "Species") {
     } else { 
     print("Traits: only one database selected")
     
-  ################## When a single db is selected  ################## 
+################## When a single db is selected  ################## 
     
     valid.fish.names <- traits_var$nona %>% 
       rfishbase::validate_names(server=traits_var$serv) 
@@ -485,12 +485,15 @@ if(input$trait_tax_select != "Species") {
     invalid.fish.names <- traits_var$nona[!traits_var$nona%in%valid.fish.names] 
     
     # Check the species names that were not found in fishbase for synonyms
-    syn.fish <- rfishbase::synonyms(invalid.fish.names,server=traits_var$serv) %>% 
+    syn.fish <- rfishbase::synonyms(invalid.fish.names,
+                                    server=traits_var$serv) %>% 
       filter(Status=="synonym")
     print("Traits: Checked invalidated names for synonyms")
     
+    # retain synonym names
     syn.fish.names <- syn.fish[!is.na(syn.fish$Species),]$Species
     
+    # make a table showing what synonyms were found and what their original names from the tax dataframe were
     syn.fish.tab <- syn.fish %>% 
       select(c(Species,synonym)) %>% 
       rename("Valid Name" = "Species", 
@@ -506,7 +509,10 @@ if(input$trait_tax_select != "Species") {
                                       server=traits_var$serv)
     print("Traits: Trait information gathered")
     
+    # standardize column names
     colnames(fish.troph) <- str_to_title(colnames(fish.troph))
+    
+    # make dataframe  
     traits.df <- fish.troph %>%
       filter(!duplicated(Species)) %>%
       mutate(Syn=case_when(Species%in%syn.fish$Status ~ "synonym")) %>% as.data.frame()
@@ -522,6 +528,7 @@ if(input$trait_tax_select != "Species") {
     traits_var$syn.tab <- syn.fish.tab
     traits_var$syn.names <- unique(syn.fish.names)
     
+    print(colnames(traits.df))
     traits_var$troph <- (traits.df #%>%
                            #tibble::rownames_to_column(var="Row.Name")
     ) 
@@ -529,8 +536,21 @@ if(input$trait_tax_select != "Species") {
     ################## Add other ecosystem data  ################## 
     if (input$trait_tax_select != "Species") { 
       
-      alltraits.df <- traits.df 
+      alltraits.df <-  merge(traits.df, 
+                             (allspptbl %>% 
+                                filter(Species %in% traits_var_spplist) %>% 
+                                select(c(Species,
+                                         .data[[input$trait_tax_select]]
+                                ))),
+                             .by="Species"
+      )
       print("Traits: higher taxa level queried; no further natural history information queried beyond MTI")
+      print(c("colnames of sp table:",colnames(allspptbl)))
+      print(c("colnames of old table:",colnames(traits.df)))
+      print(c("colnames of new table:",colnames(alltraits.df)))
+      print(c("nrows of old table:",nrow(traits.df)))
+      print(c("nrows of new table:",nrow(alltraits.df)))
+      print("Traits: higher taxa level queried; IUCN status not queried")
       
       } else {
     # get iucn status      
@@ -669,7 +689,8 @@ if(input$trait_tax_select != "Species") {
  ################## Average MTI for higher taxa level and combine with tax df ##################   
 if (input$trait_tax_select != "Species") { 
   alltraits.df <- alltraits.df %>% ungroup() %>%
-   group_by(.data[[input$trait_tax_select]]) %>% 
+   group_by(.data[[input$trait_tax_select]]
+                                ) %>% 
    summarize("Troph" = mean(Troph),
              "Setroph" = mean(Setroph),
              "Trophobserved" = mean(Trophobserved),
@@ -684,8 +705,10 @@ if (input$trait_tax_select != "Species") {
  
   ################## Add synonym information to tax table  ################## 
  if (input$trait_tax_select=="Species"){
-  t.syn.tab <- traits_var$syn.tab %>% rename(Synonym = "Valid Name", #Change the name of the columns so we can combine this table with the alltraits.df table by Species 
-                                  Species = "Queried Name") 
+  t.syn.tab <- traits_var$syn.tab %>% 
+    rename(Synonym = "Valid Name", 
+           #Change the name of the columns so we can combine this table with the alltraits.df table by Species 
+           Species = "Queried Name") 
   print("Traits: Synonym table headers renamed")
   
   alltraits.df <- alltraits.df %>% 
@@ -734,14 +757,22 @@ if (input$trait_tax_select != "Species") {
   print(c("nrows of old table:",nrow(alltraits.df)))
   print(c("nrows of new table:",nrow(taxa_traits_df)))
   
-  numeric.cols <- taxa_traits_df %>% select(where(is.double) | where(is.numeric)) %>% colnames()
+  numeric.cols <- taxa_traits_df %>% 
+    select(where(is.double) | where(is.numeric)) %>%
+    colnames()
   tax.numcols(numeric.cols)
+  
   print("Traits: trophic information added to tax table") 
-  traits_tab$x <- traits_var$taxa_traits_df <- (taxa_traits_df %>% relocate(all_of(keep))  #%>% tibble::rownames_to_column(var="Row.Name")
+  
+  traits_tab$x <- traits_var$taxa_traits_df <- (taxa_traits_df %>% 
+                                                  relocate(all_of(keep))  
+                                                #%>% tibble::rownames_to_column(var="Row.Name")
   ) #combined fish/nonfish df with taxonomy table 
   
   taxa_traits_sub <- taxa_traits_df #select(taxa_traits_df, -c(1:14))
-  traits_var$taxa_traits_sub <- (taxa_traits_sub %>% relocate(all_of(keep))  #%>% tibble::rownames_to_column(var="Row.Name")
+  traits_var$taxa_traits_sub <- (taxa_traits_sub %>% 
+                                   relocate(all_of(keep))  
+                                 #%>% tibble::rownames_to_column(var="Row.Name")
   )  #final data frame used for ps
   
   }
