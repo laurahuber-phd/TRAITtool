@@ -73,6 +73,12 @@ observe({
   output$rep_numsam <- renderTable({mkdwnrptfun(Summ_seqs_sel())},rownames = TRUE,digits=0) #max/min/avg seqs (subset)
   output$rep_numog <- renderTable({mkdwnrptfun(Summ_seqs())},rownames = TRUE,digits=0) #max/min/avg seqs (original)
   
+  output$rep_syn.names <- renderTable(traits_var$syn.tab)
+  output$traits_report <- renderTable(traits_report())
+  output$rep_trait.nona <- renderText(sort(traits_var$nona),sep = ", ")
+  output$rep_trait.syn.names <- renderText(sort(traits_var$syn.names),sep = ", ")
+  output$rep_trait.valid <- renderText(sort(traits_var$valid),sep = ", ")
+  output$rep_trait.invalid <- renderText(sort(traits_var$invalid),sep = ", ")
   #output$rep_richmet <- mkdwnrptfun(input$alphametrics)
 })
 
@@ -90,6 +96,11 @@ params <- reactiveValues(blanks=NA, #create list of parameters to read into rmar
                          ntaxa=NA,
                          numsam=NA,
                          numog=NA,
+                         traitsynfound=NA,
+                         traitsppnotfound=NA,
+                         traitsppfound=NA,
+                         syntab=NA,
+                         traitreport=NA,
                          percplot=NA,
                          ordmeth=NA,
                          ordtype=NA,
@@ -157,6 +168,11 @@ observe({
   params$remtax <- mkdwnrptfun(reactiveValuesToList(taxfilter_list)) #list of ranks and names of taxa used to filter  
   params$sampleselect <- if(isTruthy(input$tax_keepremove)) {"Keep"} else if (!isTruthy(input$tax_keepremove) && isTruthy(input$tax_switch)) {"Remove"} else {as.numeric(NA)}  #keep or remove taxa?
   params$remsam <- mkdwnrptfun(input$sample_select) #list of samples removed/kept   
+  params$traitsppfound <- mkdwnrptfun(traits_var$nona) #species queried to databse
+  params$traitsppnotfound <- mkdwnrptfun(traits_var$invalid) #invalid names
+  params$traitsynfound <- mkdwnrptfun(traits_var$syn.names) #synonyms found
+  params$syntab <- mkdwnrptfun(traits_var$syn.tab) #list of species names not found in fb/slb but synonym names were
+  params$traitreport <- mkdwnrptfun(traits_report()) #trait taxa report 
   
   params$norm <- tryCatch(input$normoptions, #normalized? 
                           error=function(e){return("No normalization performed")})

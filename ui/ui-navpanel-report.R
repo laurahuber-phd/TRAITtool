@@ -29,6 +29,13 @@ reportpage <- nav_panel(
                               HTML("<p><i> (For the analyzed dataset)</i> <u>Minimum and maximum number of sequences per sample: </u></p>"),
                               tableOutput("rep_numsam"),
                               ),
+              accordion_panel(title="Trait Assignment",
+                              tableOutput("rep_syn.names"),
+                              tableOutput("traits_report"),
+                              "Species queried", textOutput("rep_trait.nona"),
+                              "Valid names",textOutput("rep_trait.valid"),
+                              "Invalid names",textOutput("rep_trait.invalid")
+                              ),
               accordion_panel(title="Figures",
                               accordion(id='fig_accord',open=FALSE,
                                         accordion_panel(title="Trophic index",

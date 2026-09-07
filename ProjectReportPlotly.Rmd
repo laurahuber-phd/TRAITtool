@@ -15,6 +15,11 @@ params:
   ntaxa: NA
   numsam: NA
   numog: NA
+  traitsppfound: NA
+  traitsppnotfound: NA
+  traitsynfound: NA
+  syntab: NA
+  traitreport: NA
   richplot: NA
   percplot: NA
   histplot: NA
@@ -138,6 +143,19 @@ params$remtax
 ```{r progressone}
 incProgress(1/11)
 Sys.sleep(2)
+```
+
+# Trait assignment:   
+_Specific taxa queried:_ `r params$traitsppfound`  
+_Species not found in database:_ `r params$traitsppnotfound`
+
+Info about traits assigned:   
+```{r traitreport,eval=!is.na(params$traitreport)}
+params$traitreport
+```
+Info about synonyms queried:  
+```{r synonymreport,eval=!is.na(params$syntab)}
+params$syntab
 ```
 
 # Basic stats    

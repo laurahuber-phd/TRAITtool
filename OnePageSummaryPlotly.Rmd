@@ -15,6 +15,11 @@ params:
   ntaxa: NA
   numsam: NA
   numog: NA
+  traitsppfound: NA
+  traitsppnotfound: NA
+  traitsynfound: NA
+  syntab: NA
+  traitreport: NA
   vioplot: NA
   tbarplot: NA
   tvioplot: NA
@@ -92,7 +97,17 @@ _Normalization method:_ `r params$norm`
 _The following blank/negative control samples were sequenced:_ `r params$blanks` 
 _Were blanks removed from the dataset prior to analysis?_ `r params$rembl`  
 
-#### 4. Specific sample and taxa choices  
+## Trait assignment:   
+Info about traits assigned:   
+```{r traitreport,eval=!is.na(params$traitreport)}
+params$traitreport
+```
+Info about synonyms queried:  
+```{r synonymreport,eval=!is.na(params$syntab)}
+params$syntab
+```
+
+#### Specific sample and taxa choices  
 You had the option to specify specific samples to analyze instead of the entire dataset. Similarly, you could have selected specific taxa to include or exclude. 
 
 `r if(!is.na(params$sampleselect)) (paste0("You chose to ",params$sampleselect," the following samples:", params$remsam)) else "You kept all samples for analysis"`   
