@@ -144,7 +144,7 @@ output$taxcomplete <- renderText({
 })
 
 ###################### USING EXAMPLE DATA ######################
-observeEvent(input$load_ex, {
+observe({
   MetadataTable$x <- NULL #reset to null every time input$load_ex is clicked
   MetadataTable$og <- NULL
   OTUTable$x <- NULL
@@ -185,7 +185,7 @@ observeEvent(input$load_ex, {
   tax.numcols(numeric.columns)
   
   print("Load: loaded example tax file")
-})
+},priority=2) %>% bindEvent(input$load_ex)
 
 
 ## check that all the files are right to make a phyloseq object 
@@ -214,11 +214,11 @@ observe({
   }
 }) %>% bindEvent(input$Metadata,input$taxtab,input$otutab,ignoreNULL=FALSE)  
 
-ps.og <- eventReactive(c(input$assemble_ps,input$load_ex),{
+ps.og <- reactive({
   
-  runif(input$assemble_ps)
-  runif(input$load_ex)
-  runif(input$go_addtroph)
+  #runif(input$assemble_ps)
+  #runif(input$load_ex)
+  #runif(input$go_addtroph)
   
   req(!is.null(MetadataTable$x))
   req(!is.null(OTUTable$x))
@@ -230,52 +230,75 @@ ps.og <- eventReactive(c(input$assemble_ps,input$load_ex),{
                               meta=MetadataTable$x
   ), error=function(e){return(NULL)})
   if(isTruthy(all)) {
+    print("Load: Dataset assembled")
     all
   } else {
-    return("Load: Dataset not assembled")
+    print("Load: Dataset not assembled")
+    NULL
   }
-})
+}) %>% bindEvent(input$assemble_ps,
+                 input$load_ex,
+                 input$go_addtroph)
 
-ps.all <- eventReactive(c(input$assemble_ps,input$load_ex,input$go_addtroph), {
+
+ps.all <- reactiveVal(NULL) 
+
+observe({
+  print("Load: assemble dataset clicked")
   
-  ps.all <- ps.sub <- ps.norm <- NULL 
-  Meta_vars <- rnames <- NULL 
+  #ps.all(NULL)
+ # ps.sub(NULL) 
+  #ps.norm(NULL) 
+  #Meta_vars(NULL)
+  #rnames(NULL)
+  req(!is.null(MetadataTable$x))
+  print("Load: Metadata table exists")
   
-  runif(input$assemble_ps)
-  runif(input$load_ex)
-  runif(input$go_addtroph)
+  req(!is.null(OTUTable$x))
+  print("Load: Feature table exists")
   
-  req(MetadataTable$x)
-  req(OTUTable$x)
-  req(TaxTable$x)
+  req(!is.null(TaxTable$x))
+  print("Load: tax table exists")
   
   if(input$go_addtroph && !is.null(traits_tab$x)) {
+    print("Load: adding traits to tax table")
     new.tax <- traits_tab$x
   } else {
+    print("Load: using original tax table")
     new.tax <- TaxTable$x
   }
   
   all <- tryCatch(assemble_ps(otu=OTUTable$x, # build the phyloseq object
-                       #tax=TaxTable$x,
-                       tax=new.tax,
-                       meta=MetadataTable$x
+                              #tax=TaxTable$x,
+                              tax=new.tax,
+                              meta=MetadataTable$x
   ), 
-           error=function(e){return(NULL)})
+  error=function(e){return(NULL)})
   
   if(isTruthy(all)) {
-    all
+    print("Load: ps object assembled")
+    ps.all(all)
   } else {
-      showModal(modalDialog("Components do not match. Check sample names and try again."))
-    all
-    }
-})
-
-observeEvent(ps.all(),{
-  req(ps.all())
-  updateActionButton(session,"defaultgo",disabled=FALSE)
+    showModal(modalDialog("Components do not match. Check sample names and try again."))
+    ps.all(NULL)
+  }
   
-  if(input$go_addtroph && !is.null(traits_tab$x)) {shinyjs::show("trait_ps_success")}
-})
+}) %>% bindEvent(input$assemble_ps,
+                 input$load_ex,
+                 input$go_addtroph, 
+                 ignoreInit=TRUE, ignoreNULL=FALSE)
+
+observe({
+  req(!is.null(ps.all()))
+  updateActionButton(session,"defaultgo",disabled=FALSE)
+  print("Load: dataset uploaded; default option available")
+  shinyjs::show("load_success")
+  
+  if(input$go_addtroph && !is.null(traits_tab$x)) {
+    print("Load: trait info successfully added")
+    shinyjs::show("trait_ps_success")
+    }
+}) %>% bindEvent(ps.all())
 
 checking <- reactiveValues()
 checking$table <- checking$empty <- NULL
@@ -291,7 +314,7 @@ observeEvent(MetadataTable$x, {
   }
 }, ignoreNULL = FALSE)
 
-observeEvent(c(input$assemble_ps,input$load_ex,input$go_addtroph),{
+observe({
   #ps.all() <- NULL
   #ps.sub() <- NULL
   #ps.norm() <- NULL
@@ -321,4 +344,4 @@ observeEvent(c(input$assemble_ps,input$load_ex,input$go_addtroph),{
   
   shinyjs::hide("viewfinalreport")
   shinyjs::hide("dwnldviewreport")
-},ignoreInit = TRUE)
+}) %>% bindEvent(c(input$assemble_ps,input$load_ex,input$go_addtroph), ignoreInit=TRUE)
