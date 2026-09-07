@@ -92,12 +92,12 @@ Basics_TaxCard <- card(
 )
 #############################################################################################################
 descriptivepage = tagList(
-  layout_column_wrap(
-    width=1/2,fill=TRUE,
-    actionButton("basics_prevpage","Previous step"),
-    actionButton("basics_nextpage","Next step")
-  ),
-  br(),
+  #layout_column_wrap(
+  #  width=1/2,fill=TRUE,
+  #  actionButton("basics_prevpage","Previous step"),
+  #  actionButton("basics_nextpage","Next step")
+  #),
+  #br(),
   h2("Data Overview"),
   h4("This page is essentially a sanity check."),
   p("The information we get from this page is useful because it can be used for troubleshooting and can tell us about the quality and reliability of the data we're looking at. Large, dramatic changes here could be the reason why you see differences in what species are showing up or why community composition appears to change. We want to know if the changes are real, biological changes or due to the dataset."),
@@ -108,12 +108,12 @@ descriptivepage = tagList(
   br(),
   HTML("<h5>Next, look at taxonomy</h5>"),
   p(),
-          Basics_TaxCard,
+          Basics_TaxCard#,
           #include a section to output names of taxa at each rank/their relative abundances
-  layout_column_wrap(
-    width=1/2,fill=TRUE,
-    actionButton("bbasics_prevpage","Previous step"),
-    actionButton("bbasics_nextpage","Next step")
-  )
+  #layout_column_wrap(
+  #  width=1/2,fill=TRUE,
+  #  actionButton("bbasics_prevpage","Previous step"),
+  #  actionButton("bbasics_nextpage","Next step")
+  #)
 )
 #############################################################################################################

@@ -185,11 +185,11 @@ Anlys_hmCard <- tagList(
 
 #############################################################################################################
 analysispage <- nav_panel("Analysis",
-  layout_column_wrap(width=1/2,fill=TRUE,
-    actionButton("analysis_prevpage","Previous step"),
-    actionButton("analysis_nextpage","Next step")
-    ),
-  br(),
+  #layout_column_wrap(width=1/2,fill=TRUE,
+  #  actionButton("analysis_prevpage","Previous step"),
+  #  actionButton("analysis_nextpage","Next step")
+  #  ),
+  #br(),
   HTML("<h2>Other figures </h2>"),
   navset_card_tab(id="anlys", 
                 #nav_panel(id='alpha', title="Species richness",
@@ -207,10 +207,10 @@ analysispage <- nav_panel("Analysis",
               #  nav_panel(id="violin", title="Trophic composition",
               #            Anlys_ViolinCard
               #           )
-                ),
-  layout_column_wrap(width=1/2,fill=TRUE,
-                     actionButton("banalysis_prevpage","Previous step"),
-                     actionButton("banalysis_nextpage","Next step")
-  )
+                )#,
+#  layout_column_wrap(width=1/2,fill=TRUE,
+#                     actionButton("banalysis_prevpage","Previous step"),
+#                     actionButton("banalysis_nextpage","Next step")
+#  )
 )
 #############################################################################################################

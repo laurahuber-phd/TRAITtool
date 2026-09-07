@@ -12,17 +12,8 @@ observeEvent(input$titlepg_start, switch_page("uploadtab"))
 observeEvent(input$fileupload_prevpage, switch_page("introtab")) #top button
 observeEvent(input$bfileupload_prevpage, switch_page("introtab")) #bottom button
 
-observe({
-  if(!isTruthy(MetadataTable$x) || !isTruthy(OTUTable$x) || !isTruthy(TaxTable$x)) { switch_page("reviewtab") }
-  if(exists("ps.all()")) { switch_page("reviewtab") }
-  }) %>% 
-  bindEvent(input$fileupload_nextpage_v2,
-            input$bfileupload_nextpage_v2,ignoreInit=TRUE)
-
-observe({
-  req(input$continue)
-  switch_page("reviewtab")
-  }) %>% bindEvent(input$continue,ignoreInit=TRUE)
+observeEvent(input$fileupload_nextpage_v2, switch_page("reviewtab")) #top button
+observeEvent(input$bfileupload_nextpage_v2, switch_page("reviewtab")) #bottom button
 
 # navigation from modal dialog box after file upload
 observeEvent(input$fileupload_nextpage, switch_page("reviewtab")) #modal dialog box from file upload page takes you to review page
@@ -179,7 +170,7 @@ observe({
 
 # if all files are uploaded but user did not assemble the dataset 
 observe({
-    if (isTruthy(MetadataTable$x) && isTruthy(OTUTable$x) && isTruthy(TaxTable$x) && !exists("ps.all()")){
+    if (isTruthy(MetadataTable$x) && isTruthy(OTUTable$x) && isTruthy(TaxTable$x) && is.null(ps.all())){
       
       showModal(
       modalDialog(title="You did not assemble the dataset!",
@@ -272,4 +263,4 @@ observe({
       open = FALSE
     )
   }
-},priority=1) %>% bindEvent(input$pages)
+}) %>% bindEvent(input$pages)
