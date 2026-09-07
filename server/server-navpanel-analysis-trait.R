@@ -51,7 +51,7 @@ tviolinplot_base <- reactive({
                      )
   ) + 
     geom_violin(na.rm=TRUE,alpha=0.2) + 
-    geom_boxplot(width=0.25,alpha=0.8) + 
+    geom_boxplot(width=0.25,alpha=0.6) + 
     stat_summary(fun="median",
                  #fun=get_box_stats,
                  geom="label",
@@ -60,7 +60,9 @@ tviolinplot_base <- reactive({
                  ),
                  #hjust = 0.5, 
                  #vjust = -1,
-                 fill="white"
+                 fill="white",
+                 alpha=0.7,
+                 position=position_nudge(y=0.3)
     )
   
 }) %>% bindEvent(ps.norm(),
@@ -155,7 +157,7 @@ tviolinmeanplot_base <- reactive({
                      )
   ) + 
     geom_violin(na.rm=TRUE,alpha=0.2) + 
-    geom_boxplot(width=0.25,alpha=0.8) + 
+    geom_boxplot(width=0.25,alpha=0.6) + 
     stat_summary(fun="median",
                  #fun=get_box_stats,
                  geom="label",
@@ -164,7 +166,9 @@ tviolinmeanplot_base <- reactive({
                  ),
                  #hjust = 0.5, 
                  #vjust = -1,
-                 fill="white"
+                 fill="white",
+                 alpha=0.7,
+                 position=position_nudge(y=0.3)
     )
   
 }) %>% bindEvent(ps.norm(),
@@ -393,7 +397,7 @@ violin_base <- reactive({
          )
   ) + 
     geom_violin(na.rm=TRUE,alpha=0.2) + 
-    geom_boxplot(width=0.25,alpha=0.8) + 
+    geom_boxplot(width=0.25,alpha=0.6) + 
     stat_summary(fun="median",
                  #fun=get_box_stats,
                  geom="label",
@@ -402,7 +406,9 @@ violin_base <- reactive({
                  ),
                  #hjust = 0.5, 
                  #vjust = -1,
-                 fill="white"
+                 fill="white",
+                 alpha=0.7,
+                 position=position_nudge(y=0.3)
     )
   
 }) %>% bindEvent(violinplot_general$x(),
