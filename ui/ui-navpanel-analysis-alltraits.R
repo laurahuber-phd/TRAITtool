@@ -155,6 +155,42 @@ Anlys_IUCNCard <- tagList(
                     Anlys_IUCNPlot)
   )
 )
+############################################# Alpha diversity #############################################
+Anlys_AlphaCard <- tagList(
+  layout_columns(
+    shinyWidgets::dropdown(inputId="alpha_plotgrouping",
+                           label="Grouping choices",
+                           icon=icon("gear"),
+                           
+                           selectInput('alpha_xvar',
+                                       label='Select the explanatory variable',
+                                       choices=""),
+                           selectInput('alpha_facet',
+                                       label='Select faceting variable',
+                                       choices="")
+    ),
+    selectInput("alphametrics",
+                "Which alpha diversity measures?",
+                c(
+                  "Observed Richness"="Observed",
+                  "Shannon"="Shannon",
+                  "Chao" = "Chao1",
+                  "ACE"="ACE", 
+                  "Simpson Index" = "Simpson", 
+                  "Inverse Simpson" = "InvSimpson", 
+                  "Fisher"="Fisher"
+                ),
+                selected="Shannon",
+                multiple=TRUE
+    ),
+    checkboxInput(
+      "alpha_box", "Overlay box plot?", value = FALSE)
+  ),
+  layout_columns(col_widths=c(10,-1,1),
+                 actionButton("go_rich","Plot"),
+                 downloadButton('rich_plotdwnld', label=NULL)),
+  plotOutput("rich_plot",click="rich_click") 
+)
 
 ###############################################################################################
 allanalysispage = nav_panel(
