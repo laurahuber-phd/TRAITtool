@@ -113,15 +113,7 @@ Trait_TrophReviewCard <- hidden(card(id="trait_trophreview_card",
                               textOutput("trait.valid")),
               accordion_panel(title="Invalid names",
                               textOutput("trait.invalid")),
-              ),
-    br(),
-    #DTOutput("trait_review"),
-    downloadButton("dwnldtrait1", "Download trophic assignments", 
-                   style = "color: #fff; background-color: #337ab7; border-color: #2e6da4"
-    ),
-    downloadButton("dwnldtraittaxa1", "Download new taxa table", 
-                   style = "color: #fff; background-color: #337ab7; border-color: #2e6da4"
-    )
+              )
   )
          ),
   hidden(wellPanel( #trait df 
@@ -145,6 +137,14 @@ Trait_TrophReviewCard <- hidden(card(id="trait_trophreview_card",
     actionButton('go_addtroph',
                  "Go: Add trait information to my taxa table",
                  class = 'btn-warning',width="100%"),
+    br(),
+    #DTOutput("trait_review"),
+    downloadButton("dwnldtrait1", "Download trophic assignments", 
+                   style = "color: #fff; background-color: #337ab7; border-color: #2e6da4"
+    ),
+    downloadButton("dwnldtraittaxa1", "Download new taxa table", 
+                   style = "color: #fff; background-color: #337ab7; border-color: #2e6da4"
+    ),
     br()
   )),
   hidden( p(id='trait_ps_success',

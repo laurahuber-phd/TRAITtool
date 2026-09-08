@@ -561,7 +561,15 @@ if(input$trait_tax_select != "Species") {
         )
         print("IUCN Red List category data loaded") 
         
-        iucn.spp <- intersect(c(valid.fish.names,valid.sl.names),
+        if(exists("valid.fish.names") && exists("valid.sl.names")) {
+          iucn.query <- c(valid.fish.names,valid.sl.names)
+        } else if(exists("valid.fish.names") & !exists("valid.fish.names")) {
+          iucn.query <- valid.fish.names
+        } else if (exists("valid.sl.names") & !exists("valid.fish.names")) {
+          iucn.query <- valid.sl.names
+        } else {iucn.query <- traits_var$nona}
+        
+        iucn.spp <- intersect(iucn.query,
                               iucnfile$assessments.taxon_scientific_name) 
         print("Taxa from dataset in IUCN Red List identified")
         print(c("Number of species in Red List:",length(iucn.spp)))
@@ -663,7 +671,7 @@ if(input$trait_tax_select != "Species") {
     fbdf <- merge(fbdfa,
                   iucn.status,
                   .by=Species,all=TRUE) %>% as.data.frame()
-    print("Traits: Trait data and IUCN data combined into one table")
+    print("Traits: ecology data and IUCN data combined into one table")
     
     alltraits.df <- merge((traits.df %>% 
                              #rownames_to_column(.,var="Row.Name") %>% 
@@ -678,8 +686,9 @@ if(input$trait_tax_select != "Species") {
                                       contains("eed"),
                              ))),
                           fbdf,
-                          iucn.status,
                           .by=Species,all=TRUE)
+    print("Traits: Trait data added to ecology/IUCN table")
+
     }
   }
   ################## After trait assignment is completed  ##################   
