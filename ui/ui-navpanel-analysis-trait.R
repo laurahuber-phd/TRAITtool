@@ -18,7 +18,7 @@ Anlys_ViolinCard <- tagList(
   layout_columns(col_widths=c(10,-1,1),
                  actionButton("go_violin","Plot"),
                  downloadButton('violin_plotdwnld', label=NULL)),
-  withSpinner(plotOutput("violin_plot",click="violin_click")) #add a reaction when the plot is clicked
+  withSpinner(plotOutput("violin_a_plot",click="violin_click")) #add a reaction when the plot is clicked
 ) 
 
 ############################################# Bar plot (percentage) #############################################

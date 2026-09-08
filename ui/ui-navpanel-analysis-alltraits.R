@@ -19,25 +19,6 @@ producers up to a level of 5 for marine mammals and human."),
                            )
 )
 
-Anlys_TraitCard <- tagList(
-  accordion(
-    open=FALSE, #start with all panels closed
-    multiple=TRUE, #multiple panels can be open at once
-    accordion_panel(title="Violin plot",
-                    Anlys_ViolinCard
-    ),
-    accordion_panel(title="Bar plot",
-                    Anlys_TrophBarCard
-    ),
-    accordion_panel(title="Line plot",
-                    Anlys_TrophLineCard
-    ),
-    accordion_panel(title="Lollipop plot",
-                    Anlys_TrophLolliCard
-    )
-  )
-)
-
 ####################################### Temperature ################################################
 Anlys_TempCard <- tagList(
   h3("Temperature range analysis"),
@@ -189,7 +170,7 @@ Anlys_AlphaCard <- tagList(
   layout_columns(col_widths=c(10,-1,1),
                  actionButton("go_rich","Plot"),
                  downloadButton('rich_plotdwnld', label=NULL)),
-  plotOutput("rich_plot",click="rich_click") 
+  plotOutput("rich_a_plot",click="rich_click") 
 )
 
 ###############################################################################################
@@ -266,7 +247,6 @@ allanalysispage = nav_panel(
                     )
     ),
   #Anlys_ViolinCard
-  #Anlys_TraitCard
   ), 
   br(),
   

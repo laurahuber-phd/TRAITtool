@@ -3,8 +3,266 @@ source('functions/module-plotting-pretty.R',local=TRUE)
 source('functions/module-plotting-size.R',local=TRUE)
 library(shinycssloaders)
 
-############## Temperature violin plot ##############  
+############## Violin Plot Trophic Level ############## 
+violinplot_pretty  <- plotPrettyServer(id="violin_pretty")
+violinplot_size <- plotSizeServer(id="violin_size") 
+violinplot_general <- plotControlsServer(id="violin_gen",
+                                         df=ps.norm.melt,
+                                         #var1=rnames, #color
+                                         var2=Meta_vars, #x
+                                         #var3=Meta_vars(), #y
+                                         var4=Meta_vars, #facet
+                                         #var1=Meta_vars(), #color
+                                         #var2=Meta_vars(), #x
+                                         var3=reactive(ps.norm.melt() %>% select(contains("roph")) %>% colnames() )#, #y
+                                         #var4=Meta_vars() #facet
+) 
 
+violin_base <- reactive({
+  req(ps.norm())
+  req(violinplot_general$x())
+  req(violinplot_general$y())
+  ps <- ps.norm.melt()
+  
+  ps.edit <- ps %>% mutate(Trophic.Level = (as.numeric(.data[[violinplot_general$y()]]))) %>% filter(Abundance >0)
+  
+  get_box_stats <- function(y, upper_limit = max(ps.edit$Trophic.Level) * 1.15) {
+    return(data.frame(
+      y = 0.95 * upper_limit,
+      label = paste(
+        "Count =", length(y), "\n",
+        "Mean =", round(mean(y), 2), "\n",
+        "Median =", round(median(y), 2), "\n"
+      )
+    ))
+  }
+  
+  ggplot(ps.edit, 
+         aes(x=.data[[violinplot_general$x()]], #x axis
+             y=Trophic.Level, #must be numeric
+             fill=.data[[violinplot_general$x()]]
+         )
+  ) + 
+    geom_violin(na.rm=TRUE,alpha=0.2) + 
+    geom_boxplot(width=0.25,alpha=0.6) + 
+    stat_summary(fun="median",
+                 geom="label",
+                 aes(label = after_stat(round(y, 2))
+                 ),
+                 fill="white",
+                 alpha=0.7,
+                 position=position_nudge(y=0.3)
+    )
+  
+}) 
+
+violinplot <- reactive({
+  print("Violin: assembling plot")
+  req(input$go_violin|trigger_plots())
+  
+  violin_base() + 
+    violinplot_general$facet() + 
+    violinplot_pretty() + 
+    violinplot_size$aspectRatio() 
+}) 
+
+output$violin_click_plot <- renderPlot({
+  #req(violinplot())
+  violinplot()
+  })
+output$violin_s_plot <- renderPlot({
+  #req(violinplot())
+  violinplot()
+})
+output$violin_a_plot <- renderPlot({
+  #req(violinplot())
+  violinplot()
+})
+  
+observe({
+  req(violinplot())
+  print("Saving violinplot()")
+  
+  tryCatch(
+    ggsave(filename="violinplot.png", 
+           plot=violinplot(),
+           path=tempdir(),
+           height=violinplot_size$height(),width=violinplot_size$width(),
+           scale=2
+    ),
+    error=function(e){return(NA)}
+  )
+})
+
+observeEvent(input$violin_click,{
+  req(violinplot())
+  print("MTI violin: popup")
+  
+  showModal(modalDialog(
+    withSpinner(plotOutput('violin_click_plot')),
+    footer = downloadButton('violin_plotdwnld_popup', 'Download'),
+    size="xl",
+    easyClose = TRUE
+  ))
+}) 
+
+output$violin_plotdwnld <- downloadHandler(
+  filename = "violinplot.png",
+  contentType = 'image/png',
+  content = function(file) {
+    ggsave(file,
+           plot=violinplot(),
+           height=violinplot_size$height(),width=violinplot_size$width(),
+           scale=2
+    )
+  }) 
+output$violin_plotdwnld_popup <- downloadHandler(
+  filename = "violinplot.png",
+  contentType = 'image/png',
+  content = function(file) {
+    ggsave(file,
+           plot=violinplot(),
+           height=violinplot_size$height(),width=violinplot_size$width(),
+           scale=2
+    )
+  }) 
+
+############## Bar Plot Trophic Level ############## 
+observe({ 
+  updatePickerInput(session,
+                    "choose_trophbar_facet",
+                    choices=c(Meta_vars())
+  )
+}) %>% bindEvent(ps.norm(),Meta_vars())
+
+trophbarplot_pretty  <- plotPrettyServer(id="trophbar_pretty")
+trophbarplot_size <- plotSizeServer(id="trophbar_size") 
+trophbarplot_base <- reactive({
+  req(ps.norm())
+  print("Trophic bar plot: building base plot")
+  
+  ps <- ps.norm.melt() 
+  
+  if(!is.null(ps$Trophic.val)){
+    
+    ps <- ps.norm.melt() %>% filter(Abundance>0) %>% filter(!is.na(Trophic.val))
+    
+    my_vars <- c("Trophic.val", 
+                 #input$choose_trophbar_axis, 
+                 input$choose_trophbar_facet
+    )
+    print(c("arrange dataset by",my_vars))
+    
+    ps.edit <- ps %>% 
+      group_by(across(any_of(my_vars) )) %>% 
+      summarize(Abundance=sum(Abundance),.groups="keep") %>% 
+      arrange(input$choose_trophbar_facet)
+    print(group_keys(ps.edit))
+    baseplot <- ggplot(ps.edit, 
+                       aes(x="",#x=.data[[input$choose_trophbar_axis]], #x axis
+                           y=Abundance, #y=RelAbund,
+                           fill=Trophic.val,
+                           color=Trophic.val
+                       )
+    ) + 
+      geom_bar( stat="identity", position = "fill") +  
+      #scale_y_continuous(labels=function(x) paste0(x * 100, "%")) + 
+      labs(y="Relative Abundance",
+           title="Relative abundance of each trophic group") +
+      #coord_flip() 
+      coord_polar("y",start=0) + 
+      theme_void() #+ # remove background, grid, numeric labels
+    #geom_text(aes(label = Trophic.val #round(value,2)
+    #              ),
+    #          color="black",
+    #          position = position_stack(vjust = 0.5))
+    
+    if(!is.null(input$choose_trophbar_facet) & length(input$choose_trophbar_facet) < 2) {
+      print("one faceting group selected")
+      finalplot <- baseplot + facet_wrap(~.data[[input$choose_trophbar_facet]],scales="free") 
+    } else if(!is.null(input$choose_trophbar_facet) & length(input$choose_trophbar_facet) == 2) {
+      print("two faceting groups selected")
+      finalplot <- baseplot + facet_grid(rows=vars(.data[[input$choose_trophbar_facet[1]]]),
+                                         cols= vars(.data[[input$choose_trophbar_facet[2]]]),
+                                         scales="free") 
+    } else {
+      print("no faceting groups selected")
+      finalplot <- baseplot
+    }
+    finalplot
+}
+}) 
+
+trophbarplot <- reactive({
+  print("Trophic bar plot: plotting")
+  req(input$go_trophbar | trigger_plots())
+  
+  base <- trophbarplot_base()
+  pretty <- trophbarplot_pretty()
+  size <- trophbarplot_size$aspectRatio()
+  
+  base + pretty + theme_void() + size
+  }) 
+
+output$trophbar_click_plot <- renderPlot({
+  #req(trophbarplot())
+  trophbarplot() 
+  })
+output$trophbar_s_plot <- renderPlot({
+  #req(trophbarplot())
+  trophbarplot() 
+  })
+output$trophbar_plot <- renderPlot({
+  #req(trophbarplot())
+  trophbarplot() 
+  })
+
+observe({
+  req(trophbarplot())
+  print("Saving trophbarplot()")
+  
+  tryCatch(
+  ggsave(filename="trophbarplot.png", 
+         path=tempdir(),
+         plot=trophbarplot(),
+         height=trophbarplot_size$height(),width=trophbarplot_size$width(),
+         scale=2
+         ),
+  error=function(e){return(NA)}
+)
+})
+
+observeEvent(input$trophbar_click,{
+  req(trophbarplot())
+  print("Feeding guild pie chart: popup")
+  
+  showModal(modalDialog(
+    withSpinner(plotOutput('trophbar_click_plot')),
+    footer = downloadButton('trophbar_plotdwnld_popup', 'Download'),
+    size="xl",
+    easyClose = TRUE
+  ))
+}) 
+
+output$trophbar_plotdwnld <- downloadHandler(
+  filename = "trophbarplot.png",
+  contentType = 'image/png',
+  content = function(file) {
+    ggsave(file,plot=trophbarplot(),
+           height=trophbarplot_size$height(),width=trophbarplot_size$width(),
+           scale=2
+    )
+  }) 
+output$trophbar_plotdwnld_popup <-  downloadHandler(
+  filename = "trophbarplot.png",
+  contentType = 'image/png',
+  content = function(file) {
+    ggsave(file,plot=trophbarplot(),
+           height=trophbarplot_size$height(),width=trophbarplot_size$width(),
+           scale=2
+    )
+  }) 
+############## Temperature violin plot ##############  
 tviolinplot_pretty  <- plotPrettyServer(id="tviolin_pretty")
 tviolinplot_size <- plotSizeServer(id="tviolin_size") 
 tviolinplot_general <- plotControlsServer(id="tviolin_general",
@@ -29,7 +287,6 @@ tviolinplot_base <- reactive({
              tviolinplot_general$facet()
     )
     )
-    
   }
   
   ps.edit <- ps %>% 
@@ -157,7 +414,7 @@ tviolinmeanplot_base <- reactive({
   }
   
   ps.edit <- ps 
-   
+  
   baseplot <- ggplot(ps.edit,
                      aes(x=.data[[tviolinmeanplot_general$x()]], #x axis
                          y=.data[[tviolinmeanplot_general$y()]], #y axis #Tempprefmean,
@@ -349,7 +606,7 @@ tlolliplot <- reactive({
 output$tlolli_click_plot <- renderPlot({
   req(tlolliplot())
   tlolliplot()
-  })
+})
 output$tlolli_s_plot <- renderPlot({
   req(tlolliplot())
   tlolliplot()
@@ -358,7 +615,7 @@ output$tlolli_plot <-renderPlot({
   req(tlolliplot())
   tlolliplot()
 })
-  
+
 observe({
   req(tlolliplot())
   print("Saving tlolliplot()")
@@ -403,268 +660,6 @@ output$tlolli_plotdwnld_popup <- downloadHandler(
     ggsave(file,
            plot=tlolliplot(),
            height=tlolliplot_size$height(),width=tlolliplot_size$width(),
-           scale=2
-    )
-  }) 
-  
-############## Violin Plot Trophic Level ############## 
-violinplot_pretty  <- plotPrettyServer(id="violin_pretty")
-violinplot_size <- plotSizeServer(id="violin_size") 
-violinplot_general <- plotControlsServer(id="violin_gen",
-                                         df=ps.norm.melt,
-                                         #var1=rnames, #color
-                                         var2=Meta_vars, #x
-                                         #var3=Meta_vars(), #y
-                                         var4=Meta_vars, #facet
-                                         #var1=Meta_vars(), #color
-                                         #var2=Meta_vars(), #x
-                                         var3=reactive(ps.norm.melt() %>% select(contains("roph")) %>% colnames() )#, #y
-                                         #var4=Meta_vars() #facet
-) 
-
-violin_base <- reactive({
-  req(ps.norm())
-  req(violinplot_general$x())
-  req(violinplot_general$y())
-  ps <- ps.norm.melt()
-  
-  ps.edit <- ps %>% mutate(Trophic.Level = (as.numeric(.data[[violinplot_general$y()]]))) %>% filter(Abundance >0)
-  
-  get_box_stats <- function(y, upper_limit = max(ps.edit$Trophic.Level) * 1.15) {
-    return(data.frame(
-      y = 0.95 * upper_limit,
-      label = paste(
-        "Count =", length(y), "\n",
-        "Mean =", round(mean(y), 2), "\n",
-        "Median =", round(median(y), 2), "\n"
-      )
-    ))
-  }
-  
-  ggplot(ps.edit, 
-         aes(x=.data[[violinplot_general$x()]], #x axis
-             y=Trophic.Level, #must be numeric
-             fill=.data[[violinplot_general$x()]]
-         )
-  ) + 
-    geom_violin(na.rm=TRUE,alpha=0.2) + 
-    geom_boxplot(width=0.25,alpha=0.6) + 
-    stat_summary(fun="median",
-                 geom="label",
-                 aes(label = after_stat(round(y, 2))
-                 ),
-                 fill="white",
-                 alpha=0.7,
-                 position=position_nudge(y=0.3)
-    )
-  
-}) 
-
-violinplot <- reactive({
-  print("Violin: assembling plot")
-  req(input$go_violin|trigger_plots())
-  
-  violin_base() + 
-    violinplot_general$facet() + 
-    violinplot_pretty() + 
-    violinplot_size$aspectRatio() 
-}) 
-
-output$violin_click_plot <- renderPlot({
-  req(violinplot())
-  violinplot()
-  })
-output$violin_s_plot <- renderPlot({
-  req(violinplot())
-  violinplot()
-})
-output$violin_plot <- renderPlot({
-  req(violinplot())
-  violinplot()
-})
-  
-observe({
-  req(violinplot())
-  print("Saving violinplot()")
-  
-  tryCatch(
-    ggsave(filename="violinplot.png", 
-           plot=violinplot(),
-           path=tempdir(),
-           height=violinplot_size$height(),width=violinplot_size$width(),
-           scale=2
-    ),
-    error=function(e){return(NA)}
-  )
-})
-
-observeEvent(input$violin_click,{
-  req(violinplot())
-  print("MTI violin: popup")
-  
-  showModal(modalDialog(
-    withSpinner(plotOutput('violin_click_plot')),
-    footer = downloadButton('violin_plotdwnld_popup', 'Download'),
-    size="xl",
-    easyClose = TRUE
-  ))
-}) 
-
-
-output$violin_plotdwnld <- downloadHandler(
-  filename = "violinplot.png",
-  contentType = 'image/png',
-  content = function(file) {
-    ggsave(file,
-           plot=violinplot(),
-           height=violinplot_size$height(),width=violinplot_size$width(),
-           scale=2
-    )
-  }) 
-output$violin_plotdwnld_popup <- downloadHandler(
-  filename = "violinplot.png",
-  contentType = 'image/png',
-  content = function(file) {
-    ggsave(file,
-           plot=violinplot(),
-           height=violinplot_size$height(),width=violinplot_size$width(),
-           scale=2
-    )
-  }) 
-
-############## Bar Plot Trophic Level ############## 
-observe({ 
-  
-  updatePickerInput(session,
-                    "choose_trophbar_facet",
-                    choices=c(Meta_vars())
-  )
-}) %>% bindEvent(ps.norm(),Meta_vars())
-
-trophbarplot_pretty  <- plotPrettyServer(id="trophbar_pretty")
-trophbarplot_size <- plotSizeServer(id="trophbar_size") 
-trophbarplot_base <- reactive({
-  req(ps.norm())
-  print("Trophic bar plot: building base plot")
-  
-  ps <- ps.norm.melt() 
-  
-  if(!is.null(ps$Trophic.val)){
-    
-    ps <- ps.norm.melt() %>% filter(Abundance>0) %>% filter(!is.na(Trophic.val))
-    
-    my_vars <- c("Trophic.val", 
-                 #input$choose_trophbar_axis, 
-                 input$choose_trophbar_facet
-    )
-    print(c("arrange dataset by",my_vars))
-    
-    ps.edit <- ps %>% 
-      group_by(across(any_of(my_vars) )) %>% 
-      summarize(Abundance=sum(Abundance),.groups="keep") %>% 
-      arrange(input$choose_trophbar_facet)
-    print(group_keys(ps.edit))
-    baseplot <- ggplot(ps.edit, 
-                       aes(x="",#x=.data[[input$choose_trophbar_axis]], #x axis
-                           y=Abundance, #y=RelAbund,
-                           fill=Trophic.val,
-                           color=Trophic.val
-                       )
-    ) + 
-      geom_bar( stat="identity", position = "fill") +  
-      #scale_y_continuous(labels=function(x) paste0(x * 100, "%")) + 
-      labs(y="Relative Abundance",
-           title="Relative abundance of each trophic group") +
-      #coord_flip() 
-      coord_polar("y",start=0) + 
-      theme_void() #+ # remove background, grid, numeric labels
-    #geom_text(aes(label = Trophic.val #round(value,2)
-    #              ),
-    #          color="black",
-    #          position = position_stack(vjust = 0.5))
-    
-    if(!is.null(input$choose_trophbar_facet) & length(input$choose_trophbar_facet) < 2) {
-      print("one faceting group selected")
-      finalplot <- baseplot + facet_wrap(~.data[[input$choose_trophbar_facet]],scales="free") 
-    } else if(!is.null(input$choose_trophbar_facet) & length(input$choose_trophbar_facet) == 2) {
-      print("two faceting groups selected")
-      finalplot <- baseplot + facet_grid(rows=vars(.data[[input$choose_trophbar_facet[1]]]),
-                                         cols= vars(.data[[input$choose_trophbar_facet[2]]]),
-                                         scales="free") 
-    } else {
-      print("no faceting groups selected")
-      finalplot <- baseplot
-    }
-    finalplot
-}
-}) 
-
-trophbarplot <- reactive({
-  print("Trophic bar plot: plotting")
-  req(input$go_trophbar | trigger_plots())
-  
-  base <- trophbarplot_base()
-  pretty <- trophbarplot_pretty()
-  size <- trophbarplot_size$aspectRatio()
-  
-  base + pretty + theme_void() + size
-  }) 
-
-output$trophbar_click_plot <- renderPlot({
-  req(trophbarplot())
-  trophbarplot() 
-  })
-output$trophbar_s_plot <- renderPlot({
-  req(trophbarplot())
-  trophbarplot() 
-  })
-output$trophbar_plot <- renderPlot({
-  req(trophbarplot())
-  trophbarplot() 
-  })
-
-observe({
-  req(trophbarplot())
-  print("Saving trophbarplot()")
-  
-  tryCatch(
-  ggsave(filename="trophbarplot.png", 
-         path=tempdir(),
-         plot=trophbarplot(),
-         height=trophbarplot_size$height(),width=trophbarplot_size$width(),
-         scale=2
-         ),
-  error=function(e){return(NA)}
-)
-})
-
-observeEvent(input$trophbar_click,{
-  req(trophbarplot())
-  print("Feeding guild pie chart: popup")
-  
-  showModal(modalDialog(
-    withSpinner(plotOutput('trophbar_click_plot')),
-    footer = downloadButton('trophbar_plotdwnld_popup', 'Download'),
-    size="xl",
-    easyClose = TRUE
-  ))
-}) 
-
-output$trophbar_plotdwnld <- downloadHandler(
-  filename = "trophbarplot.png",
-  contentType = 'image/png',
-  content = function(file) {
-    ggsave(file,plot=trophbarplot(),
-           height=trophbarplot_size$height(),width=trophbarplot_size$width(),
-           scale=2
-    )
-  }) 
-output$trophbar_plotdwnld_popup <-  downloadHandler(
-  filename = "trophbarplot.png",
-  contentType = 'image/png',
-  content = function(file) {
-    ggsave(file,plot=trophbarplot(),
-           height=trophbarplot_size$height(),width=trophbarplot_size$width(),
            scale=2
     )
   }) 
@@ -1150,15 +1145,12 @@ richplot <- reactive({
 })
 
 output$rich_s_plot <- renderPlot({
-  req(richplot())
   richplot()
 })
-output$rich_plot <- renderPlot({
-  req(richplot())
+output$rich_a_plot <- renderPlot({
   richplot()
 })
 output$rich_click_plot <- renderPlot({
-  req(richplot())
   richplot()
 })
 observe({
