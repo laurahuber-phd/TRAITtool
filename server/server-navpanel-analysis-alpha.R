@@ -3,86 +3,6 @@ source('functions/module-plotting-pretty.R',local=TRUE)
 source('functions/module-plotting-size.R',local=TRUE)
 library(shinycssloaders)
 
-#output$alphametrics_var2 <- output$alphametrics_var1 <- renderUI({
-#  req(ps.norm())
-#  ps <- ps.norm()
-#  selectInput('alpha_xvar',
-#              'Select the explanatory variable',
-#              Meta_vars())
-#})
-
-observe({
-  updateSelectInput(session,'alpha_xvar',
-                    'Select the explanatory variable',
-                    Meta_vars())
-  updateSelectInput(session,"alpha_facet",
-                    'Select the faceting variable - backspace to erase',
-                    c("",Meta_vars()))
-}) %>% 
-  bindEvent(Meta_vars()) #respond to any changes in the Metadata file that is uploaded
-
-richplot <- reactive({ #draw alpha div plot when 'plot' button is clicked
-  print("Alpha diversity: making plot")
-  
-  baseplot <- plot_richness(ps.norm(), 
-                            x=input$alpha_xvar, 
-                            measures=input$alphametrics) + geom_jitter(width=0.15)
-  
-    if(isTruthy(input$alpha_box)) {
-      baseplot <- baseplot+geom_boxplot(alpha=0.75)
-    } 
- 
-  if( input$alpha_facet=="") {
-    finalplot <- baseplot
-  } else if(!is.null(input$alpha_facet) & length(input$alpha_facet) == 1) {
-    finalplot <- baseplot + facet_wrap(~.data[[input$alpha_facet]],scales="free") 
-  } else if(!is.null(input$alpha_facet) & length(input$alpha_facet) == 2) {
-    finalplot <- baseplot + facet_grid(rows=vars(.data[[input$alpha_facet[1]]]),
-                                       cols= vars(.data[[input$alpha_facet[2]]]),
-                                       scales="free") 
-  } else {finalplot <- baseplot}
-  
-  finalplot
-})%>% bindEvent(input$go_rich)
-
-observe({
-  print("Alpha diversity: rendering plot")
-  output$rich_s_plot <- output$rich_plot <- renderPlot({  richplot() })
-
-tryCatch(
-ggsave(filename="richplot.png", 
-       plot=richplot(),
-       path=tempdir(),
-       scale=2
-       ),
-error=function(e){return(NA)}
-)
-
-}) %>% bindEvent(input$go_rich)
-
-observe({
-  showModal(modalDialog(
-    renderPlot(richplot()),
-    footer = downloadButton('rich_plotdwnld_popup', 'Download'),
-    size="xl",
-    easyClose = TRUE
-  ))
-}) %>% bindEvent(input$rich_click)
-
-output$rich_plotdwnld <- output$rich_plotdwnld_popup <-  downloadHandler(
-  filename = "richness_plot.png",
-  contentType = 'image/png',
-  content = function(file) {
-    ggsave(file,plot=richplot(),
-           scale=2
-    )
-  }) 
-
-#histoplot_pretty <- reactiveVal(NULL)
-#histoplot_size <- reactiveVal(NULL)
-#histoplot_general <- reactiveValues(color=NULL,x=NULL,y=NULL,facet=NULL)
-
-#observeEvent(ps.norm(), {
 histoplot_pretty  <- plotPrettyServer(id="histo_pretty")
 histoplot_size <- plotSizeServer(id="histo_size") 
 histoplot_general <- plotControlsServer(id="histo_gen",
@@ -92,7 +12,7 @@ histoplot_general <- plotControlsServer(id="histo_gen",
                    var3=Meta_vars, #y
                    var4=Meta_vars #facet
                    )
-#})
+
 
 histo_base <- reactive({
   req(ps.norm())

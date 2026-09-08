@@ -20,9 +20,8 @@ tviolinplot_general <- plotControlsServer(id="tviolin_general",
 ) 
 
 tviolinplot_base <- reactive({
-  print("Violin: building base plot")
   req(ps.norm())
-  #req(tviolinplot_general$x())
+  print("Violin: building base plot")
   ps <- ps.norm.melt()
   
   my_vars <- function() {
@@ -35,14 +34,9 @@ tviolinplot_base <- reactive({
   
   ps.edit <- ps %>% 
     group_by(.data[[tviolinplot_general$x()]]) %>% 
-    #group_by(across(unlist(my_vars())) ) %>% 
     mutate(TempRange=max(Tempprefmax,na.rm=TRUE)-min(Tempprefmin,na.rm=TRUE)) %>%
     rowwise() %>% 
     mutate(TempIndex=Tempprefmean/TempRange) 
-  #summarize(Tempprefmean=mean(Tempprefmean),
-  #          Tempprefmin=min(Tempprefmin),
-  #          Tempprefmax=max(Tempprefmax)) %>%
-  #arrange()
   
   baseplot <- ggplot(ps.edit,
                      aes(x=.data[[tviolinplot_general$x()]], #x axis
@@ -53,32 +47,41 @@ tviolinplot_base <- reactive({
     geom_violin(na.rm=TRUE,alpha=0.2) + 
     geom_boxplot(width=0.25,alpha=0.6) + 
     stat_summary(fun="median",
-                 #fun=get_box_stats,
                  geom="label",
-                 #geom="text",
                  aes(label = after_stat(round(y, 2))
                  ),
-                 #hjust = 0.5, 
-                 #vjust = -1,
                  fill="white",
                  alpha=0.7,
                  position=position_nudge(y=0.3)
     )
-  
-}) %>% bindEvent(ps.norm(),
-                 tviolinplot_general$x(),
-                 tviolinplot_general$y(),
-                 tviolinplot_general$facet()
-)
-
-tviolinplot <- reactive({
-  print("Violin: assembling plot")
-  tviolinplot_base() + tviolinplot_general$facet() + tviolinplot_pretty() + tviolinplot_size$aspectRatio() 
 }) 
 
-observeEvent(input$go_tviolin, {
-  print("Violin: plotting")
-  output$tviolin_s_plot <- output$tviolin_plot <- renderPlot({tviolinplot()})
+tviolinplot <- reactive({ #reactive updates after the observer
+  req(input$go_tviolin | trigger_plots())
+  print("Temperature index violin: assembling plot")
+  
+  tviolinplot_base() + 
+    tviolinplot_general$facet() + 
+    tviolinplot_pretty() +
+    tviolinplot_size$aspectRatio()
+}) 
+
+output$tviolin_click_plot <- renderPlot({ #plot is rendered after observer
+  req(tviolinplot())
+  tviolinplot() 
+}) 
+output$tviolin_s_plot <- renderPlot({
+  req(tviolinplot())
+  tviolinplot() 
+})
+output$tviolin_plot <- renderPlot({
+  req(tviolinplot())
+  tviolinplot() 
+})
+
+observe({
+  req(tviolinplot())
+  print("Saving tviolinplot()")
   
   tryCatch(
     ggsave(filename="tviolinplot.png", 
@@ -91,30 +94,39 @@ observeEvent(input$go_tviolin, {
   )
 })
 
-observe({
+observeEvent(input$tviolin_click, {
+  req(tviolinplot())
+  print("Temperature index violin: popup")
+  
   showModal(modalDialog(
-    renderPlot(tviolinplot()),
-    footer = downloadButton('download_tviolinplot_popup', 'Download'),
+    withSpinner(plotOutput('tviolin_click_plot')),
+    footer = downloadButton('tviolin_plotdwnld_popup', 'Download'),
     size="xl",
     easyClose = TRUE
   ))
-  print("Violin: popup")
-}) %>% bindEvent(input$tviolin_click)
-
-
-output$tviolin_plotdwnld <- output$tviolin_plotdwnld_popup <-  downloadHandler(
+}) 
+output$tviolin_plotdwnld <- downloadHandler(
   filename = "tviolinplot.png",
   contentType = 'image/png',
   content = function(file) {
-    ggsave(file,plot=tviolinplot(),
+    ggsave(file,
+           plot=tviolinplot(),
            height=tviolinplot_size$height(),width=tviolinplot_size$width(),
            scale=2
     )
-    
-  }) 
+  })
+output$tviolin_plotdwnld_popup <- downloadHandler(
+  filename = "tviolinplot.png",
+  contentType = 'image/png',
+  content = function(file) {
+    ggsave(file,
+           plot=tviolinplot(),
+           height=tviolinplot_size$height(),width=tviolinplot_size$width(),
+           scale=2
+    )
+  })
 
-# plot to choose what temperature value    
-
+# plot to choose what temperature value   
 tviolinmeanplot_pretty  <- plotPrettyServer(id="tviolinmean_pretty")
 tviolinmeanplot_size <- plotSizeServer(id="tviolinmean_size") 
 tviolinmeanplot_general <- plotControlsServer(id="tviolinmean_general",
@@ -130,9 +142,10 @@ tviolinmeanplot_general <- plotControlsServer(id="tviolinmean_general",
 ) 
 
 tviolinmeanplot_base <- reactive({
-  print("Violin: building base plot")
   req(ps.norm())
-  #req(tviolinmeanplot_general$x())
+  req(tviolinmeanplot_general$x())
+  req(tviolinmeanplot_general$y())
+  print("Violin: building base plot")
   ps <- ps.norm.melt()
   
   my_vars <- function() {
@@ -143,13 +156,8 @@ tviolinmeanplot_base <- reactive({
     
   }
   
-  ps.edit <- ps #%>% 
-  #group_by(across(unlist(my_vars())) ) %>% 
-  #summarize(Tempprefmean=mean(Tempprefmean),
-  #          Tempprefmin=min(Tempprefmin),
-  #          Tempprefmax=max(Tempprefmax)) %>%
-  #arrange()
-  
+  ps.edit <- ps 
+   
   baseplot <- ggplot(ps.edit,
                      aes(x=.data[[tviolinmeanplot_general$x()]], #x axis
                          y=.data[[tviolinmeanplot_general$y()]], #y axis #Tempprefmean,
@@ -159,32 +167,42 @@ tviolinmeanplot_base <- reactive({
     geom_violin(na.rm=TRUE,alpha=0.2) + 
     geom_boxplot(width=0.25,alpha=0.6) + 
     stat_summary(fun="median",
-                 #fun=get_box_stats,
                  geom="label",
-                 #geom="text",
                  aes(label = after_stat(round(y, 2))
                  ),
-                 #hjust = 0.5, 
-                 #vjust = -1,
                  fill="white",
                  alpha=0.7,
                  position=position_nudge(y=0.3)
     )
   
-}) %>% bindEvent(ps.norm(),
-                 tviolinmeanplot_general$x(),
-                 tviolinmeanplot_general$y(),
-                 tviolinmeanplot_general$facet()
-)
-
-tviolinmeanplot <- reactive({
-  print("Violin: assembling plot")
-  tviolinmeanplot_base() + tviolinmeanplot_general$facet() + tviolinmeanplot_pretty() + tviolinmeanplot_size$aspectRatio() 
 }) 
 
-observeEvent(input$go_tviolinmean, {
-  print("Violin: plotting")
-  output$tviolinmean_s_plot <- output$tviolinmean_plot <- renderPlot({tviolinmeanplot()})
+tviolinmeanplot <- reactive({
+  req(input$go_tviolinmean|trigger_plots())
+  print("Temperature violin: assembling plot")
+  
+  tviolinmeanplot_base() + 
+    tviolinmeanplot_general$facet() + 
+    tviolinmeanplot_pretty() + 
+    tviolinmeanplot_size$aspectRatio() 
+}) 
+
+output$tviolinmean_click_plot <- renderPlot({
+  req(tviolinmeanplot())
+  tviolinmeanplot() 
+}) 
+output$tviolinmean_s_plot <- renderPlot({
+  req(tviolinmeanplot())
+  tviolinmeanplot() 
+})
+output$tviolinmean_plot <- renderPlot({
+  req(tviolinmeanplot())
+  tviolinmeanplot() 
+})
+
+observe({
+  req(tviolinmeanplot())
+  print("Saving tviolinmeanplot()")
   
   tryCatch(
     ggsave(filename="tviolinmeanplot.png", 
@@ -197,28 +215,38 @@ observeEvent(input$go_tviolinmean, {
   )
 })
 
-observe({
+observeEvent(input$tviolinmean_click, {
+  req(tviolinmeanplot())
+  print("Temperature violin: popup")
+  
   showModal(modalDialog(
-    renderPlot(tviolinmeanplot()),
-    footer = downloadButton('download_tviolinmeanplot_popup', 'Download'),
+    withSpinner(plotOutput('tviolinmean_click_plot')),
+    footer = downloadButton('tviolinmean_plotdwnld_popup', 'Download'),
     size="xl",
     easyClose = TRUE
   ))
-  print("Violin: popup")
-}) %>% bindEvent(input$tviolinmean_click)
+}) 
 
-
-output$tviolinmean_plotdwnld <- output$tviolinmean_plotdwnld_popup <-  downloadHandler(
+output$tviolinmean_plotdwnld <- downloadHandler(
   filename = "tviolinmeanplot.png",
   contentType = 'image/png',
   content = function(file) {
-    ggsave(file,plot=tviolinmeanplot(),
+    ggsave(file,
+           plot=tviolinmeanplot(),
            height=tviolinmeanplot_size$height(),width=tviolinmeanplot_size$width(),
            scale=2
     )
-    
   }) 
-
+output$tviolinmean_plotdwnld_popup <- downloadHandler(
+  filename = "tviolinmeanplot.png",
+  contentType = 'image/png',
+  content = function(file) {
+    ggsave(file,
+           plot=tviolinmeanplot(),
+           height=tviolinmeanplot_size$height(),width=tviolinmeanplot_size$width(),
+           scale=2
+    )
+  }) 
 
 ############## Temperature lollipop plot ############## 
 observe({ 
@@ -227,11 +255,6 @@ observe({
                     choices=c(rnames())#,
                     #selected=""
   )
-  #updatePickerInput(session,
-  #                  "choose_tlolli_xaxis", 
-  #                  choices=c(as.list(ps.norm.melt() %>% select(where(is.numeric)) %>% colnames() %>% sort())),
-  #                  selected=""
-  # )
   updatePickerInput(session,
                     "choose_tlolli_facet",
                     choices=c(Meta_vars()),
@@ -255,10 +278,10 @@ observe({
 tlolliplot_pretty  <- plotPrettyServer(id="tlolli_pretty")
 tlolliplot_size <- plotSizeServer(id="tlolli_size") 
 
-tlolliplot <- reactive({
+tlolliplot_base <- reactive({
   req(ps.norm())
   print("Temperature lolli plot: building base plot")
-  ps <- ps.norm.melt() #filter(Abundance>0) %>% filter(!is.na(Trophic.val))
+  ps <- ps.norm.melt() 
   
   if(!is.null(ps$Trophic.val)){
     
@@ -294,8 +317,7 @@ tlolliplot <- reactive({
       geom_segment(
         aes(x=.data[[input$choose_tlolli_yaxis]], xend=.data[[input$choose_tlolli_yaxis]], 
             y=Tempprefmin, yend=Tempprefmax,
-            color=.data[[input$choose_tlolli_yaxis]] %in% input$tlolli_samples#,
-            #size=.data[[input$choose_tlolli_yaxis]] %in% input$tlolli_samples
+            color=.data[[input$choose_tlolli_yaxis]] %in% input$tlolli_samples
         )) + 
       geom_point(
         aes(x=.data[[input$choose_tlolli_yaxis]], y=Tempprefmean,
@@ -314,13 +336,32 @@ tlolliplot <- reactive({
                                          scales="free") 
     } else {finalplot <- baseplot} 
     
-    finalplot + tlolliplot_pretty() + tlolliplot_size$aspectRatio()
+    finalplot 
   }
-}) %>% bindEvent(input$choose_iucnbar_facet)
+})
 
-observeEvent(input$go_tlolli, {
-  print("Temperature lolli plot: plotting")
-  output$tlolli_s_plot <- output$tlolli_plot <- renderPlot({tlolliplot()})
+tlolliplot <- reactive({
+  req(input$go_tlolli | trigger_plots())
+  
+  tlolliplot_base() + tlolliplot_pretty() + tlolliplot_size$aspectRatio()
+})
+
+output$tlolli_click_plot <- renderPlot({
+  req(tlolliplot())
+  tlolliplot()
+  })
+output$tlolli_s_plot <- renderPlot({
+  req(tlolliplot())
+  tlolliplot()
+})
+output$tlolli_plot <-renderPlot({
+  req(tlolliplot())
+  tlolliplot()
+})
+  
+observe({
+  req(tlolliplot())
+  print("Saving tlolliplot()")
   
   tryCatch(
     ggsave(filename="tlolliplot.png", 
@@ -333,27 +374,39 @@ observeEvent(input$go_tlolli, {
   )
 })
 
-observe({
+observeEvent(input$tlolli_click, {
+  req(tlolliplot())
+  print("Temperature lollipop plot: popup")
+  
   showModal(modalDialog(
-    renderPlot(tlolliplot()),
-    footer = downloadButton('download_tlolliplot_popup', 'Download'),
+    withSpinner(plotOutput('tlolli_click_plot')),
+    footer = downloadButton('tlolli_plotdwnld_popup', 'Download'),
     size="xl",
     easyClose = TRUE
   ))
-  print("Trophic bar plot: popup")
-}) %>% bindEvent(input$tlolli_click)
+}) 
 
-output$tlolli_plotdwnld <- output$tlolli_plotdwnld_popup <-  downloadHandler(
+output$tlolli_plotdwnld <- downloadHandler(
   filename = "tlolliplot.png",
   contentType = 'image/png',
   content = function(file) {
-    ggsave(file,plot=tlolliplot(),
+    ggsave(file,
+           plot=tlolliplot(),
            height=tlolliplot_size$height(),width=tlolliplot_size$width(),
            scale=2
     )
-    
   }) 
-
+output$tlolli_plotdwnld_popup <- downloadHandler(
+  filename = "tlolliplot.png",
+  contentType = 'image/png',
+  content = function(file) {
+    ggsave(file,
+           plot=tlolliplot(),
+           height=tlolliplot_size$height(),width=tlolliplot_size$width(),
+           scale=2
+    )
+  }) 
+  
 ############## Violin Plot Trophic Level ############## 
 violinplot_pretty  <- plotPrettyServer(id="violin_pretty")
 violinplot_size <- plotSizeServer(id="violin_size") 
@@ -370,9 +423,9 @@ violinplot_general <- plotControlsServer(id="violin_gen",
 ) 
 
 violin_base <- reactive({
-  #print("Violin: building base plot")
   req(ps.norm())
-  #req(violinplot_general$x())
+  req(violinplot_general$x())
+  req(violinplot_general$y())
   ps <- ps.norm.melt()
   
   ps.edit <- ps %>% mutate(Trophic.Level = (as.numeric(.data[[violinplot_general$y()]]))) %>% filter(Abundance >0)
@@ -388,9 +441,7 @@ violin_base <- reactive({
     ))
   }
   
-  ggplot(ps.edit, #x=.data[[violinplot_general$x()]], #x axis
-         #          y=.data[[violinplot_general$y()]], #must be numeric
-         #          fill=.data[[violinplot_general$x()]]
+  ggplot(ps.edit, 
          aes(x=.data[[violinplot_general$x()]], #x axis
              y=Trophic.Level, #must be numeric
              fill=.data[[violinplot_general$x()]]
@@ -399,32 +450,42 @@ violin_base <- reactive({
     geom_violin(na.rm=TRUE,alpha=0.2) + 
     geom_boxplot(width=0.25,alpha=0.6) + 
     stat_summary(fun="median",
-                 #fun=get_box_stats,
                  geom="label",
-                 #geom="text",
                  aes(label = after_stat(round(y, 2))
                  ),
-                 #hjust = 0.5, 
-                 #vjust = -1,
                  fill="white",
                  alpha=0.7,
                  position=position_nudge(y=0.3)
     )
   
-}) %>% bindEvent(violinplot_general$x(),
-                 violinplot_general$y(),
-                 violinplot_general$facet(),
-                 ps.norm(),Meta_vars()
-)
+}) 
 
 violinplot <- reactive({
   print("Violin: assembling plot")
-  violin_base() + violinplot_general$facet() + violinplot_pretty() + violinplot_size$aspectRatio() 
-})
+  req(input$go_violin|trigger_plots())
+  
+  violin_base() + 
+    violinplot_general$facet() + 
+    violinplot_pretty() + 
+    violinplot_size$aspectRatio() 
+}) 
 
-observeEvent(input$go_violin, {
-  print("Violin: plotting")
-  output$violin_s_plot <- output$violin_plot <- renderPlot({violinplot()})
+output$violin_click_plot <- renderPlot({
+  req(violinplot())
+  violinplot()
+  })
+output$violin_s_plot <- renderPlot({
+  req(violinplot())
+  violinplot()
+})
+output$violin_plot <- renderPlot({
+  req(violinplot())
+  violinplot()
+})
+  
+observe({
+  req(violinplot())
+  print("Saving violinplot()")
   
   tryCatch(
     ggsave(filename="violinplot.png", 
@@ -437,46 +498,51 @@ observeEvent(input$go_violin, {
   )
 })
 
-observe({
+observeEvent(input$violin_click,{
+  req(violinplot())
+  print("MTI violin: popup")
+  
   showModal(modalDialog(
-    renderPlot(violinplot()),
-    footer = downloadButton('download_violinplot_popup', 'Download'),
+    withSpinner(plotOutput('violin_click_plot')),
+    footer = downloadButton('violin_plotdwnld_popup', 'Download'),
     size="xl",
     easyClose = TRUE
   ))
-  print("Violin: popup")
-}) %>% bindEvent(input$violin_click)
+}) 
 
 
-output$violin_plotdwnld <- output$violin_plotdwnld_popup <-  downloadHandler(
+output$violin_plotdwnld <- downloadHandler(
   filename = "violinplot.png",
   contentType = 'image/png',
   content = function(file) {
-    ggsave(file,plot=violinplot(),
+    ggsave(file,
+           plot=violinplot(),
            height=violinplot_size$height(),width=violinplot_size$width(),
            scale=2
     )
-    
+  }) 
+output$violin_plotdwnld_popup <- downloadHandler(
+  filename = "violinplot.png",
+  contentType = 'image/png',
+  content = function(file) {
+    ggsave(file,
+           plot=violinplot(),
+           height=violinplot_size$height(),width=violinplot_size$width(),
+           scale=2
+    )
   }) 
 
 ############## Bar Plot Trophic Level ############## 
 observe({ 
-  #updatePickerInput(session,
-  #                  "choose_trophbar_axis", 
-  #                  choices=c(Meta_vars()),
-  #                  selected=Meta_vars()[[1]]
-  #)
+  
   updatePickerInput(session,
                     "choose_trophbar_facet",
-                    choices=c(Meta_vars())#,
-                    #selected=""
+                    choices=c(Meta_vars())
   )
 }) %>% bindEvent(ps.norm(),Meta_vars())
 
 trophbarplot_pretty  <- plotPrettyServer(id="trophbar_pretty")
 trophbarplot_size <- plotSizeServer(id="trophbar_size") 
-
-
 trophbarplot_base <- reactive({
   req(ps.norm())
   print("Trophic bar plot: building base plot")
@@ -497,7 +563,6 @@ trophbarplot_base <- reactive({
       group_by(across(any_of(my_vars) )) %>% 
       summarize(Abundance=sum(Abundance),.groups="keep") %>% 
       arrange(input$choose_trophbar_facet)
-    #summarize(RelAbund=Abundance/sum(Abundance)) 
     print(group_keys(ps.edit))
     baseplot <- ggplot(ps.edit, 
                        aes(x="",#x=.data[[input$choose_trophbar_axis]], #x axis
@@ -532,17 +597,35 @@ trophbarplot_base <- reactive({
     }
     finalplot
 }
-    
-}) %>% bindEvent(input$choose_trophbar_facet#,
-                 #ps.norm(),Meta_vars()
-                 )
+}) 
 
-trophbarplot <- reactive({trophbarplot_base() +
-    trophbarplot_size$aspectRatio() })
-
-observeEvent(input$go_trophbar, {
+trophbarplot <- reactive({
   print("Trophic bar plot: plotting")
-  output$trophbar_s_plot <- output$trophbar_plot <- renderPlot({trophbarplot() })
+  req(input$go_trophbar | trigger_plots())
+  
+  base <- trophbarplot_base()
+  pretty <- trophbarplot_pretty()
+  size <- trophbarplot_size$aspectRatio()
+  
+  base + pretty + theme_void() + size
+  }) 
+
+output$trophbar_click_plot <- renderPlot({
+  req(trophbarplot())
+  trophbarplot() 
+  })
+output$trophbar_s_plot <- renderPlot({
+  req(trophbarplot())
+  trophbarplot() 
+  })
+output$trophbar_plot <- renderPlot({
+  req(trophbarplot())
+  trophbarplot() 
+  })
+
+observe({
+  req(trophbarplot())
+  print("Saving trophbarplot()")
   
   tryCatch(
   ggsave(filename="trophbarplot.png", 
@@ -555,17 +638,19 @@ observeEvent(input$go_trophbar, {
 )
 })
 
-observe({
+observeEvent(input$trophbar_click,{
+  req(trophbarplot())
+  print("Feeding guild pie chart: popup")
+  
   showModal(modalDialog(
-    renderPlot(trophbarplot_base()),
-    footer = downloadButton('download_trophbarplot_popup', 'Download'),
+    withSpinner(plotOutput('trophbar_click_plot')),
+    footer = downloadButton('trophbar_plotdwnld_popup', 'Download'),
     size="xl",
     easyClose = TRUE
   ))
-  print("Trophic bar plot: popup")
-}) %>% bindEvent(input$trophbar_click)
+}) 
 
-output$trophbar_plotdwnld <- output$trophbar_plotdwnld_popup <-  downloadHandler(
+output$trophbar_plotdwnld <- downloadHandler(
   filename = "trophbarplot.png",
   contentType = 'image/png',
   content = function(file) {
@@ -573,7 +658,15 @@ output$trophbar_plotdwnld <- output$trophbar_plotdwnld_popup <-  downloadHandler
            height=trophbarplot_size$height(),width=trophbarplot_size$width(),
            scale=2
     )
-    
+  }) 
+output$trophbar_plotdwnld_popup <-  downloadHandler(
+  filename = "trophbarplot.png",
+  contentType = 'image/png',
+  content = function(file) {
+    ggsave(file,plot=trophbarplot(),
+           height=trophbarplot_size$height(),width=trophbarplot_size$width(),
+           scale=2
+    )
   }) 
 
 ############## Bar Plot Body Size ############## 
@@ -595,6 +688,7 @@ sizebarplot_size <- plotSizeServer(id="sizebar_size")
 
 sizebarplot_base <- reactive({
   req(ps.norm())
+  req(input$choose_sizebar_axis)
   print("Size bar plot: building base plot")
 
   ps <- ps.norm.melt() %>% 
@@ -649,18 +743,36 @@ sizebarplot_base <- reactive({
     print("no faceting groups selected")
     finalplot <- baseplot
     }
-
   finalplot
-  
-}) %>% bindEvent(#ps.norm(),Meta_vars(),
-                 input$choose_sizebar_axis,input$choose_sizebar_facet
-                 )
+}) 
 
-sizebarplot <- reactive({sizebarplot_base()+sizebarplot_size$aspectRatio()})
+sizebarplot <- reactive({
+  print("Body size: assembling plot")
+  req(input$go_sizebar|trigger_plots())
+  #trigger_plots()
+  
+  sizebarplot_base() + 
+    sizebarplot_pretty() + theme_void() +
+    sizebarplot_size$aspectRatio()
+  }) #%>% bindEvent(input$go_sizebar,trigger_plots())
+
+output$sizebar_click_plot <- renderPlot({
+  req(sizebarplot())
+  sizebarplot()
+  })
+outputOptions(output, "sizebar_click_plot", suspendWhenHidden = FALSE)
+output$sizebar_s_plot <- renderPlot({
+  req(sizebarplot())
+  sizebarplot()
+})
+output$sizebar_plot <- renderPlot({
+  req(sizebarplot())
+  sizebarplot()
+})
 
 observe({
-  print("Size bar plot: plotting")
-  output$sizebar_s_plot <- output$sizebar_plot <- renderPlot({sizebarplot()})
+  req(sizebarplot())
+  print("Saving sizebarplot()")
   
   tryCatch(
     ggsave(filename="sizebarplot.png", 
@@ -671,28 +783,39 @@ observe({
     ),
     error=function(e){return(NA)}
   )
-}) %>% bindEvent(input$go_sizebar)
+}) 
 
-
-observe({
+observeEvent(input$sizebar_click,{
+  req(sizebarplot())
+  print("Body size pie chart: popup")
+  
   showModal(modalDialog(
-    renderPlot(sizebarplot_base()),
-    footer = downloadButton('download_sizebarplot_popup', 'Download'),
+    withSpinner(plotOutput('sizebar_click_plot')),
+    footer = downloadButton('sizebar_plotdwnld_popup', 'Download'),
     size="xl",
     easyClose = TRUE
   ))
-  print("Trophic bar plot: popup")
-}) %>% bindEvent(input$sizebar_click)
+}) 
 
-output$sizebar_plotdwnld <- output$sizebar_plotdwnld_popup <-  downloadHandler(
+output$sizebar_plotdwnld <- downloadHandler(
   filename = "sizebarplot.png",
   contentType = 'image/png',
   content = function(file) {
-    ggsave(file,plot=sizebarplot(),
+    ggsave(file,
+           plot=sizebarplot(),
            height=sizebarplot_size$height(),width=sizebarplot_size$width(),
            scale=2
     )
-    
+  }) 
+output$sizebar_plotdwnld_popup <-  downloadHandler(
+  filename = "sizebarplot.png",
+  contentType = 'image/png',
+  content = function(file) {
+    ggsave(file,
+           plot=sizebarplot(),
+           height=sizebarplot_size$height(),width=sizebarplot_size$width(),
+           scale=2
+    )
   }) 
 
 ############## Bar Plot IUCN status ############## 
@@ -714,11 +837,14 @@ iucnbarplot_size <- plotSizeServer(id="iucnbar_size")
 
 iucnbarplot_base <- reactive({
   req(ps.norm())
+  req(input$choose_iucnbar_axis)
   print("IUCN bar plot: building base plot")
   
   names <- ps.norm.melt() %>%
     select(contains(regex("IUCN_category",ignore_case = TRUE))) %>%
     colnames()
+  
+  req(length(names)>0)
   
   ps <- ps.norm.melt() %>% 
     rename(IUCN_Category_Status = input$choose_iucnbar_axis) %>% 
@@ -773,16 +899,19 @@ iucnbarplot_base <- reactive({
   
   finalplot
   
-}) %>% bindEvent(#ps.norm(),Meta_vars(),
+}) %>% bindEvent(ps.norm(),#Meta_vars(),
   #input$choose_iucnbar_axis,
   input$choose_iucnbar_facet
 )
 
-iucnbarplot <- reactive({iucnbarplot_base()+iucnbarplot_size$aspectRatio()}) 
+iucnbarplot <- reactive({
+  req(input$go_iucnbar|trigger_plots())
+  
+  iucnbarplot_base() + 
+    iucnbarplot_size$aspectRatio()
+  }) 
 
 observe({
-  print("IUCN bar plot: plotting")
-  output$iucnbar_s_plot <- output$iucnbar_plot <- renderPlot({iucnbarplot()})
   req(iucnbarplot())
   print("IUCN bar plot: saving")
   
@@ -797,111 +926,46 @@ observe({
   )
 })
 
-observe({
+output$iucnbar_plot <- renderPlot({
+  req(iucnbarplot())
+  iucnbarplot()
+  })
+output$iucnbar_s_plot <- renderPlot({
+  req(iucnbarplot())
+  iucnbarplot()
+})
+
+observeEvent(input$iucnbar_click,{
+  req(iucnbarplot())
+  print("IUCN status pie chart: popup")
+  
   showModal(modalDialog(
-    renderPlot(iucnbarplot_base()),
-    footer = downloadButton('download_iucnbarplot_popup', 'Download'),
+    withSpinner(plotOutput('iucnbar_click_plot')),
+    footer = downloadButton('iucnbar_plotdwnld_popup', 'Download'),
     size="xl",
     easyClose = TRUE
   ))
-  print("Trophic bar plot: popup")
-}) %>% bindEvent(input$iucnbar_click)
+}) 
 
-output$iucnbar_plotdwnld <- output$iucnbar_plotdwnld_popup <-  downloadHandler(
+output$iucnbar_plotdwnld <- downloadHandler(
   filename = "iucnbarplot.png",
   contentType = 'image/png',
   content = function(file) {
-    ggsave(file,plot=iucnbarplot(),
+    ggsave(file,
+           plot=iucnbarplot(),
            height=iucnbarplot_size$height(),width=iucnbarplot_size$width(),
            scale=2
     )
-    
   }) 
-
-############## Line plot Trophic Level ############## 
-
-tlineplot_pretty  <- plotPrettyServer(id="tline_pretty")
-tlineplot_size <- plotSizeServer(id="tline_size") 
-tlineplot_general <- plotControlsServer(id="tline_gen",
-                                        df=ps.norm.melt,
-                                        #var1=rnames, #color
-                                        var2=Meta_vars, #x
-                                        var3=Meta_vars, #y
-                                        var4=Meta_vars, #facet
-                                        #var1=Meta_vars(), #color
-                                        #var2=Meta_vars(), #x
-                                        var1=reactive(ps.norm.melt() %>% select(contains("roph")) %>% colnames() )#, 
-                                        #var4=Meta_vars() #facet
-) 
-
-
-tlineplot <- eventReactive(input$go_tline, { #assign a variable that runs when plot button is pushed
-  runif(input$go_tline)
-  req(ps.norm())
-  print("Trophic line plot: building base plot")
-  
-  ps <- ps.norm.melt() 
-  if(!is.null(ps$Trophic.val)){
-    
-    ps <- ps.norm.melt() %>% mutate(TrophicScore = (as.numeric(.data[[tlineplot_general$color()]]))) %>% filter(Abundance>0) 
-    
-    baseplot <- ggplot(ps, 
-                       aes(x=TrophicScore, #must be numeric
-                           y=Abundance, 
-                           color=.data[[tlineplot_general$x()]], 
-                           linetype=.data[[tlineplot_general$y()]]
-                       )
-    ) + 
-      geom_line(na.rm=TRUE)  
-    
-    #if (is.numeric(ps[[tlineplot_general$y()]])) {
-    #  baseplot <- baseplot + scale_linetype_binned()
-    #} 
-   # if (is.numeric(ps[[tlineplot_general$x()]])) {
-   #   baseplot <- baseplot + scale_color_binned()
-   # } 
-    
-      baseplot + 
-      tlineplot_general$facet() + tlineplot_pretty() + tlineplot_size$aspectRatio() 
-  }
-  
-})
-
-observeEvent(input$go_tline, {
-  print("Line diagram: plotting")
-  output$tline_plot <- renderPlot({tlineplot()})
-  
-  tryCatch(
-  ggsave(filename="tlineplot.png", 
-         path=tempdir(),
-         plot=tlineplot(),
-         height=tlineplot_size$height(),width=tlineplot_size$width(),
-         scale=2
-  ),
-  error=function(e){return(NA)}
-  )
-})
-
-observe({
-  showModal(modalDialog(
-    renderPlot(tlineplot()),
-    footer = downloadButton('download_tlineplot_popup', 'Download'),
-    size="xl",
-    easyClose = TRUE
-  ))
-  print("Line diagram: popup")
-}) %>% bindEvent(input$tline_click)
-
-
-output$tline_plotdwnld <- output$tline_plotdwnld_popup <-  downloadHandler(
-  filename = "tlineplot.png",
+output$iucnbar_plotdwnld_popup <-  downloadHandler(
+  filename = "iucnbarplot.png",
   contentType = 'image/png',
   content = function(file) {
-    ggsave(file,plot=tlineplot(),
-           height=tlineplot_size$height(),width=tlineplot_size$width(),
+    ggsave(file,
+           plot=iucnbarplot(),
+           height=iucnbarplot_size$height(),width=iucnbarplot_size$width(),
            scale=2
     )
-    
   }) 
 
 ############## Lollipop plot ############## 
@@ -938,8 +1002,11 @@ observe({
 
 lolliplot_pretty  <- plotPrettyServer(id="lolli_pretty")
 lolliplot_size <- plotSizeServer(id="lolli_size") 
-lolliplot <- eventReactive(input$go_lolli, {
+lolliplot_base <- reactive({
   req(ps.norm())
+  req(input$choose_lolli_yaxis)
+  req(input$choose_lolli_xaxis)
+  
   print("Trophic lolli plot: building base plot")
   ps <- ps.norm.melt() #filter(Abundance>0) %>% filter(!is.na(Trophic.val))
   
@@ -947,43 +1014,31 @@ lolliplot <- eventReactive(input$go_lolli, {
     
     my_vars <- function() {
       c(any_of(c(#"Trophic.val",
-                 input$choose_lolli_facet,
-                 input$choose_lolli_yaxis
+        input$choose_lolli_facet,
+        input$choose_lolli_yaxis
       )
       ))
     }
     
-    ps.edit <- ps %>% group_by(across(my_vars()) ) %>% 
-      #summarize(input$choose_lolli_xaxis=sum(input$choose_lolli_xaxis)) %>% 
-      arrange() #%>% #arrange(Trophic.val) %>% 
-    #mutate(x=factor(x,x)) %>% 
-    #summarize(RelAbund=Abundance/sum(Abundance)) 
+    ps.edit <- ps %>% 
+      group_by(across(my_vars()) ) %>% 
+      arrange() 
     
     baseplot <- ggplot(ps.edit, aes(x=.data[[input$choose_lolli_yaxis]],
                                     y=.data[[input$choose_lolli_xaxis]])
-                       ) +
+    ) +
       geom_segment(
         aes(x=ps.edit[[input$choose_lolli_yaxis]], xend=ps.edit[[input$choose_lolli_yaxis]], 
             y=0, yend=.data[[input$choose_lolli_xaxis]],
-            color=ps.edit[[input$choose_lolli_yaxis]] %in% input$lolli_samples#,
-            #size=ps.edit[[input$choose_lolli_yaxis]] %in% input$lolli_samples
-            )) + 
+            color=ps.edit[[input$choose_lolli_yaxis]] %in% input$lolli_samples
+        )) + 
       geom_point(
         aes(color=ps.edit[[input$choose_lolli_yaxis]] %in% input$lolli_samples,
             size=ps.edit[[input$choose_lolli_yaxis]] %in% input$lolli_samples
-            )) + 
+        )) + 
       scale_color_manual(values=c("TRUE"="orange","FALSE"="grey"),name=NULL,labels=NULL) + 
       scale_size_manual(values=c("TRUE"=3,"FALSE"=1),name=NULL,labels=NULL) +
       coord_flip()
-    
-    # Add annotation
-    #p + annotate("text", x=grep("D", data$x), y=data$y[which(data$x=="D")]*1.2, 
-    #             label="Group D is very impressive", 
-    #             color="orange", size=4 , angle=0, fontface="bold", hjust=0) + 
-    #  
-    #  annotate("text", x = grep("A", data$x), y = data$y[which(data$x=="A")]*1.2, 
-    #           label = paste("Group A is not too bad\n (val=",data$y[which(data$x=="A")] %>% round(2),")",sep="" ) , 
-    #           color="orange", size=4 , angle=0, fontface="bold", hjust=0) 
     
     if(!is.null(input$choose_lolli_facet) & length(input$choose_lolli_facet) < 2) {
       finalplot <- baseplot + facet_wrap(~.data[[input$choose_lolli_facet]],scales="free") 
@@ -992,37 +1047,55 @@ lolliplot <- eventReactive(input$go_lolli, {
                                          cols= vars(.data[[input$choose_lolli_facet[2]]]),
                                          scales="free") 
     } else {finalplot <- baseplot} 
-  
-  finalplot + lolliplot_pretty() + lolliplot_size$aspectRatio()
+    
+    finalplot
   }
 })
 
-observeEvent(input$go_lolli, {
-  print("Trophic lolli plot: plotting")
-  output$lolli_plot <- renderPlot({lolliplot()})
+lolliplot <- reactive({
+  req(input$go_lolli|trigger_plots())
   
-  tryCatch(
-  ggsave(filename="lolliplot.png", 
-         path=tempdir(),
-         plot=lolliplot(),
-         height=lolliplot_size$height(),width=lolliplot_size$width(),
-         scale=2
-  ),
-  error=function(e){return(NA)}
-  )
+  lolliplot_base() + 
+    lolliplot_pretty() + 
+    lolliplot_size$aspectRatio()
+}) 
+output$lolli_click_plot <- renderPlot({
+  req(lolliplot())
+  lolliplot()
+})
+output$lolli_plot <- renderPlot({
+  req(lolliplot())
+  lolliplot()
 })
 
 observe({
+  req(lolliplot())
+  print("Saving lolliplot()")
+  
+  tryCatch(
+    ggsave(filename="lolliplot.png", 
+           path=tempdir(),
+           plot=lolliplot(),
+           height=lolliplot_size$height(),width=lolliplot_size$width(),
+           scale=2
+    ),
+    error=function(e){return(NA)}
+  )
+})
+
+observeEvent(input$lolli_click, {
+  req(lolliplot())
+  print("MTI lollipop plot: popup")
+  
   showModal(modalDialog(
-    renderPlot(lolliplot()),
-    footer = downloadButton('download_lolliplot_popup', 'Download'),
+    withSpinner(plotOutput('lolli_click_plot')),
+    footer = downloadButton('lolli_plotdwnld_popup', 'Download'),
     size="xl",
     easyClose = TRUE
   ))
-  print("Trophic bar plot: popup")
-}) %>% bindEvent(input$lolli_click)
+}) 
 
-output$lolli_plotdwnld <- output$lolli_plotdwnld_popup <-  downloadHandler(
+output$lolli_plotdwnld <- downloadHandler(
   filename = "lolliplot.png",
   contentType = 'image/png',
   content = function(file) {
@@ -1030,5 +1103,92 @@ output$lolli_plotdwnld <- output$lolli_plotdwnld_popup <-  downloadHandler(
            height=lolliplot_size$height(),width=lolliplot_size$width(),
            scale=2
     )
-    
+  }) 
+output$lolli_plotdwnld_popup <-  downloadHandler(
+  filename = "lolliplot.png",
+  contentType = 'image/png',
+  content = function(file) {
+    ggsave(file,plot=lolliplot(),
+           height=lolliplot_size$height(),width=lolliplot_size$width(),
+           scale=2
+    )
+  }) 
+
+############## Richness plot ############## 
+observe({
+  updateSelectInput(session,'alpha_xvar',
+                    'Select the explanatory variable',
+                    Meta_vars())
+  updateSelectInput(session,"alpha_facet",
+                    'Select the faceting variable - backspace to erase',
+                    c("",Meta_vars()))
+}) %>% bindEvent(Meta_vars()) 
+
+richplot <- reactive({
+  req(input$go_rich | trigger_plots())
+  print("Alpha diversity: making plot")
+  
+  baseplot <- plot_richness(ps.norm(), 
+                            x=input$alpha_xvar, 
+                            measures=input$alphametrics) + geom_jitter(width=0.15)
+  
+  if(isTruthy(input$alpha_box)) {
+    baseplot <- baseplot+geom_boxplot(alpha=0.75)
+  } 
+  
+  if( input$alpha_facet=="") {
+    finalplot <- baseplot
+  } else if(!is.null(input$alpha_facet) & length(input$alpha_facet) == 1) {
+    finalplot <- baseplot + facet_wrap(~.data[[input$alpha_facet]],scales="free") 
+  } else if(!is.null(input$alpha_facet) & length(input$alpha_facet) == 2) {
+    finalplot <- baseplot + facet_grid(rows=vars(.data[[input$alpha_facet[1]]]),
+                                       cols= vars(.data[[input$alpha_facet[2]]]),
+                                       scales="free") 
+  } else {finalplot <- baseplot}
+  
+  finalplot
+})
+
+output$rich_s_plot <- renderPlot({
+  req(richplot())
+  richplot()
+})
+output$rich_plot <- renderPlot({
+  req(richplot())
+  richplot()
+})
+output$rich_click_plot <- renderPlot({
+  req(richplot())
+  richplot()
+})
+observe({
+  print("Alpha diversity: saving plot")
+  req(richplot())
+  
+  tryCatch(
+    ggsave(filename="richplot.png", 
+           plot=richplot(),
+           path=tempdir(),
+           scale=2
+    ),
+    error=function(e){return(NA)}
+  )
+}) 
+
+observe({
+  showModal(modalDialog(
+    renderPlot(richplot()),
+    footer = downloadButton('rich_plotdwnld_popup', 'Download'),
+    size="xl",
+    easyClose = TRUE
+  ))
+}) %>% bindEvent(input$rich_click)
+
+output$rich_plotdwnld <- output$rich_plotdwnld_popup <-  downloadHandler(
+  filename = "richness_plot.png",
+  contentType = 'image/png',
+  content = function(file) {
+    ggsave(file,plot=richplot(),
+           scale=2
+    )
   }) 
