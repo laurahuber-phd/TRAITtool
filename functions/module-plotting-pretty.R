@@ -71,7 +71,7 @@ plotPrettyServer <- function(id) {
                          "2"=theme_bw(),
                          "3"=theme_minimal(),
                          "4"=theme_classic())
-        }) %>% bindEvent(input$choose_theme)
+        }) 
       
 #labels  
       newlabs <- reactive({
@@ -86,6 +86,12 @@ plotPrettyServer <- function(id) {
         
         plot_y <- if (is.na(input$yaxistitle) ||is.null(input$yaxistitle) || input$yaxistitle == "") { waiver() } else { input$yaxistitle}
 
+        print(c("Plot title is:",plot_title))
+        print(c("Plot subtitle is:",plot_subtitle))
+        print(c("Plot caption is:",plot_caption))
+        print(c("Plot x axis title is:",plot_x))
+        print(c("Plot y axis title is:",plot_y))
+        
         baselabs <- labs(
          title = plot_title,
          subtitle = plot_subtitle,
@@ -95,12 +101,7 @@ plotPrettyServer <- function(id) {
         )
         
         baselabs
-      }) %>% bindEvent(input$plottitle,
-                       input$plotsubtitle,
-                       input$plotcaption,
-                       input$xaxistitle,
-                       input$yaxistitle
-                       )
+      }) 
 #add updates
       chart_theme <- reactive({
         list(
@@ -113,12 +114,7 @@ plotPrettyServer <- function(id) {
             legend.key.width = unit(input$textsize,"pt"),
             axis.text.x = element_text(angle=input$textdir,hjust=1)
           ) )
-        }) %>% bindEvent(input$pos_legend,
-                         input$textsize,
-                         input$textdir,
-                         newlabs(),
-                         newtheme()
-                         )
+        })
 
       return(reactive({chart_theme()}))
     }

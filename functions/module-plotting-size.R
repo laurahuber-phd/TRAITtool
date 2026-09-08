@@ -28,7 +28,7 @@ plotSizeServer <- function(id) {
           theme(
             aspect.ratio=(input$plot_height/input$plot_width)
           ) 
-        }) %>% bindEvent(input$plot_height,input$plot_width)
+        }) 
 
 return(list(
   aspectRatio=reactive(aspect_theme()),
