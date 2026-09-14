@@ -24,7 +24,7 @@ observe({
     updateTextInput(session, 
                     "violin_pretty-plottitle", 
                     value = "Mean Trophic Index")
-    print("MTI plot title updated")
+    print("Agg: MTI plot title updated")
     
     ## pie chart
     ### update the aggregate variable
@@ -48,8 +48,8 @@ observe({
                     value = "Temperature Index")
     updateTextInput(session, "tviolin_pretty-plotcaption", 
                     value = "Index was calculated by dividing the median preferred temperature for each species by the difference in temperature range of the community group, identified by the grouping variable.")
-    print("Temperature index violin plot title updated")
-    print("Temperature index violin plot caption updated")
+    print("Agg: Temperature index violin plot title updated")
+    print("Agg: Temperature index violin plot caption updated")
     ## raw temp violin plot  
     ### needs grouping/x-axis variable (tviolinplot_general$x)
     #### (currently selects the first value in this list: Meta_vars())
@@ -67,6 +67,7 @@ observe({
     #                   contains("median") = "Median",
     #                   contains("mean") = "Mean")
     #updateTextInput(session, "tviolinmean_pretty-plotsubtitle",value = tvio_sub )
+    print("Agg: Temperature violin plot title updated")
     
     ## lollipop plot  
     ### needs y-axis variable (choose_tlolli_yaxis)
@@ -94,7 +95,7 @@ observe({
     ### update title  
     updateTextInput(session, "sizebar_pretty-plottitle", 
                     value = input$choose_sizebar_axis)
-    print("Body size pie chart title updated")
+    print("Agg: Body size pie chart title updated")
     
     # ---------------------  IUCN status plots --------------------- #   
     # update iucn status plot  
@@ -108,7 +109,7 @@ observe({
     ### update title  
     updateTextInput(session, "iucnbar_pretty-plottitle", 
                     value = "IUCN Red List Status")
-    print("IUCN pie chart title updated")
+    print("Agg: IUCN pie chart title updated")
     
     # ---------------------  Richness plots --------------------- #   
     ## needs x-axis variable (alpha_xvar)
