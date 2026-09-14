@@ -48,6 +48,11 @@ reportpage <- nav_panel(
                                                         actionButton("repaccd_tbarplot",
                                                                      label="Go back to this page")
                                         ),
+                                        accordion_panel(title="IUCN Category",
+                                                        withSpinner(plotOutput("rep_iucnbarplot")),
+                                                        actionButton("repaccd_iucnbarplot",
+                                                                     label="Go back to this page")
+                                        ),
                                         accordion_panel(title="Body size",
                                                         withSpinner(plotOutput("rep_sizebarplot")),
                                                         actionButton("repaccd_sizebarplot",

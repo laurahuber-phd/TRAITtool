@@ -18,6 +18,9 @@ observe({
   output$rep_tviolinplot <- renderPlot({tviolinplot()})
   print("Report: temperature index violin plot rendered")
   #
+  output$rep_iucnbarplot <- renderPlot({iucnbarplot()})
+  print("Report: IUCN category plot rendered")
+  #
   output$rep_tviolinmeanplot <- renderPlot({tviolinmeanplot()})
   print("Report: temperature choice violin plot rendered")
   #
@@ -122,13 +125,17 @@ params <- reactiveValues(blanks=NA, #create list of parameters to read into rmar
                          hmplot=NA,
                          lolplot=NA,
                          lineplot=NA,
+                         iucnbarplot=NA,
                          samsum=NA,
                          N_seq_total_num_sel=NA,
                          N_seq_assigned_num_sel=NA,
                          N_otu_total_num_sel=NA,
                          N_otu_assigned_num_sel=NA,
                          N_seq_blanks_num_sel=NA,
-                         N_otu_blanks_num_sel=NA
+                         N_otu_blanks_num_sel=NA,
+                         dt_sizebar=NA,
+                         dt_trophbar=NA,
+                         dt_iucnbar=NA
 )
 
 mkdwnrptfun <- function(x) { #tryCatch will check to see if the 'function' exists, and if it does not, returns NA as an error
@@ -149,6 +156,7 @@ observe({
   params[["tlolplot"]] <- mkdwnrptfun(tlolliplot())
   params[["sizebarplot"]] <- mkdwnrptfun(sizebarplot())
   params[["richplot"]] <- mkdwnrptfun(richplot())
+  params[["iucnbarplot"]] <- mkdwnrptfun(iucnbarplot())
   
   params[["percplot"]] <- mkdwnrptfun(rankperc_plot())
   params[["ordplot"]] <- mkdwnrptfun(ordplot())
@@ -196,6 +204,10 @@ observe({
   
   params$N_seq_blanks_num_sel <- mkdwnrptfun(Num_seq_subset$N_seq_blanks)
   params$N_otu_blanks_num_sel <- mkdwnrptfun(Num_otu_subset$N_otu_blanks)
+  
+  params$dt_sizebar <- mkdwnrptfun(dt_sizebar())
+  params$dt_trophbar <- mkdwnrptfun(dt_trophbar())
+  params$dt_iucnbar <- mkdwnrptfun(dt_iucnbar())
   
   params$richmet <- mkdwnrptfun(input$alphametrics)
   paramvals <- reactiveValuesToList(params) #convert reactive values to list to read into render

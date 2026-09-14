@@ -97,6 +97,7 @@ observeEvent(input$repaccd_sizebarplot,switch_page("analysistab"))
 observeEvent(input$repaccd_tlolliplot,switch_page("analysistab"))
 observeEvent(input$repaccd_tviolinplot,switch_page("analysistab"))
 observeEvent(input$repaccd_richplot, switch_page("analysistab"))
+observeEvent(input$repaccd_iucnbarplot, switch_page("analysistab"))
 observeEvent(input$repaccd_tlineplot,switch_page("filterdetailstab"))
 observeEvent(input$repaccd_lolliplot,switch_page("filterdetailstab"))
 

@@ -130,7 +130,7 @@ Sys.sleep(2)
 ```
 
 ```{r feedingguild, eval=!is.na(params$tbarplot)}
-ggplotly(params$tbarplot)
+params$tbarplot
 ```
 
 ```{r progressthree}
@@ -158,7 +158,7 @@ Sys.sleep(2)
 
 ## Body size  
 ```{r bodysize, eval=!is.na(params$sizebarplot)}
-ggplotly(params$sizebarplot)
+params$sizebarplot
 ```
 
 ```{r progressfive}
