@@ -145,31 +145,63 @@ trophbarplot_base <- reactive({
   
   if(!is.null(ps$Trophic.val)){
     
-    ps <- ps.norm.melt() %>% filter(Abundance>0) %>% filter(!is.na(Trophic.val))
+    ps <- ps.norm.melt() %>% 
+      filter(Abundance>0) %>% #filter(!is.na(Trophic.val))
+      mutate(Trophic.val=case_when(is.na(Trophic.val) ~ "Not assigned",
+                                   .default=Trophic.val)) %>% 
+      mutate(Trophic.val=factor(Trophic.val,levels=unique(Trophic.val))) %>% 
+      mutate(Trophic.val=fct_relevel(Trophic.val,"Not assigned",after = Inf))
     
     my_vars <- c("Trophic.val", 
                  #input$choose_trophbar_axis, 
                  input$choose_trophbar_facet
     )
     print(c("arrange dataset by",my_vars))
-    
+    if(!is.null(input$choose_trophbar_facet)) {
     ps.edit <- ps %>% 
       group_by(across(any_of(my_vars) )) %>% 
       summarize(Abundance=sum(Abundance),.groups="keep") %>% 
-      arrange(input$choose_trophbar_facet)
+      arrange(input$choose_trophbar_facet[[1]]) %>% 
+      ungroup() %>% 
+      group_by(across(any_of(input$choose_trophbar_facet))) %>% 
+      mutate(Perc=round(Abundance/sum(Abundance),
+                        digits=4)*100) %>% 
+      mutate(csum=rev(cumsum(rev(Perc))),
+             ypos=csum-0.5*Perc,
+             repos=ifelse(Perc<=10,ypos,NA),
+             ypos=ifelse(Perc>10,ypos,NA)
+      )
+    } else {
+      ps.edit <- ps %>% 
+        group_by(across(any_of(my_vars) )) %>% 
+        summarize(Abundance=sum(Abundance),.groups="keep") %>% 
+        ungroup() %>% 
+        mutate(Perc=round(Abundance/sum(Abundance),
+                          digits=4)*100) %>% 
+        mutate(csum=rev(cumsum(rev(Perc))),
+               ypos=csum-0.5*Perc,
+               repos=ifelse(Perc<=10,ypos,NA),
+               ypos=ifelse(Perc>10,ypos,NA)
+        )
+    }
+    
     print(group_keys(ps.edit))
     baseplot <- ggplot(ps.edit, 
                        aes(x="",#x=.data[[input$choose_trophbar_axis]], #x axis
-                           y=Abundance, #y=RelAbund,
+                           y=Perc,#y=Abundance, #y=RelAbund,
                            fill=Trophic.val,
                            color=Trophic.val
                        )
     ) + 
-      geom_bar( stat="identity", position = "fill") +  
+      geom_bar(stat="identity"#, position = "fill"
+                ) +  
       #scale_y_continuous(labels=function(x) paste0(x * 100, "%")) + 
       labs(y="Relative Abundance",
            title="Relative abundance of each trophic group") +
       #coord_flip() 
+      geom_text(aes(y=ypos,label=Perc),color="black") +
+      ggrepel::geom_label_repel(aes(y=repos,label=paste0(Perc,"%")),
+                                size = 4.5, nudge_x = 1, show.legend = FALSE,color="black") +
       coord_polar("y",start=0) + 
       theme_void() #+ # remove background, grid, numeric labels
     #geom_text(aes(label = Trophic.val #round(value,2)
@@ -693,32 +725,60 @@ sizebarplot_base <- reactive({
                               .data[[input$choose_sizebar_axis]] < 20 & .data[[input$choose_sizebar_axis]] >= 10 ~ " Medium (10-19 cm)",
                               .data[[input$choose_sizebar_axis]] < 10 & .data[[input$choose_sizebar_axis]] >= 5 ~ " Small (5-10 cm)",
                               .data[[input$choose_sizebar_axis]] <5 ~ "Very small (<5 cm)",
-                              .default="Not assigned"))
+                              .default="Not assigned")) %>% 
+    mutate(BodySize=factor(BodySize,levels=unique(BodySize))) %>% 
+    mutate(BodySize=fct_relevel(BodySize,"Not assigned",after=Inf))
   
   my_vars <- c("BodySize",
-               input$choose_sizebar_axis, 
+               #input$choose_sizebar_axis, 
                input$choose_sizebar_facet
                )
   print(c("arrange dataset by",my_vars))
-  
-  ps.edit <- ps %>% 
-    group_by(across(any_of(my_vars)) ) %>% 
-    summarize(Abundance=sum(Abundance),.groups="keep") %>% 
-    arrange(input$choose_sizebar_axis)
-  #summarize(RelAbund=Abundance/sum(Abundance)) 
-  
+
+  if(!is.null(input$choose_sizebar_facet)) {
+    ps.edit <- ps %>% 
+      group_by(across(any_of(my_vars) )) %>% 
+      summarize(Abundance=sum(Abundance),.groups="keep") %>% 
+      arrange(input$choose_sizebar_facet[[1]]) %>% 
+      ungroup() %>% 
+      group_by(across(any_of(input$choose_sizebar_facet))) %>% 
+      mutate(Perc=round(Abundance/sum(Abundance),
+                        digits=4)*100) %>% 
+      mutate(csum=rev(cumsum(rev(Perc))),
+             ypos=csum-0.5*Perc,
+             repos=ifelse(Perc<=10,ypos,NA),
+             ypos=ifelse(Perc>10,ypos,NA)
+      )
+  } else {
+    ps.edit <- ps %>% 
+      group_by(across(any_of(my_vars) )) %>% 
+      summarize(Abundance=sum(Abundance),.groups="keep") %>% 
+      ungroup() %>% 
+      mutate(Perc=round(Abundance/sum(Abundance),
+                        digits=4)*100) %>% 
+      mutate(csum=rev(cumsum(rev(Perc))),
+             ypos=csum-0.5*Perc,
+             repos=ifelse(Perc<=10,ypos,NA),
+             ypos=ifelse(Perc>10,ypos,NA)
+      )
+  }
+
   baseplot <- ggplot(ps.edit, 
                      aes(x="",#x=.data[[input$choose_sizebar_axis]], #x axis
-                         y=Abundance, #y=RelAbund,
+                         y=Perc,#y=Abundance, #y=RelAbund,
                          fill=BodySize,
                          color=BodySize
                      )
   ) + 
-    geom_bar( stat="identity", position = "fill") +  
+    geom_bar( stat="identity"#, position = "fill"
+              ) +  
     #scale_y_continuous(labels=function(x) paste0(x * 100, "%")) + 
     #labs(y="Relative Abundance",
     #     title="Relative abundance of each trophic group") +
     #coord_flip() 
+    geom_text(aes(y=ypos,label=Perc),color="black") +
+    ggrepel::geom_label_repel(aes(y=repos,label=paste0(Perc,"%")),
+                              size = 4.5, nudge_x = 1, show.legend = FALSE,color="black") +
     coord_polar("y",start=0) + 
     theme_void() #+ # remove background, grid, numeric labels
   #geom_text(aes(label = Trophic.val #round(value,2)
@@ -845,7 +905,9 @@ iucnbarplot_base <- reactive({
     rename(IUCN_Category_Status = input$choose_iucnbar_axis) %>% 
     mutate(IUCN_Category_Status = str_to_upper(IUCN_Category_Status)) %>%
     mutate(IUCN_Status = case_when(is.na(IUCN_Category_Status) ~ "Not Found in Red List",
-                                   .default=IUCN_Category_Status)) 
+                                   .default=IUCN_Category_Status)) %>% 
+    mutate(IUCN_Status=factor(IUCN_Status,levels=unique(IUCN_Status))) %>% 
+    mutate(IUCN_Status=fct_relevel(IUCN_Status,"Not Found in Red List",after = Inf))
   print(colnames(ps))
   
   my_vars <- c("IUCN_Status",
@@ -855,23 +917,51 @@ iucnbarplot_base <- reactive({
   )
   print(c("arrange dataset by",my_vars))
   
-  ps.edit <- ps %>% 
-    group_by(across(any_of(my_vars)) ) %>% 
-    summarize(Abundance=sum(Abundance),.groups="keep") %>% 
-    arrange(input$choose_iucnbar_axis)
+  if(!is.null(input$choose_iucnbar_facet)) {
+    ps.edit <- ps %>% 
+      group_by(across(any_of(my_vars) )) %>% 
+      summarize(Abundance=sum(Abundance),.groups="keep") %>% 
+      arrange(input$choose_iucnbar_facet[[1]]) %>% 
+      ungroup() %>% 
+      group_by(across(any_of(input$choose_iucnbar_facet))) %>% 
+      mutate(Perc=round(Abundance/sum(Abundance),
+                        digits=4)*100) %>% 
+      mutate(csum=rev(cumsum(rev(Perc))),
+             ypos=csum-0.5*Perc,
+             repos=ifelse(Perc<=10,ypos,NA),
+             ypos=ifelse(Perc>10,ypos,NA)
+      )
+  } else {
+    ps.edit <- ps %>% 
+      group_by(across(any_of(my_vars) )) %>% 
+      summarize(Abundance=sum(Abundance),.groups="keep") %>% 
+      ungroup() %>% 
+      mutate(Perc=round(Abundance/sum(Abundance),
+                        digits=4)*100) %>% 
+      mutate(csum=rev(cumsum(rev(Perc))),
+             ypos=csum-0.5*Perc,
+             repos=ifelse(Perc<=10,ypos,NA),
+             ypos=ifelse(Perc>10,ypos,NA)
+      )
+  }
   
+
   baseplot <- ggplot(ps.edit, 
                      aes(x="",#x=.data[[input$choose_iucnbar_axis]], #x axis
-                         y=Abundance,
+                         y=Perc,#y=Abundance,
                          fill=IUCN_Status,#Iucn_category,
                          color=IUCN_Status#Iucn_category
                      )
   ) + 
-    geom_bar( stat="identity", position = "fill") +  
+    geom_bar( stat="identity"#, position = "fill"
+              ) +  
     #scale_y_continuous(labels=function(x) paste0(x * 100, "%")) + 
     #labs(y="Relative Abundance",
     #     title="Relative abundance of each trophic group") +
     #coord_flip() 
+    geom_text(aes(y=ypos,label=Perc),color="black") +
+    ggrepel::geom_label_repel(aes(y=repos,label=paste0(Perc,"%")),
+                              size = 4.5, nudge_x = 1, show.legend = FALSE,color="black") +
     coord_polar("y",start=0) + 
     theme_void() #+ # remove background, grid, numeric labels
   #geom_text(aes(label = Trophic.val #round(value,2)
@@ -1125,7 +1215,16 @@ richplot <- reactive({
   
   baseplot <- plot_richness(ps.norm(), 
                             x=input$alpha_xvar, 
-                            measures=input$alphametrics) + geom_jitter(width=0.15)
+                            measures=input$alphametrics) + 
+    stat_summary(fun="median",
+                 geom="label",
+                 aes(label = after_stat(round(y, 2))
+                 ),
+                 fill="grey",
+                 alpha=0.8,
+                 position=position_nudge(y=1)
+    ) + 
+    geom_jitter(width=0.15)
   
   if(isTruthy(input$alpha_box)) {
     baseplot <- baseplot+geom_boxplot(alpha=0.75)

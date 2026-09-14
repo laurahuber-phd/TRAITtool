@@ -1,9 +1,9 @@
 options(shiny.maxRequestSize=10*1024^10)
 
 # Set repositories for Bioconductor
-if (!requireNamespace("BiocManager", quietly = TRUE))
-  install.packages("BiocManager")
-options(repos = BiocManager::repositories())
+#if (!requireNamespace("BiocManager", quietly = TRUE))
+#  install.packages("BiocManager")
+#options(repos = BiocManager::repositories())
 
 library(shiny)
 library(bslib)
