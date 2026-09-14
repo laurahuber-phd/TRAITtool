@@ -42,7 +42,7 @@ Anlys_TempCard <- tagList(
 Anlys_SizePlot <- tagList(
   layout_columns(col_widths=c(4,4,4),
                  shinyWidgets::dropdown(inputId="sizebar_plotgrouping",
-                                        label="Grouping choices (y-axis)",
+                                        label="Grouping choices",
                                         icon=icon("gear"),
                                         pickerInput("choose_sizebar_axis",
                                                     label="Body size data",
@@ -80,6 +80,9 @@ Anlys_SizePlot <- tagList(
 Anlys_SizeCard <- tagList(
   h3("Body characteristic analysis"),
   p("Here you can view plots regarding species' body size and time to maturity."),
+  HTML("<p>Use the <u>'Grouping Choices'</u> button to change what body size measurement is visualized. You can also add up to two 'grouping' variables, which will separate the data into different plots based on which variables you group by.</p>"),
+  HTML("<p>Use the <u>'Aesthetics'</u> button to change aesthetic elements such as the plotting theme, which will influence how the background and gridlines look. Here you can also change the position of the legend, text size, and the direction of text on the x-axis. You can also change the plot and axes titles here. </p>"),
+  HTML("<p>Use the <u>'Plot Size' </u> button to change the aspect ratio of the plot. </p>"),
   accordion(
     open=FALSE, #start with all panels closed
     multiple=TRUE, #multiple panels can be open at once
@@ -129,6 +132,9 @@ Anlys_IUCNPlot <- tagList(
 Anlys_IUCNCard <- tagList(
   h3("IUCN Status"),
   p("Here you can view plots regarding IUCN Red List status of species in your dataset."),
+  HTML("<p>Use the <u>'Grouping Choices'</u> button to change what body size measurement is visualized. You can also add up to two 'grouping' variables, which will separate the data into different plots based on which variables you group by.</p>"),
+  HTML("<p>Use the <u>'Aesthetics'</u> button to change aesthetic elements such as the plotting theme, which will influence how the background and gridlines look. Here you can also change the position of the legend, text size, and the direction of text on the x-axis. You can also change the plot and axes titles here. </p>"),
+  HTML("<p>Use the <u>'Plot Size' </u> button to change the aspect ratio of the plot. </p>"),
   accordion(
     open=FALSE, #start with all panels closed
     multiple=TRUE, #multiple panels can be open at once

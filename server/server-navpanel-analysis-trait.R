@@ -111,6 +111,7 @@ output$violin_plotdwnld <- downloadHandler(
   contentType = 'image/png',
   content = function(file) {
     ggsave(file,
+           path=tempdir(),
            plot=violinplot(),
            height=violinplot_size$height(),width=violinplot_size$width(),
            scale=2
@@ -121,6 +122,7 @@ output$violin_plotdwnld_popup <- downloadHandler(
   contentType = 'image/png',
   content = function(file) {
     ggsave(file,
+           path=tempdir(),
            plot=violinplot(),
            height=violinplot_size$height(),width=violinplot_size$width(),
            scale=2
@@ -135,6 +137,7 @@ observe({
   )
 }) %>% bindEvent(ps.norm(),Meta_vars())
 
+dt_trophbar <- reactiveVal(NULL)
 trophbarplot_pretty  <- plotPrettyServer(id="trophbar_pretty")
 trophbarplot_size <- plotSizeServer(id="trophbar_size") 
 trophbarplot_base <- reactive({
@@ -184,6 +187,7 @@ trophbarplot_base <- reactive({
                ypos=ifelse(Perc>10,ypos,NA)
         )
     }
+    dt_trophbar(ps.edit)
     
     print(group_keys(ps.edit))
     baseplot <- ggplot(ps.edit, 
@@ -280,7 +284,9 @@ output$trophbar_plotdwnld <- downloadHandler(
   filename = "trophbarplot.png",
   contentType = 'image/png',
   content = function(file) {
-    ggsave(file,plot=trophbarplot(),
+    ggsave(file,
+           path=tempdir(),
+           plot=trophbarplot(),
            height=trophbarplot_size$height(),width=trophbarplot_size$width(),
            scale=2
     )
@@ -289,7 +295,9 @@ output$trophbar_plotdwnld_popup <-  downloadHandler(
   filename = "trophbarplot.png",
   contentType = 'image/png',
   content = function(file) {
-    ggsave(file,plot=trophbarplot(),
+    ggsave(file,
+           path=tempdir(),
+           plot=trophbarplot(),
            height=trophbarplot_size$height(),width=trophbarplot_size$width(),
            scale=2
     )
@@ -399,6 +407,7 @@ output$tviolin_plotdwnld <- downloadHandler(
   contentType = 'image/png',
   content = function(file) {
     ggsave(file,
+           path=tempdir(),
            plot=tviolinplot(),
            height=tviolinplot_size$height(),width=tviolinplot_size$width(),
            scale=2
@@ -409,6 +418,7 @@ output$tviolin_plotdwnld_popup <- downloadHandler(
   contentType = 'image/png',
   content = function(file) {
     ggsave(file,
+           path=tempdir(),
            plot=tviolinplot(),
            height=tviolinplot_size$height(),width=tviolinplot_size$width(),
            scale=2
@@ -521,6 +531,7 @@ output$tviolinmean_plotdwnld <- downloadHandler(
   contentType = 'image/png',
   content = function(file) {
     ggsave(file,
+           path=tempdir(),
            plot=tviolinmeanplot(),
            height=tviolinmeanplot_size$height(),width=tviolinmeanplot_size$width(),
            scale=2
@@ -531,6 +542,7 @@ output$tviolinmean_plotdwnld_popup <- downloadHandler(
   contentType = 'image/png',
   content = function(file) {
     ggsave(file,
+           path=tempdir(),
            plot=tviolinmeanplot(),
            height=tviolinmeanplot_size$height(),width=tviolinmeanplot_size$width(),
            scale=2
@@ -680,6 +692,7 @@ output$tlolli_plotdwnld <- downloadHandler(
   contentType = 'image/png',
   content = function(file) {
     ggsave(file,
+           path=tempdir(),
            plot=tlolliplot(),
            height=tlolliplot_size$height(),width=tlolliplot_size$width(),
            scale=2
@@ -690,6 +703,7 @@ output$tlolli_plotdwnld_popup <- downloadHandler(
   contentType = 'image/png',
   content = function(file) {
     ggsave(file,
+           path=tempdir(),
            plot=tlolliplot(),
            height=tlolliplot_size$height(),width=tlolliplot_size$width(),
            scale=2
@@ -712,7 +726,7 @@ observe({
 
 sizebarplot_pretty  <- plotPrettyServer(id="sizebar_pretty")
 sizebarplot_size <- plotSizeServer(id="sizebar_size") 
-
+dt_sizebar <- reactiveVal(NULL)
 sizebarplot_base <- reactive({
   req(ps.norm())
   req(input$choose_sizebar_axis)
@@ -762,6 +776,7 @@ sizebarplot_base <- reactive({
              ypos=ifelse(Perc>10,ypos,NA)
       )
   }
+dt_sizebar(ps.edit)
 
   baseplot <- ggplot(ps.edit, 
                      aes(x="",#x=.data[[input$choose_sizebar_axis]], #x axis
@@ -815,7 +830,6 @@ output$sizebar_click_plot <- renderPlot({
   req(sizebarplot())
   sizebarplot()
   })
-outputOptions(output, "sizebar_click_plot", suspendWhenHidden = FALSE)
 output$sizebar_s_plot <- renderPlot({
   req(sizebarplot())
   sizebarplot()
@@ -857,6 +871,7 @@ output$sizebar_plotdwnld <- downloadHandler(
   contentType = 'image/png',
   content = function(file) {
     ggsave(file,
+           path=tempdir(),
            plot=sizebarplot(),
            height=sizebarplot_size$height(),width=sizebarplot_size$width(),
            scale=2
@@ -867,6 +882,7 @@ output$sizebar_plotdwnld_popup <-  downloadHandler(
   contentType = 'image/png',
   content = function(file) {
     ggsave(file,
+           path=tempdir(),
            plot=sizebarplot(),
            height=sizebarplot_size$height(),width=sizebarplot_size$width(),
            scale=2
@@ -889,7 +905,7 @@ observe({
 
 iucnbarplot_pretty  <- plotPrettyServer(id="iucnbar_pretty")
 iucnbarplot_size <- plotSizeServer(id="iucnbar_size") 
-
+dt_iucnbar <- reactiveVal(NULL)
 iucnbarplot_base <- reactive({
   req(ps.norm())
   req(input$choose_iucnbar_axis)
@@ -944,7 +960,7 @@ iucnbarplot_base <- reactive({
              ypos=ifelse(Perc>10,ypos,NA)
       )
   }
-  
+  dt_iucnbar(ps.edit)
 
   baseplot <- ggplot(ps.edit, 
                      aes(x="",#x=.data[[input$choose_iucnbar_axis]], #x axis
@@ -984,10 +1000,10 @@ iucnbarplot_base <- reactive({
   
   finalplot
   
-}) %>% bindEvent(ps.norm(),#Meta_vars(),
+}) #%>% bindEvent(ps.norm(),#Meta_vars(),
   #input$choose_iucnbar_axis,
-  input$choose_iucnbar_facet
-)
+  #input$choose_iucnbar_facet
+#)
 
 iucnbarplot <- reactive({
   req(input$go_iucnbar|trigger_plots())
@@ -1037,6 +1053,7 @@ output$iucnbar_plotdwnld <- downloadHandler(
   contentType = 'image/png',
   content = function(file) {
     ggsave(file,
+           path=tempdir(),
            plot=iucnbarplot(),
            height=iucnbarplot_size$height(),width=iucnbarplot_size$width(),
            scale=2
@@ -1047,6 +1064,7 @@ output$iucnbar_plotdwnld_popup <-  downloadHandler(
   contentType = 'image/png',
   content = function(file) {
     ggsave(file,
+           path=tempdir(),
            plot=iucnbarplot(),
            height=iucnbarplot_size$height(),width=iucnbarplot_size$width(),
            scale=2
@@ -1184,7 +1202,9 @@ output$lolli_plotdwnld <- downloadHandler(
   filename = "lolliplot.png",
   contentType = 'image/png',
   content = function(file) {
-    ggsave(file,plot=lolliplot(),
+    ggsave(file,
+           path=tempdir(),
+           plot=lolliplot(),
            height=lolliplot_size$height(),width=lolliplot_size$width(),
            scale=2
     )
@@ -1193,7 +1213,9 @@ output$lolli_plotdwnld_popup <-  downloadHandler(
   filename = "lolliplot.png",
   contentType = 'image/png',
   content = function(file) {
-    ggsave(file,plot=lolliplot(),
+    ggsave(file,
+           path=tempdir(),
+           plot=lolliplot(),
            height=lolliplot_size$height(),width=lolliplot_size$width(),
            scale=2
     )
@@ -1259,8 +1281,9 @@ observe({
   tryCatch(
     ggsave(filename="richplot.png", 
            plot=richplot(),
-           path=tempdir(),
-           scale=2
+           width=7,height=7,
+           path=tempdir()
+           #scale=2
     ),
     error=function(e){return(NA)}
   )
@@ -1279,7 +1302,10 @@ output$rich_plotdwnld <- output$rich_plotdwnld_popup <-  downloadHandler(
   filename = "richness_plot.png",
   contentType = 'image/png',
   content = function(file) {
-    ggsave(file,plot=richplot(),
-           scale=2
+    ggsave(file,
+           plot=richplot(),
+           width=7,height=7,
+           path=tempdir()
+           #scale=2
     )
   }) 
