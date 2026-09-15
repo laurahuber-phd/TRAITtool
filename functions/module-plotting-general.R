@@ -104,7 +104,19 @@ plotControlsUI <- function(id,color=TRUE,x=TRUE,y=FALSE,facet=TRUE,
         selectizeInput(inputId = NS(id,"facet"),label=facetlabel,choices=list(),multiple=TRUE,options = list(maxItems = 2))
       )
     )
-  }  else { #color==FALSE & x==TRUE & y==FALSE & facet==FALSE
+  } else if(color==FALSE & x==TRUE & y==FALSE & facet==TRUE) { 
+    tagList(
+      shinyWidgets::dropdownButton(
+        #tags$h3("List of Inputs"),
+        inputId=NS(id,"mydropdown"),
+        label="controls",
+        circle=FALSE,
+        icon = icon("gear"), 
+        selectInput(inputId = NS(id,"choose_x"),label=xlabel,choices=list()),
+        selectizeInput(inputId = NS(id,"facet"),label=facetlabel,choices=list(),multiple=TRUE,options = list(maxItems = 2))
+      )
+    )
+  } else { #color==FALSE & x==TRUE & y==FALSE & facet==FALSE
     tagList(
       shinyWidgets::dropdownButton(
         #tags$h3("List of Inputs"),
@@ -162,28 +174,18 @@ plotControlsServer <- function(id,df,var1=NULL,var2=NULL,var3=NULL,var4=NULL) {
     faceting <- reactiveVal(NULL)
     
     observeEvent(input$facet, {
-      faceting(
+      
         if (length(input$facet)==1) {
-          facet_wrap(~.data[[input$facet]],scales="free_x") 
+          faceting(facet_wrap(~.data[[input$facet]],scales="free_x")) 
         } else if (length(input$facet)==2) {
-          facet_grid(rows=vars(.data[[input$facet[1]]]),
+          faceting(facet_grid(rows=vars(.data[[input$facet[1]]]),
                      cols= vars(.data[[input$facet[2]]]),
-                     scales="free") 
-        } else { NULL } 
-      )
-    })
+                     scales="free")) 
+        } else if (is.null(input$facet) || length(input$facet==0) || input$facet == "")  { 
+          faceting(NULL) 
+          } else {faceting(NULL)}
 
-    
-    #faceting <- reactive({
-    #  if (length(input$facet)==1) {
-    #    facet_wrap(~.data[[input$facet]],scales="free_x") 
-    #  } else if (length(input$facet)==2) {
-    #    facet_grid(rows=vars(.data[[input$facet[1]]]),
-    #               cols= vars(.data[[input$facet[2]]]),
-    #               scales="free") 
-    #  } else { NULL } 
-    #}) %>% bindEvent(input$facet,
-    #                 ignoreNULL=FALSE)
+    },ignoreNULL = FALSE)
 
     return(list(
       color = reactive(input$choose_color),

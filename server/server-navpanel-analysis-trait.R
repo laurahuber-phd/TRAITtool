@@ -60,10 +60,12 @@ violinplot <- reactive({
   print("Violin: assembling plot")
   req(input$go_violin|trigger_plots())
   
-  violin_base() + 
-    violinplot_general$facet() + 
-    violinplot_pretty() + 
-    violinplot_size$aspectRatio() 
+  current_facet <- violinplot_general$facet()
+  
+    violin_base() + 
+      current_facet + 
+      violinplot_pretty() + 
+      violinplot_size$aspectRatio() 
 }) 
 
 output$violin_click_plot <- renderPlot({
@@ -111,7 +113,7 @@ output$violin_plotdwnld <- downloadHandler(
   contentType = 'image/png',
   content = function(file) {
     ggsave(file,
-           path=tempdir(),
+           #path=tempdir(),
            plot=violinplot(),
            height=violinplot_size$height(),width=violinplot_size$width(),
            scale=2
@@ -122,7 +124,7 @@ output$violin_plotdwnld_popup <- downloadHandler(
   contentType = 'image/png',
   content = function(file) {
     ggsave(file,
-           path=tempdir(),
+           #path=tempdir(),
            plot=violinplot(),
            height=violinplot_size$height(),width=violinplot_size$width(),
            scale=2
@@ -285,7 +287,7 @@ output$trophbar_plotdwnld <- downloadHandler(
   contentType = 'image/png',
   content = function(file) {
     ggsave(file,
-           path=tempdir(),
+           #path=tempdir(),
            plot=trophbarplot(),
            height=trophbarplot_size$height(),width=trophbarplot_size$width(),
            scale=2
@@ -296,7 +298,7 @@ output$trophbar_plotdwnld_popup <-  downloadHandler(
   contentType = 'image/png',
   content = function(file) {
     ggsave(file,
-           path=tempdir(),
+           #path=tempdir(),
            plot=trophbarplot(),
            height=trophbarplot_size$height(),width=trophbarplot_size$width(),
            scale=2
@@ -310,10 +312,10 @@ tviolinplot_general <- plotControlsServer(id="tviolin_general",
                                           #var1=rnames, #color
                                           var2=Meta_vars, #x
                                           #var3=Meta_vars(), #y
-                                          var4=Meta_vars, #facet
+                                          var4=Meta_vars#, #facet
                                           #var1=Meta_vars(), #color
                                           #var2=Meta_vars(), #x
-                                          var3=reactive(ps.norm.melt() %>% select(contains("emp")) %>% colnames() )#, #y
+                                          #var3=reactive(ps.norm.melt() %>% select(contains("emp")) %>% colnames() )#, #y
                                           #var4=Meta_vars() #facet
 ) 
 
@@ -357,10 +359,13 @@ tviolinplot <- reactive({ #reactive updates after the observer
   req(input$go_tviolin | trigger_plots())
   print("Temperature index violin: assembling plot")
   
-  tviolinplot_base() + 
-    tviolinplot_general$facet() + 
-    tviolinplot_pretty() +
-    tviolinplot_size$aspectRatio()
+  current_facet <- tviolinplot_general$facet()
+  
+    tviolinplot_base() + 
+      current_facet  + 
+      tviolinplot_pretty() + 
+      tviolinplot_size$aspectRatio() 
+
 }) 
 
 output$tviolin_click_plot <- renderPlot({ #plot is rendered after observer
@@ -407,7 +412,7 @@ output$tviolin_plotdwnld <- downloadHandler(
   contentType = 'image/png',
   content = function(file) {
     ggsave(file,
-           path=tempdir(),
+           #path=tempdir(),
            plot=tviolinplot(),
            height=tviolinplot_size$height(),width=tviolinplot_size$width(),
            scale=2
@@ -418,7 +423,7 @@ output$tviolin_plotdwnld_popup <- downloadHandler(
   contentType = 'image/png',
   content = function(file) {
     ggsave(file,
-           path=tempdir(),
+           #path=tempdir(),
            plot=tviolinplot(),
            height=tviolinplot_size$height(),width=tviolinplot_size$width(),
            scale=2
@@ -480,10 +485,12 @@ tviolinmeanplot <- reactive({
   req(input$go_tviolinmean|trigger_plots())
   print("Temperature violin: assembling plot")
   
-  tviolinmeanplot_base() + 
-    tviolinmeanplot_general$facet() + 
-    tviolinmeanplot_pretty() + 
-    tviolinmeanplot_size$aspectRatio() 
+ current_facet <- tviolinmeanplot_general$facet()
+ 
+    tviolinmeanplot_base() + 
+       current_facet + 
+      tviolinmeanplot_pretty() + 
+      tviolinmeanplot_size$aspectRatio() 
 }) 
 
 output$tviolinmean_click_plot <- renderPlot({
@@ -531,7 +538,7 @@ output$tviolinmean_plotdwnld <- downloadHandler(
   contentType = 'image/png',
   content = function(file) {
     ggsave(file,
-           path=tempdir(),
+           #path=tempdir(),
            plot=tviolinmeanplot(),
            height=tviolinmeanplot_size$height(),width=tviolinmeanplot_size$width(),
            scale=2
@@ -542,7 +549,7 @@ output$tviolinmean_plotdwnld_popup <- downloadHandler(
   contentType = 'image/png',
   content = function(file) {
     ggsave(file,
-           path=tempdir(),
+           #path=tempdir(),
            plot=tviolinmeanplot(),
            height=tviolinmeanplot_size$height(),width=tviolinmeanplot_size$width(),
            scale=2
@@ -692,7 +699,7 @@ output$tlolli_plotdwnld <- downloadHandler(
   contentType = 'image/png',
   content = function(file) {
     ggsave(file,
-           path=tempdir(),
+           #path=tempdir(),
            plot=tlolliplot(),
            height=tlolliplot_size$height(),width=tlolliplot_size$width(),
            scale=2
@@ -703,7 +710,7 @@ output$tlolli_plotdwnld_popup <- downloadHandler(
   contentType = 'image/png',
   content = function(file) {
     ggsave(file,
-           path=tempdir(),
+           #path=tempdir(),
            plot=tlolliplot(),
            height=tlolliplot_size$height(),width=tlolliplot_size$width(),
            scale=2
@@ -871,7 +878,7 @@ output$sizebar_plotdwnld <- downloadHandler(
   contentType = 'image/png',
   content = function(file) {
     ggsave(file,
-           path=tempdir(),
+           #path=tempdir(),
            plot=sizebarplot(),
            height=sizebarplot_size$height(),width=sizebarplot_size$width(),
            scale=2
@@ -882,7 +889,7 @@ output$sizebar_plotdwnld_popup <-  downloadHandler(
   contentType = 'image/png',
   content = function(file) {
     ggsave(file,
-           path=tempdir(),
+           #path=tempdir(),
            plot=sizebarplot(),
            height=sizebarplot_size$height(),width=sizebarplot_size$width(),
            scale=2
@@ -1053,7 +1060,7 @@ output$iucnbar_plotdwnld <- downloadHandler(
   contentType = 'image/png',
   content = function(file) {
     ggsave(file,
-           path=tempdir(),
+           #path=tempdir(),
            plot=iucnbarplot(),
            height=iucnbarplot_size$height(),width=iucnbarplot_size$width(),
            scale=2
@@ -1064,7 +1071,7 @@ output$iucnbar_plotdwnld_popup <-  downloadHandler(
   contentType = 'image/png',
   content = function(file) {
     ggsave(file,
-           path=tempdir(),
+           #path=tempdir(),
            plot=iucnbarplot(),
            height=iucnbarplot_size$height(),width=iucnbarplot_size$width(),
            scale=2
@@ -1203,7 +1210,7 @@ output$lolli_plotdwnld <- downloadHandler(
   contentType = 'image/png',
   content = function(file) {
     ggsave(file,
-           path=tempdir(),
+           #path=tempdir(),
            plot=lolliplot(),
            height=lolliplot_size$height(),width=lolliplot_size$width(),
            scale=2
@@ -1214,7 +1221,7 @@ output$lolli_plotdwnld_popup <-  downloadHandler(
   contentType = 'image/png',
   content = function(file) {
     ggsave(file,
-           path=tempdir(),
+           #path=tempdir(),
            plot=lolliplot(),
            height=lolliplot_size$height(),width=lolliplot_size$width(),
            scale=2
@@ -1242,14 +1249,14 @@ richplot <- reactive({
                  geom="label",
                  aes(label = after_stat(round(y, 2))
                  ),
-                 fill="grey",
-                 alpha=0.8,
-                 position=position_nudge(y=1)
+                 fill="white",
+                 alpha=0.9,
+                 position=position_nudge(y=2)
     ) + 
     geom_jitter(width=0.15)
   
   if(isTruthy(input$alpha_box)) {
-    baseplot <- baseplot+geom_boxplot(alpha=0.75)
+    baseplot <- baseplot+geom_boxplot(alpha=0.3)
   } 
   
   if( input$alpha_facet=="") {
@@ -1281,8 +1288,8 @@ observe({
   tryCatch(
     ggsave(filename="richplot.png", 
            plot=richplot(),
-           width=7,height=7,
-           path=tempdir()
+           path=tempdir(),
+           width=7,height=7
            #scale=2
     ),
     error=function(e){return(NA)}
@@ -1304,8 +1311,8 @@ output$rich_plotdwnld <- output$rich_plotdwnld_popup <-  downloadHandler(
   content = function(file) {
     ggsave(file,
            plot=richplot(),
-           width=7,height=7,
-           path=tempdir()
+           #path=tempdir(),
+           width=7,height=7
            #scale=2
     )
   }) 

@@ -7,7 +7,7 @@ Anlys_TempViolinCard <- tagList(
   br(),
   layout_columns(
     plotControlsUI('tviolin_general',color=FALSE,
-                   x=TRUE,#y=TRUE,
+                   x=TRUE,y=FALSE,#y=TRUE,
                    facet=TRUE,
                    xlabel="Groups to compare (x-axis)",
                    #ylabel="Numeric MTI to plot",
