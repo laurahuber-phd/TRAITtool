@@ -236,20 +236,19 @@ tags$footer(style="display: flex;justify-content: space-between;",
 )
 # define server logic -----
 server <- function(input,output,session) {
-  source('server/server-globalvars.R',local=TRUE)
-  source('server/server-navpanel-settings.R',local=TRUE)
-  source('server/server-navpanel-analysis-alltraits.R',local=TRUE)
-  #source('server/server-navpanel-preprocessing.R',local=TRUE)
 # --- # Overall themes # --------
-#observe(session$setCurrentTheme(
-#  if(isTRUE(input$dark_mode)) dark else light
-#))
 source('server/server-globalvars.R',local=TRUE) #global variables
 source('server/server-aes-vis.R',local=TRUE) #base theme for ggplot2
+source('server/server-navpanel-settings.R',local=TRUE)
+  
+  #observe(session$setCurrentTheme(
+  #  if(isTRUE(input$dark_mode)) dark else light
+  #))
+  
 # --- # Page Navigation # --------
 source('server/server-aes-navigation.R',local=TRUE)
 # --- # Load Data # --------
-source('server/server-aes-load-data.R',local=TRUE) #loads the functionality to read in the files and go through any manipulations to normalize or subset the ps object
+source('server/server-aes-load-data.R',local=TRUE) 
 # --- # Upload Page # --------
 source('server/server-navpanel-upload.R',local=TRUE)
 # --- # Review Page # --------
@@ -259,16 +258,12 @@ source('server/server-navpanel-assigntrait.R',local=TRUE)
 # --- # Filter Page # --------
 source('server/server-navpanel-filter.R',local=TRUE)  
 source('server/server-defaultanalysis.R',local=TRUE)
-# --- # Descriptive Stats Page  # --------  
-source('server/server-navpanel-descriptivestats.R',local=TRUE)
-# --- # Trait Analysis Page # --------  
+# --- # Analysis Page # --------  
+source('server/server-navpanel-analysis-alltraits.R',local=TRUE)
 source('server/server-navpanel-analysis-trait.R',local=TRUE)
-  #source('server/server-navpanel-analysis-temp.R',local=TRUE)
-# --- # Figure Page # --------  
-source('server/server-navpanel-analysis-alpha.R',local=TRUE)
-source('server/server-navpanel-analysis-ord.R',local=TRUE)
-source('server/server-navpanel-analysis-hm.R',local=TRUE)
-#source('server/server-navpanel-analysis-violin.R',local=TRUE)
+# --- # Detail Page  # --------  
+source('server/server-navpanel-descriptivestats.R',local=TRUE)
+source('server/server-navpanel-analysis.R',local=TRUE)
 # --- # Report Tab # --------  
 source('server/server-navpanel-report.R',local=TRUE)
 #
