@@ -179,7 +179,7 @@ observe({
                   size='l',
                   easyClose = TRUE,
                   #layout_columns(col_widths=c(6,6),
-                                 #actionButton("donotcontinue",label="No, close box"),
+                                 footer=actionButton("donotcontinue",label="No, go back"),
                                  actionButton("continue",label="Yes, continue to next page")
                                  #)
       )
@@ -189,6 +189,7 @@ observe({
 
 observe({
   removeModal()
+  if(input$pages != "uploadtab") {switch_page("uploadtab")}
   }) %>% bindEvent(input$donotcontinue,ignoreInit=TRUE)
 
 # if user selects that they have their trait table already (already used this tool)
