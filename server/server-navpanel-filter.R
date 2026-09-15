@@ -623,7 +623,11 @@ observe({
           print("Filter: filtering parameter is a sample variable")
           print(c("Filter: Sample variable to filter by is",input$sample_filterby))
           selcolvals = as.data.frame(as.matrix(sample_data(ps))) %>% select(input$sample_filterby) #get sample_data of selected variable 
-          selkeep = tryCatch(row.names(selcolvals %>% filter(selcolvals[[1]] %in% input$sample_select)), 
+          tmpselkeep = input$sample_select #list of selected samples
+          tmpselkeep[tmpselkeep=="NA"] <- NA
+          tmpselkeep[tmpselkeep==""] <- NA
+          
+          selkeep = tryCatch(row.names(selcolvals %>% filter(selcolvals[[1]] %in% tmpselkeep)), 
                              #list of sample names selected
                              error=function(e){return(FALSE)}
                              )
@@ -647,9 +651,13 @@ observe({
           print("Filter: filtering parameter is a sample variable")
           print(c("Filter: Sample variable to filter by is",input$sample_filterby))
           selcolvals = as.data.frame(as.matrix(sample_data(ps))) %>% select(input$sample_filterby) #get sample_data of selected variable 
+          tmpselkeep = input$sample_select #list of selected samples
+          tmpselkeep[tmpselkeep=="NA"] <- NA
+          tmpselkeep[tmpselkeep==""] <- NA
+          
           selkeep = tryCatch(#row.names(selcolvals %>% filter(selcolvals[[1]] %in% input$sample_select)), 
                              rownames(filter(selcolvals, 
-                                             !selcolvals[[1]] %in% input$sample_select)),
+                                             !selcolvals[[1]] %in% tmpselkeep)),
                              #list of sample names selected
                              error=function(e){return(FALSE)}
           )

@@ -235,6 +235,8 @@ filterpageDEFAULT <- nav_panel(
   br(),
   card(SelectAggregateCard),
   br(),
+  HTML("<h4>Additonal filters below: </h4>"),
+  HTML("<p>You can select specific samples and taxa to keep or remove in this section. Collapsing the panel or clicking 'Reset' above will reset selections. </p>"),
   br(),
   SelectSamplesCard,
   SelectTaxaCard,
