@@ -10,12 +10,8 @@ violinplot_general <- plotControlsServer(id="violin_gen",
                                          df=ps.norm.melt,
                                          #var1=rnames, #color
                                          var2=Meta_vars, #x
-                                         #var3=Meta_vars(), #y
-                                         var4=Meta_vars, #facet
-                                         #var1=Meta_vars(), #color
-                                         #var2=Meta_vars(), #x
-                                         var3=reactive(ps.norm.melt() %>% select(contains("roph")) %>% colnames() )#, #y
-                                         #var4=Meta_vars() #facet
+                                         var3=reactive(ps.norm.melt() %>% select(contains("roph")) %>% colnames() ), #y
+                                         var4=Meta_vars#, #facet
 ) 
 
 violin_base <- reactive({
@@ -38,9 +34,10 @@ violin_base <- reactive({
   }
   
   ggplot(ps.edit, 
-         aes(x=.data[[violinplot_general$x()]], #x axis
+         aes(x=factor(.data[[violinplot_general$x()]]), #x axis
              y=Trophic.Level, #must be numeric
-             fill=.data[[violinplot_general$x()]]
+             fill=factor(.data[[violinplot_general$x()]]),
+             group=.data[[violinplot_general$x()]]
          )
   ) + 
     geom_violin(na.rm=TRUE,alpha=0.2) + 
@@ -53,7 +50,6 @@ violin_base <- reactive({
                  alpha=0.7,
                  position=position_nudge(y=0.3)
     )
-  
 }) 
 
 violinplot <- reactive({
@@ -201,19 +197,13 @@ trophbarplot_base <- reactive({
     ) + 
       geom_bar(stat="identity"#, position = "fill"
                 ) +  
-      #scale_y_continuous(labels=function(x) paste0(x * 100, "%")) + 
       labs(y="Relative Abundance",
            title="Relative abundance of each trophic group") +
-      #coord_flip() 
       geom_text(aes(y=ypos,label=Perc),color="black") +
       ggrepel::geom_label_repel(aes(y=repos,label=paste0(Perc,"%")),
                                 size = 4.5, nudge_x = 1, show.legend = FALSE,color="black") +
       coord_polar("y",start=0) + 
       theme_void() #+ # remove background, grid, numeric labels
-    #geom_text(aes(label = Trophic.val #round(value,2)
-    #              ),
-    #          color="black",
-    #          position = position_stack(vjust = 0.5))
     
     if(!is.null(input$choose_trophbar_facet) & length(input$choose_trophbar_facet) < 2) {
       print("one faceting group selected")
@@ -312,11 +302,8 @@ tviolinplot_general <- plotControlsServer(id="tviolin_general",
                                           #var1=rnames, #color
                                           var2=Meta_vars, #x
                                           #var3=Meta_vars(), #y
-                                          var4=Meta_vars#, #facet
-                                          #var1=Meta_vars(), #color
-                                          #var2=Meta_vars(), #x
                                           #var3=reactive(ps.norm.melt() %>% select(contains("emp")) %>% colnames() )#, #y
-                                          #var4=Meta_vars() #facet
+                                          var4=Meta_vars#, #facet
 ) 
 
 tviolinplot_base <- reactive({
@@ -338,11 +325,12 @@ tviolinplot_base <- reactive({
     mutate(TempIndex=Tempprefmean/TempRange) 
   
   baseplot <- ggplot(ps.edit,
-                     aes(x=.data[[tviolinplot_general$x()]], #x axis
+                     aes(x=factor(.data[[tviolinplot_general$x()]]), #x axis
                          y=TempIndex, #y axis #Tempprefmean,
-                         fill=.data[[tviolinplot_general$x()]]
+                         fill=factor(.data[[tviolinplot_general$x()]]),
+                         group=.data[[tviolinplot_general$x()]]
                      )
-  ) + 
+  ) + labs(x=tviolinplot_general$x(), fill=tviolinplot_general$x()) +
     geom_violin(na.rm=TRUE,alpha=0.2) + 
     geom_boxplot(width=0.25,alpha=0.6) + 
     stat_summary(fun="median",
@@ -437,12 +425,8 @@ tviolinmeanplot_general <- plotControlsServer(id="tviolinmean_general",
                                               df=ps.norm.melt,
                                               #var1=rnames, #color
                                               var2=Meta_vars, #x
-                                              #var3=Meta_vars(), #y
-                                              var4=Meta_vars, #facet
-                                              #var1=Meta_vars(), #color
-                                              #var2=Meta_vars(), #x
-                                              var3=reactive(ps.norm.melt() %>% select(contains("emp")) %>% colnames() )#, #y
-                                              #var4=Meta_vars() #facet
+                                              var3=reactive(ps.norm.melt() %>% select(contains("emp")) %>% colnames() ), #y
+                                              var4=Meta_vars#, #facet
 ) 
 
 tviolinmeanplot_base <- reactive({
@@ -463,11 +447,12 @@ tviolinmeanplot_base <- reactive({
   ps.edit <- ps 
   
   baseplot <- ggplot(ps.edit,
-                     aes(x=.data[[tviolinmeanplot_general$x()]], #x axis
+                     aes(x=factor(.data[[tviolinmeanplot_general$x()]]), #x axis
                          y=.data[[tviolinmeanplot_general$y()]], #y axis #Tempprefmean,
-                         fill=.data[[tviolinmeanplot_general$x()]]
+                         fill=factor(.data[[tviolinmeanplot_general$x()]]),
+                         group=.data[[tviolinmeanplot_general$x()]]
                      )
-  ) + 
+  ) + labs(x=tviolinmeanplot_general$x(),fill=tviolinmeanplot_general$x()) + 
     geom_violin(na.rm=TRUE,alpha=0.2) + 
     geom_boxplot(width=0.25,alpha=0.6) + 
     stat_summary(fun="median",
@@ -826,12 +811,11 @@ dt_sizebar(ps.edit)
 sizebarplot <- reactive({
   print("Body size: assembling plot")
   req(input$go_sizebar|trigger_plots())
-  #trigger_plots()
   
   sizebarplot_base() + 
     sizebarplot_pretty() + theme_void() +
     sizebarplot_size$aspectRatio()
-  }) #%>% bindEvent(input$go_sizebar,trigger_plots())
+  })
 
 output$sizebar_click_plot <- renderPlot({
   req(sizebarplot())
@@ -1251,7 +1235,7 @@ richplot <- reactive({
                  ),
                  fill="white",
                  alpha=0.9,
-                 position=position_nudge(y=2)
+                 position=position_nudge(y=1)
     ) + 
     geom_jitter(width=0.15)
   
