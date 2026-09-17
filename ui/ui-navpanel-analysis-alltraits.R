@@ -1,5 +1,4 @@
-source("ui/ui-navpanel-analysis-temp.R",local=TRUE)
-source("ui/ui-navpanel-analysis-trait.R",local=TRUE)
+source("ui/ui-navpanel-analysis-cards.R",local=TRUE)
 
 ####################################### Trophic Level ################################################
 Anlys_TraitIntroCard <- tagList(
@@ -39,44 +38,6 @@ Anlys_TempCard <- tagList(
 )
 
 ####################################### Size ################################################
-Anlys_SizePlot <- tagList(
-  layout_columns(col_widths=c(4,4,4),
-                 shinyWidgets::dropdown(inputId="sizebar_plotgrouping",
-                                        label="Grouping choices",
-                                        icon=icon("gear"),
-                                        pickerInput("choose_sizebar_axis",
-                                                    label="Body size data",
-                                        #            label="Groups to compare",
-                                                    choices=list(),
-                                                    multiple = FALSE,
-                                                    options = pickerOptions(maxOptions = 1,
-                                                                            container = "body", 
-                                                                            actionsBox = TRUE,
-                                                                            deselectAllText = "Clear selection"
-                                                    )
-                                        ),
-                                        pickerInput("choose_sizebar_facet",
-                                                    label="Groups to compare",
-                                                    #label="Faceting Group",
-                                                    choices=list(),
-                                                    multiple = TRUE,
-                                                    options = pickerOptions(maxOptions = 2,
-                                                                            container = "body", 
-                                                                            actionsBox = TRUE,
-                                                                            deselectAllText = "Clear selection"
-                                                    )
-                                        )
-                 ),
-                 plotPrettyUI("sizebar_pretty"),
-                 plotSizeUI('sizebar_size')
-  ),
-  layout_columns(col_widths=c(10,-1,1),
-                 actionButton("go_sizebar","Plot"),
-                 downloadButton('sizebar_plotdwnld', label=NULL)
-  ),
-  withSpinner(plotOutput("sizebar_plot",click="sizebar_click"))
-)
-
 Anlys_SizeCard <- tagList(
   h3("Body characteristic analysis"),
   p("Here you can view plots regarding species' body size and time to maturity."),
@@ -92,43 +53,6 @@ Anlys_SizeCard <- tagList(
 )
 
 ####################################### IUCN ################################################
-Anlys_IUCNPlot <- tagList(
-  layout_columns(col_widths=c(4,4,4),
-                 shinyWidgets::dropdown(inputId="iucnbar_plotgrouping",
-                                        label="Grouping choices",
-                                        icon=icon("gear"),
-                                        pickerInput("choose_iucnbar_axis",
-                                                    label="IUCN data",
-                                                    choices=list(),
-                                                    multiple = FALSE,
-                                                    options = pickerOptions(maxOptions = 1,
-                                                                            container = "body", 
-                                                                            actionsBox = TRUE,
-                                                                            deselectAllText = "Clear selection"
-                                                    )
-                                        ),
-                                        pickerInput("choose_iucnbar_facet",
-                                                    label="Groups to compare",
-                                                    #label="Faceting Group",
-                                                    choices=list(),
-                                                    multiple = TRUE,
-                                                    options = pickerOptions(maxOptions = 2,
-                                                                            container = "body", 
-                                                                            actionsBox = TRUE,
-                                                                            deselectAllText = "Clear selection"
-                                                    )
-                                        )
-                 ),
-                 plotPrettyUI("iucnbar_pretty"),
-                 plotSizeUI('iucnbar_size')
-  ),
-  layout_columns(col_widths=c(10,-1,1),
-                 actionButton("go_iucnbar","Plot"),
-                 downloadButton('iucnbar_plotdwnld', label=NULL)
-  ),
-  withSpinner(plotOutput("iucnbar_plot",click="iucnbar_click"))
-)
-
 Anlys_IUCNCard <- tagList(
   h3("IUCN Status"),
   p("Here you can view plots regarding IUCN Red List status of species in your dataset."),
@@ -142,6 +66,7 @@ Anlys_IUCNCard <- tagList(
                     Anlys_IUCNPlot)
   )
 )
+
 ############################################# Alpha diversity #############################################
 Anlys_AlphaCard <- tagList(
   layout_columns(
@@ -263,10 +188,6 @@ allanalysispage = nav_panel(
   # body size
   Anlys_SizeCard,
   br(),
-  
-  # Feeding guild 
-  #Anlys_TrophBarCard, 
-  #br(),
   
   # Age at maturity 
   
