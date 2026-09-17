@@ -1,7 +1,7 @@
 source('functions/module-plotting-general.R',local=TRUE)
 source('functions/module-plotting-pretty.R',local=TRUE)
 source('functions/module-plotting-size.R',local=TRUE)
-
+source('functions/module-plotting-stats.R',local=TRUE)
 
 ############################################# Histo #############################################
 Anlys_HistoCard <- tagList(

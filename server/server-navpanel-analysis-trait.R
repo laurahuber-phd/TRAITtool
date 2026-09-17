@@ -1,10 +1,12 @@
 source('functions/module-plotting-general.R',local=TRUE)
 source('functions/module-plotting-pretty.R',local=TRUE)
+source('functions/module-plotting-stats.R',local=TRUE)
 source('functions/module-plotting-size.R',local=TRUE)
 library(shinycssloaders)
 
 ############## Violin Plot Trophic Level ############## 
 violinplot_pretty  <- plotPrettyServer(id="violin_pretty")
+violinplot_stat <- plotStatServer(id="violin_stat")
 violinplot_size <- plotSizeServer(id="violin_size") 
 violinplot_general <- plotControlsServer(id="violin_gen",
                                          df=ps.norm.melt,
@@ -57,8 +59,9 @@ violinplot <- reactive({
   req(input$go_violin|trigger_plots())
   
   current_facet <- violinplot_general$facet()
+  current_stat <- violinplot_stat()
   
-    violin_base() + 
+    violin_base() + current_stat + 
       current_facet + 
       violinplot_pretty() + 
       violinplot_size$aspectRatio() 
@@ -296,6 +299,7 @@ output$trophbar_plotdwnld_popup <-  downloadHandler(
   }) 
 ############## Temperature violin plot ##############  
 tviolinplot_pretty  <- plotPrettyServer(id="tviolin_pretty")
+tviolinplot_stat <- plotStatServer(id="tviolin_stat")
 tviolinplot_size <- plotSizeServer(id="tviolin_size") 
 tviolinplot_general <- plotControlsServer(id="tviolin_general",
                                           df=ps.norm.melt,
@@ -348,8 +352,9 @@ tviolinplot <- reactive({ #reactive updates after the observer
   print("Temperature index violin: assembling plot")
   
   current_facet <- tviolinplot_general$facet()
+  current_stat <- tviolinplot_stat()
   
-    tviolinplot_base() + 
+    tviolinplot_base() + current_stat + 
       current_facet  + 
       tviolinplot_pretty() + 
       tviolinplot_size$aspectRatio() 
@@ -420,6 +425,7 @@ output$tviolin_plotdwnld_popup <- downloadHandler(
 
 # plot to choose what temperature value   
 tviolinmeanplot_pretty  <- plotPrettyServer(id="tviolinmean_pretty")
+tviolinmeanplot_stat <- plotStatServer(id="tviolinmean_stat")
 tviolinmeanplot_size <- plotSizeServer(id="tviolinmean_size") 
 tviolinmeanplot_general <- plotControlsServer(id="tviolinmean_general",
                                               df=ps.norm.melt,
@@ -471,8 +477,9 @@ tviolinmeanplot <- reactive({
   print("Temperature violin: assembling plot")
   
  current_facet <- tviolinmeanplot_general$facet()
+ current_stat <- tviolinmeanplot_stat()
  
-    tviolinmeanplot_base() + 
+    tviolinmeanplot_base() + current_stat + 
        current_facet + 
       tviolinmeanplot_pretty() + 
       tviolinmeanplot_size$aspectRatio() 
