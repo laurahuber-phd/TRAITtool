@@ -23,6 +23,7 @@ observe({
   
   z <- make.names(metfile[[1]],unique=TRUE)
   metfile[[1]] <- z
+  rownames(metfile) <- z
   
   metfile <- metfile %>% rename_with(str_to_title) #make column names title case
   
@@ -94,12 +95,13 @@ observe({ #upload the taxonomy file
   y <- make.names(colnames(taxfile_upld), unique=TRUE)
   colnames(taxfile_upld) <- y
   
- # z <- make.names(taxfile_upld[[1]],unique=TRUE)
+  z <- make.names(taxfile_upld[[1]],unique=TRUE)
  # taxfile_upld[[1]] <- z
   
   taxfile <- taxfile_upld %>% 
     rename_with(str_to_title) %>% #make column names title case
-    mutate(across(where(is.character), str_to_sentence))
+    mutate(across(where(is.character), str_to_sentence)) #make everything in the data frame sentence case  
+  taxfile[[1]] <- z
   
   if(any(str_detect(colnames(taxfile),"Species")==TRUE)) {
     # Do the following if one of the column names is "Species" (title case will be true because of above code)
@@ -279,7 +281,44 @@ observe({
     print("Load: ps object assembled")
     ps.all(all)
   } else {
-    showModal(modalDialog("Components do not match. Check sample names and try again."))
+    ## check each component of the ps object individually
+    ### start by going through the same process as in function-buildps.R
+    ### check those outputs to make sure they are made correctly 
+    
+    ## sample data
+    #sdtest <- as.data.frame(MetadataTable$x)
+    #rownames(sdtest) <- sdtest[[1]]
+    #sdfail <- tryCatch(sample_data(temp.metadata),
+    #                   error=function(e) {return(e$message)})
+    #if(!is.data.frame(sdfail)) {print(sdfail)}
+    
+    ## feature table  
+    #otutest <- as.data.frame(OtuTable$x) #convert otu table upload to data frame
+    #row.names(otutest) <- otutest[[1]] #add row names (which will be our sequence names)
+    #otutest[[1]] <- NULL #remove row names so it can be turned into a matrix
+    #otufail <- tryCatch(as.matrix(otutest) %>% 
+    #                      otu_table(.,taxa_are_rows=TRUE),
+    #                    error=function(e) {return(e$message)}) #otufail will either be a matrix (feature table was successfully turned into a ps component) or return error message  
+    #if(!is.matrix(otufail)) {print(otufail)} #return the error message if it is not a matrix
+    
+    ## tax table  
+    #taxtest <- as.data.frame(new.tax)
+    #row.names(taxtest) <- taxtest[[1]]
+    #taxtest[[1]] <- NULL
+    #taxfail <- tryCatch(as.matrix(taxtest) %>% tax_table(.),
+    #                    error=function(e) {return(e$message)})
+    #if(!is.matrix(taxfail)) {print(taxfail)}
+    
+    ## check sample names match
+    #if(sample_names())
+    ## check tax names match  
+    ermess <- tryCatch(assemble_ps(otu=OTUTable$x, # build the phyloseq object
+                         #tax=TaxTable$x,
+                         tax=new.tax,
+                         meta=MetadataTable$x
+    ), 
+    error=function(e) {return(e$message)})
+    showModal(modalDialog(ermess))
     ps.all(NULL)
   }
   
