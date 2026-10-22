@@ -95,7 +95,7 @@ observe({ #upload the taxonomy file
   y <- make.names(colnames(taxfile_upld), unique=TRUE)
   colnames(taxfile_upld) <- y
   
-  z <- make.names(taxfile_upld[[1]],unique=TRUE)
+  z <- taxfile_upld[[1]]
  # taxfile_upld[[1]] <- z
   
   taxfile <- taxfile_upld %>% 
@@ -318,7 +318,11 @@ observe({
                          meta=MetadataTable$x
     ), 
     error=function(e) {return(e$message)})
-    showModal(modalDialog(ermess))
+    showModal(modalDialog(title="See error message and check the 'Help' tab for details: ",
+                          ermess,
+                          footer=actionButton(inputId = "psgohelp",label="Go to Help Page"),
+                          easyClose=TRUE
+                          ))
     ps.all(NULL)
   }
   

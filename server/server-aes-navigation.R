@@ -101,6 +101,7 @@ observeEvent(input$repaccd_iucnbarplot, switch_page("analysistab"))
 observeEvent(input$repaccd_tlineplot,switch_page("filterdetailstab"))
 observeEvent(input$repaccd_lolliplot,switch_page("filterdetailstab"))
 
+observeEvent(input$psgohelp, switch_page("helptab"))
 # not using yet
 observeEvent(input$demux_nextpage, switch_page("Assign OTU"))
 observeEvent(input$demux_prevpage, switch_page("uploadtab")) 
