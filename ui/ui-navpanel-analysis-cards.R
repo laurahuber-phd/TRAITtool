@@ -302,6 +302,21 @@ Anlys_SizePlot <- tagList(
                  plotPrettyUI("sizebar_pretty"),
                  plotSizeUI('sizebar_size')
   ),
+  layout_columns(col_widths=c(6,6),
+                 radioButtons(
+                   inputId = "sizebar_plottype",
+                   label = "Type of Plot", 
+                   choices = c("Pie", "Bar"),
+                   selected="Pie",
+                   inline = TRUE
+                 ),
+                 radioButtons(
+                   inputId = "sizebar_label",
+                   label = "Include labels?", 
+                   choices = c("Yes", "No"),
+                   selected="Yes",
+                   inline = TRUE
+                 )),
   layout_columns(col_widths=c(10,-1,1),
                  actionButton("go_sizebar","Plot"),
                  downloadButton('sizebar_plotdwnld', label=NULL)
@@ -340,7 +355,22 @@ Anlys_IUCNPlot <- tagList(
                  plotPrettyUI("iucnbar_pretty"),
                  plotSizeUI('iucnbar_size')
   ),
-  layout_columns(col_widths=c(10,-1,1),
+  layout_columns(col_widths=c(6,6),
+                 radioButtons(
+                   inputId = "iucnbar_plottype",
+                   label = "Type of Plot", 
+                   choices = c("Pie", "Bar"),
+                   selected="Pie",
+                   inline = TRUE
+                 ),
+                 radioButtons(
+                   inputId = "iucnbar_label",
+                   label = "Include labels?", 
+                   choices = c("Yes", "No"),
+                   selected="Yes",
+                   inline = TRUE
+                 )),
+  layout_columns(col_widths=c(11,-1,1),
                  actionButton("go_iucnbar","Plot"),
                  downloadButton('iucnbar_plotdwnld', label=NULL)
   ),

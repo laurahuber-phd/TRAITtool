@@ -58,13 +58,13 @@ violinplot <- reactive({
   print("Violin: assembling plot")
   req(input$go_violin|trigger_plots())
   
-  current_facet <- violinplot_general$facet()
-  current_stat <- violinplot_stat()
+  current_facet <- isolate(violinplot_general$facet())
+  current_stat <- isolate(violinplot_stat())
   
-    violin_base() + current_stat + 
+    isolate(violin_base()) + current_stat + 
       current_facet + 
-      violinplot_pretty() + 
-      violinplot_size$aspectRatio() 
+      isolate(violinplot_pretty()) + 
+      isolate(violinplot_size$aspectRatio()) 
 }) 
 
 output$violin_click_plot <- renderPlot({
@@ -228,11 +228,12 @@ trophbarplot <- reactive({
   print("Trophic bar plot: plotting")
   req(input$go_trophbar | trigger_plots())
   
-  base <- trophbarplot_base()
-  pretty <- trophbarplot_pretty()
-  size <- trophbarplot_size$aspectRatio()
+  base <- isolate(trophbarplot_base())
+  pretty <- isolate(trophbarplot_pretty())
+  size <- isolate(trophbarplot_size$aspectRatio())
   
-  base + pretty + theme_void() + size
+  base + pretty + #theme_void() +
+    size
   }) 
 
 output$trophbar_click_plot <- renderPlot({
@@ -351,13 +352,13 @@ tviolinplot <- reactive({ #reactive updates after the observer
   req(input$go_tviolin | trigger_plots())
   print("Temperature index violin: assembling plot")
   
-  current_facet <- tviolinplot_general$facet()
-  current_stat <- tviolinplot_stat()
+  current_facet <- isolate(tviolinplot_general$facet())
+  current_stat <- isolate(tviolinplot_stat())
   
-    tviolinplot_base() + current_stat + 
+    isolate(tviolinplot_base()) + current_stat + 
       current_facet  + 
-      tviolinplot_pretty() + 
-      tviolinplot_size$aspectRatio() 
+      isolate(tviolinplot_pretty()) + 
+      isolate(tviolinplot_size$aspectRatio()) 
 
 }) 
 
@@ -476,13 +477,13 @@ tviolinmeanplot <- reactive({
   req(input$go_tviolinmean|trigger_plots())
   print("Temperature violin: assembling plot")
   
- current_facet <- tviolinmeanplot_general$facet()
- current_stat <- tviolinmeanplot_stat()
+ current_facet <- isolate(tviolinmeanplot_general$facet())
+ current_stat <- isolate(tviolinmeanplot_stat())
  
-    tviolinmeanplot_base() + current_stat + 
+    isolate(tviolinmeanplot_base()) + current_stat + 
        current_facet + 
-      tviolinmeanplot_pretty() + 
-      tviolinmeanplot_size$aspectRatio() 
+      isolate(tviolinmeanplot_pretty()) + 
+      isolate(tviolinmeanplot_size$aspectRatio()) 
 }) 
 
 output$tviolinmean_click_plot <- renderPlot({
@@ -643,7 +644,7 @@ tlolliplot_base <- reactive({
 tlolliplot <- reactive({
   req(input$go_tlolli | trigger_plots())
   
-  tlolliplot_base() + tlolliplot_pretty() + tlolliplot_size$aspectRatio()
+  isolate(tlolliplot_base()) + isolate(tlolliplot_pretty()) + isolate(tlolliplot_size$aspectRatio())
 })
 
 output$tlolli_click_plot <- renderPlot({
@@ -785,16 +786,35 @@ dt_sizebar(ps.edit)
                      )
   ) + 
     geom_bar( stat="identity"#, position = "fill"
-              ) +  
+              ) 
+  
+  if(input$sizebar_label=="Yes") {
+    baseplot <- baseplot + 
+      geom_text(aes(y=ypos,label=Perc),color="black") +
+      ggrepel::geom_label_repel(aes(y=repos,label=paste0(Perc,"%")),
+                                size = 4.5, nudge_x = 1, show.legend = FALSE,color="black")
+  } else if(input$sizebar_label=="No") {
+    baseplot <- baseplot
+  }
+  
+  if(input$sizebar_plottype=="Pie") {
+    baseplot <- baseplot + 
+      coord_polar("y",start=0) + 
+      theme_void()
+  } else if(input$sizebar_plottype=="Bar") {
+    baseplot <- baseplot
+  }
+  
+  #+  
     #scale_y_continuous(labels=function(x) paste0(x * 100, "%")) + 
     #labs(y="Relative Abundance",
     #     title="Relative abundance of each trophic group") +
     #coord_flip() 
-    geom_text(aes(y=ypos,label=Perc),color="black") +
-    ggrepel::geom_label_repel(aes(y=repos,label=paste0(Perc,"%")),
-                              size = 4.5, nudge_x = 1, show.legend = FALSE,color="black") +
-    coord_polar("y",start=0) + 
-    theme_void() #+ # remove background, grid, numeric labels
+   # geom_text(aes(y=ypos,label=Perc),color="black") +
+   # ggrepel::geom_label_repel(aes(y=repos,label=paste0(Perc,"%")),
+   #                           size = 4.5, nudge_x = 1, show.legend = FALSE,color="black") +
+   # coord_polar("y",start=0) + 
+   # theme_void() #+ # remove background, grid, numeric labels
   #geom_text(aes(label = Trophic.val #round(value,2)
   #              ),
   #          color="black",
@@ -819,9 +839,9 @@ sizebarplot <- reactive({
   print("Body size: assembling plot")
   req(input$go_sizebar|trigger_plots())
   
-  sizebarplot_base() + 
-    sizebarplot_pretty() + theme_void() +
-    sizebarplot_size$aspectRatio()
+  isolate(sizebarplot_base()) + 
+    isolate(sizebarplot_pretty()) + #theme_void() +
+    isolate(sizebarplot_size$aspectRatio())
   })
 
 output$sizebar_click_plot <- renderPlot({
@@ -907,6 +927,8 @@ dt_iucnbar <- reactiveVal(NULL)
 iucnbarplot_base <- reactive({
   req(ps.norm())
   req(input$choose_iucnbar_axis)
+  req(input$iucnbar_label)
+  req(input$iucnbar_plottype)
   print("IUCN bar plot: building base plot")
   
   names <- ps.norm.melt() %>%
@@ -968,16 +990,34 @@ iucnbarplot_base <- reactive({
                      )
   ) + 
     geom_bar( stat="identity"#, position = "fill"
-              ) +  
+              ) 
+  
+  if(input$iucnbar_label=="Yes") {
+    baseplot <- baseplot + 
+      geom_text(aes(y=ypos,label=Perc),color="black") +
+      ggrepel::geom_label_repel(aes(y=repos,label=paste0(Perc,"%")),
+                                size = 4.5, nudge_x = 1, show.legend = FALSE,color="black")
+  } else if(input$iucnbar_label=="No") {
+    baseplot <- baseplot
+  }
+  
+  if(input$iucnbar_plottype=="Pie") {
+    baseplot <- baseplot + 
+      coord_polar("y",start=0) + 
+      theme_void()
+  } else if(input$iucnbar_plottype=="Bar") {
+    baseplot <- baseplot
+  }
+  
     #scale_y_continuous(labels=function(x) paste0(x * 100, "%")) + 
     #labs(y="Relative Abundance",
     #     title="Relative abundance of each trophic group") +
     #coord_flip() 
-    geom_text(aes(y=ypos,label=Perc),color="black") +
-    ggrepel::geom_label_repel(aes(y=repos,label=paste0(Perc,"%")),
-                              size = 4.5, nudge_x = 1, show.legend = FALSE,color="black") +
-    coord_polar("y",start=0) + 
-    theme_void() #+ # remove background, grid, numeric labels
+    #geom_text(aes(y=ypos,label=Perc),color="black") +
+    #ggrepel::geom_label_repel(aes(y=repos,label=paste0(Perc,"%")),
+    #                          size = 4.5, nudge_x = 1, show.legend = FALSE,color="black") +
+    #coord_polar("y",start=0) + 
+    #theme_void() #+ # remove background, grid, numeric labels
   #geom_text(aes(label = Trophic.val #round(value,2)
   #              ),
   #          color="black",
@@ -1006,8 +1046,8 @@ iucnbarplot_base <- reactive({
 iucnbarplot <- reactive({
   req(input$go_iucnbar|trigger_plots())
   
-  iucnbarplot_base() + 
-    iucnbarplot_size$aspectRatio()
+  isolate(iucnbarplot_base()) + 
+    isolate(iucnbarplot_size$aspectRatio())
   }) 
 
 observe({
@@ -1156,9 +1196,9 @@ lolliplot_base <- reactive({
 lolliplot <- reactive({
   req(input$go_lolli|trigger_plots())
   
-  lolliplot_base() + 
-    lolliplot_pretty() + 
-    lolliplot_size$aspectRatio()
+  isolate(lolliplot_base()) + 
+    isolate(lolliplot_pretty()) + 
+    isolate(lolliplot_size$aspectRatio())
 }) 
 output$lolli_click_plot <- renderPlot({
   req(lolliplot())
