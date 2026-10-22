@@ -207,9 +207,9 @@ rankperc_df <- reactive({
     reframe(Abund=sum(Abundance),
             Total=sum(ps$Abundance),
             Perc=Abund/Total) %>%
-    filter(
-      !is.na( .data[[input$basics_ranks]] ) 
-      ) %>% 
+    #filter(
+     # !is.na( .data[[input$basics_ranks]] ) 
+     # ) %>% 
     arrange(.,desc(Perc),.by_group = TRUE)
   psplot.df[[input$basics_ranks]] <- factor( psplot.df[[input$basics_ranks]], 
                                       levels= psplot.df[[input$basics_ranks]])
