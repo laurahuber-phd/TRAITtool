@@ -142,11 +142,7 @@ mkdwnrptfun <- function(x) { #tryCatch will check to see if the 'function' exist
   tryCatch(x,error=function(e){return(as.numeric(NA))}) 
 }
 
-observe({
-  print("Report: generate report button selected")
-
-  report$pdffilepath <- report$htmlfilepath <- NULL
-  shinyjs::hide("viewfinalreport")
+build_params <- function() {
   params[["ps"]] <- mkdwnrptfun(ps.norm())
   
   params[["vioplot"]] <- mkdwnrptfun(violinplot())
@@ -187,7 +183,7 @@ observe({
   
   params$ordmeth <- mkdwnrptfun(input$ord_meth) #ordination method
   params$ordtype <- mkdwnrptfun(input$ord_vis) #ordination visualization method
-
+  
   params$ntaxa <- mkdwnrptfun(N_taxa_tab())
   params$numsam <- mkdwnrptfun(Summ_seqs_sel())
   params$numog <- mkdwnrptfun(Summ_seqs())
@@ -210,85 +206,48 @@ observe({
   params$dt_iucnbar <- mkdwnrptfun(dt_iucnbar())
   
   params$richmet <- mkdwnrptfun(input$alphametrics)
-  paramvals <- reactiveValuesToList(params) #convert reactive values to list to read into render
-  #params[params=="NULL"] <- NA #any NULL values (because input$x does not exist) are replaced with NA because markdown does not like NULL in the YAML header
+  
   print("Report: variables saved to params list")
-  
-  library(rmarkdown)
-  
-  if(input$gen_onepg_s) {
-    withProgress(
-      message = "Gathering data and building static report. \n", 
-      detail = "This may take a while. This window will disappear when the report is ready.",
-      value=0, {
-        render('OnePageSummary.Rmd',
-               output_format = c('html_document'),#,'pdf_document','word_document'), 
-               params= paramvals, 
-               output_file = "tmp_file",
-               output_dir = tempdir(),
-               envir = new.env(parent=globalenv()),
-               intermediates_dir = tempdir() 
-        )}
-    )
-  }
-  
-  if(input$gen_onepg_i) {
-    withProgress(
-      message = "Gathering data and building interactive report. \n", 
-      detail = "This may take a while. This window will disappear when the report is ready.",
-      value=0, {
-        render('OnePageSummaryPlotly.Rmd',
-               output_format = c('html_document'),#,'pdf_document','word_document'), 
-               params= paramvals, 
-               output_file = "tmp_file",
-               output_dir = tempdir(),
-               envir = new.env(parent=globalenv()),
-               intermediates_dir = tempdir() 
-        )}
-    )
-  }
-  
-  if(input$gen_report_s) {
-    withProgress(
-      message = "Gathering data and building static report. \n", 
-      detail = "This may take a while. This window will disappear when the report is ready.",
-      value=0, {
-        render('ProjectReport.Rmd',
-               output_format = c('html_document'),#,'pdf_document','word_document'), 
-               params= paramvals, 
-               output_file = "tmp_file",
-               output_dir = tempdir(),
-               envir = new.env(parent=globalenv()),
-               intermediates_dir = tempdir() 
-        )}
-    )
-  }
-  
-  if(input$gen_report_i) {
-    withProgress(
-      message = "Gathering data and building interactive report. \n", 
-      detail = "This may take a while. This window will disappear when the report is ready.",
-      value=0, {
-        render('ProjectReportPlotly.Rmd',
-               output_format = c('html_document'),#,'pdf_document','word_document'), 
-               params= paramvals, 
-               output_file = "tmp_file",
-               output_dir = tempdir(),
-               envir = new.env(parent=globalenv()),
-               intermediates_dir = tempdir() 
-        )}
-    )
-  }
-  
-  report$pdffilepath <- list.files(tempdir(), pattern="tmp_file.pdf", full.names = TRUE)
-  report$htmlfilepath <- list.files(tempdir(), pattern="tmp_file.html", full.names = TRUE)
-  #report$docxfilepath <- list.files(tempdir(), pattern="tmp_file.docx", full.names = TRUE) #Assigning in the temp file where the .pdf is located to the reactive file created above
-  
-}) %>% bindEvent(input$gen_onepg_s,
-                 input$gen_onepg_i,
-                 input$gen_report_s,
-                 input$gen_report_i,
-                 ignoreInit=TRUE)
+  reactiveValuesToList(params)
+}
+
+render_report <- function(mkdwndoc, msg) {
+  report$pdffilepath <- report$htmlfilepath <- NULL
+  shinyjs::hide("viewfinalreport")
+  paramvals <- build_params()
+  withProgress(message = msg, 
+               detail = "This may take a while. This window will disappear when the report is ready.", 
+               value = 0, {
+                 rmarkdown::render(mkdwndoc,
+           output_format = "html_document",
+           params = paramvals,
+           output_file = "tmp_file",
+           output_dir = tempdir(),
+           envir = new.env(parent = globalenv()),
+           intermediates_dir = tempdir())
+  })
+  report$pdffilepath  <- list.files(tempdir(), pattern = "tmp_file.pdf",  full.names = TRUE)
+  report$htmlfilepath <- list.files(tempdir(), pattern = "tmp_file.html", full.names = TRUE)
+}
+
+observe({
+  render_report(mkdwndoc="OnePageSummary.Rmd", 
+                msg="Gathering data and building static one-page summary...")
+}) %>% bindEvent(input$gen_onepg_s, 
+                 ignoreInit = TRUE)
+observe({
+  render_report(mkdwndoc="OnePageSummaryPlotly.Rmd",
+                msg="Gathering data and building interactive one-page summary...")
+}) %>% bindEvent(input$gen_onepg_i,
+                             ignoreInit = TRUE)
+observe({
+  render_report(mkdwndoc="ProjectReport.Rmd",
+                msg="Gathering data and building static project report...")
+}) %>% bindEvent(input$gen_report_s,ignoreInit = TRUE)
+observe({
+  render_report(mkdwndoc="ProjectReportPlotly.Rmd",
+                msg="Gathering data and building interactive project report...")
+}) %>% bindEvent(input$gen_report_i,ignoreInit = TRUE)
 
 observe({
   if(is.null(input$gen_report_s) && is.null(input$gen_report_i) && is.null(input$gen_onepg_i) && is.null(input$gen_onepg_s)) shinyjs::hide("dwnldviewreport")
