@@ -27,5 +27,27 @@ helppage <- tagList(
     tooltip(span(img(src="Example_taxa.png", height="75%", width="75%", align = "center")),
             "Notice how in our example, the first row of the OTU and taxonomy tables are the same.",
             placement="auto")
+  ), 
+  br(),
+  br(),
+  card(card_header("Sample names provided"),
+       "These should be the same",
+       h5("Overview:"),
+       verbatimTextOutput("helpsamplenames"),
+       br(),
+       h5("Feature table column names:"),
+       verbatimTextOutput('asv_colnames'),
+       h5("metadata table row names:"),
+       verbatimTextOutput('meta_rownames')
+       ),
+  card(card_header("Sequence names provided"),
+       "These should be the same",
+       h5("Overview:"),
+       verbatimTextOutput("helpseqnames"),
+       br(),
+       h5("Feature table row names:"),
+       verbatimTextOutput('asv_rownames'),
+       h5("Taxonomy table row names:"),
+       verbatimTextOutput('tax_rownames')
   )
 )

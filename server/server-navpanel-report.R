@@ -11,26 +11,45 @@ observe({
   req(ps.norm())
   req(input$pages=="reporttab")
   
+  # core plots  
+  output$rep_tbarplot <- renderPlot({trophbarplot()})
+  print("Report: Feeding guild pie chart rendered")
+  #
+  output$rep_tviolinplot <- renderPlot({tviolinplot()})
+  print("Report: temperature index violin plot rendered")
+  #
+  output$rep_iucnbarplot <- renderPlot({iucnbarplot()})
+  print("Report: IUCN category plot rendered")
+  #
+  output$rep_tviolinmeanplot <- renderPlot({tviolinmeanplot()})
+  print("Report: temperature choice violin plot rendered")
+  #
+  output$rep_sizebarplot <- renderPlot({sizebarplot()})
+  print("Report: Body size pie chart rendered")
+  #
+  output$rep_vioplot <- renderPlot({violinplot()})
+  print("Report: violinplot rendered")
+  #
+  output$rep_tlolliplot <- renderPlot({tlolliplot()})
+  print("Report: Temperature lolliplot rendered")
+  #
   output$rep_richplot <- renderPlot({richplot()})
   print("Report: richplot rendered")
+  
+  ## extra plots
   output$rep_percplot <- renderPlot({rankperc_plot()})
   print("Report: rankperc_plot rendered")
-  output$rep_ordplot <- renderPlot({ordplot()})
-  print("Report: ordplot rendered")
+  
   output$rep_histplot <- renderPlot({histoplot()})
   print("Report: histoplot rendered")
   output$rep_hmplot <- renderPlot({hmplot()})
   print("Report: hmplot rendered")
-  output$rep_tbarplot <- renderPlot({trophbarplot()})
-  print("Report: trophic bar plot rendered")
-  output$rep_tlineplot <- renderPlot({tlineplot()})
-  print("Report: trophic line plot rendered")
-  output$rep_vioplot <- renderPlot({violinplot()})
-  print("Report: violinplot rendered")
-  output$rep_lolliplot <- renderPlot({lolliplot()})
-  print("Report: Trophic level lolliplot rendered")
-  output$rep_tlolliplot <- renderPlot({tlolliplot()})
-  print("Report: Temperature lolliplot rendered")
+  output$rep_ordplot <- renderPlot({ordplot()})
+  print("Report: ordplot rendered")
+  #output$rep_tlineplot <- renderPlot({tlineplot()})
+  #print("Report: trophic line plot rendered")
+  #output$rep_lolliplot <- renderPlot({lolliplot()})
+  #print("Report: Trophic level lolliplot rendered")
   
   output$rep_pnsamp <- renderText({mkdwnrptfun(input$prune_samples)}) #min sample number
   print("Report: minimum sample number rendered")
@@ -57,6 +76,12 @@ observe({
   output$rep_numsam <- renderTable({mkdwnrptfun(Summ_seqs_sel())},rownames = TRUE,digits=0) #max/min/avg seqs (subset)
   output$rep_numog <- renderTable({mkdwnrptfun(Summ_seqs())},rownames = TRUE,digits=0) #max/min/avg seqs (original)
   
+  output$rep_syn.names <- renderTable(traits_var$syn.tab)
+  output$traits_report <- renderTable(traits_report())
+  output$rep_trait.nona <- renderText(sort(traits_var$nona),sep = ", ")
+  output$rep_trait.syn.names <- renderText(sort(traits_var$syn.names),sep = ", ")
+  output$rep_trait.valid <- renderText(sort(traits_var$valid),sep = ", ")
+  output$rep_trait.invalid <- renderText(sort(traits_var$invalid),sep = ", ")
   #output$rep_richmet <- mkdwnrptfun(input$alphametrics)
 })
 
@@ -68,12 +93,17 @@ report <- reactiveValues(pdffilepath=NULL,
 params <- reactiveValues(blanks=NA, #create list of parameters to read into rmarkdown
                          unass=NA,
                          rembl=NA,
+                         sampleselect=NA,
                          norm=NA,
                          ps=NA,
                          ntaxa=NA,
                          numsam=NA,
                          numog=NA,
-                         richplot=NA,
+                         traitsynfound=NA,
+                         traitsppnotfound=NA,
+                         traitsppfound=NA,
+                         syntab=NA,
+                         traitreport=NA,
                          percplot=NA,
                          ordmeth=NA,
                          ordtype=NA,
@@ -85,45 +115,51 @@ params <- reactiveValues(blanks=NA, #create list of parameters to read into rmar
                          pntax=NA,
                          remtax=NA,
                          remsam=NA,
+                         vioplot=NA,
+                         tbarplot=NA,
+                         tlolplot=NA,
+                         tvioplot=NA,
+                         tviomeanplot=NA,
+                         richplot=NA,
                          histplot=NA,
                          hmplot=NA,
-                         vioplot=NA,
                          lolplot=NA,
-                         tlolplot=NA,
                          lineplot=NA,
-                         tbarplot=NA,
+                         iucnbarplot=NA,
                          samsum=NA,
                          N_seq_total_num_sel=NA,
                          N_seq_assigned_num_sel=NA,
                          N_otu_total_num_sel=NA,
                          N_otu_assigned_num_sel=NA,
                          N_seq_blanks_num_sel=NA,
-                         N_otu_blanks_num_sel=NA
+                         N_otu_blanks_num_sel=NA,
+                         dt_sizebar=NA,
+                         dt_trophbar=NA,
+                         dt_iucnbar=NA
 )
 
 mkdwnrptfun <- function(x) { #tryCatch will check to see if the 'function' exists, and if it does not, returns NA as an error
   tryCatch(x,error=function(e){return(as.numeric(NA))}) 
 }
 
-observeEvent(c(input$gen_report_s,input$gen_report_i), {
-  print("Report: generate report button selected")
-  
-  if(is.null(input$gen_report_s) & is.null(input$gen_report_i)) shinyjs::hide("dwnldviewreport")
-  if(!is.null(report$htmlfilepath)) shinyjs::show("dwnldviewreport")
-  
-  report$pdffilepath <- report$htmlfilepath <- NULL
-  shinyjs::hide("viewfinalreport")
+build_params <- function() {
   params[["ps"]] <- mkdwnrptfun(ps.norm())
+  
+  params[["vioplot"]] <- mkdwnrptfun(violinplot())
+  params[["tbarplot"]] <- mkdwnrptfun(trophbarplot())
+  params[["tvioplot"]] <- mkdwnrptfun(tviolinplot())
+  params[["tviomeanplot"]] <- mkdwnrptfun(tviolinmeanplot())
+  params[["tlolplot"]] <- mkdwnrptfun(tlolliplot())
+  params[["sizebarplot"]] <- mkdwnrptfun(sizebarplot())
   params[["richplot"]] <- mkdwnrptfun(richplot())
+  params[["iucnbarplot"]] <- mkdwnrptfun(iucnbarplot())
+  
   params[["percplot"]] <- mkdwnrptfun(rankperc_plot())
   params[["ordplot"]] <- mkdwnrptfun(ordplot())
   params[["histplot"]] <- mkdwnrptfun(histoplot())
   params[["hmplot"]] <- mkdwnrptfun(hmplot())
-  params[["vioplot"]] <- mkdwnrptfun(violinplot())
-  params[["tbarplot"]] <- mkdwnrptfun(trophbarplot())
-  params[["lineplot"]] <- mkdwnrptfun(tlineplot())
-  params[["lolplot"]] <- mkdwnrptfun(lolliplot())
-  params[["tlolplot"]] <- mkdwnrptfun(tlolliplot())
+  #params[["lineplot"]] <- mkdwnrptfun(tlineplot())
+  #params[["lolplot"]] <- mkdwnrptfun(lolliplot())
   print("Report: plots saved to params list")
   
   params$pnsamp <- mkdwnrptfun(input$prune_samples) #min sample number
@@ -132,16 +168,22 @@ observeEvent(c(input$gen_report_s,input$gen_report_i), {
                             error=function(e){return("No blanks selected")}) 
   params$rembl <- mkdwnrptfun(input$rem_blanks) #blanks removed?
   
-  params$unass <- if(isTruthy(input$tax_keepremove)) {"Keep"} else if (!isTruthy(input$tax_keepremove) && isTruthy(input$tax_switch)) {"Remove"} else {as.numeric(NA)}  #keep or remove taxa?
+  params$unass <- if(isTruthy(input$sam_keepremove)) {"Keep"} else if (!isTruthy(input$sam_keepremove) && isTruthy(input$sample_switch)) {"Remove"} else {as.numeric(NA)}  #keep or remove taxa?
   params$remtax <- mkdwnrptfun(reactiveValuesToList(taxfilter_list)) #list of ranks and names of taxa used to filter  
-  params$remsam <- mkdwnrptfun(input$sample_select) #list of samples removed 
+  params$sampleselect <- if(isTruthy(input$tax_keepremove)) {"Keep"} else if (!isTruthy(input$tax_keepremove) && isTruthy(input$tax_switch)) {"Remove"} else {as.numeric(NA)}  #keep or remove taxa?
+  params$remsam <- mkdwnrptfun(input$sample_select) #list of samples removed/kept   
+  params$traitsppfound <- mkdwnrptfun(traits_var$nona) #species queried to databse
+  params$traitsppnotfound <- mkdwnrptfun(traits_var$invalid) #invalid names
+  params$traitsynfound <- mkdwnrptfun(traits_var$syn.names) #synonyms found
+  params$syntab <- mkdwnrptfun(traits_var$syn.tab) #list of species names not found in fb/slb but synonym names were
+  params$traitreport <- mkdwnrptfun(traits_report()) #trait taxa report 
   
   params$norm <- tryCatch(input$normoptions, #normalized? 
                           error=function(e){return("No normalization performed")})
   
   params$ordmeth <- mkdwnrptfun(input$ord_meth) #ordination method
   params$ordtype <- mkdwnrptfun(input$ord_vis) #ordination visualization method
-
+  
   params$ntaxa <- mkdwnrptfun(N_taxa_tab())
   params$numsam <- mkdwnrptfun(Summ_seqs_sel())
   params$numog <- mkdwnrptfun(Summ_seqs())
@@ -159,51 +201,58 @@ observeEvent(c(input$gen_report_s,input$gen_report_i), {
   params$N_seq_blanks_num_sel <- mkdwnrptfun(Num_seq_subset$N_seq_blanks)
   params$N_otu_blanks_num_sel <- mkdwnrptfun(Num_otu_subset$N_otu_blanks)
   
+  params$dt_sizebar <- mkdwnrptfun(dt_sizebar())
+  params$dt_trophbar <- mkdwnrptfun(dt_trophbar())
+  params$dt_iucnbar <- mkdwnrptfun(dt_iucnbar())
+  
   params$richmet <- mkdwnrptfun(input$alphametrics)
-  paramvals <- reactiveValuesToList(params) #convert reactive values to list to read into render
-  #params[params=="NULL"] <- NA #any NULL values (because input$x does not exist) are replaced with NA because markdown does not like NULL in the YAML header
+  
   print("Report: variables saved to params list")
-  
-  library(rmarkdown)
-  
-  if(input$gen_report_s) {
-    withProgress(
-      message = "Gathering data and building static report. \n", 
-      detail = "This may take a while. This window will disappear when the report is ready.",
-      value=0, {
-        render('ProjectReport.Rmd',
-               output_format = c('html_document'),#,'pdf_document','word_document'), 
-               params= paramvals, 
-               output_file = "tmp_file",
-               output_dir = tempdir(),
-               envir = new.env(parent=globalenv()),
-               intermediates_dir = tempdir() 
-        )}
-    )
-  }
-  
-  if(input$gen_report_i) {
-    withProgress(
-      message = "Gathering data and building interactive report. \n", 
-      detail = "This may take a while. This window will disappear when the report is ready.",
-      value=0, {
-        render('ProjectReportPlotly.Rmd',
-               output_format = c('html_document'),#,'pdf_document','word_document'), 
-               params= paramvals, 
-               output_file = "tmp_file",
-               output_dir = tempdir(),
-               envir = new.env(parent=globalenv()),
-               intermediates_dir = tempdir() 
-        )}
-    )
-  }
-  
-  report$pdffilepath <- list.files(tempdir(), pattern="tmp_file.pdf", full.names = TRUE)
-  report$htmlfilepath <- list.files(tempdir(), pattern="tmp_file.html", full.names = TRUE)
-  #report$docxfilepath <- list.files(tempdir(), pattern="tmp_file.docx", full.names = TRUE) #Assigning in the temp file where the .pdf is located to the reactive file created above
-  
-})
+  reactiveValuesToList(params)
+}
 
+render_report <- function(mkdwndoc, msg) {
+  report$pdffilepath <- report$htmlfilepath <- NULL
+  shinyjs::hide("viewfinalreport")
+  paramvals <- build_params()
+  withProgress(message = msg, 
+               detail = "This may take a while. This window will disappear when the report is ready.", 
+               value = 0, {
+                 rmarkdown::render(mkdwndoc,
+           output_format = "html_document",
+           params = paramvals,
+           output_file = "tmp_file",
+           output_dir = tempdir(),
+           envir = new.env(parent = globalenv()),
+           intermediates_dir = tempdir())
+  })
+  report$pdffilepath  <- list.files(tempdir(), pattern = "tmp_file.pdf",  full.names = TRUE)
+  report$htmlfilepath <- list.files(tempdir(), pattern = "tmp_file.html", full.names = TRUE)
+}
+
+observe({
+  render_report(mkdwndoc="OnePageSummary.Rmd", 
+                msg="Gathering data and building static one-page summary...")
+}) %>% bindEvent(input$gen_onepg_s, 
+                 ignoreInit = TRUE)
+observe({
+  render_report(mkdwndoc="OnePageSummaryPlotly.Rmd",
+                msg="Gathering data and building interactive one-page summary...")
+}) %>% bindEvent(input$gen_onepg_i,
+                             ignoreInit = TRUE)
+observe({
+  render_report(mkdwndoc="ProjectReport.Rmd",
+                msg="Gathering data and building static project report...")
+}) %>% bindEvent(input$gen_report_s,ignoreInit = TRUE)
+observe({
+  render_report(mkdwndoc="ProjectReportPlotly.Rmd",
+                msg="Gathering data and building interactive project report...")
+}) %>% bindEvent(input$gen_report_i,ignoreInit = TRUE)
+
+observe({
+  if(is.null(input$gen_report_s) && is.null(input$gen_report_i) && is.null(input$gen_onepg_i) && is.null(input$gen_onepg_s)) shinyjs::hide("dwnldviewreport")
+  if(!is.null(report$htmlfilepath)) shinyjs::show("dwnldviewreport")
+})
 # Hide download button until report is generated
 #output$reportbuilt <- reactive({
 #  return(!is.null(report$htmlfilepath))
@@ -304,17 +353,41 @@ output$norm_meltdwnld <- downloadHandler(
   
   observeEvent(input$download_zip, {
     
+    if(is.na(mkdwnrptfun(violinplot()))) {print("MTI violin plot not generated")}
+    if(is.na(mkdwnrptfun(trophbarplot()))){print("Feeding guild pie chart not generated")}
+    
+    if(is.na(mkdwnrptfun(tviolinmeanplot()))) {print("Temperature index violin plot not generated")}
+    if(is.na(mkdwnrptfun(tviolinplot()))) {print("Temperature range violin plot not generated")}
+    
+    if(is.na(mkdwnrptfun(sizebarplot()))) {print("Body size pie chart not generated")}
+    if(is.na(mkdwnrptfun(iucnbarplot()))) {print("IUCN status pie chart not generated")}
+    
+    if(is.na(mkdwnrptfun(richplot()))) {print("Richness plot not generated")}
+    
+    if(is.na(mkdwnrptfun(tlolliplot()))) {print("Temperature range lollipop plot not generated")}
+    if(is.na(mkdwnrptfun(rankperc_plot()))) {print("Rank percentage plot not generated")}
+    if(is.na(mkdwnrptfun(ordplot()))) {print("Ordination plot not generated")}
+    if(is.na(mkdwnrptfun(histoplot()))) {print("Histogram not generated")}
+    if(is.na(mkdwnrptfun(hmplot()))) {print("Heat map not generated")}
+    
     figlist <- reactive(list( #list of plots where nonexistent plots return "NA"
+      
+      mkdwnrptfun(violinplot()),
+      mkdwnrptfun(trophbarplot()),
+      
+      mkdwnrptfun(tviolinmeanplot()),
+      mkdwnrptfun(tviolinplot()),
+      
+      mkdwnrptfun(sizebarplot()),
+      mkdwnrptfun(iucnbarplot()),
+      
       mkdwnrptfun(richplot()),
+      
+      mkdwnrptfun(tlolliplot())),
       mkdwnrptfun(rankperc_plot()),
       mkdwnrptfun(ordplot()),
       mkdwnrptfun(histoplot()),
-      mkdwnrptfun(hmplot()),
-      mkdwnrptfun(violinplot()),
-      mkdwnrptfun(trophbarplot()),
-      mkdwnrptfun(tlineplot()),
-      mkdwnrptfun(lolliplot()),
-      mkdwnrptfun(tlolliplot()))
+      mkdwnrptfun(hmplot())
     )
     
     myfigs <- reactive( #remove NAs from figlist()
@@ -324,9 +397,9 @@ output$norm_meltdwnld <- downloadHandler(
     nplots <- reactive(length(myfigs()))
     
     lapply(1:nplots(), function(i){
-      ggsave(paste0("yplot",i,".png"), 
-             plot(mydata()[[i]]),
-             path=fig_dir(),
+      ggsave(paste0("Shinyplot",i,".png"), 
+             plot(myfigs()[[i]]),
+             path=tempdir(),
              scale=2)
     })
   }, ignoreInit = TRUE)

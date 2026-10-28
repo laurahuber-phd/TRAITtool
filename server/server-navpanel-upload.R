@@ -8,11 +8,6 @@ output$taxtab <- renderText({ # report what file is selected
   paste('Selected file: ', basename(file.path(input$taxtab)))
 })
 
-observe({
-  shinyjs::show("load_success")
-  print("Upload: ps.all object made")
-}) %>% bindEvent(ps.all())
-
 observeEvent(input$view_infodemux, {
              switch_page("infodemux")
   print("Upload: Button clicked: switch to info demultiplex page; from upload page raw analysis")

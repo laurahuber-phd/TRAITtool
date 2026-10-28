@@ -148,6 +148,25 @@ SelectNormCard <- card(
                    )
 )
 
+# ---- Grouping choices # ---- 
+SelectAggregateCard <- tagList(
+  h4("Select which of your variables you will use to group your data prior to visualizing"),
+  selectInput('aggregate_var', label=NULL,character()),
+  p("Aggregating by this variable will result in the following:"),
+  htmlOutput("aggregate_groupmem"), #group members
+  htmlOutput("aggregate_ngroup"), #number of groups
+  htmlOutput("aggregate_ngroupmem"), #number of members in each group
+  
+  layout_columns(col_widths=c(6,6),
+                 actionButton("go_aggregate","Go"),
+                 actionButton("reset_aggregate","Reset")
+                 ),
+  
+  htmlOutput("aggregate_bef"), #dataset before
+  htmlOutput("aggregate_aft"), #dataset after
+  htmlOutput("agg_nsamples_bef"), #number of samples before
+  htmlOutput("agg_nsamples_aft") #number of samples after
+)
 #############################################################################################################
 filterpage <- nav_panel(
   useShinyjs(),
@@ -173,6 +192,52 @@ filterpage <- nav_panel(
                  )
   ),
   jqui_resizable(Select_BlanksCard), #This card allows you to select the sequencing blanks,
+  SelectSamplesCard,
+  SelectTaxaCard,
+  layout_column_wrap(
+    width=1/2,fill=TRUE,
+    actionButton("bfilter_prevpage","Previous step"),
+    actionButton("bfilter_nextpage","Next step")
+  )
+)
+
+filterpageDETAIL <- nav_panel(
+  useShinyjs(),
+  HTML("<h2>Choose filtering options </h2>"),
+  "Use the options on this page to define what part of your dataset to evaluate. You can choose only a few samples or taxa, for example, or remove blanks and singletons. ",
+  br(),
+  card(
+    layout_columns(col_widths=c(6,6),
+                   SelectPruneCard,
+                   SelectNormCard
+    ),
+    layout_columns(col_widths=c(6,6),
+                   wellPanel(id='befaft_prune',
+                             textOutput("prune_bef"),textOutput("prune_aft"),
+                             textOutput("prunetax_bef"),textOutput("prunetax_aft")),
+                   shinyjs::hidden(wellPanel(id="befaft_norm",
+                                             textOutput("norm_bef"),textOutput("norm_aft")))
+    )
+  ),
+  jqui_resizable(Select_BlanksCard) #This card allows you to select the sequencing blanks,
+
+  )
+
+filterpageDEFAULT <- nav_panel(
+  useShinyjs(),
+  layout_column_wrap(
+    width=1/2,fill=TRUE,
+    actionButton("filter_prevpage","Previous step"),
+    actionButton("filter_nextpage","Next step")
+  ),
+  HTML("<h2>Choose filtering options </h2>"),
+  "Use the options on this page to define what part of your dataset to evaluate. You can choose to look at only a few samples or taxa, for example. Here you will also choose how you want to combine your data.",
+  br(),
+  card(SelectAggregateCard),
+  br(),
+  HTML("<h4>Additonal filters below: </h4>"),
+  HTML("<p>You can select specific samples and taxa to keep or remove in this section. Collapsing the panel or clicking 'Reset' above will reset selections. </p>"),
+  br(),
   SelectSamplesCard,
   SelectTaxaCard,
   layout_column_wrap(

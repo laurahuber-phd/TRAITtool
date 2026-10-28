@@ -64,9 +64,9 @@ observe({
   print(c("Trait: Query options include:",seltax))
 }) %>% bindEvent(TaxTable$x)
 
-observeEvent(input$trait_tax_select, {
+observe({
   print(c("Trait: Query selection is",input$trait_tax_select))
-})
+}) %>% bindEvent(input$trait_tax_select, ignoreInit=TRUE)
 
 # when the user selections fishbase/sealifebase/both, hide previous queries and update database string for query 
 observeEvent(input$trait_select, {
@@ -332,6 +332,53 @@ if(input$trait_tax_select != "Species") {
     print(c("nrows of new table:",nrow(alltraits.df)))
         
       } else {
+        # get iucn status from saved 
+        iucnfile <- vroom::vroom('data/rredlist.kingdom.animalia.06Aug2026.csv',delim=',',
+                                show_col_types = FALSE,
+                                trim_ws=TRUE,
+                                na = c("",".","NA","NULL","Unassigned","unassigned")
+        )
+        print("IUCN Red List category data loaded") 
+        
+        iucn.spp <- intersect(c(valid.fish.names,valid.sl.names),
+                              iucnfile$assessments.taxon_scientific_name) 
+        print("Taxa from dataset in IUCN Red List identified")
+        print(c("Number of species in Red List:",length(iucn.spp)))
+        
+        iucn.status <- iucnfile %>%
+          filter(assessments.taxon_scientific_name %in% iucn.spp) %>% 
+          filter(assessments.latest==TRUE) %>% 
+          select(c(assessments.taxon_scientific_name,
+                   assessments.red_list_category_code)) %>% 
+          rename(Species = "assessments.taxon_scientific_name",
+                 IUCN_Category_Code = "assessments.red_list_category_code") %>% 
+          mutate(IUCN_Category = factor(case_when(IUCN_Category_Code == "DD" ~ "Data Deficient",
+                                           IUCN_Category_Code == "LC" ~ "Least Concern",
+                                           IUCN_Category_Code == "NT" ~ "Near Threatened",
+                                           IUCN_Category_Code == "VU" ~ "Vulnerable",
+                                           IUCN_Category_Code == "EN" ~ "Endangered",
+                                           IUCN_Category_Code == "CR" ~ "Critically Endangered",
+                                           IUCN_Category_Code == "EW" ~ "Extinct in the Wild",
+                                           IUCN_Category_Code == "EX" ~ "Extinct",
+                                           IUCN_Category_Code == "NE" ~ "Not Evaluated",
+                                           .default=IUCN_Category_Code)))  %>% 
+          mutate(IUCN_CatNum=case_when(IUCN_Category_Code=="EX" ~ 1,
+                                       IUCN_Category_Code=="EW" ~ 2,
+                                       IUCN_Category_Code=="CR" ~ 3,
+                                       IUCN_Category_Code=="EN" ~ 4,
+                                       IUCN_Category_Code=="VU" ~ 5,
+                                       IUCN_Category_Code=="NT" ~ 6,
+                                       IUCN_Category_Code=="LC" ~ 7,
+                                       IUCN_Category_Code=="DD" ~ 8,
+                                       IUCN_Category_Code=="NE" ~ 9,
+                                       .default=0
+          )) %>%
+          group_by(Species) %>% 
+          arrange(IUCN_CatNum) %>%
+          mutate(final_code = ifelse(n() > 1, as.character(first(IUCN_Category_Code)), as.character(IUCN_Category_Code))) %>%
+          slice(1) %>%
+          summarize(across(everything(), ~paste(sort(unique(.)), collapse="|")))
+        
     # get table of location/ecosystem preferences 
     fish.eco <- rfishbase::ecosystem(species_list=valid.fish.names,
                                      server="fishbase") 
@@ -397,10 +444,15 @@ if(input$trait_tax_select != "Species") {
     
     # combine all trait information: trophic level from estimate, ecosystem information from ecosystem, species qualities from species  
     # fish.troph and fish.eco and fish.spp 
-    fbdf <- merge(eco.sub,
+    fbdfa <- merge(eco.sub,
                   spp.sub,
                   .by=Species,all = TRUE) %>% as.data.frame()
     print("Traits: Ecology and Species data combined into one table")
+    
+    fbdf <- merge(fbdfa,
+                      iucn.status,
+                      .by=Species,all=TRUE) %>% as.data.frame()
+    print("Traits: Trait data and IUCN data combined into one table")
     
     alltraits.df <- merge((traits.df %>% 
                              #rownames_to_column(.,var="Row.Name") %>% 
@@ -416,14 +468,14 @@ if(input$trait_tax_select != "Species") {
                                       contains("emp"),
                                       contains("eed"),
     ))),
-    fbdf,
+    fbdf, 
     .by=Species,all=TRUE)}
     print("Traits: All trait data merged with taxa table")
   
     } else { 
     print("Traits: only one database selected")
     
-  ################## When a single db is selected  ################## 
+################## When a single db is selected  ################## 
     
     valid.fish.names <- traits_var$nona %>% 
       rfishbase::validate_names(server=traits_var$serv) 
@@ -433,12 +485,15 @@ if(input$trait_tax_select != "Species") {
     invalid.fish.names <- traits_var$nona[!traits_var$nona%in%valid.fish.names] 
     
     # Check the species names that were not found in fishbase for synonyms
-    syn.fish <- rfishbase::synonyms(invalid.fish.names,server=traits_var$serv) %>% 
+    syn.fish <- rfishbase::synonyms(invalid.fish.names,
+                                    server=traits_var$serv) %>% 
       filter(Status=="synonym")
     print("Traits: Checked invalidated names for synonyms")
     
+    # retain synonym names
     syn.fish.names <- syn.fish[!is.na(syn.fish$Species),]$Species
     
+    # make a table showing what synonyms were found and what their original names from the tax dataframe were
     syn.fish.tab <- syn.fish %>% 
       select(c(Species,synonym)) %>% 
       rename("Valid Name" = "Species", 
@@ -454,7 +509,10 @@ if(input$trait_tax_select != "Species") {
                                       server=traits_var$serv)
     print("Traits: Trait information gathered")
     
+    # standardize column names
     colnames(fish.troph) <- str_to_title(colnames(fish.troph))
+    
+    # make dataframe  
     traits.df <- fish.troph %>%
       filter(!duplicated(Species)) %>%
       mutate(Syn=case_when(Species%in%syn.fish$Status ~ "synonym")) %>% as.data.frame()
@@ -470,6 +528,7 @@ if(input$trait_tax_select != "Species") {
     traits_var$syn.tab <- syn.fish.tab
     traits_var$syn.names <- unique(syn.fish.names)
     
+    print(colnames(traits.df))
     traits_var$troph <- (traits.df #%>%
                            #tibble::rownames_to_column(var="Row.Name")
     ) 
@@ -477,10 +536,78 @@ if(input$trait_tax_select != "Species") {
     ################## Add other ecosystem data  ################## 
     if (input$trait_tax_select != "Species") { 
       
-      alltraits.df <- traits.df 
+      alltraits.df <-  merge(traits.df, 
+                             (allspptbl %>% 
+                                filter(Species %in% traits_var_spplist) %>% 
+                                select(c(Species,
+                                         .data[[input$trait_tax_select]]
+                                ))),
+                             .by="Species"
+      )
       print("Traits: higher taxa level queried; no further natural history information queried beyond MTI")
+      print(c("colnames of sp table:",colnames(allspptbl)))
+      print(c("colnames of old table:",colnames(traits.df)))
+      print(c("colnames of new table:",colnames(alltraits.df)))
+      print(c("nrows of old table:",nrow(traits.df)))
+      print(c("nrows of new table:",nrow(alltraits.df)))
+      print("Traits: higher taxa level queried; IUCN status not queried")
       
       } else {
+    # get iucn status      
+        iucnfile <- vroom::vroom('data/rredlist.kingdom.animalia.06Aug2026.csv',delim=',',
+                                 show_col_types = FALSE,
+                                 trim_ws=TRUE,
+                                 na = c("",".","NA","NULL","Unassigned","unassigned")
+        )
+        print("IUCN Red List category data loaded") 
+        
+        if(exists("valid.fish.names") && exists("valid.sl.names")) {
+          iucn.query <- c(valid.fish.names,valid.sl.names)
+        } else if(exists("valid.fish.names") & !exists("valid.fish.names")) {
+          iucn.query <- valid.fish.names
+        } else if (exists("valid.sl.names") & !exists("valid.fish.names")) {
+          iucn.query <- valid.sl.names
+        } else {iucn.query <- traits_var$nona}
+        
+        iucn.spp <- intersect(iucn.query,
+                              iucnfile$assessments.taxon_scientific_name) 
+        print("Taxa from dataset in IUCN Red List identified")
+        print(c("Number of species in Red List:",length(iucn.spp)))
+        
+        iucn.status <- iucnfile %>%
+          filter(assessments.taxon_scientific_name %in% iucn.spp) %>% 
+          filter(assessments.latest==TRUE) %>% 
+          select(c(assessments.taxon_scientific_name,
+                   assessments.red_list_category_code)) %>% 
+          rename(Species = "assessments.taxon_scientific_name",
+                 IUCN_Category_Code = "assessments.red_list_category_code") %>% 
+          mutate(IUCN_Category = factor(case_when(IUCN_Category_Code == "DD" ~ "Data Deficient",
+                                                  IUCN_Category_Code == "LC" ~ "Least Concern",
+                                                  IUCN_Category_Code == "NT" ~ "Near Threatened",
+                                                  IUCN_Category_Code == "VU" ~ "Vulnerable",
+                                                  IUCN_Category_Code == "EN" ~ "Endangered",
+                                                  IUCN_Category_Code == "CR" ~ "Critically Endangered",
+                                                  IUCN_Category_Code == "EW" ~ "Extinct in the Wild",
+                                                  IUCN_Category_Code == "EX" ~ "Extinct",
+                                                  IUCN_Category_Code == "NE" ~ "Not Evaluated",
+                                                  .default=IUCN_Category_Code)))  %>% 
+          mutate(IUCN_CatNum=case_when(IUCN_Category_Code=="EX" ~ 1,
+                                       IUCN_Category_Code=="EW" ~ 2,
+                                       IUCN_Category_Code=="CR" ~ 3,
+                                       IUCN_Category_Code=="EN" ~ 4,
+                                       IUCN_Category_Code=="VU" ~ 5,
+                                       IUCN_Category_Code=="NT" ~ 6,
+                                       IUCN_Category_Code=="LC" ~ 7,
+                                       IUCN_Category_Code=="DD" ~ 8,
+                                       IUCN_Category_Code=="NE" ~ 9,
+                                       .default=0
+          )) %>%
+          group_by(Species) %>% 
+          arrange(IUCN_CatNum) %>%
+          mutate(final_code = ifelse(n() > 1, as.character(first(IUCN_Category_Code)), as.character(IUCN_Category_Code))) %>%
+          slice(1) %>%
+          summarize(across(everything(), ~paste(sort(unique(.)), collapse="|")))
+        
     # get table of location/ecosystem preferences 
     eco.df <- rfishbase::ecosystem(species_list=valid.fish.names,
                                      server=traits_var$serv) 
@@ -537,9 +664,14 @@ if(input$trait_tax_select != "Species") {
     
     # combine all trait information: trophic level from estimate, ecosystem information from ecosystem, species qualities from species  
     # fish.troph and fish.eco and fish.spp 
-    fbdf <- merge(eco.sub,
+    fbdfa <- merge(eco.sub,
                   spp.sub,
                   .by=Species,all = TRUE) %>% as.data.frame()
+    
+    fbdf <- merge(fbdfa,
+                  iucn.status,
+                  .by=Species,all=TRUE) %>% as.data.frame()
+    print("Traits: ecology data and IUCN data combined into one table")
     
     alltraits.df <- merge((traits.df %>% 
                              #rownames_to_column(.,var="Row.Name") %>% 
@@ -555,6 +687,8 @@ if(input$trait_tax_select != "Species") {
                              ))),
                           fbdf,
                           .by=Species,all=TRUE)
+    print("Traits: Trait data added to ecology/IUCN table")
+
     }
   }
   ################## After trait assignment is completed  ##################   
@@ -564,7 +698,8 @@ if(input$trait_tax_select != "Species") {
  ################## Average MTI for higher taxa level and combine with tax df ##################   
 if (input$trait_tax_select != "Species") { 
   alltraits.df <- alltraits.df %>% ungroup() %>%
-   group_by(.data[[input$trait_tax_select]]) %>% 
+   group_by(.data[[input$trait_tax_select]]
+                                ) %>% 
    summarize("Troph" = mean(Troph),
              "Setroph" = mean(Setroph),
              "Trophobserved" = mean(Trophobserved),
@@ -579,8 +714,10 @@ if (input$trait_tax_select != "Species") {
  
   ################## Add synonym information to tax table  ################## 
  if (input$trait_tax_select=="Species"){
-  t.syn.tab <- traits_var$syn.tab %>% rename(Synonym = "Valid Name", #Change the name of the columns so we can combine this table with the alltraits.df table by Species 
-                                  Species = "Queried Name") 
+  t.syn.tab <- traits_var$syn.tab %>% 
+    rename(Synonym = "Valid Name", 
+           #Change the name of the columns so we can combine this table with the alltraits.df table by Species 
+           Species = "Queried Name") 
   print("Traits: Synonym table headers renamed")
   
   alltraits.df <- alltraits.df %>% 
@@ -629,19 +766,28 @@ if (input$trait_tax_select != "Species") {
   print(c("nrows of old table:",nrow(alltraits.df)))
   print(c("nrows of new table:",nrow(taxa_traits_df)))
   
-  numeric.cols <- taxa_traits_df %>% select(where(is.double) | where(is.numeric)) %>% colnames()
+  numeric.cols <- taxa_traits_df %>% 
+    select(where(is.double) | where(is.numeric)) %>%
+    colnames()
   tax.numcols(numeric.cols)
+  
   print("Traits: trophic information added to tax table") 
-  traits_tab$x <- traits_var$taxa_traits_df <- (taxa_traits_df %>% relocate(all_of(keep))  #%>% tibble::rownames_to_column(var="Row.Name")
+  
+  traits_tab$x <- traits_var$taxa_traits_df <- (taxa_traits_df %>% 
+                                                  relocate(all_of(keep))  
+                                                #%>% tibble::rownames_to_column(var="Row.Name")
   ) #combined fish/nonfish df with taxonomy table 
   
   taxa_traits_sub <- taxa_traits_df #select(taxa_traits_df, -c(1:14))
-  traits_var$taxa_traits_sub <- (taxa_traits_sub %>% relocate(all_of(keep))  #%>% tibble::rownames_to_column(var="Row.Name")
+  traits_var$taxa_traits_sub <- (taxa_traits_sub %>% 
+                                   relocate(all_of(keep))  
+                                 #%>% tibble::rownames_to_column(var="Row.Name")
   )  #final data frame used for ps
   
   }
   else {
-  traits_var$x <- traits_var$alltraits.df <- (alltraits.df #%>% tibble::rownames_to_column(var="Row.Name")
+  traits_var$x <- traits_var$alltraits.df <- (alltraits.df 
+                                              #%>% tibble::rownames_to_column(var="Row.Name")
                                               ) #combined fish/nonfish df
   
   # merge with the taxa table  
@@ -659,17 +805,20 @@ if (input$trait_tax_select != "Species") {
   #rownames(taxa_traits_df) <- taxa_traits_df[[1]]
   
   # save 
-  traits_tab$x <- traits_var$taxa_traits_df <- (taxa_traits_df %>% relocate(all_of(keep))  #%>% tibble::rownames_to_column(var="Row.Name")
+  traits_tab$x <- traits_var$taxa_traits_df <- (taxa_traits_df %>% relocate(all_of(keep))  
+                                                #%>% tibble::rownames_to_column(var="Row.Name")
                                                  ) #combined fish/nonfish df with taxonomy table 
   
   taxa_traits_sub <- taxa_traits_df #select(taxa_traits_df, -c(1:14))
-  traits_var$taxa_traits_sub <- (taxa_traits_sub %>% relocate(all_of(keep))  #%>% tibble::rownames_to_column(var="Row.Name")
+  traits_var$taxa_traits_sub <- (taxa_traits_sub %>% relocate(all_of(keep))  
+                                 #%>% tibble::rownames_to_column(var="Row.Name")
                                   )  #final data frame used for ps
   }
   #specifically just look at the trait df  
   showSpinner("trait_spinner_review", {
     tableServer(id='trait_review',
-                data=traits_var #module was written to auto read the $x value of the table
+                data=traits_var 
+                #module was written to auto read the $x value of the table
     )
   })
   
@@ -753,7 +902,7 @@ observe({
   )
 )
     shinyjs::show(id="add_ps_trait")
-    #shinyjs::show(id="viewtrait_panel")
+    shinyjs::show(id="viewtrait_panel")
     }
 }) %>% bindEvent(input$trait_assign,ignoreNULL=FALSE)
 

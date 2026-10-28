@@ -17,7 +17,12 @@ trackNums <- reactiveValues(remblank_bef=NULL,
                             selsamp_bef=NULL,
                             selsamp_aft=NULL,
                             seltax_bef=NULL,
-                            seltax_aft=NULL)
+                            seltax_aft=NULL,
+                            aggGroupmem_aft=NULL,
+                            aggMem_aft=NULL,
+                            aggGroup_aft=NULL,
+                            aggSam_bef=NULL,
+                            aggSam_aft=NULL)
 observeEvent(ps.all(),{
   trackNums$remblank_bef=NULL
   trackNums$remblank_aft=NULL
@@ -33,6 +38,11 @@ observeEvent(ps.all(),{
   trackNums$selsamp_aft=NULL
   trackNums$seltax_bef=NULL
   trackNums$seltax_aft=NULL
+  aggGroupmem_aft=NULL
+  aggMem_aft=NULL
+  aggGroup_aft=NULL
+  aggSam_bef=NULL
+  aggSam_aft=NULL
   print("Filter: ps.all changed; trackNums reactiveValues reset to NULL")
   
   N_sample_df  <- N_taxa_tab <- Summ_seqs_sel <- Num_seq_subset <- Num_otu_subset <- Summ_seqs <- Num_seq_all <- Num_otu_all <- NULL #reset
@@ -82,23 +92,139 @@ observeEvent(c(input$assemble_ps,input$load_ex,input$go_addtroph), {
 
 ps.sub <- reactiveVal()
 
+ps.select <- reactiveValues(b=NULL,a=NULL)
 ps.prune <- reactiveValues(b=NULL,a=NULL)
 ps.blank <- reactiveValues(b=NULL,a=NULL)
 ps.sample <- reactiveValues(b=NULL,a=NULL)
 ps.tax <- reactiveValues(b=NULL,a=NULL)
 
-observeEvent(ps.all(),{
-  ps.sub(ps.all())
+observeEvent(ps.all(),{ #every time ps.all is made
+  ps.sub(ps.all()) #we start with ps.sub being assigned the same as ps.all
   
+  ps.select <- reactiveValues(b=ps.all(),a=NULL) #then the b value for all the pruning options is assigned to ps.all
   ps.prune <- reactiveValues(b=ps.all(),a=NULL)
   ps.blank <- reactiveValues(b=ps.all(),a=NULL)
   ps.sample <- reactiveValues(b=ps.all(),a=NULL)
   ps.tax <- reactiveValues(b=ps.all(),a=NULL)
+  
+  #as each pruning/subsampling option is selected
+  #the tool will check to see if the 'a' option is NULL
+  #if it is NULL, ps.sub is assigned to the 'b' option 
+  #then the b option or ps.sub is used to perform the pruning
+  #then the newly pruned object is assigned to ps.sub and to the 'a' option 
+  #if a reset is triggered 
+  #the 'b' option is used to reset the ps.sub object to what it was before that pruning option 
+  #the 'a' option is reset to NULL 
 })
+
+# ---- # Aggregate data object # -----
+observe({
+  req(ps.all())
+  trackNums$aggMem_aft <- trackNums$aggGroup_aft <- trackNums$aggSam_aft <- trackNums$aggSam_bef <- NULL
+  
+  trackNums$aggMem_aft <- get_variable(ps.all(),{input$aggregate_var}) %>% unique()
+  trackNums$aggGroup_aft <- length(get_variable(ps.all(),{input$aggregate_var}) %>% unique())
+  
+  shinyjs::show("aggregate_groupmem")
+  shinyjs::show("aggregate_ngroup")
+  
+  output$aggregate_groupmem <- renderUI({
+    HTML("<p><u>Group members: </u>",unlist(trackNums$aggMem_aft),"</p>")
+  })
+  output$aggregate_ngroup <- renderUI({
+    HTML("<p><u>Number of groups: </u>",trackNums$aggGroup_aft,"</p>")
+  })
+  #output$aggregate_ngroupmem <- renderText({paste0("Number of group members: ",trackNums$aggGroupmem_aft)})
+}) %>% bindEvent(input$aggregate_var)
+
+observe({
+  req(ps.all())
+  switch_page("analysistab")
+  #  print("Aggregation started")
+    
+  #  if(is.null(ps.select$a)) { #if ps.select$a is null (if pruning has not happened)
+  #    ps.select$b <- ps.sub()
+  #  } 
+    
+  #  ps <- ps.sub()
+  #  print("dataset before: ")
+  #  print(ps)
+  
+  # sd <- sample_data(ps) %>% 
+  #  as.data.frame() %>% 
+  #  group_by(.data[[input$aggregate_var]]) %>% 
+  #       summarize(
+  #         across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+  #         across(where(is.character), ~ paste(unique(.x), collapse = ", "))) %>% 
+  #  filter(!is.na(.data[[input$aggregate_var]]))
+  
+ # print(c("new rownames will be:",sd[[input$aggregate_var]]))
+  
+ # sd <- as.data.frame(sd)
+ # rownames(sd) <- sd[[input$aggregate_var]]
+ # print(c("new rownames:",rownames(sd)))
+ # print("Aggregated sample data")
+  
+ # ps.agg <- ps %>% merge_samples(input$aggregate_var)
+ # print("Aggregated dataset")
+ # print(ps.agg)
+ #  sample_data(ps.agg) <- sample_data(as.data.frame(as.matrix(sd)))
+ # print("Sample data reassigned")
+  
+ # ps.sub(ps.agg)
+ # ps.select$a <- ps.agg
+  
+  #output$aggregate_bef <- renderUI({
+  #  HTML("<p><u>Dataset before:</u>",ps.select$b,"</p>")
+  #})
+  #output$aggregate_aft <- renderUI({
+  #  HTML("<p><u>Dataset after:</u>",ps.agg,"</p>")
+  #})
+ # trackNums$aggSam_bef <- nsamples(ps)
+ # trackNums$aggSam_aft <- nsamples(ps.agg)
+  
+ # output$agg_nsamples_bef <- renderUI({
+ #   HTML("<p><u>Number of samples before:</u>",as.character(trackNums$aggSam_bef),"</p>")
+ # })
+ # output$agg_nsamples_aft <- renderUI({
+ #   HTML("<p><u>Number of samples after:</u>",as.character( trackNums$aggSam_aft),"</p>")
+ # })
+}) %>% bindEvent(input$go_aggregate)
+
+observe({
+  req(ps.all())
+  shinyjs::hide("aggregate_groupmem")
+  shinyjs::hide("aggregate_ngroup")
+  
+  updateSelectInput(session, 
+                    'aggregate_var',
+                    selected="")
+#  output$agg_nsamples_bef <- renderUI({
+#    HTML("<p><u>Number of samples before:</u>",trackNums$aggSam_aft,"</p>")
+#  })
+  
+#    ps.sub(ps.select$b) 
+#    ps.select$a <- NULL
+    
+#    print("Filter: reset aggregate selection")
+#    print(ps.sub())
+    
+    
+#    output$agg_nsamples_aft <- renderUI({
+#      HTML("<p><u>Number of samples after:</u>",as.character(nsamples(ps.sub())),"</p>")
+#    })
+    
+}) %>% bindEvent(input$reset_aggregate)
 
 # ---- # Update picker variable selection # ---- 
 observe({ 
-  req(Meta_vars())
+  #req(Meta_vars())
+  #updateSelectInput(session, 
+  #                  'aggregate_var',
+  #                  choices=c("",Meta_vars()),
+  #                  selected=NULL)
+  #print("Filter: updated aggregate variable options")
+  
   updateSelectInput(session,
                     "blank_cols",#for blank selection
                     choices=c(Meta_vars())) 
@@ -111,6 +237,15 @@ observe({
   
 }) %>% 
   bindEvent(Meta_vars()) #respond to any changes in the Metadata file that is uploaded
+
+observe({
+  req(Meta_vars())
+  updateSelectInput(session, 
+                    'aggregate_var',
+                    choices=c("",Meta_vars()),
+                    selected=NULL)
+  print("Filter: updated aggregate variable options")
+}) %>% bindEvent(Meta_vars(),once=TRUE)
 
 # ---- # Update blank variable options # ---- 
 observe({ 
@@ -156,6 +291,7 @@ observe({
                    print("Filter: before/after sample selection count hidden")
                    
                    ps.sub(ps.sample$b)
+                   ps.sample$a <- NULL
                    print(ps.sub())
                  }
                }#,suspended=TRUE
@@ -239,6 +375,7 @@ observe({
                    print("Filter: before/after tax selection count hidden")
                    
                    ps.sub(ps.tax$b)
+                   ps.tax$a <- NULL
                    print(ps.sub())
                    
                  }
@@ -446,6 +583,7 @@ observe({
     
     print("Filter: reset negative control sample selection")
     ps.sub(ps.blank$b)
+    ps.blank$a <- NULL
     print(ps.sub())
   }
 }) %>% bindEvent(input$rem_blanks)
@@ -485,7 +623,11 @@ observe({
           print("Filter: filtering parameter is a sample variable")
           print(c("Filter: Sample variable to filter by is",input$sample_filterby))
           selcolvals = as.data.frame(as.matrix(sample_data(ps))) %>% select(input$sample_filterby) #get sample_data of selected variable 
-          selkeep = tryCatch(row.names(selcolvals %>% filter(selcolvals[[1]] %in% input$sample_select)), 
+          tmpselkeep = input$sample_select #list of selected samples
+          tmpselkeep[tmpselkeep=="NA"] <- NA
+          tmpselkeep[tmpselkeep==""] <- NA
+          
+          selkeep = tryCatch(row.names(selcolvals %>% filter(selcolvals[[1]] %in% tmpselkeep)), 
                              #list of sample names selected
                              error=function(e){return(FALSE)}
                              )
@@ -509,9 +651,13 @@ observe({
           print("Filter: filtering parameter is a sample variable")
           print(c("Filter: Sample variable to filter by is",input$sample_filterby))
           selcolvals = as.data.frame(as.matrix(sample_data(ps))) %>% select(input$sample_filterby) #get sample_data of selected variable 
+          tmpselkeep = input$sample_select #list of selected samples
+          tmpselkeep[tmpselkeep=="NA"] <- NA
+          tmpselkeep[tmpselkeep==""] <- NA
+          
           selkeep = tryCatch(#row.names(selcolvals %>% filter(selcolvals[[1]] %in% input$sample_select)), 
                              rownames(filter(selcolvals, 
-                                             !selcolvals[[1]] %in% input$sample_select)),
+                                             !selcolvals[[1]] %in% tmpselkeep)),
                              #list of sample names selected
                              error=function(e){return(FALSE)}
           )
@@ -554,6 +700,7 @@ observe({
     
     #reassign ps.sub 
     ps.sub(ps)
+    ps.sample$a <- ps
   }
   
   if(!isTruthy(input$sample_switch)) { #if sample switch is closed 
@@ -562,6 +709,7 @@ observe({
   
   print("Filter: reset negative control sample selection")
   ps.sub(ps.sample$b)
+  ps.sample$a <- NULL
   print(ps.sub())
   }
   
@@ -734,4 +882,4 @@ observe({
     trackNums$norm_aft <- isolate(as.character(ntaxa(ps.norm()) ))
     shinyjs::show("befaft_norm")
   }
-})
+}) %>% bindEvent(ps.norm())

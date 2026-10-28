@@ -1,30 +1,8 @@
 source('functions/module-plotting-general.R',local=TRUE)
 source('functions/module-plotting-pretty.R',local=TRUE)
 source('functions/module-plotting-size.R',local=TRUE)
+source('functions/module-plotting-stats.R',local=TRUE)
 
-############################################# Alpha diversity #############################################
-Anlys_AlphaCard <- tagList(
-  layout_columns(uiOutput("alphametrics_var1"),  #reactive output variable (used to select variables from the metadata for the x axis)
-                 selectInput("alphametrics",
-                             "Which alpha diversity measures?",
-                             c(
-                               "Observed Richness"="Observed",
-                               "Shannon"="Shannon",
-                               "Chao" = "Chao1",
-                               "ACE"="ACE", 
-                               "Simpson Index" = "Simpson", 
-                               "Inverse Simpson" = "InvSimpson", 
-                               "Fisher"="Fisher"
-                             ),
-                             selected="Shannon",
-                             multiple=TRUE
-                             )
-                 ),
-  layout_columns(col_widths=c(10,-1,1),
-                 actionButton("go_rich","Plot"),
-                 downloadButton('rich_plotdwnld', label=NULL)),
-  plotOutput("rich_plot",click="rich_click") 
-)
 ############################################# Histo #############################################
 Anlys_HistoCard <- tagList(
   h5("This tab will generate a histogram showing the occurrences of different taxa"),
@@ -172,16 +150,16 @@ Anlys_hmCard <- tagList(
 
 #############################################################################################################
 analysispage <- nav_panel("Analysis",
-  layout_column_wrap(width=1/2,fill=TRUE,
-    actionButton("analysis_prevpage","Previous step"),
-    actionButton("analysis_nextpage","Next step")
-    ),
-  br(),
+  #layout_column_wrap(width=1/2,fill=TRUE,
+  #  actionButton("analysis_prevpage","Previous step"),
+  #  actionButton("analysis_nextpage","Next step")
+  #  ),
+  #br(),
   HTML("<h2>Other figures </h2>"),
   navset_card_tab(id="anlys", 
-                nav_panel(id='alpha', title="Species richness",
-                          Anlys_AlphaCard
-                          ),
+                #nav_panel(id='alpha', title="Species richness",
+                 #         Anlys_AlphaCard
+                 #         ),
                 nav_panel(id="taxcomp",title="Taxonomic composition", full_screen=TRUE,
                           Anlys_HistoCard
                           ),
@@ -194,10 +172,10 @@ analysispage <- nav_panel("Analysis",
               #  nav_panel(id="violin", title="Trophic composition",
               #            Anlys_ViolinCard
               #           )
-                ),
-  layout_column_wrap(width=1/2,fill=TRUE,
-                     actionButton("banalysis_prevpage","Previous step"),
-                     actionButton("banalysis_nextpage","Next step")
-  )
+                )#,
+#  layout_column_wrap(width=1/2,fill=TRUE,
+#                     actionButton("banalysis_prevpage","Previous step"),
+#                     actionButton("banalysis_nextpage","Next step")
+#  )
 )
 #############################################################################################################

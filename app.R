@@ -1,5 +1,10 @@
 options(shiny.maxRequestSize=10*1024^10)
 
+# Set repositories for Bioconductor
+#if (!requireNamespace("BiocManager", quietly = TRUE))
+#  install.packages("BiocManager")
+#options(repos = BiocManager::repositories())
+
 library(shiny)
 library(bslib)
 library(plotly)
@@ -37,6 +42,7 @@ source('functions/ps_div.R')
 
 source('functions/module-readtable.R')
 source('functions/module-plotting-pretty.R',local=TRUE)
+source('functions/module-plotting-stats.R',local=TRUE)
 source('functions/module-plotting-size.R',local=TRUE)
 source('functions/module-plotting-general.R',local=TRUE)
 
@@ -48,11 +54,14 @@ source('ui/ui-navpanel-upload.R')
 source('ui/ui-navpanel-review.R')
 source('ui/ui-navpanel-filter.R')
 source('ui/ui-defaultanalysis.R')
+#source('ui/ui-navpanel-choices.R')
 source('ui/ui-navpanel-assigntrait.R')
 source('ui/ui-navpanel-descriptivestats.R')
 source('ui/ui-navpanel-analysis.R')
-source('ui/ui-navpanel-analysis-trait.R')
-source('ui/ui-navpanel-analysis-temp.R')
+source('ui/ui-navpanel-analysis-alltraits.R')
+source('ui/ui-navpanel-analysis-cards.R')
+#source('ui/ui-navpanel-analysis-trait.R')
+#source('ui/ui-navpanel-analysis-temp.R')
 source('ui/ui-navpanel-report.R')
 source('ui/ui-navpanel-help.R')
 source('ui/ui-navpanel-settings.R')
@@ -157,28 +166,39 @@ nav_menu("Files",
          nav_panel("Upload",value="uploadtab",
                    uploadpage),
          nav_panel("Review",value="reviewtab",
-                   reviewpage)
+                   reviewpage),
+         nav_panel("Filter",value='filtertab',
+                   #defaultanalysis,
+                   #filterpage
+                   filterpageDEFAULT
+                   )
          ),
 ## Group 3 # Trait assignment  --------  
-nav_menu("Trait Data", 
+nav_menu("Assign Traits", 
   nav_panel("Assign ecological data",value='traittab',
             traitpage)
 ),
 ## Group 4 # Analysis --------  
-nav_menu("Filter", #filtering options 
-         nav_panel("Filter",value='filtertab',
-                   #defaultanalysis,
-                   filterpage)#,
-         #nav_panel("Default",value='defaulttab',
-         #          defaultanalysis)
-),
+#nav_menu("Filter", #filtering options 
+#         nav_panel("Filter",value='filtertab',
+#                   #defaultanalysis,
+#                   filterpage)#,
+#         #nav_panel("Default",value='defaulttab',
+#         #          defaultanalysis)
+#),
 nav_menu(title="Analysis",
+         nav_panel("Analysis Figures",value="analysistab",
+                   allanalysispage)
+        #nav_panel("Trait Analysis",value="traitanalysistab",
+        #          traitanalysispage),
+        #nav_panel("Temperature Analysis",value="tempanalysistab",
+        #          tempanalysispage)
+         ),
+nav_menu(title="For more detail",
+         nav_panel("Additional Filters",value="filterdetailstab",
+                   filterpageDETAIL),
          nav_panel("At a Glance",value="basicstab",
                    descriptivepage),
-        nav_panel("Trait Analysis",value="traitanalysistab",
-                  traitanalysispage),
-        nav_panel("Temperature Analysis",value="tempanalysistab",
-                  tempanalysispage),
          nav_panel("Figures", value='statstab',
                    analysispage)
          ),
@@ -201,7 +221,10 @@ nav_menu("Info",
          ),
          nav_panel("About",value="intoabt",
                    aboutpanel
-                   )
+                   ),
+         nav_panel("ReadMe",value="informtab",
+                   rmpanel
+         )
          ),
 nav_panel(title=bs_icon("printer-fill",size="2em"), value='reporttab',
           reportpage),
@@ -215,19 +238,19 @@ tags$footer(style="display: flex;justify-content: space-between;",
 )
 # define server logic -----
 server <- function(input,output,session) {
-  source('server/server-globalvars.R',local=TRUE)
-  source('server/server-navpanel-settings.R',local=TRUE)
-  #source('server/server-navpanel-preprocessing.R',local=TRUE)
 # --- # Overall themes # --------
-#observe(session$setCurrentTheme(
-#  if(isTRUE(input$dark_mode)) dark else light
-#))
 source('server/server-globalvars.R',local=TRUE) #global variables
 source('server/server-aes-vis.R',local=TRUE) #base theme for ggplot2
+source('server/server-navpanel-settings.R',local=TRUE)
+  
+  #observe(session$setCurrentTheme(
+  #  if(isTRUE(input$dark_mode)) dark else light
+  #))
+  
 # --- # Page Navigation # --------
 source('server/server-aes-navigation.R',local=TRUE)
 # --- # Load Data # --------
-source('server/server-aes-load-data.R',local=TRUE) #loads the functionality to read in the files and go through any manipulations to normalize or subset the ps object
+source('server/server-aes-load-data.R',local=TRUE) 
 # --- # Upload Page # --------
 source('server/server-navpanel-upload.R',local=TRUE)
 # --- # Review Page # --------
@@ -237,16 +260,12 @@ source('server/server-navpanel-assigntrait.R',local=TRUE)
 # --- # Filter Page # --------
 source('server/server-navpanel-filter.R',local=TRUE)  
 source('server/server-defaultanalysis.R',local=TRUE)
-# --- # Descriptive Stats Page  # --------  
-source('server/server-navpanel-descriptivestats.R',local=TRUE)
-# --- # Trait Analysis Page # --------  
+# --- # Analysis Page # --------  
+source('server/server-navpanel-analysis-alltraits.R',local=TRUE)
 source('server/server-navpanel-analysis-trait.R',local=TRUE)
-  source('server/server-navpanel-analysis-temp.R',local=TRUE)
-# --- # Figure Page # --------  
-source('server/server-navpanel-analysis-alpha.R',local=TRUE)
-source('server/server-navpanel-analysis-ord.R',local=TRUE)
-source('server/server-navpanel-analysis-hm.R',local=TRUE)
-source('server/server-navpanel-analysis-violin.R',local=TRUE)
+# --- # Detail Page  # --------  
+source('server/server-navpanel-descriptivestats.R',local=TRUE)
+source('server/server-navpanel-analysis.R',local=TRUE)
 # --- # Report Tab # --------  
 source('server/server-navpanel-report.R',local=TRUE)
 #

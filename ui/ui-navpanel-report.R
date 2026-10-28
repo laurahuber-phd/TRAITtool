@@ -29,6 +29,13 @@ reportpage <- nav_panel(
                               HTML("<p><i> (For the analyzed dataset)</i> <u>Minimum and maximum number of sequences per sample: </u></p>"),
                               tableOutput("rep_numsam"),
                               ),
+              accordion_panel(title="Trait Assignment",
+                              tableOutput("rep_syn.names"),
+                              tableOutput("traits_report"),
+                              "Species queried", textOutput("rep_trait.nona"),
+                              "Valid names",textOutput("rep_trait.valid"),
+                              "Invalid names",textOutput("rep_trait.invalid")
+                              ),
               accordion_panel(title="Figures",
                               accordion(id='fig_accord',open=FALSE,
                                         accordion_panel(title="Trophic index",
@@ -36,33 +43,42 @@ reportpage <- nav_panel(
                                                         actionButton("repaccd_vioplot",
                                                                      label="Go back to this page")
                                         ),
-                                        accordion_panel(title="Trophic index",
+                                        accordion_panel(title="Feeding guilds",
                                                         withSpinner(plotOutput("rep_tbarplot")),
                                                         actionButton("repaccd_tbarplot",
                                                                      label="Go back to this page")
                                         ),
-                                        accordion_panel(title="Trophic index",
-                                                        withSpinner(plotOutput("rep_tlineplot")),
-                                                        actionButton("repaccd_tlineplot",
+                                        accordion_panel(title="IUCN Category",
+                                                        withSpinner(plotOutput("rep_iucnbarplot")),
+                                                        actionButton("repaccd_iucnbarplot",
                                                                      label="Go back to this page")
                                         ),
-                                        accordion_panel(title="Trophic index",
-                                                        withSpinner(plotOutput("rep_lolliplot")),
-                                                        actionButton("repaccd_lolliplot",
+                                        accordion_panel(title="Body size",
+                                                        withSpinner(plotOutput("rep_sizebarplot")),
+                                                        actionButton("repaccd_sizebarplot",
                                                                      label="Go back to this page")
                                         ),
+                                        #accordion_panel(title="Trophic index",
+                                        #                withSpinner(plotOutput("rep_lolliplot")),
+                                        #                actionButton("repaccd_lolliplot",
+                                        #                             label="Go back to this page")
+                                        #),
+                                        accordion_panel(title="Temperature density",
+                                                        withSpinner(plotOutput("rep_tviolinplot")),
+                                                        actionButton("repaccd_tviolinplot",
+                                                                     label="Go back to this page")),
                                         accordion_panel(title="Temperature range",
                                                         withSpinner(plotOutput("rep_tlolliplot")),
                                                         actionButton("repaccd_tlolliplot",
                                                                      label="Go back to this page")
                                         ),
+                                        accordion_panel(title="Richness",
+                                                        withSpinner(plotOutput("rep_richplot")),
+                                                        actionButton("repaccd_richplot",label="Go back to this page")
+                                        ),
                                 accordion_panel(title="Percent composition",
                                                 withSpinner(plotOutput("rep_percplot")),
                                                 actionButton("repaccd_percplot",label="Go back to this page")
-                                                ),
-                                accordion_panel(title="Richness",
-                                                withSpinner(plotOutput("rep_richplot")),
-                                                actionButton("repaccd_richplot",label="Go back to this page")
                                                 ),
                                 accordion_panel(title="Taxonomic diversity",
                                                 withSpinner(plotOutput("rep_histplot")),
@@ -82,6 +98,10 @@ reportpage <- nav_panel(
   br(),
   HTML("<h2>Download report </h2>"),
   "Click on the button to gather all the analyses together and generate the report. This will likely take awhile.",
+  layout_columns(
+    col_widths=c(6,6),
+    actionButton('gen_onepg_s', 'Generate one-page summary (static)'),
+    actionButton('gen_onepg_i', 'Generate one-page summary (interactive)')),
   layout_columns(
     col_widths=c(6,6),
   actionButton('gen_report_s', 'Generate report (static)'),
