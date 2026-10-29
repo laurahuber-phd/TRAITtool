@@ -2,6 +2,12 @@
 
 TRAITtool is an RShiny analysis toolkit for biodiversity survey data to draw a connection between species and the habitats they rely on using natural history information. It provides analyses that can be used directly with little bioinformatic knowledge needed.
 
+TRAITtool has two components:  
+1. Trait assignment - this takes a table of taxonomic assignments and queries taxa against the FishBase and/or SeaLifeBase databases. This returns a table of traits associated with the taxa in your dataset, that can then be downloaded or integrated. 
+2. Trait visualization - after assigning trait-level characteristics to your data, you also have the option to visualize these traits using a set of predetermined figures. These figures can be updated with different visual criteria to reflect your needs and downloaded.   
+You will also have the ability to download a report that shares what dataset manipulations were made in generating these visualizaitons, which can then be used for reproducibility if you upload data into the tool again or for future reporting.  
+
+
 To use TRAITtool, clone this repository. All required files to run TRAITtool on your personal machine should be included in the repository.   
 
 # Overview  
