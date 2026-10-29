@@ -12,14 +12,7 @@ qcpanel <- tagList(h3("Demultiplex and Quality Control"),
                  br(),
                           p("In progress, please check back later"),
                  br(),
-                 br(),
-                 tags$footer(style="display: flex;justify-content: space-between;",
-                             tags$img(src='smiths_logoLong.png',height='40px',
-                                      alt="Smithsonian sun logo"),
-                             tags$img(#src='ShinyFooter.png',
-                               src='titlefooter.png',
-                               height='30px',
-                               alt="William H. Donner Foundation and Smithsonian Women's Committee logos"))
+                 br()
                  
                    )
 assignasvpanel <- tagList(h3("Build Sequence Table"),
@@ -31,14 +24,7 @@ assignasvpanel <- tagList(h3("Build Sequence Table"),
                  br(),
                           p("In progress, please check back later"),
                  br(),
-                 br(),
-                 tags$footer(style="display: flex;justify-content: space-between;",
-                             tags$img(src='smiths_logoLong.png',height='40px',
-                                      alt="Smithsonian sun logo"),
-                             tags$img(#src='ShinyFooter.png',
-                               src='titlefooter.png',
-                               height='30px',
-                               alt="William H. Donner Foundation and Smithsonian Women's Committee logos"))
+                 br()
                  )
 
 assigntaxapanel <-tagList(h3("Assign Taxonomy"),
@@ -50,12 +36,5 @@ assigntaxapanel <-tagList(h3("Assign Taxonomy"),
                  br(),
                  p("In progress, please check back later"),
                  br(),
-                 br(),
-                 tags$footer(style="display: flex;justify-content: space-between;",
-                             tags$img(src='smiths_logoLong.png',height='40px',
-                                      alt="Smithsonian sun logo"),
-                             tags$img(#src='ShinyFooter.png',
-                               src='titlefooter.png',
-                               height='30px',
-                               alt="William H. Donner Foundation and Smithsonian Women's Committee logos"))
+                 br()
                  )

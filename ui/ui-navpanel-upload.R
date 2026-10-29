@@ -104,14 +104,14 @@ uploadpage <- nav_panel("Files",
                                            width='100%', individual=TRUE,
                                            choiceNames = c(HTML("<p style='margin-bottom:0;font-size:1.5vw;'><i><u>My data have been completely processed:</i></p></u> <p style='padding-top:0; margin-bottom: 0;font-size:1.5vw;'>I only need analyses.</p>"),
                                                            HTML("<p style='margin-bottom:0;font-size:1.5vw;'><i><u>I have already used this tool to assign traits and have my trait table:</i></p></u> <p style='padding-top:0; margin-bottom: 0;font-size:1.5vw;'>I only need analyses.</p>"),
-                                                           HTML("<p style='margin-bottom:0;font-size:1.5vw;'><i><u>My data have been partially processed:</i></p></u> <p style='padding-top:0; margin-bottom: 0;font-size:1.5vw;'>I have an OTU table and I need to identify the species and analyze.</p>"), 
-                                                           HTML("<p style='margin-bottom:0;font-size:1.5vw;'><i><u>I have raw sequencing data:</i></p></u> <p style='padding-top:0; margin-bottom: 0;font-size:1.5vw;'>My files are coming directly from the sequencing facility.</p>"), 
+                                                           #HTML("<p style='margin-bottom:0;font-size:1.5vw;'><i><u>My data have been partially processed:</i></p></u> <p style='padding-top:0; margin-bottom: 0;font-size:1.5vw;'>I have an OTU table and I need to identify the species and analyze.</p>"), 
+                                                           #HTML("<p style='margin-bottom:0;font-size:1.5vw;'><i><u>I have raw sequencing data:</i></p></u> <p style='padding-top:0; margin-bottom: 0;font-size:1.5vw;'>My files are coming directly from the sequencing facility.</p>"), 
                                                            HTML("<p style='margin-bottom:0;font-size:1.5vw;'><i><u>Use example data:</i></p></u> <p style='padding-top:0; margin-bottom: 0;font-size:1.5vw;'>You can use this dataset to explore the feautures of the app prior to using it on your own data.</p>")
                                                            ),
                                            choiceValues = c("choose_analysis",
                                                             "choose_return",
-                                                            "choose_partial",
-                                                            "choose_raw",
+                                                            #"choose_partial",
+                                                            #"choose_raw",
                                                             "choose_ex"),
                                            direction = 'vertical',
                                            selected=NULL
@@ -167,7 +167,7 @@ uploadpage <- nav_panel("Files",
                          ),
           
           # bottom of page; default analysis inputs from ui/ui-defaultanalysis.R
-          card(id='default',defaultanalysis),
+          #card(id='default',defaultanalysis),
           
           # bottom page navigation buttons
           layout_column_wrap(
